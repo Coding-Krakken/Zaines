@@ -1,0 +1,116 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { auth } from "@/lib/auth";
+import { stripe, formatAmountForStripe } from "@/lib/stripe";
+import { prisma } from "@/lib/prisma";
+
+const paymentIntentSchema = z.object({
+  bookingId: z.string(),
+  amount: z.number().positive(),
+});
+
+// POST /api/payments/create-intent - Create a Stripe Payment Intent
+export async function POST(request: NextRequest) {
+  try {
+    const session = await auth();
+    
+    const body = await request.json();
+    const validation = paymentIntentSchema.safeParse(body);
+
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: "Invalid payment data", details: validation.error },
+        { status: 400 }
+      );
+    }
+
+    const { bookingId, amount } = validation.data;
+
+    // Fetch booking to verify ownership and amount
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: {
+        user: true,
+      },
+    });
+
+    if (!booking) {
+      return NextResponse.json(
+        { error: "Booking not found" },
+        { status: 404 }
+      );
+    }
+
+    // Verify user owns this booking or is authenticated
+    if (session?.user?.id && booking.userId !== session.user.id) {
+      return NextResponse.json(
+        { error: "Unauthorized - this booking belongs to another user" },
+        { status: 403 }
+      );
+    }
+
+    // Verify amount matches booking
+    if (Math.abs(booking.total - amount) > 0.01) {
+      return NextResponse.json(
+        { error: "Amount mismatch" },
+        { status: 400 }
+      );
+    }
+
+    // Check if payment already exists for this booking
+    const existingPayment = await prisma.payment.findFirst({
+      where: {
+        bookingId,
+        status: {
+          in: ["pending", "succeeded"],
+        },
+      },
+    });
+
+    if (existingPayment) {
+      return NextResponse.json(
+        { error: "Payment already exists for this booking" },
+        { status: 409 }
+      );
+    }
+
+    // Create Stripe Payment Intent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: formatAmountForStripe(amount),
+      currency: "usd",
+      automatic_payment_methods: {
+        enabled: true,
+      },
+      metadata: {
+        bookingId,
+        bookingNumber: booking.bookingNumber,
+        userId: booking.userId,
+      },
+      description: `Booking #${booking.bookingNumber} at Pawfect Stays`,
+      receipt_email: booking.user.email || undefined,
+    });
+
+    // Create payment record in database
+    await prisma.payment.create({
+      data: {
+        bookingId,
+        amount: booking.total,
+        currency: "usd",
+        status: "pending",
+        stripePaymentId: paymentIntent.id,
+      },
+    });
+
+    return NextResponse.json({
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+    });
+  } catch (error: unknown) {
+    console.error("Payment intent creation error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Failed to create payment intent";
+    return NextResponse.json(
+      { error: errorMessage },
+      { status: 500 }
+    );
+  }
+}

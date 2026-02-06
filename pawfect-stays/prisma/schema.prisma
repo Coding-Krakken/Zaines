@@ -1,0 +1,506 @@
+// Pawfect Stays - Comprehensive Database Schema
+// 22 models covering all features: Authentication, Pets, Services, Bookings, Payments, Reviews, etc.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================================
+// AUTHENTICATION & USERS
+// ============================================================================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  phone         String?
+  address       String?
+  city          String?
+  state         String?
+  zip           String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts          Account[]
+  sessions          Session[]
+  pets              Pet[]
+  bookings          Booking[]
+  reviews           Review[]
+  messages          Message[]
+  emergencyContacts EmergencyContact[]
+  credits           Credit[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================================================
+// PET PROFILES & HEALTH
+// ============================================================================
+
+model Pet {
+  id               String    @id @default(cuid())
+  userId           String
+  name             String
+  breed            String
+  age              Int
+  weight           Float
+  gender           String
+  spayedNeutered   Boolean   @default(false)
+  microchipId      String?
+  imageUrl         String?
+  temperament      String? // Friendly, Shy, Aggressive, etc.
+  specialNeeds     String? // Allergies, disabilities, etc.
+  feedingInstructions String?
+  trainingLevel    String? // Basic, Advanced, etc.
+  healthNotes      String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vaccines      Vaccine[]
+  medications   Medication[]
+  weightLogs    WeightLog[]
+  bookingPets   BookingPet[]
+  activities    Activity[]
+  photos        PetPhoto[]
+
+  @@index([userId])
+  @@map("pets")
+}
+
+model Vaccine {
+  id            String    @id @default(cuid())
+  petId         String
+  name          String // Rabies, DHPP, Bordetella, etc.
+  administeredDate DateTime
+  expiryDate    DateTime
+  veterinarian  String?
+  documentUrl   String? // PDF upload
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  pet Pet @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@index([petId])
+  @@index([expiryDate])
+  @@map("vaccines")
+}
+
+model Medication {
+  id            String    @id @default(cuid())
+  petId         String
+  name          String
+  dosage        String
+  frequency     String // Once daily, Twice daily, etc.
+  startDate     DateTime
+  endDate       DateTime?
+  instructions  String?
+  prescribedBy  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  pet Pet @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@index([petId])
+  @@map("medications")
+}
+
+model WeightLog {
+  id        String   @id @default(cuid())
+  petId     String
+  weight    Float
+  date      DateTime @default(now())
+  notes     String?
+
+  pet Pet @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@index([petId])
+  @@index([date])
+  @@map("weight_logs")
+}
+
+model EmergencyContact {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String
+  relationship String
+  phone        String
+  email        String?
+  isPrimary    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("emergency_contacts")
+}
+
+// ============================================================================
+// SERVICES & SUITES
+// ============================================================================
+
+model ServiceType {
+  id          String    @id @default(cuid())
+  name        String    @unique // Boarding, Daycare, Grooming, Training
+  description String?
+  icon        String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  services Service[]
+
+  @@map("service_types")
+}
+
+model Service {
+  id            String   @id @default(cuid())
+  serviceTypeId String
+  name          String // e.g., "Overnight Boarding", "Group Play Daycare"
+  description   String?
+  price         Float
+  duration      Int? // minutes
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  serviceType ServiceType @relation(fields: [serviceTypeId], references: [id])
+
+  @@index([serviceTypeId])
+  @@map("services")
+}
+
+model Suite {
+  id          String   @id @default(cuid())
+  name        String // "Deluxe Suite 101", "Standard K-12"
+  tier        String // Standard, Deluxe, Luxury
+  size        String // Small, Medium, Large
+  capacity    Int      @default(1) // Max pets
+  pricePerNight Float
+  amenities   String[] // Webcam, TV, Raised bed, etc.
+  imageUrl    String?
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bookings Booking[]
+
+  @@map("suites")
+}
+
+model AddOn {
+  id          String   @id @default(cuid())
+  name        String // Extra Walk, Playtime, Grooming, etc.
+  description String?
+  price       Float
+  duration    Int? // minutes
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bookingAddOns BookingAddOn[]
+
+  @@map("add_ons")
+}
+
+// ============================================================================
+// BOOKINGS & RESERVATIONS
+// ============================================================================
+
+model Booking {
+  id              String    @id @default(cuid())
+  userId          String
+  suiteId         String
+  bookingNumber   String    @unique // Auto-generated: PB-20260206-0001
+  checkInDate     DateTime
+  checkOutDate    DateTime
+  totalNights     Int
+  subtotal        Float
+  tax             Float
+  total           Float
+  status          String    @default("pending") // pending, confirmed, checked_in, completed, cancelled
+  specialRequests String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id])
+  suite         Suite          @relation(fields: [suiteId], references: [id])
+  bookingPets   BookingPet[]
+  bookingAddOns BookingAddOn[]
+  waivers       Waiver[]
+  payments      Payment[]
+  activities    Activity[]
+  photos        PetPhoto[]
+  messages      Message[]
+
+  @@index([userId])
+  @@index([suiteId])
+  @@index([checkInDate])
+  @@index([checkOutDate])
+  @@index([status])
+  @@map("bookings")
+}
+
+model BookingPet {
+  id        String   @id @default(cuid())
+  bookingId String
+  petId     String
+  createdAt DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  pet     Pet     @relation(fields: [petId], references: [id])
+
+  @@unique([bookingId, petId])
+  @@index([bookingId])
+  @@index([petId])
+  @@map("booking_pets")
+}
+
+model BookingAddOn {
+  id        String   @id @default(cuid())
+  bookingId String
+  addOnId   String
+  quantity  Int      @default(1)
+  price     Float
+  createdAt DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  addOn   AddOn   @relation(fields: [addOnId], references: [id])
+
+  @@index([bookingId])
+  @@index([addOnId])
+  @@map("booking_add_ons")
+}
+
+model Waiver {
+  id               String   @id @default(cuid())
+  bookingId        String
+  type             String // liability, medical, photo_release
+  content          String // Full waiver text
+  signature        String // Base64 encoded signature image
+  signedAt         DateTime @default(now())
+  ipAddress        String
+  userAgent        String?
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@map("waivers")
+}
+
+// ============================================================================
+// PAYMENTS
+// ============================================================================
+
+model Payment {
+  id                String   @id @default(cuid())
+  bookingId         String
+  stripePaymentId   String?  @unique
+  amount            Float
+  currency          String   @default("usd")
+  status            String // pending, succeeded, failed, refunded
+  paymentMethod     String? // card, bank_transfer, etc.
+  isDeposit         Boolean  @default(false) // true = deposit, false = full/balance
+  paidAt            DateTime?
+  refundedAt        DateTime?
+  refundAmount      Float?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@index([bookingId])
+  @@index([status])
+  @@map("payments")
+}
+
+model Credit {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Float
+  type        String // gift_card, loyalty, refund
+  code        String? @unique // For gift cards
+  description String?
+  balance     Float
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([code])
+  @@map("credits")
+}
+
+// ============================================================================
+// ACTIVITY & COMMUNICATIONS
+// ============================================================================
+
+model Activity {
+  id          String   @id @default(cuid())
+  bookingId   String
+  petId       String
+  type        String // feeding, walk, play, bathroom, medication, grooming
+  description String?
+  performedBy String? // Staff member name
+  performedAt DateTime @default(now())
+  notes       String?
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  pet     Pet     @relation(fields: [petId], references: [id])
+
+  @@index([bookingId])
+  @@index([petId])
+  @@index([performedAt])
+  @@map("activities")
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  bookingId  String?
+  userId     String
+  senderType String // customer, staff
+  senderName String
+  content    String
+  isRead     Boolean  @default(false)
+  sentAt     DateTime @default(now())
+
+  booking Booking? @relation(fields: [bookingId], references: [id])
+  user    User     @relation(fields: [userId], references: [id])
+
+  @@index([bookingId])
+  @@index([userId])
+  @@index([sentAt])
+  @@map("messages")
+}
+
+model PetPhoto {
+  id          String   @id @default(cuid())
+  bookingId   String
+  petId       String
+  imageUrl    String
+  caption     String?
+  uploadedBy  String? // Staff member name
+  uploadedAt  DateTime @default(now())
+  pushSentAt  DateTime? // When push notification sent to owner
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  pet     Pet     @relation(fields: [petId], references: [id])
+
+  @@index([bookingId])
+  @@index([petId])
+  @@index([uploadedAt])
+  @@map("pet_photos")
+}
+
+// ============================================================================
+// REVIEWS & SEO
+// ============================================================================
+
+model Review {
+  id            String   @id @default(cuid())
+  userId        String
+  rating        Int // 1-5 stars
+  title         String?
+  content       String
+  isVerified    Boolean  @default(false) // True if they had a booking
+  isPublished   Boolean  @default(true)
+  staffResponse String? // Optional response from business
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([rating])
+  @@index([isPublished])
+  @@index([createdAt])
+  @@map("reviews")
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  excerpt     String?
+  content     String // HTML or Markdown
+  coverImage  String?
+  author      String
+  category    String // Tips, News, Events, Guides
+  tags        String[]
+  metaTitle   String?
+  metaDescription String?
+  isPublished Boolean  @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@index([category])
+  @@index([isPublished])
+  @@index([publishedAt])
+  @@map("blog_posts")
+}
+
+// ============================================================================
+// CONFIGURATION
+// ============================================================================
+
+model Settings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
