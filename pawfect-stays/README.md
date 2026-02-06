@@ -68,22 +68,26 @@ cp .env.example .env
 
 Edit `.env` and configure required environment variables:
 - `DATABASE_URL`: PostgreSQL connection string (required for Prisma)
-  - Format: `postgresql://username:password@localhost:5432/database_name`
+  - Format: `postgresql://user:password@localhost:5432/database_name`
   - Example: `postgresql://postgres:password@localhost:5432/pawfect_stays`
 
 4. Set up the database (if using PostgreSQL)
 ```bash
-# Generate Prisma Client
+# Generate Prisma Client (required before running the app)
 npm run prisma:generate
 
-# Run database migrations
+# Run database migrations (creates tables and schema)
 npm run prisma:migrate
 
-# (Optional) Seed the database
-npm run prisma:seed
+# (Optional) Open Prisma Studio to view/edit data
+npm run prisma:studio
 ```
 
-> **Important:** The DATABASE_URL environment variable must be set for the application to start. If not set, you'll encounter a `PrismaClientConstructorValidationError` stating "engine type 'client' requires either 'adapter' or 'accelerateUrl'". The application uses Prisma 7 with the PostgreSQL adapter which requires a valid database connection string.
+> **Important:** The DATABASE_URL environment variable must be set for database operations. If not set:
+> - **Development mode**: App starts with a warning, database operations return 503 Service Unavailable
+> - **Production mode**: App fails to start with a clear error message
+> 
+> Run the smoke test to verify Prisma setup: `npm run test:smoke`
 
 5. Run the development server
 ```bash

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 
 const availabilitySchema = z.object({
   checkIn: z.string(),
@@ -11,6 +11,17 @@ const availabilitySchema = z.object({
 // GET /api/availability - Check suite availability for dates
 export async function GET(request: NextRequest) {
   try {
+    // Check if database is configured
+    if (!isDatabaseConfigured()) {
+      return NextResponse.json(
+        { 
+          error: "Database not configured",
+          message: "DATABASE_URL environment variable is not set. Please configure your database connection."
+        },
+        { status: 503 }
+      );
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const checkIn = searchParams.get("checkIn");
     const checkOut = searchParams.get("checkOut");
@@ -87,13 +98,13 @@ export async function GET(request: NextRequest) {
     });
 
     // Count occupied suites by tier
-    const occupiedCounts = overlappingBookings.reduce(
+    const occupiedCounts = overlappingBookings.reduce<Record<string, number>>(
       (acc, booking) => {
         const tier = booking.suite.tier.toUpperCase();
         acc[tier] = (acc[tier] || 0) + 1;
         return acc;
       },
-      {} as Record<string, number>
+      {}
     );
 
     // Suite capacity (adjust these numbers based on your actual inventory)
