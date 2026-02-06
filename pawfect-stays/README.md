@@ -66,7 +66,26 @@ npm install
 cp .env.example .env
 ```
 
-4. Run the development server
+Edit `.env` and configure required environment variables:
+- `DATABASE_URL`: PostgreSQL connection string (required for Prisma)
+  - Format: `postgresql://username:password@localhost:5432/database_name`
+  - Example: `postgresql://postgres:password@localhost:5432/pawfect_stays`
+
+4. Set up the database (if using PostgreSQL)
+```bash
+# Generate Prisma Client
+npm run prisma:generate
+
+# Run database migrations
+npm run prisma:migrate
+
+# (Optional) Seed the database
+npm run prisma:seed
+```
+
+> **Note:** The application uses Prisma 7 with the PostgreSQL adapter. The DATABASE_URL must be set for the application to start successfully.
+
+5. Run the development server
 ```bash
 npm run dev
 ```
