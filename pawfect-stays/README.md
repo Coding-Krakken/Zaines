@@ -64,12 +64,19 @@ cd pawfect-stays
 npm install
 ```
 
-3. Run the development server
+3. Generate Prisma Client (required)
+```bash
+npm run prisma:generate
+```
+
+**Note:** You must run `npm run prisma:generate` after installing dependencies or after any changes to the Prisma schema. This generates the TypeScript types for database operations.
+
+4. Run the development server
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 **Note:** The app will run with limited functionality. Payment and booking features will return helpful error messages if environment variables are not configured.
 
@@ -182,6 +189,26 @@ npm run dev
 
 **Note:** Services marked as "No*" are optional for starting the app but required for specific features. The app will display helpful error messages when trying to use features that require missing configuration.
 
+### Development vs Production Behavior
+
+**Development Mode (`NODE_ENV=development` or not set):**
+- App starts even if required environment variables are missing
+- Console warnings displayed for missing services (DATABASE_URL, Stripe keys)
+- API routes return clear 400 errors with actionable messages when services are unavailable
+- Allows developers to work on UI/frontend without backend setup
+
+**Production Mode (`NODE_ENV=production`):**
+- Same graceful degradation as development
+- Services should be properly configured for production deployments
+- Missing critical environment variables will cause API routes to return 400 errors
+- Use environment-specific validation in CI/CD to enforce required variables
+
+**Best Practices:**
+- Use test/sandbox keys in development (e.g., `sk_test_...` for Stripe)
+- Set up `.env.local` for local overrides (automatically ignored by git)
+- Use environment variable validation in your CI/CD pipeline for production
+- Test without environment variables to ensure graceful degradation works
+
 ### What Works Without Configuration?
 
 ✅ **Works without any env vars:**
@@ -196,6 +223,24 @@ npm run dev
 - Booking system (needs `DATABASE_URL`)
 - Payment processing (needs Stripe keys)
 - Email sending (needs email service keys)
+
+## 🛠️ Available Scripts
+
+| Script | Command | Description |
+|--------|---------|-------------|
+| **dev** | `npm run dev` | Start development server on http://localhost:3000 |
+| **build** | `npm run build` | Build production bundle |
+| **start** | `npm start` | Start production server |
+| **lint** | `npm run lint` | Run ESLint to check code quality |
+| **typecheck** | `npm run typecheck` | Run TypeScript type checking |
+| **prisma:generate** | `npm run prisma:generate` | Generate Prisma Client (run after schema changes) |
+| **test** | `npm test` | Run test suite |
+| **test:watch** | `npm run test:watch` | Run tests in watch mode |
+
+**Important Notes:**
+- Run `npm run prisma:generate` after cloning the repo or updating the Prisma schema
+- Run `npm run typecheck` before committing to catch type errors
+- Tests validate that API routes return proper errors when environment variables are missing
 
 ## 📁 Project Structure
 
