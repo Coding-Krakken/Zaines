@@ -83,7 +83,7 @@ npm run prisma:migrate
 npm run prisma:seed
 ```
 
-> **Note:** The application uses Prisma 7 with the PostgreSQL adapter. The DATABASE_URL must be set for the application to start successfully.
+> **Important:** The DATABASE_URL environment variable must be set for the application to start. If not set, you'll encounter a `PrismaClientConstructorValidationError` stating "engine type 'client' requires either 'adapter' or 'accelerateUrl'". The application uses Prisma 7 with the PostgreSQL adapter which requires a valid database connection string.
 
 5. Run the development server
 ```bash
