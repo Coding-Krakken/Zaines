@@ -19,12 +19,14 @@ if (!databaseUrl && process.env.NODE_ENV !== "test") {
 }
 
 // Create a connection pool only if DATABASE_URL is available
-// Use a dummy URL for the pool if DATABASE_URL is not set to prevent crashes
+// When DATABASE_URL is missing, we create a dummy pool that won't attempt connections
+// This allows Prisma to initialize without crashing, but any actual database operations will fail gracefully
 const poolConnectionString = databaseUrl || "postgresql://localhost:5432/dummy";
 const pool = globalForPrisma.pool ?? new Pool({ 
   connectionString: poolConnectionString,
-  // Don't connect immediately if using dummy URL
-  ...(databaseUrl ? {} : { max: 0, idleTimeoutMillis: 0 })
+  // Prevent connection attempts when using dummy URL by setting max connections to 0
+  // This ensures the pool never tries to establish actual connections to the dummy database
+  ...(databaseUrl ? {} : { max: 0, idleTimeoutMillis: 0, connectionTimeoutMillis: 0 })
 });
 
 const adapter = new PrismaPg(pool);
@@ -42,7 +44,8 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 /**
- * Check if database is configured
+ * Check if database is configured.
+ * Use this to guard database operations in API routes.
  */
 export function isDatabaseConfigured(): boolean {
   return !!databaseUrl;
