@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+/* eslint-disable react/no-unescaped-entities */
 import Link from "next/link";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";

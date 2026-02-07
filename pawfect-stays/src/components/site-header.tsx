@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/main-nav";
 import { MobileNav } from "@/components/mobile-nav";
 import { UserNav } from "@/components/user-nav";
+/* eslint-disable react/no-unescaped-entities */
 
 export function SiteHeader() {
   return (

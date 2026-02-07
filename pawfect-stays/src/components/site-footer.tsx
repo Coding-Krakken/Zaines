@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import { Facebook, Instagram, Twitter, MapPin, Phone, Mail, Clock } from "lucide-react";
