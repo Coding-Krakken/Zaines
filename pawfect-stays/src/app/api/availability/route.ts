@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     const validation = availabilitySchema.safeParse({
       checkIn,
       checkOut,
-      suiteType,
+      ...(suiteType && { suiteType }),
     });
 
     if (!validation.success) {
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
 
     // Count occupied suites by tier
     const occupiedCounts = overlappingBookings.reduce<Record<string, number>>(
-      (acc, booking) => {
+      (acc: Record<string, number>, booking) => {
         const tier = booking.suite.tier.toUpperCase();
         acc[tier] = (acc[tier] || 0) + 1;
         return acc;

@@ -1,0 +1,128 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { GET } from '../route';
+import { NextRequest } from 'next/server';
+
+// Mock the prisma module
+vi.mock('@/lib/prisma', () => ({
+  prisma: {
+    booking: {
+      findMany: vi.fn(),
+    },
+  },
+  isDatabaseConfigured: vi.fn(),
+}));
+
+describe('GET /api/availability', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should return 503 when database is not configured', async () => {
+    const { isDatabaseConfigured } = await import('@/lib/prisma');
+    vi.mocked(isDatabaseConfigured).mockReturnValue(false);
+
+    const request = new NextRequest(
+      'http://localhost:3000/api/availability?checkIn=2026-03-01&checkOut=2026-03-05'
+    );
+
+    const response = await GET(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(503);
+    expect(data).toEqual({
+      error: 'Database not configured',
+      message: 'DATABASE_URL environment variable is not set. Please configure your database connection.',
+    });
+  });
+
+  it('should return 400 when checkIn is missing', async () => {
+    const { isDatabaseConfigured } = await import('@/lib/prisma');
+    vi.mocked(isDatabaseConfigured).mockReturnValue(true);
+
+    const request = new NextRequest(
+      'http://localhost:3000/api/availability?checkOut=2026-03-05'
+    );
+
+    const response = await GET(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data).toEqual({
+      error: 'checkIn and checkOut dates are required',
+    });
+  });
+
+  it('should return 400 when checkOut is missing', async () => {
+    const { isDatabaseConfigured } = await import('@/lib/prisma');
+    vi.mocked(isDatabaseConfigured).mockReturnValue(true);
+
+    const request = new NextRequest(
+      'http://localhost:3000/api/availability?checkIn=2026-03-01'
+    );
+
+    const response = await GET(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data).toEqual({
+      error: 'checkIn and checkOut dates are required',
+    });
+  });
+
+  it('should return availability when database is configured and dates are valid', async () => {
+    const { isDatabaseConfigured, prisma } = await import('@/lib/prisma');
+    vi.mocked(isDatabaseConfigured).mockReturnValue(true);
+    vi.mocked(prisma.booking.findMany).mockResolvedValue([]);
+
+    const request = new NextRequest(
+      'http://localhost:3000/api/availability?checkIn=2026-03-01&checkOut=2026-03-05'
+    );
+
+    const response = await GET(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data).toHaveProperty('checkIn', '2026-03-01');
+    expect(data).toHaveProperty('checkOut', '2026-03-05');
+    expect(data).toHaveProperty('availability');
+    expect(data.availability).toEqual({
+      standard: 10,
+      deluxe: 8,
+      luxury: 5,
+    });
+    expect(data).toHaveProperty('isAvailable', true);
+  });
+
+  it('should calculate occupied suites correctly', async () => {
+    const { isDatabaseConfigured, prisma } = await import('@/lib/prisma');
+    vi.mocked(isDatabaseConfigured).mockReturnValue(true);
+    vi.mocked(prisma.booking.findMany).mockResolvedValue([
+      {
+        id: '1',
+        suite: { tier: 'Standard' },
+      },
+      {
+        id: '2',
+        suite: { tier: 'Deluxe' },
+      },
+      {
+        id: '3',
+        suite: { tier: 'Standard' },
+      },
+    ] as never);
+
+    const request = new NextRequest(
+      'http://localhost:3000/api/availability?checkIn=2026-03-01&checkOut=2026-03-05'
+    );
+
+    const response = await GET(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data.availability).toEqual({
+      standard: 8, // 10 - 2
+      deluxe: 7,   // 8 - 1
+      luxury: 5,   // 5 - 0
+    });
+  });
+});

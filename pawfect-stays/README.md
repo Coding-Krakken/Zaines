@@ -67,13 +67,16 @@ cp .env.example .env
 ```
 
 Edit `.env` and configure required environment variables:
-- `DATABASE_URL`: PostgreSQL connection string (required for Prisma)
+- `DATABASE_URL`: PostgreSQL connection string (required for database operations)
   - Format: `postgresql://user:password@localhost:5432/database_name`
   - Example: `postgresql://postgres:password@localhost:5432/pawfect_stays`
+  - **Behavior without DATABASE_URL:**
+    - Development: App starts with warning, DB operations return 503
+    - Production: App fails to start with clear error message
 
 4. Set up the database (if using PostgreSQL)
 ```bash
-# Generate Prisma Client (required before running the app)
+# Generate Prisma Client (MUST run before build/typecheck)
 npm run prisma:generate
 
 # Run database migrations (creates tables and schema)
@@ -83,13 +86,42 @@ npm run prisma:migrate
 npm run prisma:studio
 ```
 
-> **Important:** The DATABASE_URL environment variable must be set for database operations. If not set:
-> - **Development mode**: App starts with a warning, database operations return 503 Service Unavailable
-> - **Production mode**: App fails to start with a clear error message
-> 
-> Run the smoke test to verify Prisma setup: `npm run test:smoke`
+**Important Prisma Commands:**
+- `npm run prisma:generate` - Generate Prisma Client from schema (run after clone or schema changes)
+- `npm run prisma:migrate` - Apply database migrations in development
+- `npm run prisma:studio` - Open visual database browser
 
-5. Run the development server
+5. Run tests
+
+```bash
+# Run all tests with vitest
+npm test
+
+# Run TypeScript type checking
+npm run typecheck
+
+# Run Prisma smoke test (no network/DB required)
+npm run test:smoke
+
+# Run comprehensive Prisma test (generates client + smoke test)
+npm run test:prisma
+```
+
+**Expected test:smoke output:**
+```
+⚠️  DATABASE_URL is not set. Database operations will fail.
+   To fix: Create a .env file with DATABASE_URL=postgresql://localhost:5432/dbname
+✓ Prisma client imported successfully
+✓ Type: object
+✓ No "engine type client requires adapter" error
+✓ prisma.$connect exists
+✓ isDatabaseConfigured helper exists
+✓ Database configured: false
+
+✅ All smoke tests passed!
+```
+
+6. Run the development server
 ```bash
 npm run dev
 ```
