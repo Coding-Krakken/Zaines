@@ -28,7 +28,7 @@ function getStripe(): Stripe {
   if (!_stripe) {
     try {
       _stripe = createStripeClient();
-    } catch (e) {
+    } catch {
       // Defer throwing until runtime usage; continue returning an undefined
       // internal client so the proxy can provide a nicer error if invoked.
       _stripe = undefined;
@@ -49,9 +49,10 @@ const stripeProxy = new Proxy(
           );
         };
       }
-      const value = (client as any)[prop];
+      const value = (client as unknown as Record<PropertyKey, unknown>)[prop];
       if (typeof value === "function") {
-        return (...args: any[]) => value.apply(client, args);
+        const fn = value as (...args: unknown[]) => unknown;
+        return (...args: unknown[]) => fn.apply(client, args);
       }
       return value;
     },
