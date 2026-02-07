@@ -11,6 +11,17 @@ const availabilitySchema = z.object({
 // GET /api/availability - Check suite availability for dates
 export async function GET(request: NextRequest) {
   try {
+    // Check if database is configured
+    if (!isDatabaseConfigured()) {
+      return NextResponse.json(
+        { 
+          error: "Availability check is not available",
+          message: "Database is not configured. Please set DATABASE_URL environment variable."
+        },
+        { status: 400 }
+      );
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const checkIn = searchParams.get("checkIn");
     const checkOut = searchParams.get("checkOut");
