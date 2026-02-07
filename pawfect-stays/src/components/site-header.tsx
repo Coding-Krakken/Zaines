@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/main-nav";
 import { MobileNav } from "@/components/mobile-nav";
 import { UserNav } from "@/components/user-nav";
+/* eslint-disable react/no-unescaped-entities */
 
 export function SiteHeader() {
   return (
@@ -12,7 +13,7 @@ export function SiteHeader() {
           <Link href="/" className="flex items-center space-x-2">
             <span className="text-2xl">🐾</span>
             <span className="hidden font-bold sm:inline-block">
-              Pawfect Stays
+              Zaine's Stay & Play
             </span>
           </Link>
           <MainNav />

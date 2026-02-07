@@ -25,17 +25,17 @@ export const metadata: Metadata = {
     "pet daycare",
     "dog grooming",
     "pet grooming",
-    "Seattle",
+    "Syracuse",
     "Bellevue",
     "pet resort",
   ],
   authors: [
     {
-      name: "Pawfect Stays",
+      name: "Zaine's Stay & Play",
       url: siteConfig.url,
     },
   ],
-  creator: "Pawfect Stays",
+  creator: "Zaine's Stay & Play",
   openGraph: {
     type: "website",
     locale: "en_US",

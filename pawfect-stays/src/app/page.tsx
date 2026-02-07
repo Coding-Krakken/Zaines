@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +13,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-3xl text-center">
             <Badge className="mb-4" variant="secondary">
-              Seattle&apos;s Premier Pet Resort
+              Syracuse's Premier Pet Resort
             </Badge>
             <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl">
               Your Pet&apos;s <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Home Away From Home</span>
@@ -205,8 +206,8 @@ export default function Home() {
             <Button size="lg" variant="secondary" asChild>
               <Link href="/book">Book Now</Link>
             </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="tel:5551234567">Call Us: (555) 123-4567</Link>
+            <Button size="lg" variant="outline" className="border-primary-foreground bg-background text-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+              <a href="tel:+13156571332">Call Us: (315) 657-1332</a>
             </Button>
           </div>
         </div>

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -198,7 +199,7 @@ export default function TermsPage() {
             <div className="mb-12">
               <h2 className="mb-4 text-2xl font-bold">9. Intellectual Property</h2>
               <p className="mb-4 text-muted-foreground">
-                All content on our website including text, graphics, logos, images, videos, and software is owned by Pawfect Stays and protected by copyright and trademark laws. You may not reproduce, distribute, or create derivative works without written permission.
+                All content on our website including text, graphics, logos, images, videos, and software is owned by Zaine's Stay & Play and protected by copyright and trademark laws. You may not reproduce, distribute, or create derivative works without written permission.
               </p>
               <p className="text-muted-foreground">
                 By providing photos, videos, or testimonials, you grant us a non-exclusive, royalty-free license to use this content for marketing purposes on our website, social media, and promotional materials.
@@ -292,7 +293,7 @@ export default function TermsPage() {
                 <p className="mb-2">123 Pet Paradise Lane</p>
                 <p className="mb-2">Seattle, WA 98101</p>
                 <p className="mb-2">Email: legal@pawfectstays.com</p>
-                <p>Phone: (555) 123-4567</p>
+                <p>Phone: (315) 657-1332</p>
               </div>
             </div>
 

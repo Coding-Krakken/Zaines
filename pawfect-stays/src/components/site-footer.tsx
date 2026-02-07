@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import { Facebook, Instagram, Twitter, MapPin, Phone, Mail, Clock } from "lucide-react";
@@ -11,10 +12,10 @@ export function SiteFooter() {
           <div>
             <Link href="/" className="flex items-center space-x-2 mb-4">
               <span className="text-2xl">🐾</span>
-              <span className="font-bold text-lg">Pawfect Stays</span>
+              <span className="font-bold text-lg">Zaine's Stay & Play</span>
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
-              Seattle&apos;s premier dog boarding, daycare, and grooming resort.
+              Syracuse's premier dog boarding, daycare, and grooming resort.
             </p>
             <div className="flex gap-3">
               <Link href={siteConfig.links.facebook} className="text-muted-foreground hover:text-foreground">
@@ -123,7 +124,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-8 border-t pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Pawfect Stays. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Zaine's Stay & Play. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:text-foreground">
               Privacy Policy

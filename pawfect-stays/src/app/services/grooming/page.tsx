@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Dog Grooming Services",
-  description: "Professional dog grooming in Seattle. From basic baths to full spa packages, our certified groomers will have your pup looking and feeling their best.",
+  description: "Professional dog grooming in Syracuse. From basic baths to full spa packages, our certified groomers will have your pup looking and feeling their best.",
 };
 
 export default function GroomingPage() {

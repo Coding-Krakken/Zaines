@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+/* eslint-disable react/no-unescaped-entities */
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -59,7 +60,7 @@ export default function GalleryPage() {
               See Happy Tails in Action
             </h1>
             <p className="mb-8 text-xl text-muted-foreground">
-              Take a virtual tour of our facilities and see the fun your pet will have at Pawfect Stays
+              Take a virtual tour of our facilities and see the fun your pet will have at Zaine's Stay & Play
             </p>
           </div>
         </div>
@@ -218,7 +219,7 @@ export default function GalleryPage() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="mb-4 text-3xl font-bold">Ready to Create Your Own Happy Memories?</h2>
           <p className="mb-8 text-lg opacity-90">
-            Book your pet&apos;s stay and see firsthand why families love Pawfect Stays
+            Book your pet&apos;s stay and see firsthand why families love Zaine's Stay & Play
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" variant="secondary" asChild>

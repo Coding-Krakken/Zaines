@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
         bookingNumber: booking.bookingNumber,
         userId: booking.userId,
       },
-      description: `Booking #${booking.bookingNumber} at Pawfect Stays`,
+      description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
       receipt_email: booking.user.email || undefined,
     });
 
