@@ -98,13 +98,13 @@ export async function GET(request: NextRequest) {
     });
 
     // Count occupied suites by tier
-    const occupiedCounts = overlappingBookings.reduce<Record<string, number>>(
-      (acc: Record<string, number>, booking) => {
+    const occupiedCounts = overlappingBookings.reduce(
+      (acc: Record<string, number>, booking: { suite: { tier: string } }) => {
         const tier = booking.suite.tier.toUpperCase();
         acc[tier] = (acc[tier] || 0) + 1;
         return acc;
       },
-      {}
+      {} as Record<string, number>
     );
 
     // Suite capacity (adjust these numbers based on your actual inventory)
