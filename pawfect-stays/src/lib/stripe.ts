@@ -1,65 +1,40 @@
 import Stripe from "stripe";
 
-// Allow CI/build environments to skip strict env validation using
-// `SKIP_ENV_VALIDATION`. When skipping, building should not throw on import.
-const rawSkip = process.env.SKIP_ENV_VALIDATION;
-const skipValidation =
-  typeof rawSkip === "string" && rawSkip.length > 0 && !["0", "false", "no"].includes(rawSkip.toLowerCase());
+// Check if Stripe is configured
+export function isStripeConfigured(): boolean {
+  return !!process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.trim().length > 0;
+}
 
 let _stripe: Stripe | undefined;
 
-function createStripeClient(): Stripe {
+function getStripeInstance(): Stripe {
   if (!process.env.STRIPE_SECRET_KEY) {
-    if (process.env.NODE_ENV === "development" || skipValidation) {
-      // During development or when explicitly skipping validation, don't
-      // throw at import time — callers will receive a clear runtime error
-      // if they attempt to use the client.
-      throw new Error("STRIPE_SECRET_KEY not configured");
-    }
-    throw new Error("STRIPE_SECRET_KEY is not defined in environment variables");
+    throw new Error(
+      "Stripe is not configured. Set STRIPE_SECRET_KEY environment variable to enable payment processing."
+    );
   }
-  return new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2026-01-28.clover",
-    typescript: true,
-  });
-}
-
-function getStripe(): Stripe {
+  
   if (!_stripe) {
-    try {
-      _stripe = createStripeClient();
-    } catch {
-      // Defer throwing until runtime usage; continue returning an undefined
-      // internal client so the proxy can provide a nicer error if invoked.
-      _stripe = undefined;
-    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2026-01-28.clover",
+      typescript: true,
+    });
   }
-  return _stripe as unknown as Stripe;
+  
+  return _stripe;
 }
 
-const stripeProxy = new Proxy(
-  {},
-  {
-    get(_target, prop) {
-      const client = getStripe();
-      if (!client) {
-        return () => {
-          throw new Error(
-            "STRIPE_SECRET_KEY not configured — stripe operations are disabled. Set STRIPE_SECRET_KEY to enable payments."
-          );
-        };
-      }
-      const value = (client as unknown as Record<PropertyKey, unknown>)[prop];
-      if (typeof value === "function") {
-        const fn = value as (...args: unknown[]) => unknown;
-        return (...args: unknown[]) => fn.apply(client, args);
-      }
-      return value;
-    },
-  }
-);
-
-export const stripe: Stripe = stripeProxy as unknown as Stripe;
+// Export a Proxy that lazily initializes Stripe only when accessed
+export const stripe = new Proxy({} as Stripe, {
+  get(_target, prop) {
+    const instance = getStripeInstance();
+    const value = instance[prop as keyof Stripe];
+    if (typeof value === "function") {
+      return (value as (...args: unknown[]) => unknown).bind(instance);
+    }
+    return value;
+  },
+});
 
 // Helper function to format amount for Stripe (cents)
 export function formatAmountForStripe(amount: number): number {

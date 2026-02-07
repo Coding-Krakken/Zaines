@@ -28,10 +28,10 @@ describe('GET /api/availability', () => {
     const response = await GET(request);
     const data = await response.json();
 
-    expect(response.status).toBe(503);
+    expect(response.status).toBe(400);
     expect(data).toEqual({
-      error: 'Database not configured',
-      message: 'DATABASE_URL environment variable is not set. Please configure your database connection.',
+      error: 'Availability check is not available',
+      message: 'Database is not configured. Please set DATABASE_URL environment variable.',
     });
   });
 

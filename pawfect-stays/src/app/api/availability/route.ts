@@ -15,10 +15,10 @@ export async function GET(request: NextRequest) {
     if (!isDatabaseConfigured()) {
       return NextResponse.json(
         { 
-          error: "Database not configured",
-          message: "DATABASE_URL environment variable is not set. Please configure your database connection."
+          error: "Availability check is not available",
+          message: "Database is not configured. Please set DATABASE_URL environment variable."
         },
-        { status: 503 }
+        { status: 400 }
       );
     }
 

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
-import { stripe, formatAmountForStripe } from "@/lib/stripe";
-import { prisma } from "@/lib/prisma";
+import { stripe, formatAmountForStripe, isStripeConfigured } from "@/lib/stripe";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 
 const paymentIntentSchema = z.object({
   bookingId: z.string(),
@@ -12,6 +12,28 @@ const paymentIntentSchema = z.object({
 // POST /api/payments/create-intent - Create a Stripe Payment Intent
 export async function POST(request: NextRequest) {
   try {
+    // Check if Stripe is configured
+    if (!isStripeConfigured()) {
+      return NextResponse.json(
+        { 
+          error: "Payment processing is not available",
+          message: "Stripe is not configured. Please contact support or set STRIPE_SECRET_KEY environment variable."
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check if database is configured
+    if (!isDatabaseConfigured()) {
+      return NextResponse.json(
+        { 
+          error: "Database is not available",
+          message: "Database is not configured. Please set DATABASE_URL environment variable."
+        },
+        { status: 400 }
+      );
+    }
+
     const session = await auth();
     
     const body = await request.json();

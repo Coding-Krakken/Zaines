@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 
 const bookingSchema = z.object({
   checkIn: z.string(),
@@ -20,6 +20,17 @@ const bookingSchema = z.object({
 // POST /api/bookings - Create a new booking
 export async function POST(request: NextRequest) {
   try {
+    // Check if database is configured
+    if (!isDatabaseConfigured()) {
+      return NextResponse.json(
+        { 
+          error: "Booking system is not available",
+          message: "Database is not configured. Please set DATABASE_URL environment variable."
+        },
+        { status: 400 }
+      );
+    }
+
     // Check if user is authenticated
     const session = await auth();
     
@@ -216,6 +227,17 @@ export async function POST(request: NextRequest) {
 // GET /api/bookings - Get user's bookings
 export async function GET() {
   try {
+    // Check if database is configured
+    if (!isDatabaseConfigured()) {
+      return NextResponse.json(
+        { 
+          error: "Booking system is not available",
+          message: "Database is not configured. Please set DATABASE_URL environment variable."
+        },
+        { status: 400 }
+      );
+    }
+
     const session = await auth();
 
     if (!session?.user?.id) {

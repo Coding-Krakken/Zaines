@@ -1,14 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import Stripe from "stripe";
-import { stripe } from "@/lib/stripe";
-import { prisma } from "@/lib/prisma";
-
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+import { stripe, isStripeConfigured } from "@/lib/stripe";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 
 // POST /api/payments/webhook - Handle Stripe webhook events
 export async function POST(request: NextRequest) {
   try {
+    // Check if Stripe is configured
+    if (!isStripeConfigured()) {
+      return NextResponse.json(
+        { 
+          error: "Payment processing is not available",
+          message: "Stripe is not configured. Please set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET environment variables."
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check if database is configured
+    if (!isDatabaseConfigured()) {
+      return NextResponse.json(
+        { 
+          error: "Database is not available",
+          message: "Database is not configured. Please set DATABASE_URL environment variable."
+        },
+        { status: 400 }
+      );
+    }
+
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    
+    if (!webhookSecret) {
+      return NextResponse.json(
+        { 
+          error: "Webhook processing is not available",
+          message: "Stripe webhook secret is not configured. Please set STRIPE_WEBHOOK_SECRET environment variable."
+        },
+        { status: 400 }
+      );
+    }
+
     const body = await request.text();
     const signature = (await headers()).get("stripe-signature");
 
