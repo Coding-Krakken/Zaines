@@ -11,17 +11,6 @@ const availabilitySchema = z.object({
 // GET /api/availability - Check suite availability for dates
 export async function GET(request: NextRequest) {
   try {
-    // Check if database is configured
-    if (!isDatabaseConfigured()) {
-      return NextResponse.json(
-        { 
-          error: "Availability check is not available",
-          message: "Database is not configured. Please set DATABASE_URL environment variable."
-        },
-        { status: 400 }
-      );
-    }
-
     const searchParams = request.nextUrl.searchParams;
     const checkIn = searchParams.get("checkIn");
     const checkOut = searchParams.get("checkOut");
@@ -37,7 +26,7 @@ export async function GET(request: NextRequest) {
     const validation = availabilitySchema.safeParse({
       checkIn,
       checkOut,
-      suiteType,
+      ...(suiteType && { suiteType }),
     });
 
     if (!validation.success) {
@@ -99,7 +88,7 @@ export async function GET(request: NextRequest) {
 
     // Count occupied suites by tier
     const occupiedCounts = overlappingBookings.reduce(
-      (acc, booking) => {
+      (acc: Record<string, number>, booking: { suite: { tier: string } }) => {
         const tier = booking.suite.tier.toUpperCase();
         acc[tier] = (acc[tier] || 0) + 1;
         return acc;

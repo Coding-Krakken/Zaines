@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Dog Training Services",
-  description: "Professional dog training in Seattle. From basic obedience to advanced commands and behavior modification. Certified trainers with proven results.",
+  description: "Professional dog training in Syracuse. From basic obedience to advanced commands and behavior modification. Certified trainers with proven results.",
 };
 
 export default function TrainingPage() {

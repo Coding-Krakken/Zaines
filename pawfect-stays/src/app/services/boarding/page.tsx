@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Dog Boarding Services",
-  description: "Premium overnight dog boarding in Seattle with luxury suites, 24/7 supervision, webcams, and real-time photo updates. Book your dog&apos;s perfect stay today.",
+  description: "Premium overnight dog boarding in Syracuse with luxury suites, 24/7 supervision, webcams, and real-time photo updates. Book your dog&apos;s perfect stay today.",
 };
 
 export default function BoardingPage() {

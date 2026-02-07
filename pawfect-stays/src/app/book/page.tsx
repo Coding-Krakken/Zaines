@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+/* eslint-disable react/no-unescaped-entities */
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -594,7 +595,7 @@ export default function BookPage() {
                 </div>
                 <CardTitle className="text-center text-2xl">Booking Confirmed!</CardTitle>
                 <CardDescription className="text-center">
-                  Thank you for choosing Pawfect Stays
+                  Thank you for choosing Zaine's Stay & Play
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">

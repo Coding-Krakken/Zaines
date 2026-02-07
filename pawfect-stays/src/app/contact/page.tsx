@@ -10,7 +10,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Contact Us",
-  description: "Get in touch with Pawfect Stays. Visit us, call us, or send us a message. We're here to answer your questions about dog boarding, daycare, and grooming.",
+  description: "Get in touch with Zaine's Stay & Play. Visit us, call us, or send us a message. We're here to answer your questions about dog boarding, daycare, and grooming.",
 };
 
 export default function ContactPage() {
@@ -165,7 +165,7 @@ export default function ContactPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="phone">Phone</Label>
-                      <Input id="phone" type="tel" placeholder="(555) 123-4567" />
+                      <Input id="phone" type="tel" placeholder="(315) 657-1332" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="subject">Subject</Label>
@@ -203,7 +203,7 @@ export default function ContactPage() {
               </div>
             </div>
             <p className="mt-4 text-center text-sm text-muted-foreground">
-              Located in the heart of Seattle, easily accessible from I-5 and I-90
+              Located in Syracuse, NY, easily accessible from I-81 and I-690
             </p>
           </div>
         </div>

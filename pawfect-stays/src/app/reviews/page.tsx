@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { useState } from "react";
@@ -88,7 +89,7 @@ const reviews = [
     date: "4 months ago",
     service: "Boarding",
     petName: "Sadie",
-    text: "Pawfect Stays lives up to its name! Sadie received excellent care during our 2-week vacation. The photo updates were daily and she looked so happy. Thank you for giving us peace of mind!",
+    text: "Zaine's Stay & Play lives up to its name! Sadie received excellent care during our 2-week vacation. The photo updates were daily and she looked so happy. Thank you for giving us peace of mind!",
     verified: true,
   },
 ];
@@ -221,7 +222,7 @@ export default function ReviewsPage() {
             <CardContent className="pt-6">
               <h2 className="mb-2 text-2xl font-bold">Share Your Experience</h2>
               <p className="mb-6 text-muted-foreground">
-                Have you visited Pawfect Stays? We&apos;d love to hear about your experience!
+                Have you visited Zaine's Stay & Play? We&apos;d love to hear about your experience!
               </p>
 
               <form className="space-y-6">

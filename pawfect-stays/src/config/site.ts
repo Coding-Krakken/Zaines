@@ -1,27 +1,27 @@
 export const siteConfig = {
-  name: "Pawfect Stays",
-  description: "Seattle's premier dog boarding, daycare, and grooming resort. Licensed, certified, and open 24/7 with luxury suites and expert care.",
-  url: "https://pawfectstays.com",
-  ogImage: "https://pawfectstays.com/og.jpg",
+  name: "Zaine's Stay & Play",
+  description: "Syracuse's premier dog boarding, daycare, and grooming resort. Licensed, certified, and open 24/7 with luxury suites and expert care.",
+  url: "https://zainesstayandplay.com",
+  ogImage: "https://zainesstayandplay.com/og.jpg",
   links: {
-    facebook: "https://facebook.com/pawfectstays",
-    instagram: "https://instagram.com/pawfectstays",
-    twitter: "https://twitter.com/pawfectstays",
+    facebook: "https://www.facebook.com/people/Zaines-Stay-Play/61550036005682/",
+    instagram: "https://instagram.com/zainesstayandplay",
+    twitter: "https://twitter.com/zainesstayandplay",
   },
   contact: {
-    phone: "(555) 123-4567",
-    email: "hello@pawfectstays.com",
+    phone: "(315) 657-1332",
+    email: "hello@zainesstayandplay.com",
     address: "123 Pet Paradise Lane",
-    city: "Seattle",
-    state: "WA",
-    zip: "98101",
+    city: "Syracuse",
+    state: "NY",
+    zip: "13202",
   },
   hours: {
     weekday: "6:00 AM - 8:00 PM",
     weekend: "8:00 AM - 6:00 PM",
     available: "24/7 Supervision",
   },
-  serviceArea: ["Seattle", "Bellevue", "Redmond", "Kirkland", "Renton", "Tacoma"],
+  serviceArea: ["Syracuse", "Liverpool", "Cicero", "Baldwinsville", "Fayetteville", "Manlius"],
 };
 
 export const navItems = [
@@ -61,4 +61,4 @@ export const navItems = [
   },
 ];
 
-export const cities = ["Seattle", "Bellevue", "Redmond", "Kirkland", "Renton", "Tacoma"];
+export const cities = ["Syracuse", "Liverpool", "Cicero", "Baldwinsville", "Fayetteville", "Manlius"];
