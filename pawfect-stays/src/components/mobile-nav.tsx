@@ -35,7 +35,7 @@ export function MobileNav() {
           <SheetTitle>
             <Link href="/" className="flex items-center space-x-2" onClick={() => setOpen(false)}>
               <span className="text-2xl">🐾</span>
-              <span className="font-bold">Pawfect Stays</span>
+              <span className="font-bold">Zaine's Stay & Play</span>
             </Link>
           </SheetTitle>
         </SheetHeader>

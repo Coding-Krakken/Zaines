@@ -12,7 +12,7 @@ export function SiteHeader() {
           <Link href="/" className="flex items-center space-x-2">
             <span className="text-2xl">🐾</span>
             <span className="hidden font-bold sm:inline-block">
-              Pawfect Stays
+              Zaine's Stay & Play
             </span>
           </Link>
           <MainNav />

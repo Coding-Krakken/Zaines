@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "About Us",
-  description: "Learn about Pawfect Stays - Seattle's premier dog boarding, daycare, and grooming facility with certified staff and luxury accommodations.",
+  description: "Learn about Zaine's Stay & Play - Syracuse's premier dog boarding, daycare, and grooming facility with certified staff and luxury accommodations.",
 };
 
 export default function AboutPage() {
@@ -34,7 +34,7 @@ export default function AboutPage() {
               <h2 className="mb-6 text-3xl font-bold">Our Story</h2>
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  Pawfect Stays was founded by lifelong dog lovers Sarah Chen and Mark Williams, who recognized the need for a premium pet care facility that truly treats pets like family.
+                  Zaine's Stay & Play was founded by lifelong dog lovers Sarah Chen and Mark Williams, who recognized the need for a premium pet care facility that truly treats pets like family.
                 </p>
                 <p>
                   After years of struggling to find quality care for their own dogs, they decided to create the facility they always wished existed - a place where pets receive individualized attention, luxury accommodations, and round-the-clock care.
@@ -173,7 +173,7 @@ export default function AboutPage() {
               <Button size="lg" variant="secondary" asChild>
                 <Link href="/contact">Schedule a Tour</Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
+              <Button size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
                 <Link href="/book">Book Your Stay</Link>
               </Button>
             </div>

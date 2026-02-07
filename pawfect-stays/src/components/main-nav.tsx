@@ -49,16 +49,17 @@ export function MainNav() {
                 </NavigationMenuContent>
               </>
             ) : (
-              <Link href={item.href} legacyBehavior passHref>
-                <NavigationMenuLink
+              <NavigationMenuLink asChild>
+                <Link
+                  href={item.href}
                   className={cn(
                     navigationMenuTriggerStyle(),
                     pathname === item.href && "bg-accent"
                   )}
                 >
                   {item.title}
-                </NavigationMenuLink>
-              </Link>
+                </Link>
+              </NavigationMenuLink>
             )}
           </NavigationMenuItem>
         ))}

@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Dog Daycare Services",
-  description: "Full-day dog daycare in Seattle with supervised play, socialization, and enrichment activities. Drop off in the morning, pick up a happy, tired pup!",
+  description: "Full-day dog daycare in Syracuse with supervised play, socialization, and enrichment activities. Drop off in the morning, pick up a happy, tired pup!",
 };
 
 export default function DaycarePage() {

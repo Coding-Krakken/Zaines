@@ -23,7 +23,7 @@ const faqCategories = {
     },
     {
       q: "What areas do you serve?",
-      a: "We serve Seattle, Bellevue, Redmond, Kirkland, Mercer Island, and surrounding areas within 30 miles of our facility.",
+      a: "We serve Syracuse, Liverpool, Cicero, Baldwinsville, Fayetteville, Manlius, and surrounding areas within 30 miles of our facility.",
     },
     {
       q: "Do you offer tours of your facility?",

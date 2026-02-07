@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle2, XCircle, AlertTriangle, FileText } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Policies | Pawfect Stays",
+  title: "Policies | Zaine's Stay & Play",
   description: "Read about our boarding policies, cancellation policy, health requirements, and terms of service for dog boarding, daycare, and grooming services.",
 };
 
@@ -227,7 +227,7 @@ export default function PoliciesPage() {
                 <div>
                   <h3 className="mb-2 font-semibold">Liability</h3>
                   <p className="text-muted-foreground">
-                    While we maintain high safety standards and provide constant supervision, dogs at play can occasionally sustain minor injuries (scratches, scrapes). We will notify you of any injuries and provide necessary care. Pawfect Stays is not liable for injuries resulting from normal dog behavior.
+                    While we maintain high safety standards and provide constant supervision, dogs at play can occasionally sustain minor injuries (scratches, scrapes). We will notify you of any injuries and provide necessary care. Zaine's Stay & Play is not liable for injuries resulting from normal dog behavior.
                   </p>
                 </div>
                 <div>
@@ -277,7 +277,7 @@ export default function PoliciesPage() {
             </CardHeader>
             <CardContent>
               <p className="mb-4 text-muted-foreground">
-                By booking services with Pawfect Stays, you acknowledge that you have read, understood, and agree to all policies outlined on this page. You certify that your pet is in good health, has no history of aggression, and meets all vaccination requirements.
+                By booking services with Zaine's Stay & Play, you acknowledge that you have read, understood, and agree to all policies outlined on this page. You certify that your pet is in good health, has no history of aggression, and meets all vaccination requirements.
               </p>
               <p className="text-muted-foreground">
                 If you have questions about any of our policies, please contact us before booking. We&apos;re happy to clarify and ensure you&apos;re comfortable with our terms.

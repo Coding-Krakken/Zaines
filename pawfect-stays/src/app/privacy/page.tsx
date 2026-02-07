@@ -226,7 +226,7 @@ export default function PrivacyPage() {
                 <li><strong>Objection:</strong> Object to processing of your personal information</li>
               </ul>
               <p className="mt-4 text-muted-foreground">
-                To exercise these rights, please contact us at privacy@pawfectstays.com or call (555) 123-4567.
+                To exercise these rights, please contact us at privacy@zainesstayandplay.com or call (315) 657-1332.
               </p>
             </div>
 
@@ -277,7 +277,7 @@ export default function PrivacyPage() {
                 <p className="mb-2">123 Pet Paradise Lane</p>
                 <p className="mb-2">Seattle, WA 98101</p>
                 <p className="mb-2">Email: privacy@pawfectstays.com</p>
-                <p>Phone: (555) 123-4567</p>
+                <p>Phone: (315) 657-1332</p>
               </div>
             </div>
           </div>
