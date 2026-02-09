@@ -468,10 +468,17 @@ unset STRIPE_SECRET_KEY
 
 ### Automated Tests
 
+<<<<<<< HEAD
 Run the test suite covering booking and payment functionality:
 
 ```bash
 npm test
+=======
+Run the E2E test suite covering the full booking → payment → webhook flow:
+
+```bash
+npm test src/__tests__/booking-payment-e2e.test.ts
+>>>>>>> origin/main
 ```
 
 **Test Coverage:**
@@ -490,6 +497,7 @@ npm test
 - ✅ **Graceful Degradation**: Payment failures don't block booking creation
 - ✅ **Idempotency**: Duplicate payment records prevented via booking ID check
 
+<<<<<<< HEAD
 ## 🔒 Concurrency & Data Safety
 
 ### Overview
@@ -671,6 +679,9 @@ npm test src/__tests__/bookings-concurrency.test.ts
 - [Serializable Isolation](https://www.postgresql.org/docs/current/transaction-iso.html#XACT-SERIALIZABLE)
 
 ## 📁 Project Structure
+=======
+## �📁 Project Structure
+>>>>>>> origin/main
 
 ```
 pawfect-stays/

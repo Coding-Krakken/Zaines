@@ -119,7 +119,7 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
         stripePaymentId: paymentIntent.id,
       },
       data: {
-        status: "COMPLETED",
+        status: "succeeded",
         paidAt: new Date(),
       },
     });
@@ -128,7 +128,7 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
     await prisma.booking.update({
       where: { id: bookingId },
       data: {
-        status: "CONFIRMED",
+        status: "confirmed",
       },
     });
 
@@ -154,7 +154,7 @@ async function handlePaymentFailure(paymentIntent: Stripe.PaymentIntent) {
         stripePaymentId: paymentIntent.id,
       },
       data: {
-        status: "FAILED",
+        status: "failed",
       },
     });
 
@@ -162,7 +162,7 @@ async function handlePaymentFailure(paymentIntent: Stripe.PaymentIntent) {
     await prisma.booking.update({
       where: { id: bookingId },
       data: {
-        status: "CANCELLED",
+        status: "cancelled",
       },
     });
 
@@ -188,7 +188,7 @@ async function handlePaymentCanceled(paymentIntent: Stripe.PaymentIntent) {
         stripePaymentId: paymentIntent.id,
       },
       data: {
-        status: "CANCELLED",
+        status: "cancelled",
       },
     });
 
@@ -196,7 +196,7 @@ async function handlePaymentCanceled(paymentIntent: Stripe.PaymentIntent) {
     await prisma.booking.update({
       where: { id: bookingId },
       data: {
-        status: "CANCELLED",
+        status: "cancelled",
       },
     });
 
@@ -224,7 +224,7 @@ async function handleRefund(charge: Stripe.Charge) {
         stripePaymentId: paymentIntentId,
       },
       data: {
-        status: "REFUNDED",
+        status: "refunded",
       },
     });
 
@@ -239,7 +239,7 @@ async function handleRefund(charge: Stripe.Charge) {
       await prisma.booking.update({
         where: { id: payment.bookingId },
         data: {
-          status: "CANCELLED",
+          status: "cancelled",
         },
       });
     }

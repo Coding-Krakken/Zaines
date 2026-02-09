@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import { stripe, formatAmountForStripe, isStripeConfigured } from "@/lib/stripe";
 
 const bookingSchema = z.object({
   checkIn: z.string(),
@@ -207,7 +208,50 @@ export async function POST(request: NextRequest) {
     });
 
     // TODO: Send confirmation email
-    // TODO: Create payment intent with Stripe
+
+    // Create Stripe Payment Intent if Stripe is configured
+    let clientSecret: string | undefined;
+    if (isStripeConfigured()) {
+      try {
+        // Check if payment already exists for this booking (idempotency)
+        const existingPayment = await prisma.payment.findFirst({
+          where: {
+            bookingId: booking.id,
+          },
+        });
+
+        if (!existingPayment) {
+          const paymentIntent = await stripe.paymentIntents.create({
+            amount: formatAmountForStripe(booking.total),
+            currency: "usd",
+            automatic_payment_methods: { enabled: true },
+            metadata: {
+              bookingId: booking.id,
+              bookingNumber: booking.bookingNumber,
+              userId: booking.userId,
+            },
+            description: `Booking #${booking.bookingNumber} at Pawfect Stays`,
+            receipt_email: data.email,
+          });
+
+          // Create payment record
+          await prisma.payment.create({
+            data: {
+              bookingId: booking.id,
+              amount: booking.total,
+              currency: "usd",
+              status: "pending",
+              stripePaymentId: paymentIntent.id,
+            },
+          });
+
+          clientSecret = paymentIntent.client_secret || undefined;
+        }
+      } catch (error) {
+        console.error("Failed to create payment intent:", error);
+        // Don't fail booking if payment creation fails
+      }
+    }
 
     return NextResponse.json({
       success: true,
@@ -220,7 +264,10 @@ export async function POST(request: NextRequest) {
         total: booking.total,
         status: booking.status,
       },
-      message: "Booking created successfully. Please proceed to payment.",
+      payment: clientSecret ? { clientSecret } : undefined,
+      message: clientSecret
+        ? "Booking created. Please complete payment."
+        : "Booking created successfully.",
     }, { status: 201 });
   } catch (error) {
     console.error("Booking creation error:", error);
