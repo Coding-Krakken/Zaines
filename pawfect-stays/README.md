@@ -297,7 +297,200 @@ npm run dev
 - Run `npm run typecheck` before committing to catch type errors
 - Tests validate that API routes return proper errors when environment variables are missing
 
-## 📁 Project Structure
+## � Booking & Payment Flow
+
+The booking and payment system is fully integrated, creating a seamless experience from reservation to payment confirmation.
+
+### Flow Overview
+
+```
+1. Customer creates booking → 2. Payment intent created → 3. Customer completes payment → 4. Webhook confirms → 5. Booking confirmed
+```
+
+### API Endpoints
+
+#### POST /api/bookings
+Creates a new booking and optionally generates a Stripe payment intent.
+
+**Request Body:**
+```json
+{
+  "checkIn": "2026-03-01",
+  "checkOut": "2026-03-05",
+  "suiteType": "standard",
+  "petCount": 1,
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "phone": "1234567890",
+  "petNames": "Buddy",
+  "specialRequests": "Extra playtime",
+  "addOns": []
+}
+```
+
+**Response (with Stripe configured):**
+```json
+{
+  "success": true,
+  "booking": {
+    "id": "clx...",
+    "bookingNumber": "PB-20260208-0001",
+    "checkIn": "2026-03-01T00:00:00.000Z",
+    "checkOut": "2026-03-05T00:00:00.000Z",
+    "suite": {
+      "id": "suite-123",
+      "name": "Standard Suite 1",
+      "tier": "standard",
+      "pricePerNight": 65
+    },
+    "total": 286,
+    "status": "pending"
+  },
+  "payment": {
+    "clientSecret": "pi_xxx_secret_yyy"
+  },
+  "message": "Booking created. Please complete payment."
+}
+```
+
+**Response (without Stripe configured):**
+```json
+{
+  "success": true,
+  "booking": { ... },
+  "message": "Booking created successfully."
+}
+```
+
+**Key Features:**
+- **Graceful Degradation**: Booking succeeds even if Stripe is unavailable
+- **Idempotent Payment Creation**: Checks for existing payments to prevent duplicates
+- **Metadata Tracking**: Stores `bookingId`, `bookingNumber`, and `userId` in Stripe for reconciliation
+
+#### POST /api/payments/webhook
+Handles Stripe webhook events for payment lifecycle updates.
+
+**Supported Events:**
+- `payment_intent.succeeded` → Updates payment to `succeeded`, booking to `confirmed`
+- `payment_intent.payment_failed` → Updates payment to `failed`, booking to `cancelled`
+- `payment_intent.canceled` → Updates payment to `cancelled`, booking to `cancelled`
+- `charge.refunded` → Updates payment to `refunded`, booking to `cancelled`
+
+**Webhook Setup:**
+```bash
+# Install Stripe CLI
+brew install stripe/stripe-cli/stripe
+
+# Login to Stripe
+stripe login
+
+# Forward webhooks to local development server
+stripe listen --forward-to localhost:3000/api/payments/webhook
+
+# Trigger test events
+stripe trigger payment_intent.succeeded
+stripe trigger payment_intent.payment_failed
+```
+
+### Status Values
+
+#### Booking Status
+- `pending` - Initial state after creation, awaiting payment
+- `confirmed` - Payment succeeded, booking confirmed
+- `checked_in` - Customer checked in
+- `completed` - Stay completed
+- `cancelled` - Booking cancelled (payment failed or manually cancelled)
+
+#### Payment Status
+- `pending` - Payment intent created, awaiting payment
+- `succeeded` - Payment completed successfully
+- `failed` - Payment attempt failed
+- `cancelled` - Payment cancelled
+- `refunded` - Payment refunded
+
+### Testing the Flow
+
+#### 1. Happy Path (Payment Success)
+```bash
+# Start dev server
+npm run dev
+
+# In another terminal, start webhook forwarding
+stripe listen --forward-to localhost:3000/api/payments/webhook
+
+# Create a booking via API or UI
+curl -X POST http://localhost:3000/api/bookings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "checkIn": "2026-03-01",
+    "checkOut": "2026-03-05",
+    "suiteType": "standard",
+    "petCount": 1,
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "phone": "1234567890",
+    "petNames": "Buddy"
+  }'
+
+# Use Stripe test card that succeeds: 4242 4242 4242 4242
+# Payment intent succeeds → Webhook fires → Booking confirmed
+```
+
+#### 2. Failure Path (Payment Failure)
+```bash
+# Use Stripe test card that fails: 4000 0000 0000 0002
+# Payment intent fails → Webhook fires → Booking cancelled
+```
+
+#### 3. Degraded Mode (No Stripe)
+```bash
+# Unset Stripe keys
+unset STRIPE_SECRET_KEY
+
+# Create booking → Succeeds without payment integration
+# Booking status remains "pending"
+```
+
+### Test Cards (Stripe Test Mode)
+
+| Card Number | Scenario |
+|-------------|----------|
+| `4242 4242 4242 4242` | Successful payment |
+| `4000 0000 0000 0002` | Payment declined |
+| `4000 0000 0000 9995` | Payment fails |
+| `4000 0025 0000 3155` | Requires authentication |
+
+**CVV:** Any 3 digits  
+**Expiry:** Any future date  
+**ZIP:** Any 5 digits
+
+### Automated Tests
+
+Run the E2E test suite covering the full booking → payment → webhook flow:
+
+```bash
+npm test src/__tests__/booking-payment-e2e.test.ts
+```
+
+**Test Coverage:**
+- ✅ Booking creation with payment intent
+- ✅ Payment record creation with pending status
+- ✅ Graceful handling of Stripe failures
+- ✅ Webhook: payment success → booking confirmed
+- ✅ Webhook: payment failure → booking cancelled
+- ✅ Idempotent payment creation
+
+### Security Considerations
+
+- ✅ **Webhook Signature Verification**: All webhooks verify Stripe signatures
+- ✅ **Test Keys Only**: Use `sk_test_*` and `pk_test_*` in development
+- ✅ **No Client Secret Logging**: Secrets only returned in intended API responses
+- ✅ **Graceful Degradation**: Payment failures don't block booking creation
+- ✅ **Idempotency**: Duplicate payment records prevented via booking ID check
+
+## �📁 Project Structure
 
 ```
 pawfect-stays/
