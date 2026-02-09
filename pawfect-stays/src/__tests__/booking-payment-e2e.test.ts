@@ -22,6 +22,67 @@ vi.mock('@/lib/auth', () => ({
 
 vi.mock('@/lib/prisma', () => {
   const mockPrisma = {
+    $transaction: vi.fn(async (callback) => {
+      const tx = {
+        $executeRaw: vi.fn(() => Promise.resolve()),
+        booking: {
+          count: vi.fn(() => Promise.resolve(0)),
+          create: vi.fn(() => Promise.resolve({
+            id: 'booking-123',
+            userId: 'test-user-id',
+            suiteId: 'suite-123',
+            bookingNumber: 'PB-20260208-0001',
+            checkInDate: new Date('2026-03-01'),
+            checkOutDate: new Date('2026-03-05'),
+            totalNights: 4,
+            subtotal: 260,
+            tax: 26,
+            total: 286,
+            status: 'pending',
+            specialRequests: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            user: {
+              id: 'test-user-id',
+              name: 'Test User',
+              email: 'test@example.com',
+              phone: '1234567890',
+            },
+            suite: {
+              id: 'suite-123',
+              name: 'Standard Suite 1',
+              tier: 'standard',
+              pricePerNight: 65,
+            },
+          })),
+        },
+        suite: {
+          findFirst: vi.fn(() => Promise.resolve({
+            id: 'suite-123',
+            name: 'Standard Suite 1',
+            tier: 'standard',
+            pricePerNight: 65,
+            isActive: true,
+          })),
+        },
+        user: {
+          findUnique: vi.fn(() => Promise.resolve({
+            id: 'test-user-id',
+            email: 'test@example.com',
+            name: 'Test User',
+            phone: '1234567890',
+          })),
+          upsert: vi.fn(() => Promise.resolve({
+            id: 'test-user-id',
+            email: 'test@example.com',
+            name: 'John Doe',
+            phone: '1234567890',
+          })),
+        },
+      };
+      
+      return await callback(tx);
+    }),
     booking: {
       count: vi.fn(() => Promise.resolve(0)),
       create: vi.fn(() => Promise.resolve({

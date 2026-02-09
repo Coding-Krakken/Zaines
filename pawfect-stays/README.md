@@ -297,7 +297,7 @@ npm run dev
 - Run `npm run typecheck` before committing to catch type errors
 - Tests validate that API routes return proper errors when environment variables are missing
 
-## � Booking & Payment Flow
+## 📦 Booking & Payment Flow
 
 The booking and payment system is fully integrated, creating a seamless experience from reservation to payment confirmation.
 
@@ -468,10 +468,17 @@ unset STRIPE_SECRET_KEY
 
 ### Automated Tests
 
+<<<<<<< HEAD
+Run the test suite covering booking and payment functionality:
+
+```bash
+npm test
+=======
 Run the E2E test suite covering the full booking → payment → webhook flow:
 
 ```bash
 npm test src/__tests__/booking-payment-e2e.test.ts
+>>>>>>> origin/main
 ```
 
 **Test Coverage:**
@@ -490,7 +497,191 @@ npm test src/__tests__/booking-payment-e2e.test.ts
 - ✅ **Graceful Degradation**: Payment failures don't block booking creation
 - ✅ **Idempotency**: Duplicate payment records prevented via booking ID check
 
+<<<<<<< HEAD
+## 🔒 Concurrency & Data Safety
+
+### Overview
+The booking system uses **PostgreSQL advisory locks** and **serializable transactions** to prevent overbooking under concurrent load. This ensures capacity limits are never exceeded, even when multiple users attempt to book the same suite type simultaneously.
+
+### How It Works
+
+#### 1. Advisory Lock Acquisition
+When a booking request arrives, the system acquires a PostgreSQL advisory lock:
+```typescript
+await tx.$executeRaw`
+  SELECT pg_advisory_xact_lock(
+    hashtext(${suiteType}::text || ${checkInDate}::text)
+  )
+`;
+```
+- **Lock Key**: Hash of `suiteType + checkInDate` (e.g., "standard2026-03-01")
+- **Scope**: Transaction-level lock (released automatically on commit/rollback)
+- **Blocking Behavior**: Concurrent requests for the same suite/date wait in queue
+
+#### 2. Atomic Capacity Check
+Inside the transaction:
+1. Lock acquired (blocks other concurrent requests)
+2. Count overlapping confirmed bookings
+3. Reject if `count >= capacity[suiteType]`
+4. Create booking if capacity available
+5. Lock released on commit
+
+#### 3. Serializable Isolation
+```typescript
+prisma.$transaction(callback, { 
+  isolationLevel: 'Serializable',
+  timeout: 10000
+})
+```
+- Prevents phantom reads (new bookings appearing mid-transaction)
+- PostgreSQL automatically detects serialization conflicts
+- Failed transactions return `P2034` error code
+
+### Capacity Limits
+| Suite Tier | Max Concurrent Bookings |
+|------------|-------------------------|
+| Standard   | 10                      |
+| Deluxe     | 8                       |
+| Luxury     | 5                       |
+
+### Performance Impact
+- **Typical Latency**: +5-15ms per booking (lock acquisition + serialization)
+- **High Load**: Requests wait in queue (FIFO order)
+- **Timeout**: 10 seconds (returns `503 Service Unavailable`)
+
+### Error Codes & Retry Logic
+
+| HTTP Status | Error Code | Retry Strategy |
+|-------------|------------|----------------|
+| `409 Conflict` | `CAPACITY_EXCEEDED` | Do not retry (no availability) |
+| `409 Conflict` | `TRANSACTION_CONFLICT` | Retry after 3 seconds |
+| `503 Service Unavailable` | `TIMEOUT` | Retry after 5 seconds |
+
+**Client Implementation Example:**
+```javascript
+async function createBookingWithRetry(data, maxRetries = 3) {
+  for (let i = 0; i < maxRetries; i++) {
+    const response = await fetch('/api/bookings', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    
+    if (response.ok) return response.json();
+    
+    const error = await response.json();
+    
+    // Don't retry if no capacity available
+    if (error.code === 'CAPACITY_EXCEEDED') {
+      throw new Error('No availability for selected dates');
+    }
+    
+    // Retry on conflicts/timeouts
+    if (error.code === 'TRANSACTION_CONFLICT' || error.code === 'TIMEOUT') {
+      const retryAfter = parseInt(response.headers.get('Retry-After') || '3');
+      await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+      continue;
+    }
+    
+    throw new Error(error.error);
+  }
+}
+```
+
+### Database Requirements
+- **PostgreSQL 9.1+** (for `pg_advisory_xact_lock`)
+- **Connection Pooling**: Recommended max 20 connections
+- **Deadlock Detection**: Automatic (PostgreSQL default: 1s timeout)
+
+### Troubleshooting
+
+#### High Lock Wait Times
+```sql
+-- Check active advisory locks
+SELECT pid, locktype, mode, granted
+FROM pg_locks
+WHERE locktype = 'advisory';
+```
+
+**Solution:** Increase connection pool size or reduce transaction timeout.
+
+#### Frequent Serialization Failures
+```sql
+-- Monitor transaction conflicts
+SELECT * FROM pg_stat_database WHERE datname = 'your_db';
+-- Check xact_rollback vs xact_commit ratio
+```
+
+**Solution:** Indicates high contention. Consider:
+- Shorter transaction scope
+- Optimistic locking for non-critical operations
+- Caching capacity checks (with short TTL)
+
+#### Deadlocks
+Rare but possible if multiple suite types are locked out of order.
+
+**Solution:** Locks are acquired deterministically by suite type + date combination, minimizing deadlock risk.
+
+### Testing Concurrency
+
+#### Stress Test (Local)
+```bash
+# Terminal 1: Start dev server
+npm run dev
+
+# Terminal 2: Prepare test payload
+cat > booking-payload.json << EOF
+{
+  "checkIn": "2026-03-15",
+  "checkOut": "2026-03-20",
+  "suiteType": "standard",
+  "petCount": 1,
+  "firstName": "Test",
+  "lastName": "User",
+  "email": "test@example.com",
+  "phone": "1234567890",
+  "petNames": "Buddy"
+}
+EOF
+
+# Simulate 20 concurrent bookings
+for i in {1..20}; do
+  curl -X POST http://localhost:3000/api/bookings \
+    -H "Content-Type: application/json" \
+    -d @booking-payload.json &
+done
+wait
+
+# Expected: ~10 succeed (201), ~10 rejected (409 "not available")
+```
+
+#### Automated Tests
+```bash
+npm test src/__tests__/bookings-concurrency.test.ts
+```
+
+**Test Coverage:**
+- ✅ 20 concurrent requests enforce capacity limits
+- ✅ Exactly 10 bookings succeed for standard tier
+- ✅ Independent locking per suite type
+- ✅ Timeout handling returns 503 with Retry-After
+- ✅ Transaction conflicts return 409 with Retry-After
+
+### Security Considerations
+- ✅ **No User-Controlled Lock Keys**: Lock keys derived from internal data only
+- ✅ **DoS Protection**: 10s timeout prevents indefinite blocking
+- ✅ **Fair Scheduling**: PostgreSQL FIFO lock queue prevents starvation
+- ⚠️ **Advisory Locks Are Cooperative**: Code must use locks consistently
+- ✅ **Audit Trail**: All booking attempts logged for monitoring
+
+### Resources
+- [PostgreSQL Advisory Locks](https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS)
+- [Prisma Transactions](https://www.prisma.io/docs/concepts/components/prisma-client/transactions)
+- [Serializable Isolation](https://www.postgresql.org/docs/current/transaction-iso.html#XACT-SERIALIZABLE)
+
+## 📁 Project Structure
+=======
 ## �📁 Project Structure
+>>>>>>> origin/main
 
 ```
 pawfect-stays/
