@@ -468,10 +468,10 @@ unset STRIPE_SECRET_KEY
 
 ### Automated Tests
 
-Run the E2E test suite covering the full booking → payment → webhook flow:
+Run the test suite covering booking and payment functionality:
 
 ```bash
-npm test src/__tests__/booking-payment-e2e.test.ts
+npm test
 ```
 
 **Test Coverage:**

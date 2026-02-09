@@ -32,9 +32,6 @@ const bookingsByType: Record<string, number> = {
   luxury: 0,
 };
 
-// Transaction lock simulation - ensures serial execution per suite type
-const transactionQueue: Map<string, Promise<unknown>> = new Map();
-
 // Transaction callback type
 type TransactionCallback = (tx: {
   $executeRaw: ReturnType<typeof vi.fn>;
@@ -60,9 +57,8 @@ vi.mock('@/lib/prisma', () => {
       
       // Simulate the transaction execution with lock
       const tx = {
-        $executeRaw: vi.fn((query: TemplateStringsArray) => {
-          // Extract suite type from the lock query if possible
-          // For now, we'll determine it during the booking.count call
+        $executeRaw: vi.fn(() => {
+          // Advisory lock simulation - in real implementation would use pg_advisory_xact_lock
           return Promise.resolve();
         }),
         booking: {
