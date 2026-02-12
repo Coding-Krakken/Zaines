@@ -809,6 +809,19 @@ pnpm run worker
 
 The worker processes queued `booking_confirmation` and `payment_notification` jobs and will attempt retries using BullMQ job attempts/backoff. If Redis is not configured the app will continue using the local `tmp/email-queue.log` file.
 
+CI and Docker
+--------------
+
+- A GitHub Actions CI workflow runs typecheck, lint and tests for pushes to `main` and `premerge/*` branches, and for PRs targeting `main`. See `.github/workflows/ci.yml`.
+- To run the worker and Redis locally via Docker Compose:
+
+```bash
+# build and start redis + worker
+RESEND_API_KEY=your_key_here pnpm -C pawfect-stays docker-compose up --build
+```
+
+This will start a Redis container and the worker which processes queued email jobs.
+
 - Database hosting
 - File storage for uploads
 - Testing suite
