@@ -4,23 +4,7 @@ import path from "path";
 const DEV_QUEUE_PATH = path.resolve(process.cwd(), "tmp", "email-queue.log");
 const MAX_RETRIES = 4;
 const RETRY_BASE_MS = 250; // base backoff
-let redisQueue: any | null = null;
-
-function initRedisQueueIfConfigured() {
-  try {
-    const redisUrl = process.env.REDIS_URL;
-    if (!redisUrl) return null;
-    if (redisQueue) return redisQueue;
-    // lazy require to avoid hard dependency when not used in tests/dev
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { Queue } = require('bullmq');
-    redisQueue = new Queue('emailQueue', { connection: { url: redisUrl } });
-    return redisQueue;
-  } catch (err) {
-    // ignore; will fallback to file queue
-    return null;
-  }
-}
+let redisQueue: { add: (name: string, data: unknown, opts?: unknown) => Promise<unknown> } | null = null;
 
 async function ensureQueueDir() {
   const dir = path.dirname(DEV_QUEUE_PATH);
@@ -29,12 +13,22 @@ async function ensureQueueDir() {
 
 async function appendToDevQueue(entry: unknown) {
   // If REDIS_URL is configured, push the entry to Redis queue for background processing
-  const q = initRedisQueueIfConfigured();
-  if (q) {
+  const redisUrl = process.env.REDIS_URL;
+  if (redisUrl) {
     try {
-      await q.add('email', { entry }, { attempts: 5, backoff: { type: 'exponential', delay: 500 } });
-      return;
-    } catch (err) {
+      if (!redisQueue) {
+        // dynamic import to avoid adding hard dependency at module load
+        const { Queue } = await import('bullmq');
+        // Type of Queue from bullmq is compatible with our minimal shape
+        // @ts-expect-error - dynamic import types are not worth enforcing here
+        redisQueue = new Queue('emailQueue', { connection: { url: redisUrl } });
+      }
+
+      if (redisQueue) {
+        await redisQueue.add('email', { entry }, { attempts: 5, backoff: { type: 'exponential', delay: 500 } } as unknown);
+        return;
+      }
+    } catch {
       // fallthrough to file queue on error
     }
   }
@@ -46,7 +40,7 @@ async function appendToDevQueue(entry: unknown) {
 
 type SendResult = { sent: boolean; provider: "resend" | "dev-queue"; detail?: unknown };
 
-async function sendEmailViaResend(payload: { from: string; to: string; subject: string; html: string }) {
+async function sendEmailViaResend(payload: { from: string; to: string; subject: string; html: string }): Promise<{ ok: boolean; json?: unknown }> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) throw new Error("RESEND_API_KEY not set");
 
@@ -83,6 +77,31 @@ async function sendEmailViaResend(payload: { from: string; to: string; subject: 
   throw lastError;
 }
 
+type EmailQueueBookingEntry = {
+  type: 'booking_confirmation';
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+  bookingId?: string;
+  response?: unknown;
+  error?: string;
+};
+
+type EmailQueuePaymentEntry = {
+  type: 'payment_notification';
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+  bookingId?: string;
+  status?: string;
+  response?: unknown;
+  error?: string;
+};
+
+type EmailQueueEntry = EmailQueueBookingEntry | EmailQueuePaymentEntry | { type?: string };
+
 async function processQueuedEntries() {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return; // nothing to do in dev mode
@@ -96,14 +115,14 @@ async function processQueuedEntries() {
 
     for (const line of lines) {
       try {
-        const parsed = JSON.parse(line);
-        const entry = parsed.entry as any;
+        const parsed = JSON.parse(line) as { entry?: unknown };
+        const entry = parsed.entry as EmailQueueEntry | undefined;
         if (!entry || !entry.type) {
           // unknown entry, skip
           continue;
         }
 
-        if (entry.type === "booking_confirmation" || entry.type === "payment_notification") {
+        if (entry.type === 'booking_confirmation' || entry.type === 'payment_notification') {
           const payload = {
             from: entry.from,
             to: entry.to,
@@ -115,7 +134,7 @@ async function processQueuedEntries() {
             await sendEmailViaResend(payload);
             // success — do not re-add
             continue;
-          } catch (err) {
+          } catch {
             // failed to send — keep in remaining
             remaining.push(line);
             continue;
@@ -124,19 +143,19 @@ async function processQueuedEntries() {
 
         // unknown type — keep it for manual inspection
         remaining.push(line);
-      } catch (err) {
+      } catch {
         // if a line is corrupt, skip it
       }
     }
 
     // rewrite file with remaining lines
     if (remaining.length > 0) {
-      await fs.promises.writeFile(DEV_QUEUE_PATH, remaining.join("\n") + "\n", "utf8");
+      await fs.promises.writeFile(DEV_QUEUE_PATH, remaining.join('\n') + '\n', 'utf8');
     } else {
       // no remaining entries — remove file
       await fs.promises.rm(DEV_QUEUE_PATH).catch(() => {});
     }
-  } catch (err) {
+  } catch {
     // no queue file — nothing to process
   }
 }
@@ -144,7 +163,9 @@ async function processQueuedEntries() {
 // Try processing queued entries on module import if possible
 void processQueuedEntries().catch(() => {});
 
-export async function sendBookingConfirmation(booking: any): Promise<SendResult> {
+export type Booking = { id?: string; bookingNumber?: string; status?: string; user?: { email?: string; name?: string } };
+
+export async function sendBookingConfirmation(booking: Booking): Promise<SendResult> {
   const from = process.env.EMAIL_FROM || "noreply@pawfectstays.com";
   const apiKey = process.env.RESEND_API_KEY;
   const to = booking?.user?.email;
@@ -162,10 +183,10 @@ export async function sendBookingConfirmation(booking: any): Promise<SendResult>
 
   try {
     const resp = await sendEmailViaResend({ from, to, subject, html });
-    if (resp && (resp as any).ok) return { sent: true, provider: "resend", detail: (resp as any).json };
+    if (resp && resp.ok) return { sent: true, provider: "resend", detail: resp.json };
     // non-ok response (validation etc.) — record to dev queue for manual inspection
-    await appendToDevQueue({ type: "booking_confirmation", to, from, subject, html, bookingId: booking?.id, response: (resp as any).json });
-    return { sent: false, provider: "dev-queue", detail: (resp as any).json };
+    await appendToDevQueue({ type: "booking_confirmation", to, from, subject, html, bookingId: booking?.id, response: resp.json });
+    return { sent: false, provider: "dev-queue", detail: resp.json };
   } catch (err) {
     // after retries, still failed — append to queue for manual retry later
     await appendToDevQueue({ type: "booking_confirmation", to, from, subject, html, bookingId: booking?.id, error: String(err) });
@@ -173,7 +194,7 @@ export async function sendBookingConfirmation(booking: any): Promise<SendResult>
   }
 }
 
-export async function sendPaymentNotification(bookingId: string, type: "success" | "failure", booking?: any): Promise<SendResult> {
+export async function sendPaymentNotification(bookingId: string, type: "success" | "failure", booking?: Booking): Promise<SendResult> {
   const from = process.env.EMAIL_FROM || "noreply@pawfectstays.com";
   const apiKey = process.env.RESEND_API_KEY;
   const to = booking?.user?.email;
@@ -191,9 +212,9 @@ export async function sendPaymentNotification(bookingId: string, type: "success"
 
   try {
     const resp = await sendEmailViaResend({ from, to, subject, html });
-    if (resp && (resp as any).ok) return { sent: true, provider: "resend", detail: (resp as any).json };
-    await appendToDevQueue({ type: "payment_notification", to, from, subject, html, bookingId, status: type, response: (resp as any).json });
-    return { sent: false, provider: "dev-queue", detail: (resp as any).json };
+    if (resp && resp.ok) return { sent: true, provider: "resend", detail: resp.json };
+    await appendToDevQueue({ type: "payment_notification", to, from, subject, html, bookingId, status: type, response: resp.json });
+    return { sent: false, provider: "dev-queue", detail: resp.json };
   } catch (err) {
     await appendToDevQueue({ type: "payment_notification", to, from, subject, html, bookingId, status: type, error: String(err) });
     return { sent: false, provider: "dev-queue", detail: String(err) };

@@ -6,10 +6,12 @@ import { sendBookingConfirmation, sendPaymentNotification } from '@/lib/notifica
 
 const QUEUE_PATH = path.resolve(process.cwd(), 'tmp', 'email-queue.log');
 
+type TestBooking = { id?: string; bookingNumber?: string; status?: string; user?: { email: string; name?: string } };
+
 async function rmQueue() {
   try {
     await fs.unlink(QUEUE_PATH);
-  } catch (e) {
+  } catch {
     // ignore
   }
 }
@@ -25,14 +27,14 @@ describe('notifications helper (dev queue)', () => {
   });
 
   it('writes booking confirmation to dev queue when RESEND_API_KEY is not set', async () => {
-    const booking = {
+    const booking: TestBooking = {
       id: 'b_test_1',
       bookingNumber: 'PB-TEST-0001',
       status: 'pending',
       user: { email: 'test@example.com', name: 'Test User' },
-    } as any;
+    };
 
-    const res = await sendBookingConfirmation(booking as any);
+    const res = await sendBookingConfirmation(booking);
     expect(res.provider).toBe('dev-queue');
 
     const contents = await fs.readFile(QUEUE_PATH, 'utf8');
@@ -41,8 +43,8 @@ describe('notifications helper (dev queue)', () => {
   });
 
   it('writes payment notification to dev queue when RESEND_API_KEY is not set', async () => {
-    const booking = { id: 'b_test_2', bookingNumber: 'PB-TEST-0002', user: { email: 'pay@example.com' } } as any;
-    const res = await sendPaymentNotification('b_test_2', 'success', booking as any);
+    const booking: TestBooking = { id: 'b_test_2', bookingNumber: 'PB-TEST-0002', user: { email: 'pay@example.com' } };
+    const res = await sendPaymentNotification('b_test_2', 'success', booking);
     expect(res.provider).toBe('dev-queue');
 
     const contents = await fs.readFile(QUEUE_PATH, 'utf8');

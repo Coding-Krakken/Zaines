@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const QUEUE = path.resolve(process.cwd(), 'tmp', 'email-queue.log');
 
@@ -18,10 +18,10 @@ async function drain(shouldClear = false) {
       fs.unlinkSync(QUEUE);
       console.log('Queue cleared.');
     }
-  } catch (err) {
+  } catch {
     console.log('No queue file found.');
   }
 }
 
 const clear = process.argv.includes('--clear') || process.argv.includes('-c');
-drain(clear);
+void drain(clear);

@@ -1,6 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* Worker to process emailQueue using BullMQ. Requires REDIS_URL env var. */
-const path = require('path');
-const fs = require('fs');
 
 async function main() {
   const redisUrl = process.env.REDIS_URL;
@@ -10,21 +9,14 @@ async function main() {
   }
 
   // Lazy import so repo can run without bullmq installed when not used
-  const { Worker } = require('bullmq');
+  const { Worker } = (await import('bullmq')) as any;
 
   // Load notifications helper (which exposes sendEmailViaResend indirectly via functions)
-  const notifications = require('../src/lib/notifications');
+  const notifications = (await import('../src/lib/notifications')) as any;
 
-  const worker = new Worker('emailQueue', async (job) => {
+  const worker = new Worker('emailQueue', async (job: any) => {
     const entry = job.data.entry;
     if (!entry || !entry.type) return;
-
-    const payload = {
-      from: entry.from,
-      to: entry.to,
-      subject: entry.subject,
-      html: entry.html,
-    };
 
     try {
       // Use internal sendEmailViaResend by calling sendBookingConfirmation/payments
@@ -40,18 +32,18 @@ async function main() {
     }
   }, { connection: { url: redisUrl } });
 
-  worker.on('completed', (job) => {
+  worker.on('completed', (job: any) => {
     console.log('Job completed', job.id);
   });
 
-  worker.on('failed', (job, err) => {
+  worker.on('failed', (job: any, err: any) => {
     console.error('Job failed', job.id, err);
   });
 
   console.log('Worker started, processing emailQueue...');
 }
 
-main().catch((err) => {
+void main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
