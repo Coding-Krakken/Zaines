@@ -781,6 +781,47 @@ This is a demonstration project. For production use, additional features needed:
 - Complete authentication flow
 - Payment integration
 - Email service setup
+
+Email notifications / Dev queue
+------------------------------
+
+The application can send transactional emails (booking confirmations and payment notifications) using Resend. To enable real sending, set `RESEND_API_KEY` in your environment (see `.env.example`). If `RESEND_API_KEY` is not configured, the app will write outgoing messages to a local dev queue file at `tmp/email-queue.log` for easy inspection during development.
+
+Quick verification:
+
+1. Create a booking via the API or UI.
+2. If `RESEND_API_KEY` is set, the email will be sent via Resend. Otherwise inspect `tmp/email-queue.log`.
+
+Environment variables:
+
+- `RESEND_API_KEY` - API key for Resend (optional for local development)
+- `EMAIL_FROM` - sender address (defaults to `noreply@pawfectstays.com`)
+
+Optional Redis worker (production)
+---------------------------------
+
+For production reliability, configure a Redis instance and set `REDIS_URL` (e.g. `redis://user:pass@host:6379`). The app will push email entries to a Redis-backed BullMQ queue when `REDIS_URL` is present. Run the worker to process the queue:
+
+```bash
+# Start the worker (on a machine with access to REDIS_URL)
+pnpm run worker
+```
+
+The worker processes queued `booking_confirmation` and `payment_notification` jobs and will attempt retries using BullMQ job attempts/backoff. If Redis is not configured the app will continue using the local `tmp/email-queue.log` file.
+
+CI and Docker
+--------------
+
+- A GitHub Actions CI workflow runs typecheck, lint and tests for pushes to `main` and `premerge/*` branches, and for PRs targeting `main`. See `.github/workflows/ci.yml`.
+- To run the worker and Redis locally via Docker Compose:
+
+```bash
+# build and start redis + worker
+RESEND_API_KEY=your_key_here pnpm -C pawfect-stays docker-compose up --build
+```
+
+This will start a Redis container and the worker which processes queued email jobs.
+
 - Database hosting
 - File storage for uploads
 - Testing suite
