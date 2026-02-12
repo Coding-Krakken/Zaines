@@ -122,13 +122,14 @@ async function processQueuedEntries() {
           continue;
         }
 
-        if (entry.type === 'booking_confirmation' || entry.type === 'payment_notification') {
-          const payload = {
-            from: entry.from,
-            to: entry.to,
-            subject: entry.subject,
-            html: entry.html,
-          };
+            if (entry.type === 'booking_confirmation' || entry.type === 'payment_notification') {
+              const e = entry as EmailQueueBookingEntry | EmailQueuePaymentEntry;
+              const payload = {
+                from: e.from,
+                to: e.to,
+                subject: e.subject,
+                html: e.html,
+              };
 
           try {
             await sendEmailViaResend(payload);
@@ -163,7 +164,7 @@ async function processQueuedEntries() {
 // Try processing queued entries on module import if possible
 void processQueuedEntries().catch(() => {});
 
-export type Booking = { id?: string; bookingNumber?: string; status?: string; user?: { email?: string; name?: string } };
+export type Booking = { id?: string; bookingNumber?: string; status?: string; user?: { email?: string | null; name?: string | null } };
 
 export async function sendBookingConfirmation(booking: Booking): Promise<SendResult> {
   const from = process.env.EMAIL_FROM || "noreply@pawfectstays.com";
