@@ -3,6 +3,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { stripe, formatAmountForStripe, isStripeConfigured } from "@/lib/stripe";
+import { sendBookingConfirmation } from "@/lib/notifications";
 
 const bookingSchema = z.object({
   checkIn: z.string(),
@@ -207,7 +208,12 @@ export async function POST(request: NextRequest) {
       timeout: 10000, // 10 seconds
     });
 
-    // TODO: Send confirmation email
+    // Send confirmation email (Resend if configured, otherwise record to dev queue)
+    try {
+      await sendBookingConfirmation(booking);
+    } catch (err) {
+      console.error("Notification send error:", err);
+    }
 
     // Create Stripe Payment Intent if Stripe is configured
     let clientSecret: string | undefined;

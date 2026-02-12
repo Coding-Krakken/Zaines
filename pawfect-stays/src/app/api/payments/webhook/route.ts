@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import Stripe from "stripe";
 import { stripe, isStripeConfigured } from "@/lib/stripe";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import { sendPaymentNotification } from "@/lib/notifications";
 
 // POST /api/payments/webhook - Handle Stripe webhook events
 export async function POST(request: NextRequest) {
@@ -132,7 +133,13 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
       },
     });
 
-    // TODO: Send confirmation email to customer
+    // Send confirmation email (or record to dev queue)
+    try {
+      const booking = await prisma.booking.findUnique({ where: { id: bookingId }, include: { user: true } });
+      await sendPaymentNotification(bookingId, "success", booking ?? undefined);
+    } catch (err) {
+      console.error("Notification send error:", err);
+    }
     console.log(`Payment succeeded for booking ${bookingId}`);
   } catch (error) {
     console.error("Error handling payment success:", error);
@@ -166,7 +173,13 @@ async function handlePaymentFailure(paymentIntent: Stripe.PaymentIntent) {
       },
     });
 
-    // TODO: Send payment failure notification email
+    // Send payment failure notification email (or record to dev queue)
+    try {
+      const booking = await prisma.booking.findUnique({ where: { id: bookingId }, include: { user: true } });
+      await sendPaymentNotification(bookingId, "failure", booking ?? undefined);
+    } catch (err) {
+      console.error("Notification send error:", err);
+    }
     console.log(`Payment failed for booking ${bookingId}`);
   } catch (error) {
     console.error("Error handling payment failure:", error);
