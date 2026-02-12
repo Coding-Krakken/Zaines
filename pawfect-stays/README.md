@@ -781,6 +781,22 @@ This is a demonstration project. For production use, additional features needed:
 - Complete authentication flow
 - Payment integration
 - Email service setup
+
+Email notifications / Dev queue
+------------------------------
+
+The application can send transactional emails (booking confirmations and payment notifications) using Resend. To enable real sending, set `RESEND_API_KEY` in your environment (see `.env.example`). If `RESEND_API_KEY` is not configured, the app will write outgoing messages to a local dev queue file at `tmp/email-queue.log` for easy inspection during development.
+
+Quick verification:
+
+1. Create a booking via the API or UI.
+2. If `RESEND_API_KEY` is set, the email will be sent via Resend. Otherwise inspect `tmp/email-queue.log`.
+
+Environment variables:
+
+- `RESEND_API_KEY` - API key for Resend (optional for local development)
+- `EMAIL_FROM` - sender address (defaults to `noreply@pawfectstays.com`)
+
 - Database hosting
 - File storage for uploads
 - Testing suite
