@@ -11,6 +11,7 @@
     "test": "vitest run",
     "drain:emails": "node scripts/drain-email-queue.js",
     "test:watch": "vitest",
+    "worker": "node scripts/worker.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio"
@@ -39,6 +40,8 @@
     "react-email": "^5.2.8",
     "react-hook-form": "^7.71.1",
     "resend": "^6.9.1",
+    "bullmq": "^5.69.0",
+    "ioredis": "^5.3.2",
     "sonner": "^2.0.7",
     "stripe": "^20.3.1",
     "tailwind-merge": "^3.4.0",

@@ -4,6 +4,23 @@ import path from "path";
 const DEV_QUEUE_PATH = path.resolve(process.cwd(), "tmp", "email-queue.log");
 const MAX_RETRIES = 4;
 const RETRY_BASE_MS = 250; // base backoff
+let redisQueue: any | null = null;
+
+function initRedisQueueIfConfigured() {
+  try {
+    const redisUrl = process.env.REDIS_URL;
+    if (!redisUrl) return null;
+    if (redisQueue) return redisQueue;
+    // lazy require to avoid hard dependency when not used in tests/dev
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { Queue } = require('bullmq');
+    redisQueue = new Queue('emailQueue', { connection: { url: redisUrl } });
+    return redisQueue;
+  } catch (err) {
+    // ignore; will fallback to file queue
+    return null;
+  }
+}
 
 async function ensureQueueDir() {
   const dir = path.dirname(DEV_QUEUE_PATH);
@@ -11,6 +28,17 @@ async function ensureQueueDir() {
 }
 
 async function appendToDevQueue(entry: unknown) {
+  // If REDIS_URL is configured, push the entry to Redis queue for background processing
+  const q = initRedisQueueIfConfigured();
+  if (q) {
+    try {
+      await q.add('email', { entry }, { attempts: 5, backoff: { type: 'exponential', delay: 500 } });
+      return;
+    } catch (err) {
+      // fallthrough to file queue on error
+    }
+  }
+
   await ensureQueueDir();
   const line = JSON.stringify({ ts: new Date().toISOString(), entry }) + "\n";
   await fs.promises.appendFile(DEV_QUEUE_PATH, line, "utf8");

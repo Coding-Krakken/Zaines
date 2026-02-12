@@ -797,6 +797,18 @@ Environment variables:
 - `RESEND_API_KEY` - API key for Resend (optional for local development)
 - `EMAIL_FROM` - sender address (defaults to `noreply@pawfectstays.com`)
 
+Optional Redis worker (production)
+---------------------------------
+
+For production reliability, configure a Redis instance and set `REDIS_URL` (e.g. `redis://user:pass@host:6379`). The app will push email entries to a Redis-backed BullMQ queue when `REDIS_URL` is present. Run the worker to process the queue:
+
+```bash
+# Start the worker (on a machine with access to REDIS_URL)
+pnpm run worker
+```
+
+The worker processes queued `booking_confirmation` and `payment_notification` jobs and will attempt retries using BullMQ job attempts/backoff. If Redis is not configured the app will continue using the local `tmp/email-queue.log` file.
+
 - Database hosting
 - File storage for uploads
 - Testing suite
