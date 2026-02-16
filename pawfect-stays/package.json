@@ -10,6 +10,7 @@
     "lint": "eslint src scripts --ext .ts,.tsx,.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "drain:emails": "node scripts/drain-email-queue.js",
     "test:watch": "vitest",
     "worker": "node scripts/worker.js",
