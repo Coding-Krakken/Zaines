@@ -193,6 +193,12 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm -C pawfect-stays exec playwright install --with-deps
 
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: pawfect-stays
+
       - name: Start application
         run: |
           pnpm -C pawfect-stays start --silent -- -p 3000 &
