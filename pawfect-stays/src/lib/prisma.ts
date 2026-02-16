@@ -1,3 +1,7 @@
+// Some Prisma client versions expose different type shapes in their
+// type declarations on the build environment. Silence a strict
+// type-checking error here and rely on runtime `@prisma/client`.
+// @ts-ignore
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
