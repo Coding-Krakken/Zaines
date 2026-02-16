@@ -76,7 +76,10 @@ export async function POST(request: NextRequest) {
     };
 
     // Wrap booking creation in transaction with advisory lock
-    const booking = await prisma.$transaction(async (tx) => {
+    // `tx` is the transactional Prisma client provided by Prisma.
+    // Use `any` here to avoid importing Prisma types that differ across versions
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const booking = await prisma.$transaction(async (tx: any) => {
       // 1. Acquire PostgreSQL advisory lock for this suite type + date range
       // This ensures only one request can check capacity and create a booking at a time
       // for the same suite type and check-in date combination

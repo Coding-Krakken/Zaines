@@ -1,7 +1,12 @@
 import fs from "fs";
 import path from "path";
+import os from "os";
 
-const DEV_QUEUE_PATH = path.resolve(process.cwd(), "tmp", "email-queue.log");
+// Use an explicit env override if provided, otherwise prefer a writable
+// system temp directory (works on serverless platforms like Vercel).
+const DEV_QUEUE_PATH = process.env.DEV_QUEUE_PATH
+  ? path.resolve(process.env.DEV_QUEUE_PATH)
+  : path.resolve(process.env.NODE_ENV === "production" ? os.tmpdir() : process.cwd(), "tmp", "email-queue.log");
 const MAX_RETRIES = 4;
 const RETRY_BASE_MS = 250; // base backoff
 let redisQueue: { add: (name: string, data: unknown, opts?: unknown) => Promise<unknown> } | null = null;
