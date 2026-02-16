@@ -1,0 +1,30 @@
+name: Playwright Accessibility Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  a11y:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: Start dev server
+        run: npm run dev & sleep 5
+      - name: Run Playwright accessibility scan
+        run: npm run audit:ui:accessibility:playwright
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-a11y-results
+          path: docs/audit_logs/

@@ -105,11 +105,11 @@ export default function PricingPage() {
               <CardContent className="space-y-8">
                 {/* Service Type */}
                 <div className="space-y-2">
-                  <Label htmlFor="service-type" className="text-base font-semibold">
+                  <Label htmlFor="service-type" id="service-type-label" className="text-base font-semibold">
                     Select Service
                   </Label>
-                  <Select value={serviceType} onValueChange={(value) => setServiceType(value as "boarding" | "daycare" | "grooming")}>
-                    <SelectTrigger id="service-type">
+                  <Select value={serviceType} onValueChange={(value) => setServiceType(value as "boarding" | "daycare" | "grooming") }>
+                    <SelectTrigger id="service-type" aria-labelledby="service-type-label" aria-label="Select Service">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -123,11 +123,11 @@ export default function PricingPage() {
                 {/* Suite Type (for boarding) */}
                 {serviceType === "boarding" && (
                   <div className="space-y-2">
-                    <Label htmlFor="suite-type" className="text-base font-semibold">
+                    <Label htmlFor="suite-type" id="suite-type-label" className="text-base font-semibold">
                       Suite Type
                     </Label>
-                    <Select value={suiteType} onValueChange={(value) => setSuiteType(value as "standard" | "deluxe" | "luxury")}>
-                      <SelectTrigger id="suite-type">
+                    <Select value={suiteType} onValueChange={(value) => setSuiteType(value as "standard" | "deluxe" | "luxury") }>
+                      <SelectTrigger id="suite-type" aria-labelledby="suite-type-label" aria-label="Suite Type">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
