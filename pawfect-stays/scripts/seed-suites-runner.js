@@ -1,8 +1,8 @@
-const fs = require('fs');
-const path = require('path');
-const { Pool } = require('pg');
-const { PrismaClient } = require('@prisma/client');
-const { PrismaPg } = require('@prisma/adapter-pg');
+import fs from 'fs';
+import path from 'path';
+import { Pool } from 'pg';
+import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 function loadEnv() {
   const envPath = path.resolve(process.cwd(), '.env');
