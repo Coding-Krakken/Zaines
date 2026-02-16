@@ -297,7 +297,102 @@ npm run dev
 - Run `npm run typecheck` before committing to catch type errors
 - Tests validate that API routes return proper errors when environment variables are missing
 
-## 📦 Booking & Payment Flow
+## � CI/CD Pipeline
+
+### Overview
+
+This project uses GitHub Actions for continuous integration and deployment. The CI pipeline runs automatically on every push to `main` and `premerge/*` branches, ensuring code quality and preventing regressions.
+
+### CI Workflow
+
+**Triggers:** Push to `main`, `premerge/*` branches, or pull requests to `main`
+
+**Jobs:**
+1. **Install Dependencies** - Installs dependencies with pnpm and caches for faster subsequent runs
+2. **Type Check** - Runs TypeScript compiler to validate types
+3. **Lint** - Runs ESLint to enforce code quality standards
+4. **Unit Tests** - Runs Vitest test suite
+5. **Build** - Builds the production bundle to ensure no build errors
+
+**Status Badges:**
+
+![CI Status](https://github.com/Coding-Krakken/Zaines/actions/workflows/ci.yml/badge.svg)
+
+### Deploy Workflow
+
+**Triggers:** Push to `main` (automatic) or manual dispatch
+
+**Jobs:**
+1. **Database Migration** - Runs Prisma migrations on production database
+2. **Build** - Builds application with production environment variables
+3. **Deploy to Vercel** - Deploys to Vercel hosting platform
+4. **Health Check** - Verifies deployment succeeded with API health check
+
+### Branch Protection Rules
+
+Recommended branch protection settings for `main`:
+- ✅ Require status checks to pass before merging
+- ✅ Require branches to be up to date before merging
+- ✅ Require pull request reviews (1 reviewer minimum)
+- ✅ Dismiss stale pull request approvals when new commits are pushed
+- ✅ Do not allow bypassing the above settings
+
+### Running CI Locally
+
+You can run the same checks that CI runs:
+
+```bash
+# Install dependencies
+pnpm install --frozen-lockfile
+
+# Generate Prisma client
+pnpm prisma:generate
+
+# Run all checks
+pnpm typecheck  # Type checking
+pnpm lint       # Linting
+pnpm test       # Tests
+pnpm build      # Build
+```
+
+### Environment Variables for CI/CD
+
+**Required in GitHub Secrets:**
+- `DATABASE_URL` - Production database connection string
+- `NEXTAUTH_SECRET` - NextAuth.js session encryption secret
+- `NEXTAUTH_URL` - Production URL of the application
+- `STRIPE_SECRET_KEY` - Stripe API secret key
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
+- `STRIPE_WEBHOOK_SECRET` - Stripe webhook signature secret
+- `RESEND_API_KEY` - Resend email API key (optional)
+- `REDIS_URL` - Redis connection string (optional)
+- `VERCEL_TOKEN` - Vercel deployment token
+- `VERCEL_ORG_ID` - Vercel organization ID
+- `VERCEL_PROJECT_ID` - Vercel project ID
+- `DEPLOYMENT_URL` - Production URL for health checks
+
+**Setting Secrets:**
+1. Go to repository Settings → Secrets and variables → Actions
+2. Click "New repository secret"
+3. Add each required secret with its value
+
+### Package Manager
+
+This project uses **pnpm** as the package manager (specified in `package.json` via `packageManager` field). The `pnpm-lock.yaml` lockfile ensures consistent dependency versions across all environments.
+
+**Why pnpm?**
+- ⚡ Faster installations (shared dependency cache)
+- 💾 Disk space efficient (content-addressable storage)
+- 🔒 Strict lockfile (better reproducibility)
+- 📦 Monorepo support (if needed in future)
+
+**Installation:**
+```bash
+corepack enable
+corepack prepare pnpm@latest --activate
+```
+
+## �📦 Booking & Payment Flow
 
 The booking and payment system is fully integrated, creating a seamless experience from reservation to payment confirmation.
 
