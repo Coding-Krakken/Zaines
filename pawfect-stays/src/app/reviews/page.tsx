@@ -240,7 +240,6 @@ export default function ReviewsPage() {
                           onMouseLeave={() => setHoverRating(0)}
                           className="transition-transform hover:scale-110"
                           aria-label={`Set rating ${star} star${star > 1 ? 's' : ''}`}
-                          aria-pressed={star <= (hoverRating || rating)}
                           role="radio"
                           aria-checked={star === rating}
                         >

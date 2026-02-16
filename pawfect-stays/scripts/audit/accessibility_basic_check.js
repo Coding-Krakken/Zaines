@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require('fs');
 const fetch = global.fetch || require('node-fetch');
 const cheerio = require('cheerio');
@@ -11,7 +12,7 @@ const ROUTES = [
   '/auth/signin'
 ];
 
-function analyze(html, url) {
+function analyze(html) {
   const $ = cheerio.load(html);
   const issues = [];
 

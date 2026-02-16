@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { JSDOM } = require('jsdom');
 const axe = require('axe-core');
 const fs = require('fs');
@@ -33,8 +34,6 @@ async function fetchHtml(url) {
 async function runAxeOnHtml(html, url) {
   // create JSDOM that allows running injected scripts
   const dom = new JSDOM(html, { url, runScripts: 'dangerously', resources: 'usable' });
-  const { window } = dom;
-
   const win = dom.window;
 
   // inject axe script into the page and allow it to initialize

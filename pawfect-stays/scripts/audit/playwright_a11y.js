@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require('fs');
 const { chromium } = require('playwright');
 const { injectAxe, checkA11y } = require('axe-playwright');
