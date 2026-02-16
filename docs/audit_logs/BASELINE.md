@@ -46,7 +46,7 @@ Examples:
   warning  Expected an assignment or function call and instead saw an expression (@typescript-eslint/no-unused-expressions)
 
 Many findings reference:
-  /home/obsidian/Zaines/pawfect-stays/.vercel/output/static/_next/static/chunks/...
+  /home/obsidian/Zaines/.vercel/output/static/_next/static/chunks/...
 ```
 
 Tests excerpt:

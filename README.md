@@ -56,7 +56,7 @@ The app is designed to boot and run without any external services configured. Yo
 1. Clone the repository
 ```bash
 git clone <repository-url>
-cd pawfect-stays
+cd Zaines
 ```
 
 2. Install dependencies
@@ -774,12 +774,9 @@ npm test src/__tests__/bookings-concurrency.test.ts
 - [Serializable Isolation](https://www.postgresql.org/docs/current/transaction-iso.html#XACT-SERIALIZABLE)
 
 ## 📁 Project Structure
-=======
-## �📁 Project Structure
->>>>>>> origin/main
 
 ```
-pawfect-stays/
+Zaines/
 ├── src/
 │   ├── app/                    # Next.js App Router pages
 │   │   ├── about/             # About page
@@ -912,7 +909,7 @@ CI and Docker
 
 ```bash
 # build and start redis + worker
-RESEND_API_KEY=your_key_here pnpm -C pawfect-stays docker-compose up --build
+RESEND_API_KEY=your_key_here pnpm docker-compose up --build
 ```
 
 This will start a Redis container and the worker which processes queued email jobs.

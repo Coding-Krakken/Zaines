@@ -45,7 +45,7 @@ Notes: repository supports `pnpm` in Docker and `npm` in README/scripts. Use `pn
    - Dev: `npm run dev` (Next dev server)
 
 5) Worker / Compose
-   - Docker compose: `RESEND_API_KEY=... pnpm -C pawfect-stays docker-compose up --build`
+   - Docker compose: `RESEND_API_KEY=... pnpm docker-compose up --build`
    - Worker (local): `npm run worker` (requires `REDIS_URL` in env)
 
 ## Critical workflows (must be validated)
