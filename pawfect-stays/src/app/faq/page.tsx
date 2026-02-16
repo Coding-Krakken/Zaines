@@ -175,6 +175,7 @@ export default function FAQPage() {
                 type="search"
                 placeholder="Search questions..."
                 className="h-14 pl-12 text-lg"
+                aria-label="Search Frequently Asked Questions"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />

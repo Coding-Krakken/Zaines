@@ -120,7 +120,7 @@ export default function ReviewsPage() {
             </p>
             <div className="flex items-center justify-center gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
-                <Star key={star} className="h-8 w-8 fill-yellow-400 text-yellow-400" />
+                <Star key={star} className="h-8 w-8 fill-yellow-400 text-yellow-400" aria-hidden="true" />
               ))}
               <span className="ml-2 text-2xl font-bold">4.9/5</span>
             </div>
@@ -184,6 +184,7 @@ export default function ReviewsPage() {
                             ? "fill-yellow-400 text-yellow-400"
                             : "text-gray-200"
                         }`}
+                        aria-hidden="true"
                       />
                     ))}
                     <span className="ml-2 text-sm text-muted-foreground">
@@ -229,26 +230,30 @@ export default function ReviewsPage() {
                 {/* Rating */}
                 <div className="space-y-2">
                   <Label>Your Rating</Label>
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setRating(star)}
-                        onMouseEnter={() => setHoverRating(star)}
-                        onMouseLeave={() => setHoverRating(0)}
-                        className="transition-transform hover:scale-110"
-                      >
-                        <Star
-                          className={`h-8 w-8 ${
-                            star <= (hoverRating || rating)
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-200"
-                          }`}
-                        />
-                      </button>
-                    ))}
-                  </div>
+                    <div className="flex gap-2" role="radiogroup" aria-label="Rating">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setRating(star)}
+                          onMouseEnter={() => setHoverRating(star)}
+                          onMouseLeave={() => setHoverRating(0)}
+                          className="transition-transform hover:scale-110"
+                          aria-label={`Set rating ${star} star${star > 1 ? 's' : ''}`}
+                          aria-pressed={star <= (hoverRating || rating)}
+                          role="radio"
+                          aria-checked={star === rating}
+                        >
+                          <Star
+                            className={`h-8 w-8 ${
+                              star <= (hoverRating || rating)
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "text-gray-200"
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
                 </div>
 
                 {/* Name */}

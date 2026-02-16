@@ -1,0 +1,96 @@
+{
+  "url": "http://localhost:3000",
+  "scannedAt": "2026-02-16T03:36:57.872Z",
+  "results": [
+    {
+      "route": "/",
+      "url": "http://localhost:3000/",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/about",
+      "url": "http://localhost:3000/about",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/contact",
+      "url": "http://localhost:3000/contact",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/book",
+      "url": "http://localhost:3000/book",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/dog",
+      "url": "http://localhost:3000/dog",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/dog/calm",
+      "url": "http://localhost:3000/dog/calm",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/faq",
+      "url": "http://localhost:3000/faq",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/gallery",
+      "url": "http://localhost:3000/gallery",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/policies",
+      "url": "http://localhost:3000/policies",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/pricing",
+      "url": "http://localhost:3000/pricing",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/privacy",
+      "url": "http://localhost:3000/privacy",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/reviews",
+      "url": "http://localhost:3000/reviews",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/services/boarding",
+      "url": "http://localhost:3000/services/boarding",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/services/daycare",
+      "url": "http://localhost:3000/services/daycare",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/services/grooming",
+      "url": "http://localhost:3000/services/grooming",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/services/training",
+      "url": "http://localhost:3000/services/training",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/suites",
+      "url": "http://localhost:3000/suites",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    },
+    {
+      "route": "/auth/signin",
+      "url": "http://localhost:3000/auth/signin",
+      "error": "Error: Required \"window\" or \"document\" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element."
+    }
+  ]
+}

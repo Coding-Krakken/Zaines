@@ -1,0 +1,132 @@
+{
+  "base": "http://localhost:3000",
+  "scannedAt": "2026-02-16T03:55:37.747Z",
+  "results": [
+    {
+      "route": "/",
+      "url": "http://localhost:3000/",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/about",
+      "url": "http://localhost:3000/about",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/contact",
+      "url": "http://localhost:3000/contact",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/book",
+      "url": "http://localhost:3000/book",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/dog",
+      "url": "http://localhost:3000/dog",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/dog/calm",
+      "url": "http://localhost:3000/dog/calm",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/faq",
+      "url": "http://localhost:3000/faq",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/gallery",
+      "url": "http://localhost:3000/gallery",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/policies",
+      "url": "http://localhost:3000/policies",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/pricing",
+      "url": "http://localhost:3000/pricing",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/privacy",
+      "url": "http://localhost:3000/privacy",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/reviews",
+      "url": "http://localhost:3000/reviews",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/services/boarding",
+      "url": "http://localhost:3000/services/boarding",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/services/daycare",
+      "url": "http://localhost:3000/services/daycare",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/services/grooming",
+      "url": "http://localhost:3000/services/grooming",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/services/training",
+      "url": "http://localhost:3000/services/training",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/suites",
+      "url": "http://localhost:3000/suites",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    },
+    {
+      "route": "/auth/signin",
+      "url": "http://localhost:3000/auth/signin",
+      "status": 200,
+      "issuesCount": 0,
+      "issues": []
+    }
+  ]
+}

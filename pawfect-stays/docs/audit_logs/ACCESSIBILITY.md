@@ -1,0 +1,22 @@
+# Accessibility scan summary
+- Base: http://localhost:3000
+- Scanned at: 2026-02-16T03:36:57.872Z
+
+- / — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /about — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /contact — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /book — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /dog — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /dog/calm — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /faq — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /gallery — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /policies — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /pricing — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /privacy — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /reviews — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /services/boarding — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /services/daycare — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /services/grooming — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /services/training — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /suites — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- /auth/signin — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
