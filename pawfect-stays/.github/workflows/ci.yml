@@ -164,3 +164,46 @@ jobs:
             pawfect-stays/.next
             pawfect-stays/public
           retention-days: 7
+
+  e2e:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install pnpm
+        run: corepack prepare pnpm@latest --activate
+
+      - name: Install dependencies
+        run: pnpm -C pawfect-stays install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm -C pawfect-stays prisma:generate
+
+      - name: Install Playwright browsers
+        run: pnpm -C pawfect-stays exec playwright install --with-deps
+
+      - name: Start application
+        run: |
+          pnpm -C pawfect-stays start --silent -- -p 3000 &
+          for i in $(seq 1 60); do
+            if curl -sSf http://localhost:3000 >/dev/null 2>&1; then
+              echo "server up" && break
+            fi
+            sleep 1
+          done
+
+      - name: Run Playwright E2E
+        run: pnpm -C pawfect-stays test:e2e --reporter=list
+        env:
+          NODE_ENV: test
