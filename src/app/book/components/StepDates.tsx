@@ -49,16 +49,23 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
 
     try {
       const response = await fetch(
-        `/api/availability?checkIn=${data.checkIn}&checkOut=${data.checkOut}&serviceType=${data.serviceType}`
+        `http://localhost:3000/api/availability?checkIn=${data.checkIn}&checkOut=${data.checkOut}&serviceType=${data.serviceType}`
       );
       
-      if (!response.ok) {
-        throw new Error("Failed to check availability");
-      }
+      console.log('Fetching URL:', `/api/availability?checkIn=${data.checkIn}&checkOut=${data.checkOut}&serviceType=${data.serviceType}`);
+      console.log('Request Headers:', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
       const result = await response.json();
       
+      console.log('API response:', result);
+
       if (result.available) {
+        console.log('Suites are available!');
         const nights = calculateNights(data.checkIn, data.checkOut);
         setAvailabilityResult({
           available: true,
@@ -66,6 +73,7 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
           basePrice: result.basePrice || nights * 65, // Fallback to $65/night
         });
       } else {
+        console.log('No suites available.');
         setAvailabilityResult({
           available: false,
           nights: 0,
@@ -74,11 +82,12 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
         toast.error("No availability for selected dates. Please choose different dates.");
       }
     } catch (error) {
-      console.error("Availability check failed:", error);
+      console.error('Error during availability check:', error);
       toast.error("Failed to check availability. Please try again.");
       setAvailabilityResult(null);
     } finally {
       setIsCheckingAvailability(false);
+      console.log('Availability check completed.');
     }
   };
 

@@ -8,9 +8,7 @@ import { z } from "zod";
 export const stepDatesSchema = z.object({
   checkIn: z.string().min(1, "Check-in date is required"),
   checkOut: z.string().min(1, "Check-out date is required"),
-  serviceType: z.enum(["boarding", "daycare"], {
-    required_error: "Service type is required",
-  }),
+  serviceType: z.enum(["boarding", "daycare"]),
   petCount: z.number().min(1, "At least 1 pet is required").max(10, "Maximum 10 pets per booking"),
 }).refine(
   (data) => new Date(data.checkOut) > new Date(data.checkIn),
@@ -22,9 +20,7 @@ export const stepDatesSchema = z.object({
 
 // Step 2: Suite & Add-Ons
 export const stepSuitesSchema = z.object({
-  suiteType: z.enum(["standard", "deluxe", "luxury"], {
-    required_error: "Please select a suite type",
-  }),
+  suiteType: z.enum(["standard", "deluxe", "luxury"]),
   addOns: z.array(
     z.object({
       id: z.string(),
@@ -44,12 +40,8 @@ export const newPetSchema = z.object({
   breed: z.string().min(1, "Breed is required").max(100),
   age: z.number().min(0, "Age must be 0 or greater").max(30, "Please enter a valid age"),
   weight: z.number().min(1, "Weight must be greater than 0").max(300, "Please enter a valid weight"),
-  gender: z.enum(["male", "female"], {
-    required_error: "Please select a gender",
-  }),
-  temperament: z.enum(["friendly", "shy", "energetic", "calm", "anxious"], {
-    required_error: "Please select a temperament",
-  }).optional(),
+  gender: z.enum(["male", "female"]),
+  temperament: z.enum(["friendly", "shy", "energetic", "calm", "anxious"]).optional(),
   specialNeeds: z.string().max(1000, "Special needs description too long").optional(),
   feedingInstructions: z.string().max(1000, "Feeding instructions too long").optional(),
 });
@@ -89,16 +81,17 @@ export const stepWaiverSchema = z.object({
     message: "You must consent to photo/video use",
   }),
   signature: z.string().min(10, "Please provide a signature"),
-  ipAddress: z.string().ip().optional(),
+  ipAddress: z.string().regex(
+    /^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/,
+    "Invalid IP address"
+  ).optional(),
   userAgent: z.string().optional(),
   timestamp: z.date().default(() => new Date()),
 });
 
 // Step 6: Payment
 export const stepPaymentSchema = z.object({
-  paymentOption: z.enum(["full", "deposit"], {
-    required_error: "Please select a payment option",
-  }),
+  paymentOption: z.enum(["full", "deposit"]),
   amount: z.number().positive("Amount must be greater than 0"),
 });
 
