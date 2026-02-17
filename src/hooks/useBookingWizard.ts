@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import type {
   StepDatesData,
   StepSuitesData,
+  StepAccountData,
   StepPetsData,
   StepWaiverData,
   StepPaymentData,
@@ -14,6 +15,7 @@ export type BookingStep = "dates" | "suites" | "account" | "pets" | "waiver" | "
 interface BookingWizardData {
   dates?: StepDatesData;
   suites?: StepSuitesData;
+  account?: StepAccountData;
   pets?: StepPetsData;
   waiver?: StepWaiverData;
   payment?: StepPaymentData;

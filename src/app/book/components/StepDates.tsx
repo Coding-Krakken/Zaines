@@ -104,7 +104,7 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
     const validation = stepDatesSchema.safeParse(stepData);
     
     if (!validation.success) {
-      const firstError = validation.error.errors[0];
+      const firstError = validation.error.issues[0];
       toast.error(firstError.message);
       return;
     }

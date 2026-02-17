@@ -32,7 +32,7 @@ export function StepAccount({ data, onUpdate, onNext, onBack }: StepAccountProps
     const validation = stepAccountSchema.safeParse({ email });
     
     if (!validation.success) {
-      toast.error(validation.error.errors[0].message);
+      toast.error(validation.error.issues[0].message);
       return;
     }
     

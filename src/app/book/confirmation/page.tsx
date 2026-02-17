@@ -1,34 +1,81 @@
 "use client";
 
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, CalendarDays } from "lucide-react";
-import { generateICSFile, downloadICSFile } from "@/lib/calendar-export";
+import { CheckCircle2, CalendarDays, Loader2 } from "lucide-react";
+import { downloadICSFile } from "@/lib/calendar-export";
 import Link from "next/link";
 
-interface ConfirmationPageProps {
-  booking: {
-    id: string;
-    checkIn: string;
-    checkOut: string;
-    suite: string;
-    total: number;
-    petNames: string[];
-    email: string;
-  };
+interface BookingData {
+  id: string;
+  checkIn: string;
+  checkOut: string;
+  suite: string;
+  total: number;
+  petNames: string[];
+  email: string;
 }
 
-export default function ConfirmationPage({ booking }: ConfirmationPageProps) {
-  const handleDownloadCalendar = () => {
-    const calendarEvent = generateICSFile({
-      title: `Pet Stay at Zaine's Stay & Play`,
-      description: `Suite: ${booking.suite}\nPets: ${booking.petNames.join(", ")}`,
-      start: booking.checkIn,
-      end: booking.checkOut,
-      location: "Zaine's Stay & Play, Syracuse, NY",
-    });
+function ConfirmationContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [booking, setBooking] = useState<BookingData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-    downloadICSFile(calendarEvent, `Booking-${booking.id}.ics`);
+  useEffect(() => {
+    // Try to get booking data from search params or session storage
+    const bookingId = searchParams.get('bookingId');
+    
+    if (bookingId) {
+      // In a real app, you would fetch the booking data from the API
+      // For now, we'll try to get it from session storage
+      const storedBooking = sessionStorage.getItem(`booking-${bookingId}`);
+      if (storedBooking) {
+        setBooking(JSON.parse(storedBooking));
+      }
+    }
+    
+    setIsLoading(false);
+  }, [searchParams]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!booking) {
+    return (
+      <div className="container mx-auto max-w-2xl py-12">
+        <Card>
+          <CardHeader>
+            <CardTitle>Booking Not Found</CardTitle>
+            <CardDescription>
+              We couldn't find your booking information. Please check your email for confirmation details.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild>
+              <Link href="/">Return to Home</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  
+  const handleDownloadCalendar = () => {
+    downloadICSFile({
+      bookingNumber: booking.id,
+      checkIn: booking.checkIn,
+      checkOut: booking.checkOut,
+      petNames: booking.petNames,
+      suiteName: booking.suite,
+    });
   };
 
   return (
@@ -92,5 +139,17 @@ export default function ConfirmationPage({ booking }: ConfirmationPageProps) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+export default function ConfirmationPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <ConfirmationContent />
+    </Suspense>
   );
 }

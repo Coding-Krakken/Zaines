@@ -86,7 +86,7 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
     const validation = newPetSchema.safeParse(newPetForm);
     
     if (!validation.success) {
-      toast.error(validation.error.errors[0].message);
+      toast.error(validation.error.issues[0].message);
       return;
     }
     
@@ -195,7 +195,7 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
     });
     
     if (!validation.success) {
-      toast.error(validation.error.errors[0].message);
+      toast.error(validation.error.issues[0].message);
       return;
     }
     

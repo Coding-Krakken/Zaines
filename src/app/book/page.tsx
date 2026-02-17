@@ -28,6 +28,43 @@ import { Stepper } from "@/components/Stepper";
 
 type BookingStep = "dates" | "service" | "suite" | "contact" | "payment" | "confirmation";
 
+// Helper function to calculate total booking amount
+function calculateTotal(wizardData: any): number {
+  const { dates, suites } = wizardData;
+  
+  if (!dates?.checkIn || !dates?.checkOut || !suites?.suiteType) {
+    return 0;
+  }
+  
+  // Calculate number of nights
+  const checkIn = new Date(dates.checkIn);
+  const checkOut = new Date(dates.checkOut);
+  const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+  
+  // Base prices per night per suite type
+  const suitePrices: Record<string, number> = {
+    standard: 45,
+    deluxe: 75,
+    luxury: 120,
+  };
+  
+  const basePrice = suitePrices[suites.suiteType] || 45;
+  const petCount = dates.petCount || 1;
+  
+  // Calculate add-ons cost
+  const addOnsTotal = (suites.addOns || []).reduce((total: number, addon: any) => {
+    const addonPrices: Record<string, number> = {
+      'grooming': 35,
+      'training': 50,
+      'playtime': 15,
+      'treats': 10,
+    };
+    return total + ((addonPrices[addon.id] || 0) * addon.quantity);
+  }, 0);
+  
+  return (basePrice * nights * petCount) + addOnsTotal;
+}
+
 export default function BookPage() {
   const {
     currentStep,
@@ -115,7 +152,7 @@ export default function BookPage() {
               onUpdate={(data) => updateStepData("payment", data)}
               onNext={nextStep}
               onBack={prevStep}
-              totalAmount={wizardData.suites?.total || 0}
+              totalAmount={calculateTotal(wizardData)}
             />
           )}
         </div>

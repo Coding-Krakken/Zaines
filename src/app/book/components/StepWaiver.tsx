@@ -62,7 +62,7 @@ export function StepWaiver({ data, onUpdate, onNext, onBack }: StepWaiverProps) 
     const validation = stepWaiverSchema.safeParse(waiverData);
 
     if (!validation.success) {
-      toast.error(validation.error.errors[0].message);
+      toast.error(validation.error.issues[0].message);
       return;
     }
 

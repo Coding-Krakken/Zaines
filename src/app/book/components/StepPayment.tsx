@@ -11,8 +11,8 @@ import { getStripe } from "@/lib/stripe-client";
 import { toast } from "sonner";
 
 interface StepPaymentProps {
-  data: Partial<StepPaymentData>;
-  onUpdate: (data: Partial<StepPaymentData>) => void;
+  data: Partial<StepPaymentData> & { clientSecret?: string };
+  onUpdate: (data: Partial<StepPaymentData> & { clientSecret?: string }) => void;
   onNext: () => void;
   onBack: () => void;
   totalAmount: number; // From previous steps
@@ -88,7 +88,7 @@ export function StepPayment({ data, onUpdate, onNext, onBack, totalAmount }: Ste
     });
 
     if (!validation.success) {
-      toast.error(validation.error.errors[0].message);
+      toast.error(validation.error.issues[0].message);
       return;
     }
 
