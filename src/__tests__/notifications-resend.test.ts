@@ -10,7 +10,7 @@ describe('notifications helper (resend path)', () => {
   beforeEach(() => {
     process.env.RESEND_API_KEY = 'test-key';
     fetchMock = vi.fn();
-    // @ts-expect-error assign global fetch for tests
+    // Assign global fetch for tests
     global.fetch = fetchMock;
   });
 

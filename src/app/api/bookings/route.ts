@@ -257,11 +257,10 @@ export async function POST(request: NextRequest) {
     const stripeSecretKey = request.headers.get('x-stripe-secret-key');
 
     // Use a local variable for the dynamically configured Stripe instance
-    const stripeInstance = stripePublishableKey && stripeSecretKey
-      ? require('stripe')(stripeSecretKey)
-      : stripe;
-
+    let stripeInstance = stripe;
     if (stripePublishableKey && stripeSecretKey) {
+      const StripeConstructor = (await import('stripe')).default;
+      stripeInstance = new StripeConstructor(stripeSecretKey, { apiVersion: '2026-01-28.clover' });
       console.log('Stripe dynamically configured via request headers.');
     } else if (!isStripeConfigured()) {
       console.warn('Stripe is not configured. Payment features will be unavailable.');
