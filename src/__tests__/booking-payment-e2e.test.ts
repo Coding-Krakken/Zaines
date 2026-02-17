@@ -147,10 +147,10 @@ vi.mock('@/lib/prisma', () => {
       create: vi.fn(() => Promise.resolve({
         id: 'payment-123',
         bookingId: 'booking-123',
-        stripePaymentId: 'pi_test_123',
         amount: 286,
         currency: 'usd',
         status: 'pending',
+        stripePaymentId: 'pi_123',
       })),
       updateMany: vi.fn(() => Promise.resolve({ count: 1 })),
     },
@@ -219,6 +219,12 @@ describe('Booking → Payment E2E Flow', () => {
         petNames: 'Buddy',
         specialRequests: '',
         addOns: [],
+        waiver: {
+          liabilityAccepted: true,
+          medicalAuthorizationAccepted: true,
+          photoReleaseAccepted: true,
+          signature: 'John Doe Signature Data',
+        },
       }),
     });
 
@@ -253,6 +259,12 @@ describe('Booking → Payment E2E Flow', () => {
         petNames: 'Buddy',
         specialRequests: '',
         addOns: [],
+        waiver: {
+          liabilityAccepted: true,
+          medicalAuthorizationAccepted: true,
+          photoReleaseAccepted: true,
+          signature: 'John Doe Signature Data',
+        },
       }),
     });
 
@@ -293,6 +305,12 @@ describe('Booking → Payment E2E Flow', () => {
         petNames: 'Buddy',
         specialRequests: '',
         addOns: [],
+        waiver: {
+          liabilityAccepted: true,
+          medicalAuthorizationAccepted: true,
+          photoReleaseAccepted: true,
+          signature: 'John Doe Signature Data',
+        },
       }),
     });
 

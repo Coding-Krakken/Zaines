@@ -97,6 +97,9 @@ export async function POST(request: NextRequest) {
       luxury: 5,
     };
 
+    // Log advisory lock acquisition
+    console.log('Attempting to acquire advisory lock for suite type:', data.suiteType, 'and check-in date:', checkInDate.toISOString());
+
     // Wrap booking creation in transaction with advisory lock
     // `tx` is the transactional Prisma client provided by Prisma.
     // Use `any` here to avoid importing Prisma types that differ across versions
@@ -111,7 +114,10 @@ export async function POST(request: NextRequest) {
         )
       `;
 
-      // 2. Check availability inside transaction (atomic with lock)
+      console.log('Advisory lock acquired for suite type:', data.suiteType, 'and check-in date:', checkInDate.toISOString());
+
+      // Log capacity check
+      console.log('Checking capacity for suite type:', data.suiteType);
       const overlappingBookings = await tx.booking.count({
         where: {
           suite: {
@@ -154,8 +160,11 @@ export async function POST(request: NextRequest) {
         },
       });
 
+      console.log('Overlapping bookings count:', overlappingBookings);
+
       // 3. Enforce capacity limit
       if (overlappingBookings >= capacity[data.suiteType]) {
+        console.error('Capacity exceeded for suite type:', data.suiteType);
         throw new Error('CAPACITY_EXCEEDED');
       }
 
@@ -171,8 +180,11 @@ export async function POST(request: NextRequest) {
       });
 
       if (!availableSuite) {
+        console.error('No available suite found for suite type:', data.suiteType);
         throw new Error('NO_SUITE_AVAILABLE');
       }
+
+      console.log('Available suite found:', availableSuite.id);
 
       // 5. Create or find user inside transaction
       let user;
@@ -230,7 +242,7 @@ export async function POST(request: NextRequest) {
       });
     }, {
       isolationLevel: 'Serializable',
-      timeout: 10000, // 10 seconds
+      timeout: 20000, // Increased timeout to 20 seconds
     });
 
     // Send confirmation email (Resend if configured, otherwise record to dev queue)
@@ -238,6 +250,21 @@ export async function POST(request: NextRequest) {
       await sendBookingConfirmation(booking);
     } catch (err) {
       console.error("Notification send error:", err);
+    }
+
+    // Check if Stripe is configured dynamically via request headers
+    const stripePublishableKey = request.headers.get('x-stripe-publishable-key');
+    const stripeSecretKey = request.headers.get('x-stripe-secret-key');
+
+    // Use a local variable for the dynamically configured Stripe instance
+    const stripeInstance = stripePublishableKey && stripeSecretKey
+      ? require('stripe')(stripeSecretKey)
+      : stripe;
+
+    if (stripePublishableKey && stripeSecretKey) {
+      console.log('Stripe dynamically configured via request headers.');
+    } else if (!isStripeConfigured()) {
+      console.warn('Stripe is not configured. Payment features will be unavailable.');
     }
 
     // Create Stripe Payment Intent if Stripe is configured
@@ -252,7 +279,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (!existingPayment) {
-          const paymentIntent = await stripe.paymentIntents.create({
+          const paymentIntent = await stripeInstance.paymentIntents.create({
             amount: formatAmountForStripe(booking.total),
             currency: "usd",
             automatic_payment_methods: { enabled: true },

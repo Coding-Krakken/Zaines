@@ -219,6 +219,12 @@ function createBookingRequest(suiteType: string = 'standard') {
       petNames: 'Buddy',
       specialRequests: '',
       addOns: [],
+      waiver: {
+        liabilityAccepted: true,
+        medicalAuthorizationAccepted: true,
+        photoReleaseAccepted: true,
+        signature: 'Test User Signature Data',
+      },
     }),
   });
 }
