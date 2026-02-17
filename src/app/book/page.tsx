@@ -1,22 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
-/* eslint-disable react/no-unescaped-entities */
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Calendar, PawPrint, Home, User, CheckCircle2, ArrowRight, ArrowLeft, CreditCard, Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { getStripe } from "@/lib/stripe-client";
 import { StepDates } from "@/app/book/components/StepDates";
 import { StepSuites } from "@/app/book/components/StepSuites";
 import { StepAccount } from "@/app/book/components/StepAccount";
@@ -26,10 +9,8 @@ import { StepPayment } from "@/app/book/components/StepPayment";
 import { useBookingWizard } from "@/hooks/useBookingWizard";
 import { Stepper } from "@/components/Stepper";
 
-type BookingStep = "dates" | "service" | "suite" | "contact" | "payment" | "confirmation";
-
 // Helper function to calculate total booking amount
-function calculateTotal(wizardData: any): number {
+function calculateTotal(wizardData: { dates?: { checkIn?: string; checkOut?: string; petCount?: number }; suites?: { suiteType?: string; addOns?: Array<{ id: string; quantity: number }> } }): number {
   const { dates, suites } = wizardData;
   
   if (!dates?.checkIn || !dates?.checkOut || !suites?.suiteType) {
@@ -52,7 +33,7 @@ function calculateTotal(wizardData: any): number {
   const petCount = dates.petCount || 1;
   
   // Calculate add-ons cost
-  const addOnsTotal = (suites.addOns || []).reduce((total: number, addon: any) => {
+  const addOnsTotal = (suites.addOns || []).reduce((total: number, addon: { id: string; quantity: number }) => {
     const addonPrices: Record<string, number> = {
       'grooming': 35,
       'training': 50,
@@ -69,7 +50,6 @@ export default function BookPage() {
   const {
     currentStep,
     wizardData,
-    progressPercentage,
     nextStep,
     prevStep,
     updateStepData,
@@ -91,7 +71,7 @@ export default function BookPage() {
         <div className="mb-8 text-center">
           <h1 className="mb-2 text-4xl font-bold">Book Your Stay</h1>
           <p className="text-lg text-muted-foreground">
-            Just a few steps to reserve your pet's vacation
+            Just a few steps to reserve your pet&apos;s vacation
           </p>
         </div>
 

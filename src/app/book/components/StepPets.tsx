@@ -9,13 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   PawPrint, Plus, Upload, FileText, X, ArrowRight, ArrowLeft, Loader2, CheckCircle2, AlertCircle 
 } from "lucide-react";
 import { stepPetsSchema, newPetSchema, type StepPetsData, type NewPetData } from "@/lib/validations/booking-wizard";
-import { validateFile, formatFileSize } from "@/lib/file-upload";
+import { validateFile } from "@/lib/file-upload";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -41,7 +40,6 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
   const [selectedPetIds, setSelectedPetIds] = useState<string[]>(data.selectedPetIds || []);
   const [newPets, setNewPets] = useState<NewPetData[]>(data.newPets || []);
   const [vaccines, setVaccines] = useState<Array<{ petId: string; file: File; fileUrl?: string }>>([]);
-  const [isLoadingPets, setIsLoadingPets] = useState(false);
   const [uploadingVaccine, setUploadingVaccine] = useState<string | null>(null);
   const [showNewPetForm, setShowNewPetForm] = useState(false);
   const [newPetForm, setNewPetForm] = useState<Partial<NewPetData>>({
@@ -57,7 +55,6 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
   }, [session]);
 
   const fetchPets = async () => {
-    setIsLoadingPets(true);
     try {
       const response = await fetch("/api/pets");
       if (response.ok) {
@@ -66,8 +63,6 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
       }
     } catch (error) {
       console.error("Failed to fetch pets:", error);
-    } finally {
-      setIsLoadingPets(false);
     }
   };
 
@@ -399,7 +394,7 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
                 <Label htmlFor="temperament">Temperament</Label>
                 <Select
                   value={newPetForm.temperament}
-                  onValueChange={(value) => setNewPetForm({ ...newPetForm, temperament: value as any })}
+                  onValueChange={(value) => setNewPetForm({ ...newPetForm, temperament: value as "friendly" | "shy" | "energetic" | "calm" | "anxious" })}
                 >
                   <SelectTrigger id="temperament">
                     <SelectValue />

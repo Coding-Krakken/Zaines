@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, CalendarDays, Loader2 } from "lucide-react";
@@ -20,24 +20,24 @@ interface BookingData {
 
 function ConfirmationContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [booking, setBooking] = useState<BookingData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Try to get booking data from search params or session storage
-    const bookingId = searchParams.get('bookingId');
-    
-    if (bookingId) {
-      // In a real app, you would fetch the booking data from the API
-      // For now, we'll try to get it from session storage
-      const storedBooking = sessionStorage.getItem(`booking-${bookingId}`);
-      if (storedBooking) {
-        setBooking(JSON.parse(storedBooking));
+    const loadAndApplyBookingData = () => {
+      const bookingId = searchParams.get('bookingId');
+      
+      if (bookingId) {
+        const storedBooking = sessionStorage.getItem(`booking-${bookingId}`);
+        if (storedBooking) {
+          const parsed = JSON.parse(storedBooking);
+          setBooking(parsed);
+        }
       }
-    }
-    
-    setIsLoading(false);
+      setIsLoading(false);
+    };
+
+    loadAndApplyBookingData();
   }, [searchParams]);
 
   if (isLoading) {
@@ -55,7 +55,7 @@ function ConfirmationContent() {
           <CardHeader>
             <CardTitle>Booking Not Found</CardTitle>
             <CardDescription>
-              We couldn't find your booking information. Please check your email for confirmation details.
+            We couldn&apos;t find your booking information. Please check your email for confirmation details.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -86,7 +86,7 @@ function ConfirmationContent() {
         </div>
         <CardTitle className="text-center text-2xl">Booking Confirmed!</CardTitle>
         <CardDescription className="text-center">
-          Thank you for choosing Zaine's Stay & Play
+          Thank you for choosing Zaine&apos;s Stay & Play
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

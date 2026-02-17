@@ -109,7 +109,7 @@ export function StepAccount({ data, onUpdate, onNext, onBack }: StepAccountProps
         </CardTitle>
         <CardDescription>
           {isAuthenticated
-            ? "You're signed in and ready to book"
+            ? "You&apos;re signed in and ready to book"
             : "Sign in or continue as a guest"}
         </CardDescription>
       </CardHeader>
@@ -216,7 +216,7 @@ export function StepAccount({ data, onUpdate, onNext, onBack }: StepAccountProps
               <div className="rounded-lg border border-dashed p-4">
                 <h3 className="mb-2 font-semibold">Continue as Guest</h3>
                 <p className="mb-3 text-sm text-muted-foreground">
-                  You can complete your booking without signing in. We'll send confirmation to your
+                  You can complete your booking without signing in. We&apos;ll send confirmation to your
                   email. To access your booking dashboard later, you can create an account anytime.
                 </p>
                 <Button

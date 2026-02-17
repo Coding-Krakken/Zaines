@@ -6,8 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, CheckCircle2, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
+import { CheckCircle2, ArrowRight, ArrowLeft } from "lucide-react";
 import { stepWaiverSchema, type StepWaiverData } from "@/lib/validations/booking-wizard";
 import { toast } from "sonner";
 
@@ -24,7 +23,6 @@ export function StepWaiver({ data, onUpdate, onNext, onBack }: StepWaiverProps) 
     data.medicalAuthorizationAccepted || false
   );
   const [photoReleaseAccepted, setPhotoReleaseAccepted] = useState(data.photoReleaseAccepted || false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const signaturePadRef = useRef<HTMLCanvasElement>(null);
   const [signature, setSignature] = useState(data.signature || "");
 
@@ -90,8 +88,8 @@ export function StepWaiver({ data, onUpdate, onNext, onBack }: StepWaiverProps) 
             onCheckedChange={(checked) => setLiabilityAccepted(checked as boolean)}
           />
           <Label htmlFor="liability" className="text-sm">
-            I accept the <strong>liability waiver</strong>, releasing Zaine's Stay & Play from any
-            liability for injuries or damages during my pet's stay.
+            I accept the <strong>liability waiver</strong>, releasing Zaine&apos;s Stay & Play from any
+            liability for injuries or damages during my pet&apos;s stay.
           </Label>
         </div>
 
@@ -103,7 +101,7 @@ export function StepWaiver({ data, onUpdate, onNext, onBack }: StepWaiverProps) 
             onCheckedChange={(checked) => setMedicalAuthorizationAccepted(checked as boolean)}
           />
           <Label htmlFor="medical" className="text-sm">
-            I authorize Zaine's Stay & Play to seek emergency medical treatment for my pet if
+            I authorize Zaine&apos;s Stay & Play to seek emergency medical treatment for my pet if
             necessary, and I agree to cover all associated costs.
           </Label>
         </div>

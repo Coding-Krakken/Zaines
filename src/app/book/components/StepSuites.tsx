@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Home, CheckCircle2, ArrowRight, ArrowLeft, Tv, Wifi, Camera } from "lucide-react";
+import { Home, CheckCircle2, ArrowRight, ArrowLeft, Tv, Camera } from "lucide-react";
 import { stepSuitesSchema, type StepSuitesData } from "@/lib/validations/booking-wizard";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";

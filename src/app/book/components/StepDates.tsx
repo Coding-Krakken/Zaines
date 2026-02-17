@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -34,14 +34,7 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
     return Math.max(1, diffDays);
   };
 
-  // Check availability when dates and service type are set
-  useEffect(() => {
-    if (data.checkIn && data.checkOut && data.serviceType) {
-      checkAvailability();
-    }
-  }, [data.checkIn, data.checkOut, data.serviceType]);
-
-  const checkAvailability = async () => {
+  const checkAvailability = useCallback(async () => {
     if (!data.checkIn || !data.checkOut || !data.serviceType) return;
 
     setIsCheckingAvailability(true);
@@ -89,7 +82,14 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
       setIsCheckingAvailability(false);
       console.log('Availability check completed.');
     }
-  };
+  }, [data.checkIn, data.checkOut, data.serviceType]);
+
+  // Check availability when dates and service type are set
+  useEffect(() => {
+    if (data.checkIn && data.checkOut && data.serviceType) {
+      checkAvailability();
+    }
+  }, [data.checkIn, data.checkOut, data.serviceType, checkAvailability]);
 
   const handleNext = () => {
     // Build complete step data

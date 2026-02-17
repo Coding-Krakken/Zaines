@@ -35,16 +35,21 @@ export function useBookingWizard() {
 
   // Load saved progress from localStorage on mount
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setWizardData(parsed.data || {});
-        setCurrentStep(parsed.currentStep || "dates");
+    const loadAndApplySavedProgress = () => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          const progressData = { data: parsed.data || {}, step: parsed.currentStep || "dates" as BookingStep };
+          setWizardData(progressData.data);
+          setCurrentStep(progressData.step);
+        }
+      } catch (error) {
+        console.error("Failed to load saved progress:", error);
       }
-    } catch (error) {
-      console.error("Failed to load saved progress:", error);
-    }
+    };
+
+    loadAndApplySavedProgress();
   }, []);
 
   // Save progress to localStorage whenever data changes
