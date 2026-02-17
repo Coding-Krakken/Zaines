@@ -16,7 +16,29 @@ const bookingSchema = z.object({
   phone: z.string().min(10, "Valid phone number is required"),
   petNames: z.string().min(1, "Pet name(s) required"),
   specialRequests: z.string().optional(),
-  addOns: z.array(z.string()).optional(),
+  addOns: z.array(z.object({ id: z.string(), quantity: z.number().min(1) })).optional(),
+  newPets: z.array(
+    z.object({
+      name: z.string().min(1),
+      breed: z.string().min(1),
+      age: z.number().min(0),
+      weight: z.number().min(1),
+      gender: z.enum(["male", "female"]),
+    })
+  ).optional(),
+  vaccines: z.array(
+    z.object({
+      petId: z.string(),
+      fileUrl: z.string().url(),
+      fileName: z.string(),
+    })
+  ).optional(),
+  waiver: z.object({
+    liabilityAccepted: z.boolean(),
+    medicalAuthorizationAccepted: z.boolean(),
+    photoReleaseAccepted: z.boolean(),
+    signature: z.string().min(10),
+  }),
 });
 
 // POST /api/bookings - Create a new booking
