@@ -2,6 +2,7 @@ import NextAuth, { NextAuthConfig } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import  Resend from "next-auth/providers/resend";
 import Google from "next-auth/providers/google";
+import Facebook from "next-auth/providers/facebook";
 import { prisma } from "./prisma";
 
 export const authConfig: NextAuthConfig = {
@@ -15,6 +16,14 @@ export const authConfig: NextAuthConfig = {
           Google({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          }),
+        ]
+      : []),
+    ...(process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET
+      ? [
+          Facebook({
+            clientId: process.env.FACEBOOK_CLIENT_ID,
+            clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
           }),
         ]
       : []),
