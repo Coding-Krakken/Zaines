@@ -9,24 +9,52 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Mail, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState("");
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    // TODO: Implement actual authentication with NextAuth
-    // For now, simulate sending email
-    setTimeout(() => {
+    try {
+      const result = await signIn("resend", {
+        email,
+        redirect: false,
+        callbackUrl,
+      });
+
+      if (result?.error) {
+        setError(result.error);
+        setIsLoading(false);
+      } else {
+        setEmailSent(true);
+        setIsLoading(false);
+      }
+    } catch (err) {
+      setError("Failed to send magic link. Please try again.");
       setIsLoading(false);
-      setEmailSent(true);
-    }, 1500);
+    }
+  };
+
+  const handleOAuthSignIn = async (provider: "google" | "facebook") => {
+    setIsLoading(true);
+    setError("");
+    
+    try {
+      await signIn(provider, { callbackUrl });
+    } catch (err) {
+      setError(`Failed to sign in with ${provider}. Please try again.`);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -106,13 +134,14 @@ export default function SignInPage() {
                     </div>
                   </div>
 
-                  {/* Social Login Buttons - Placeholder */}
+                  {/* Social Login Buttons */}
                   <div className="space-y-3">
                     <Button
                       type="button"
                       variant="outline"
                       className="w-full"
-                      disabled
+                      onClick={() => handleOAuthSignIn("google")}
+                      disabled={isLoading}
                     >
                       <svg
                         className="mr-2 h-5 w-5"
@@ -131,7 +160,8 @@ export default function SignInPage() {
                       type="button"
                       variant="outline"
                       className="w-full"
-                      disabled
+                      onClick={() => handleOAuthSignIn("facebook")}
+                      disabled={isLoading}
                     >
                       <svg
                         className="mr-2 h-5 w-5"
