@@ -16,7 +16,7 @@ type Issue26SettingsStore = {
   }) => Promise<Array<{ value: string }>>;
 };
 
-const prismaSettings = (prisma as { settings: Issue26SettingsStore }).settings;
+const prismaSettings = (prisma as unknown as { settings: Issue26SettingsStore }).settings;
 
 const contactRateLimitBucket = new Map<string, number[]>();
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -107,7 +107,7 @@ export function ReviewSubmissionForm() {
   };
 
   const rootError = form.formState.errors.root?.message;
-  const currentRating = form.watch("rating");
+  const currentRating = useWatch({ control: form.control, name: "rating" }) ?? 5;
 
   if (submissionState === "moderation_pending") {
     return (

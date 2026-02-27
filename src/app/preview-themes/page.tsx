@@ -23,7 +23,7 @@ export default function Page() {
     <div className="container mx-auto py-12 px-4">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Theme previews (temporary)</h1>
-        <p className="text-sm text-muted-foreground mt-2">Each card shows an embedded preview — click "Open" to view full page.</p>
+        <p className="text-sm text-muted-foreground mt-2">Each card shows an embedded preview — click &quot;Open&quot; to view full page.</p>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -56,7 +56,7 @@ export default function Page() {
         ))}
       </div>
 
-      <div className="mt-8 text-sm text-muted-foreground">Remove this page when you've chosen a theme.</div>
+      <div className="mt-8 text-sm text-muted-foreground">Remove this page when you&apos;ve chosen a theme.</div>
     </div>
   );
 }

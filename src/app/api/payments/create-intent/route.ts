@@ -36,7 +36,7 @@ type PaymentIntentPrisma = {
   };
 };
 
-const paymentPrisma = prisma as PaymentIntentPrisma;
+const paymentPrisma = prisma as unknown as PaymentIntentPrisma;
 
 const paymentIntentSchema = z.object({
   bookingId: z.string(),

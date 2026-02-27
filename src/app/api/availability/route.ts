@@ -20,7 +20,7 @@ type AvailabilityPrisma = {
   };
 };
 
-const availabilityPrisma = prisma as AvailabilityPrisma;
+const availabilityPrisma = prisma as unknown as AvailabilityPrisma;
 
 const availabilitySchema = z.object({
   checkIn: z.string(),

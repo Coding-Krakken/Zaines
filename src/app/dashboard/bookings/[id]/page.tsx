@@ -23,7 +23,7 @@ type BookingDetailPrisma = {
   };
 };
 
-const bookingDetailPrisma = prisma as BookingDetailPrisma;
+const bookingDetailPrisma = prisma as unknown as BookingDetailPrisma;
 
 export default async function BookingDetail({ params }: Props) {
   const session = await auth();

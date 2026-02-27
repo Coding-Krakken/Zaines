@@ -21,7 +21,7 @@ type BookingPrisma = {
   };
 };
 
-const bookingPrisma = prisma as BookingPrisma;
+const bookingPrisma = prisma as unknown as BookingPrisma;
 
 export async function POST(request: NextRequest) {
   const correlationId = getCorrelationId(request);

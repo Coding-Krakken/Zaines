@@ -98,7 +98,7 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
         });
         setAvailabilityMessage("Availability is temporarily unavailable. Please retry.");
       }
-    } catch (error) {
+    } catch {
       setAvailabilityState("service_degraded");
       setAvailabilityResult(null);
       setAvailabilityMessage("Availability is temporarily unavailable. Please retry.");
@@ -106,13 +106,25 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
   }, [data.checkIn, data.checkOut, data.serviceType, data.petCount]);
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
     if (data.checkIn && data.checkOut && data.serviceType) {
-      checkAvailability();
+      timeoutId = setTimeout(() => {
+        void checkAvailability();
+      }, 0);
     } else {
-      setAvailabilityState("idle");
-      setAvailabilityResult(null);
-      setAvailabilityMessage("");
+      timeoutId = setTimeout(() => {
+        setAvailabilityState("idle");
+        setAvailabilityResult(null);
+        setAvailabilityMessage("");
+      }, 0);
     }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [data.checkIn, data.checkOut, data.serviceType, checkAvailability]);
 
   const handleNext = () => {

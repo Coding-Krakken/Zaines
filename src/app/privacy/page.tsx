@@ -89,7 +89,7 @@ export default function PrivacyPage() {
             <div className="mb-12">
               <h2 className="mb-4 text-2xl font-bold">Introduction</h2>
               <p className="text-muted-foreground">
-                Zaine's Stay &amp; Play (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) provides private dog boarding services. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.
+                Zaine&apos;s Stay &amp; Play (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) provides private dog boarding services. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.
               </p>
               <p className="text-muted-foreground">
                 By using our website and services, you consent to the data practices described in this policy. If you do not agree with this policy, please discontinue use of our services.

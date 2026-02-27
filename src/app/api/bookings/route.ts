@@ -10,7 +10,7 @@ const shouldLogBookingDiagnostics = process.env.NODE_ENV !== "test";
 
 type BookingsApiPrisma = {
   $transaction: <T>(
-    fn: (tx: any) => Promise<T>,
+    fn: (tx: unknown) => Promise<T>,
     options?: { isolationLevel?: string; timeout?: number }
   ) => Promise<T>;
   payment: {
@@ -34,7 +34,7 @@ type BookingsApiPrisma = {
   };
 };
 
-const bookingsPrisma = prisma as BookingsApiPrisma;
+const bookingsPrisma = prisma as unknown as BookingsApiPrisma;
 
 const bookingSchema = z.object({
   checkIn: z.string(),
