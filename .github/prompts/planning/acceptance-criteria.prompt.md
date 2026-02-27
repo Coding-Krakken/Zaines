@@ -20,6 +20,7 @@ Write precise, measurable, testable acceptance criteria for user stories using G
 
 - User story ("As a [user], I want [goal], so that [benefit]")
 - Business context
+- Business Owner Source Profile (`.github/.system-state/model/business_owner_profile.zaine.yaml`)
 - Edge cases identified
 - Performance requirements
 
@@ -49,6 +50,11 @@ Write precise, measurable, testable acceptance criteria for user stories using G
 ### Accessibility
 
 - **AC-7:** Given [keyboard navigation], When [action], Then [correct behavior]
+
+### Business Alignment Traceability
+
+- **BAT-1:** AC-1, AC-2 → [BRAND|TRUST|SAFETY|PRICING|BOOKING]
+- **BAT-2:** AC-3, AC-4 → [BRAND|TRUST|SAFETY|PRICING|BOOKING]
 ```
 
 ## Quality Expectations
@@ -58,6 +64,7 @@ Write precise, measurable, testable acceptance criteria for user stories using G
 - Criteria are measurable (no "should be nice")
 - Happy + error + edge + performance paths covered
 - Criteria map to actual test cases
+- Criteria explicitly map to business intent tags (BRAND, TRUST, SAFETY, PRICING, BOOKING)
 
 ## Failure Cases
 
@@ -70,3 +77,4 @@ Write precise, measurable, testable acceptance criteria for user stories using G
 - Numbered acceptance criteria
 - Test case mapping (AC-N → test file)
 - Coverage of happy, error, edge, and performance paths
+- Business alignment mapping (AC-N → business intent tag)

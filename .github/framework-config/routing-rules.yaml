@@ -83,7 +83,6 @@ bypass_rules:
       scope: Small
       description_matches: '/component|button|input|card/i'
     skip_agents:
-      - product-owner
       - solution-architect
     start_at: tech-lead
     reason: 'Small components follow existing patterns'
@@ -122,6 +121,7 @@ bypass_rules:
 standard_chains:
   Feature:
     Small:
+      - product-owner
       - tech-lead
       - frontend-engineer
       - qa-test-engineer

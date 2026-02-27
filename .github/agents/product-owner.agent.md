@@ -36,11 +36,19 @@ Define precise, measurable acceptance criteria for every feature. Translate busi
 
 ## Workflow Steps
 
+### 0. LOAD BUSINESS OWNER SOURCE PROFILE (MANDATORY)
+
+- Read `.github/.system-state/model/business_owner_profile.zaine.yaml`
+- Treat it as canonical business intent and brand source of truth
+- Reject implementation-oriented requests that conflict with this profile unless Stakeholder Executive approves override
+- Map each requirement to one or more traceability tags: BRAND, TRUST, SAFETY, PRICING, BOOKING
+
 ### 1. UNDERSTAND REQUEST
 
 - Parse the incoming request/handoff
 - Identify the user need and business value
 - Review existing domain model for context
+- Confirm alignment with Business Owner Source Profile before drafting stories
 
 ### 2. DEFINE USER STORIES
 
@@ -81,6 +89,7 @@ Define precise, measurable acceptance criteria for every feature. Translate busi
 - Priority ranking
 - Dependency map
 - Scope boundary document (in scope / out of scope)
+- Business alignment traceability map (story/AC → BRAND|TRUST|SAFETY|PRICING|BOOKING)
 
 ---
 
@@ -92,6 +101,7 @@ Define precise, measurable acceptance criteria for every feature. Translate busi
 - Business value articulated
 - Priority assigned
 - Dependencies documented
+- Business Owner Source Profile alignment validated and documented
 
 ---
 

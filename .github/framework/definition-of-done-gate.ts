@@ -39,6 +39,24 @@ export class DefinitionOfDoneGate {
       failures.push("Issue acceptance criteria are not satisfied");
     }
 
+    if (!input.businessIntentTagsPresentInAcceptanceCriteria) {
+      failures.push(
+        "Acceptance criteria are missing business intent tags (BRAND|TRUST|SAFETY|PRICING|BOOKING)",
+      );
+    }
+
+    if (!input.businessIntentTagsPresentInSlicePlan) {
+      failures.push(
+        "Slice plan is missing business intent tags (BRAND|TRUST|SAFETY|PRICING|BOOKING)",
+      );
+    }
+
+    if (!input.prIncludesBusinessIntentSummary) {
+      failures.push(
+        "PR description is missing business intent summary and covered tags",
+      );
+    }
+
     if (input.securityReviewRequired && !input.securityReviewComplete) {
       failures.push("Security review is required but incomplete");
     }

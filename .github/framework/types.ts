@@ -134,6 +134,9 @@ export interface DefinitionOfDoneInput {
   prIncludesHowToTest: boolean;
   prIncludesRiskNotes: boolean;
   acceptanceCriteriaSatisfied: boolean;
+  businessIntentTagsPresentInAcceptanceCriteria: boolean;
+  businessIntentTagsPresentInSlicePlan: boolean;
+  prIncludesBusinessIntentSummary: boolean;
   securityReviewRequired?: boolean;
   securityReviewComplete?: boolean;
   performanceReviewRequired?: boolean;

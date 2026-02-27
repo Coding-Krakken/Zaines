@@ -18,6 +18,7 @@ Break a feature or epic into vertical slices — independently deployable, testa
 ## Inputs Required
 
 - User stories with acceptance criteria
+- Business Owner Source Profile (`.github/.system-state/model/business_owner_profile.zaine.yaml`)
 - Domain model
 - Component architecture
 - API contracts
@@ -58,6 +59,10 @@ What the user can do after this slice ships.
 
 - Frontend: frontend-engineer
 - Backend: backend-engineer
+
+### Business Alignment
+
+- Tags: [BRAND|TRUST|SAFETY|PRICING|BOOKING]
 ```
 
 ## Quality Expectations
@@ -67,6 +72,7 @@ What the user can do after this slice ships.
 - Each slice is independently deployable
 - Slices are ordered by dependency, then priority
 - Complexity points are realistic
+- Every slice maps to at least one business intent tag
 
 ## Failure Cases
 
@@ -80,3 +86,4 @@ What the user can do after this slice ships.
 - Dependency graph
 - Complexity estimates
 - Agent assignments
+- Business alignment mapping by slice

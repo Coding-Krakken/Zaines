@@ -69,6 +69,14 @@
 - [ ] Changelog entry added (if user-facing)
 - [ ] Runbook updated (if new critical path)
 
+## Business Owner Intent (Required for Feature / Customer-Facing PRs)
+
+- [ ] Business profile reviewed: `.github/.system-state/model/business_owner_profile.zaine.yaml`
+- [ ] Acceptance Criteria include intent tags (BRAND|TRUST|SAFETY|PRICING|BOOKING)
+- [ ] Slice plan includes intent tags (BRAND|TRUST|SAFETY|PRICING|BOOKING)
+- [ ] PR summary states which intent tags this change satisfies
+- [ ] If any intent tag is not addressed, rationale documented in Reviewer Notes
+
 ## Security Checklist
 
 - [ ] Input validation added for new endpoints

@@ -23,6 +23,19 @@ The SubZero Agentic Framework is an **enterprise-grade, GitHub-native orchestrat
 
 ## 📦 Core Modules
 
+### 0. Business Owner Intent Layer (NEW)
+
+**Canonical Source Profile:**
+- `.github/.system-state/model/business_owner_profile.zaine.yaml`
+
+**Purpose:** Make Product Owner outputs explicitly traceable to business-owner intent so implementation stays aligned to brand, trust, safety, pricing, and booking conversion goals.
+
+**Required in workflow:**
+- Feature issue intake (Business Owner Intent tags)
+- Acceptance criteria generation (AC-to-business alignment)
+- Slice planning (slice-to-business alignment)
+- Product Owner Definition of Done (alignment validated)
+
 ### 1. GitHub Handoff System (NEW in v2.0)
 
 **Modules:**

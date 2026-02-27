@@ -112,6 +112,7 @@
 | Bug report               | `00-chief-of-staff`      | `discovery/risk-analysis.prompt.md`          |
 | Architecture question    | `solution-architect`     | `architecture/system-design.prompt.md`       |
 | Need acceptance criteria | `product-owner`          | `planning/acceptance-criteria.prompt.md`     |
+| Need business-owner alignment | `product-owner`      | `planning/acceptance-criteria.prompt.md`     |
 | Implement a feature      | `tech-lead`              | `implementation/vertical-slice.prompt.md`    |
 | Review a PR              | `quality-director`       | `review/microsoft-grade-pr-review.prompt.md` |
 | Fix failing tests        | `qa-test-engineer`       | `testing/test-gap.prompt.md`                 |

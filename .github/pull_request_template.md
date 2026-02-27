@@ -217,6 +217,14 @@ Closes #
 - [ ] `.customer/` documentation updated (if customer-facing)
 - [ ] `.github/.developer/` documentation updated
 
+### Business Owner Intent (Feature / Customer-Facing)
+
+- [ ] Reviewed `.github/.system-state/model/business_owner_profile.zaine.yaml`
+- [ ] Acceptance Criteria map to intent tags (BRAND|TRUST|SAFETY|PRICING|BOOKING)
+- [ ] Slice plan maps to intent tags (BRAND|TRUST|SAFETY|PRICING|BOOKING)
+- [ ] PR body lists satisfied intent tags
+- [ ] Any unsatisfied tag has explicit rationale and follow-up issue
+
 ### Testing
 
 - [ ] Unit tests added/updated

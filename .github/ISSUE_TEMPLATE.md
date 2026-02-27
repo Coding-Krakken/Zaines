@@ -55,6 +55,16 @@ about: Standard issue template for the Funky Town engineering organization
 
 ## For Feature Requests
 
+### Business Owner Intent (Required)
+
+- Business profile source: `.github/.system-state/model/business_owner_profile.zaine.yaml`
+- Applicable intent tags (check all that apply):
+	- [ ] BRAND
+	- [ ] TRUST
+	- [ ] SAFETY
+	- [ ] PRICING
+	- [ ] BOOKING
+
 ### User Story
 
 As a [type of user], I want [goal] so that [benefit].
