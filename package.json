@@ -64,7 +64,7 @@
     "cheerio": "^1.2.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
-    "happy-dom": "^20.5.0",
+    "happy-dom": "^20.7.0",
     "jsdom": "^28.1.0",
     "shadcn": "^3.8.4",
     "tailwindcss": "^4",
