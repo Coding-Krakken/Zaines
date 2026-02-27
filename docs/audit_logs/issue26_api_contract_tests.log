@@ -1,0 +1,268 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90mC:/Users/david/Desktop/Zaines[39m
+
+ [31mΓ¥»[39m src/app/api/contact/submissions/__tests__/route.test.ts [2m([22m[2m3 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 9[2mms[22m[39m
+[31m     [31m├ù[31m returns CONTACT_VALIDATION_FAILED for invalid payload[39m[32m 5[2mms[22m[39m
+[31m     [31m├ù[31m returns idempotent success when key already exists[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m returns CONTACT_RATE_LIMITED when anti-abuse threshold is exceeded[39m[32m 1[2mms[22m[39m
+ [31mΓ¥»[39m src/app/api/booking/availability/__tests__/route.test.ts [2m([22m[2m3 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 19[2mms[22m[39m
+[31m     [31m├ù[31m returns INVALID_DATE_RANGE for invalid date ordering[39m[32m 13[2mms[22m[39m
+[31m     [31m├ù[31m returns available capacity contract payload[39m[32m 2[2mms[22m[39m
+[31m     [31m├ù[31m returns NO_CAPACITY when suites are full[39m[32m 1[2mms[22m[39m
+ [31mΓ¥»[39m src/app/api/reviews/__tests__/route.test.ts [2m([22m[2m3 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 19[2mms[22m[39m
+[31m     [31m├ù[31m returns REVIEW_VALIDATION_FAILED for invalid review submission[39m[32m 12[2mms[22m[39m
+[31m     [31m├ù[31m returns pending moderation acknowledgement on submit[39m[32m 2[2mms[22m[39m
+[31m     [31m├ù[31m public listing enforces approved-only filter[39m[32m 3[2mms[22m[39m
+ [31mΓ¥»[39m src/app/api/auth/magic-link/__tests__/route.test.ts [2m([22m[2m12 tests[22m[2m | [22m[31m12 failed[39m[2m)[22m[32m 53[2mms[22m[39m
+[31m     [31m├ù[31m returns INVALID_EMAIL for malformed payload[39m[32m 13[2mms[22m[39m
+[31m     [31m├ù[31m returns support-safe misconfiguration contract[39m[32m 2[2mms[22m[39m
+[31m     [31m├ù[31m returns sent state for valid requests[39m[32m 28[2mms[22m[39m
+[31m     [31m├ù[31m returns AUTH_TRANSIENT_FAILURE on provider error[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m returns INVALID_EMAIL for malformed payload[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m returns support-safe misconfiguration contract[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m returns sent state for valid requests[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m returns AUTH_TRANSIENT_FAILURE on provider error[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m returns INVALID_EMAIL for malformed payload[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m returns support-safe misconfiguration contract[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m returns sent state for valid requests[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m returns AUTH_TRANSIENT_FAILURE on provider error[39m[32m 0[2mms[22m[39m
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ» Failed Tests 21 ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+
+ FAIL  src/app/api/reviews/__tests__/route.test.ts > reviews contract routes > returns REVIEW_VALIDATION_FAILED for invalid review submission
+TypeError: __vi_import_2__.POST is not a function
+ Γ¥» src/app/api/reviews/__tests__/route.test.ts:53:28
+     51|     });
+     52| 
+     53|     const response = await POST(request);
+       |                            ^
+     54|     const data = await response.json();
+     55| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/21]ΓÄ»
+
+ FAIL  src/app/api/reviews/__tests__/route.test.ts > reviews contract routes > returns pending moderation acknowledgement on submit
+TypeError: __vi_import_2__.POST is not a function
+ Γ¥» src/app/api/reviews/__tests__/route.test.ts:72:28
+     70|     });
+     71| 
+     72|     const response = await POST(request);
+       |                            ^
+     73|     const data = await response.json();
+     74| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[2/21]ΓÄ»
+
+ FAIL  src/app/api/reviews/__tests__/route.test.ts > reviews contract routes > public listing enforces approved-only filter
+TypeError: (0 , __vite_ssr_import_1__.getApprovedPublicReviews) is not a function
+ Γ¥» Module.GET src/app/api/reviews/route.ts:5:25
+      3| 
+      4| export async function GET() {
+      5|   const reviews = await getApprovedPublicReviews();
+       |                         ^
+      6|   return NextResponse.json({ reviews }, { status: 200 });
+      7| }
+ Γ¥» src/app/api/reviews/__tests__/route.test.ts:107:28
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[3/21]ΓÄ»
+
+ FAIL  src/app/api/auth/magic-link/__tests__/route.test.ts > POST /api/auth/magic-link > returns INVALID_EMAIL for malformed payload
+TypeError: __vi_import_1__.POST is not a function
+ Γ¥» src/app/api/auth/magic-link/__tests__/route.test.ts:23:28
+     21|     });
+     22| 
+     23|     const response = await POST(request);
+       |                            ^
+     24|     const data = await response.json();
+     25| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[4/21]ΓÄ»
+
+ FAIL  src/app/api/auth/magic-link/__tests__/route.test.ts > POST /api/auth/magic-link > returns support-safe misconfiguration contract
+TypeError: __vi_import_1__.POST is not a function
+ Γ¥» src/app/api/auth/magic-link/__tests__/route.test.ts:36:28
+     34|     });
+     35| 
+     36|     const response = await POST(request);
+       |                            ^
+     37|     const data = await response.json();
+     38| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[5/21]ΓÄ»
+
+ FAIL  src/app/api/auth/magic-link/__tests__/route.test.ts > POST /api/auth/magic-link > returns sent state for valid requests
+TypeError: __vi_import_1__.POST is not a function
+ Γ¥» src/app/api/auth/magic-link/__tests__/route.test.ts:57:28
+     55|     });
+     56| 
+     57|     const response = await POST(request);
+       |                            ^
+     58|     const data = await response.json();
+     59| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[6/21]ΓÄ»
+
+ FAIL  src/app/api/auth/magic-link/__tests__/route.test.ts > POST /api/auth/magic-link > returns AUTH_TRANSIENT_FAILURE on provider error
+TypeError: __vi_import_1__.POST is not a function
+ Γ¥» src/app/api/auth/magic-link/__tests__/route.test.ts:77:28
+     75|     });
+     76| 
+     77|     const response = await POST(request);
+       |                            ^
+     78|     const data = await response.json();
+     79| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[7/21]ΓÄ»
+
+ FAIL  src/app/api/auth/magic-link/__tests__/route.test.ts > POST /api/auth/magic-link > returns INVALID_EMAIL for malformed payload
+TypeError: __vi_import_1__.POST is not a function
+ Γ¥» src/app/api/auth/magic-link/__tests__/route.test.ts:108:28
+    106|     });
+    107| 
+    108|     const response = await POST(request);
+       |                            ^
+    109|     const data = await response.json();
+    110| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[8/21]ΓÄ»
+
+ FAIL  src/app/api/auth/magic-link/__tests__/route.test.ts > POST /api/auth/magic-link > returns support-safe misconfiguration contract
+TypeError: __vi_import_1__.POST is not a function
+ Γ¥» src/app/api/auth/magic-link/__tests__/route.test.ts:121:28
+    119|     });
+    120| 
+    121|     const response = await POST(request);
+       |                            ^
+    122|     const data = await response.json();
+    123| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[9/21]ΓÄ»
+
+ FAIL  src/app/api/auth/magic-link/__tests__/route.test.ts > POST /api/auth/magic-link > returns sent state for valid requests
+TypeError: __vi_import_1__.POST is not a function
+ Γ¥» src/app/api/auth/magic-link/__tests__/route.test.ts:142:28
+    140|     });
+    141| 
+    142|     const response = await POST(request);
+       |                            ^
+    143|     const data = await response.json();
+    144| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[10/21]ΓÄ»
+
+ FAIL  src/app/api/auth/magic-link/__tests__/route.test.ts > POST /api/auth/magic-link > returns AUTH_TRANSIENT_FAILURE on provider error
+TypeError: __vi_import_1__.POST is not a function
+ Γ¥» src/app/api/auth/magic-link/__tests__/route.test.ts:162:28
+    160|     });
+    161| 
+    162|     const response = await POST(request);
+       |                            ^
+    163|     const data = await response.json();
+    164| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[11/21]ΓÄ»
+
+ FAIL  src/app/api/auth/magic-link/__tests__/route.test.ts > POST /api/auth/magic-link > returns INVALID_EMAIL for malformed payload
+TypeError: __vi_import_1__.POST is not a function
+ Γ¥» src/app/api/auth/magic-link/__tests__/route.test.ts:193:28
+    191|     });
+    192| 
+    193|     const response = await POST(request);
+       |                            ^
+    194|     const data = await response.json();
+    195| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[12/21]ΓÄ»
+
+ FAIL  src/app/api/auth/magic-link/__tests__/route.test.ts > POST /api/auth/magic-link > returns support-safe misconfiguration contract
+TypeError: __vi_import_1__.POST is not a function
+ Γ¥» src/app/api/auth/magic-link/__tests__/route.test.ts:206:28
+    204|     });
+    205| 
+    206|     const response = await POST(request);
+       |                            ^
+    207|     const data = await response.json();
+    208| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[13/21]ΓÄ»
+
+ FAIL  src/app/api/auth/magic-link/__tests__/route.test.ts > POST /api/auth/magic-link > returns sent state for valid requests
+TypeError: __vi_import_1__.POST is not a function
+ Γ¥» src/app/api/auth/magic-link/__tests__/route.test.ts:227:28
+    225|     });
+    226| 
+    227|     const response = await POST(request);
+       |                            ^
+    228|     const data = await response.json();
+    229| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[14/21]ΓÄ»
+
+ FAIL  src/app/api/auth/magic-link/__tests__/route.test.ts > POST /api/auth/magic-link > returns AUTH_TRANSIENT_FAILURE on provider error
+TypeError: __vi_import_1__.POST is not a function
+ Γ¥» src/app/api/auth/magic-link/__tests__/route.test.ts:247:28
+    245|     });
+    246| 
+    247|     const response = await POST(request);
+       |                            ^
+    248|     const data = await response.json();
+    249| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[15/21]ΓÄ»
+
+ FAIL  src/app/api/booking/availability/__tests__/route.test.ts > POST /api/booking/availability > returns INVALID_DATE_RANGE for invalid date ordering
+TypeError: __vi_import_1__.POST is not a function
+ Γ¥» src/app/api/booking/availability/__tests__/route.test.ts:44:28
+     42|     });
+     43| 
+     44|     const response = await POST(request);
+       |                            ^
+     45|     const data = await response.json();
+     46| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[16/21]ΓÄ»
+
+ FAIL  src/app/api/booking/availability/__tests__/route.test.ts > POST /api/booking/availability > returns available capacity contract payload
+TypeError: __vi_import_1__.POST is not a function
+ Γ¥» src/app/api/booking/availability/__tests__/route.test.ts:66:28
+     64|     });
+     65| 
+     66|     const response = await POST(request);
+       |                            ^
+     67|     const data = await response.json();
+     68| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[17/21]ΓÄ»
+
+ FAIL  src/app/api/booking/availability/__tests__/route.test.ts > POST /api/booking/availability > returns NO_CAPACITY when suites are full
+TypeError: __vi_import_1__.POST is not a function
+ Γ¥» src/app/api/booking/availability/__tests__/route.test.ts:88:28
+     86|     });
+     87| 
+     88|     const response = await POST(request);
+       |                            ^
+     89|     const data = await response.json();
+     90| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[18/21]ΓÄ»
+
+ FAIL  src/app/api/contact/submissions/__tests__/route.test.ts > POST /api/contact/submissions > returns CONTACT_VALIDATION_FAILED for invalid payload
+ FAIL  src/app/api/contact/submissions/__tests__/route.test.ts > POST /api/contact/submissions > returns idempotent success when key already exists
+ FAIL  src/app/api/contact/submissions/__tests__/route.test.ts > POST /api/contact/submissions > returns CONTACT_RATE_LIMITED when anti-abuse threshold is exceeded
+TypeError: __vi_import_2__.__resetIssue26InMemoryState is not a function
+ Γ¥» src/app/api/contact/submissions/__tests__/route.test.ts:41:5
+     39|     vi.clearAllMocks();
+     40|     settingsStore.clear();
+     41|     __resetIssue26InMemoryState();
+       |     ^
+     42|   });
+     43| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[19/21]ΓÄ»
+
+
+[2m Test Files [22m [1m[31m4 failed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m21 failed[39m[22m[90m (21)[39m
+[2m   Start at [22m 09:44:18
+[2m   Duration [22m 583ms[2m (transform 473ms, setup 127ms, import 853ms, tests 100ms, environment 1ms)[22m
+

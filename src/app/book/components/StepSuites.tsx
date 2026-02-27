@@ -64,10 +64,10 @@ const ADD_ONS = [
     price: 15,
   },
   {
-    id: "grooming-bath",
-    name: "Bath & Brush",
-    description: "Full bath and brushing service",
-    price: 45,
+    id: "comfort-care",
+    name: "Comfort Care Package",
+    description: "Extra bedding refresh and end-of-stay cleanup",
+    price: 25,
   },
   {
     id: "nail-trim",

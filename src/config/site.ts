@@ -1,6 +1,7 @@
 export const siteConfig = {
   name: "Zaine's Stay & Play",
-  description: "Syracuse's premier dog boarding, daycare, and grooming resort. Licensed, certified, and open 24/7 with luxury suites and expert care.",
+  description:
+    "Private, small-capacity dog boarding in Syracuse with owner-on-site care, three suites, and safety-first updates.",
   url: "https://zainesstayandplay.com",
   ogImage: "https://zainesstayandplay.com/og.jpg",
   links: {
@@ -24,16 +25,21 @@ export const siteConfig = {
   serviceArea: ["Syracuse", "Liverpool", "Cicero", "Baldwinsville", "Fayetteville", "Manlius"],
 };
 
-export const navItems = [
+type NavChildItem = {
+  title: string;
+  href: string;
+};
+
+type NavItem = {
+  title: string;
+  href: string;
+  children?: NavChildItem[];
+};
+
+export const navItems: NavItem[] = [
   {
-    title: "Services",
-    href: "/services",
-    children: [
-      { title: "Dog Boarding", href: "/services/boarding" },
-      { title: "Daycare", href: "/services/daycare" },
-      { title: "Grooming", href: "/services/grooming" },
-      { title: "Training", href: "/services/training" },
-    ],
+    title: "Home",
+    href: "/",
   },
   {
     title: "Suites",
@@ -44,12 +50,8 @@ export const navItems = [
     href: "/pricing",
   },
   {
-    title: "Gallery",
-    href: "/gallery",
-  },
-  {
-    title: "Reviews",
-    href: "/reviews",
+    title: "Book Now",
+    href: "/book",
   },
   {
     title: "About",

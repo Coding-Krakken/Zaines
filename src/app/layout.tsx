@@ -20,14 +20,12 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   keywords: [
     "dog boarding",
-    "pet boarding",
-    "dog daycare",
-    "pet daycare",
-    "dog grooming",
-    "pet grooming",
+    "private dog boarding",
+    "small-capacity dog boarding",
+    "home-based dog boarding",
     "Syracuse",
-    "Bellevue",
-    "pet resort",
+    "Syracuse NY dog boarding",
+    "owner on site dog boarding",
   ],
   authors: [
     {

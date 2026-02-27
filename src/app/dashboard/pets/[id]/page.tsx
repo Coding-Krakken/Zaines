@@ -44,7 +44,7 @@ export default async function PetDetail({ params }: Props) {
           <div className="mt-2">
             <h3 className="font-medium">Vaccines</h3>
             <ul className="text-sm list-disc pl-5">
-              {pet.vaccines.map(v => (
+              {pet.vaccines.map((v: { id: string; name: string; expiryDate: Date }) => (
                 <li key={v.id}>{v.name} — expires {new Date(v.expiryDate).toLocaleDateString()}</li>
               ))}
               {pet.vaccines.length === 0 && <li>No vaccine records</li>}

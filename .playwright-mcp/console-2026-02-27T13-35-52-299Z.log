@@ -1,0 +1,83 @@
+[   52376ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0
+[   52544ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0
+[   52642ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0
+[   52642ms] [ERROR] Error during availability check: TypeError: Failed to fetch
+    at https://zaines.vercel.app/_next/static/chunks/45f6a90f7c021f15.js:37:174739
+    at https://zaines.vercel.app/_next/static/chunks/45f6a90f7c021f15.js:37:175818
+    at ih (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:102174)
+    at uf (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:126024)
+    at uc (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:125686)
+    at uf (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:126069)
+    at uc (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:125686)
+    at uf (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:126069)
+    at uc (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:125686)
+    at uf (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:126069) @ https://zaines.vercel.app/_next/static/chunks/45f6a90f7c021f15.js:36
+[   52760ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0
+[   52860ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0
+[   52949ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0
+[   53030ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0
+[   53118ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0
+[   53201ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0
+[   53277ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0
+[   53358ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0
+[   53439ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0
+[   53522ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0
+[   53600ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0
+[   53688ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0
+[   75978ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/availability?checkIn=2026-03-10&checkOut=2026-03-12&serviceType=boarding:0
+[   75979ms] [ERROR] Error during availability check: TypeError: Failed to fetch
+    at https://zaines.vercel.app/_next/static/chunks/45f6a90f7c021f15.js:37:174739
+    at https://zaines.vercel.app/_next/static/chunks/45f6a90f7c021f15.js:37:175818
+    at ih (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:102174)
+    at uf (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:126024)
+    at uc (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:125686)
+    at uf (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:126069)
+    at uc (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:125686)
+    at uf (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:126069)
+    at uc (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:125686)
+    at uf (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:126069) @ https://zaines.vercel.app/_next/static/chunks/45f6a90f7c021f15.js:36

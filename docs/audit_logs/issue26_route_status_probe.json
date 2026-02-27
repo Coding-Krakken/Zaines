@@ -1,0 +1,10 @@
+[
+  {
+    "path": "/robots.txt",
+    "status": 500
+  },
+  {
+    "path": "/sitemap.xml",
+    "status": 500
+  }
+]

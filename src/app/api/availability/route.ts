@@ -2,6 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 
+type AvailabilityPrisma = {
+  booking: {
+    findMany: (args: {
+      where: {
+        status: { in: string[] };
+        OR: Array<Record<string, unknown>>;
+      };
+      include: {
+        suite: {
+          select: {
+            tier: boolean;
+          };
+        };
+      };
+    }) => Promise<Array<{ suite: { tier: string } }>>;
+  };
+};
+
+const availabilityPrisma = prisma as AvailabilityPrisma;
+
 const availabilitySchema = z.object({
   checkIn: z.string(),
   checkOut: z.string(),
@@ -51,7 +71,7 @@ export async function GET(request: NextRequest) {
     const checkOutDate = new Date(checkOut);
 
     // Find all bookings that overlap with the requested dates
-    const overlappingBookings = await prisma.booking.findMany({
+    const overlappingBookings = await availabilityPrisma.booking.findMany({
       where: {
         status: {
           in: ["confirmed", "checked_in"],

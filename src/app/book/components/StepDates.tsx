@@ -9,7 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Calendar, Loader2, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
 import { stepDatesSchema, type StepDatesData } from "@/lib/validations/booking-wizard";
-import { toast } from "sonner";
+import { canDispatchAvailabilityCheck } from "@/lib/booking/availability-flow";
+import {
+  AvailabilityErrorResponse,
+  AvailabilityState,
+  AvailabilitySuccessResponse,
+  calculateNights,
+} from "@/app/book/components/step-dates-contract";
 
 interface StepDatesProps {
   data: Partial<StepDatesData>;
@@ -18,81 +24,98 @@ interface StepDatesProps {
 }
 
 export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
-  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+  const [availabilityState, setAvailabilityState] = useState<AvailabilityState>("idle");
   const [availabilityResult, setAvailabilityResult] = useState<{
     available: boolean;
     nights: number;
-    basePrice: number;
+    nextRetryAfterSeconds?: number;
+    correlationId?: string;
   } | null>(null);
-
-  // Calculate nights when dates change
-  const calculateNights = (checkIn: string, checkOut: string): number => {
-    const start = new Date(checkIn);
-    const end = new Date(checkOut);
-    const diffTime = end.getTime() - start.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(1, diffDays);
-  };
+  const [availabilityMessage, setAvailabilityMessage] = useState<string>("");
 
   const checkAvailability = useCallback(async () => {
-    if (!data.checkIn || !data.checkOut || !data.serviceType) return;
+    if (!canDispatchAvailabilityCheck({ checkIn: data.checkIn, checkOut: data.checkOut, serviceType: data.serviceType })) {
+      if (data.checkIn && data.checkOut && new Date(data.checkOut) <= new Date(data.checkIn)) {
+        setAvailabilityState("invalid_input");
+        setAvailabilityResult(null);
+        setAvailabilityMessage("Check-out must be after check-in.");
+      }
+      return;
+    }
 
-    setIsCheckingAvailability(true);
+    setAvailabilityState("validating_input");
     setAvailabilityResult(null);
+    setAvailabilityMessage("");
+
+    setAvailabilityState("checking_availability");
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/availability?checkIn=${data.checkIn}&checkOut=${data.checkOut}&serviceType=${data.serviceType}`
-      );
-      
-      console.log('Fetching URL:', `/api/availability?checkIn=${data.checkIn}&checkOut=${data.checkOut}&serviceType=${data.serviceType}`);
-      console.log('Request Headers:', {
-        method: 'GET',
+      const response = await fetch("/api/booking/availability", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          checkIn: data.checkIn,
+          checkOut: data.checkOut,
+          serviceType: "boarding",
+          partySize: Math.min(Math.max(data.petCount || 1, 1), 2),
+        }),
       });
 
-      const result = await response.json();
-      
-      console.log('API response:', result);
+      const payload: AvailabilitySuccessResponse | AvailabilityErrorResponse = await response.json();
 
-      if (result.available) {
-        console.log('Suites are available!');
-        const nights = calculateNights(data.checkIn, data.checkOut);
-        setAvailabilityResult({
-          available: true,
-          nights,
-          basePrice: result.basePrice || nights * 65, // Fallback to $65/night
-        });
-      } else {
-        console.log('No suites available.');
+      if (response.ok && "isAvailable" in payload) {
+        const nights = calculateNights(data.checkIn!, data.checkOut!);
+
+        if (payload.isAvailable) {
+          setAvailabilityState("available");
+          setAvailabilityResult({ available: true, nights });
+          setAvailabilityMessage("Suites available for your selected dates.");
+          return;
+        }
+
+        setAvailabilityState("unavailable_recoverable");
         setAvailabilityResult({
           available: false,
-          nights: 0,
-          basePrice: 0,
+          nights,
+          nextRetryAfterSeconds: payload.nextRetryAfterSeconds,
         });
-        toast.error("No availability for selected dates. Please choose different dates.");
+        setAvailabilityMessage("Selected dates are currently unavailable. Please adjust dates or retry.");
+        return;
+      }
+
+      const errorPayload = payload as AvailabilityErrorResponse;
+      if (errorPayload.errorCode === "INVALID_DATE_RANGE") {
+        setAvailabilityState("invalid_input");
+        setAvailabilityMessage("Check-out must be after check-in.");
+      } else {
+        setAvailabilityState("service_degraded");
+        setAvailabilityResult({
+          available: false,
+          nights: calculateNights(data.checkIn!, data.checkOut!),
+          correlationId: errorPayload.correlationId,
+        });
+        setAvailabilityMessage("Availability is temporarily unavailable. Please retry.");
       }
     } catch (error) {
-      console.error('Error during availability check:', error);
-      toast.error("Failed to check availability. Please try again.");
+      setAvailabilityState("service_degraded");
       setAvailabilityResult(null);
-    } finally {
-      setIsCheckingAvailability(false);
-      console.log('Availability check completed.');
+      setAvailabilityMessage("Availability is temporarily unavailable. Please retry.");
     }
-  }, [data.checkIn, data.checkOut, data.serviceType]);
+  }, [data.checkIn, data.checkOut, data.serviceType, data.petCount]);
 
-  // Check availability when dates and service type are set
   useEffect(() => {
     if (data.checkIn && data.checkOut && data.serviceType) {
       checkAvailability();
+    } else {
+      setAvailabilityState("idle");
+      setAvailabilityResult(null);
+      setAvailabilityMessage("");
     }
   }, [data.checkIn, data.checkOut, data.serviceType, checkAvailability]);
 
   const handleNext = () => {
-    // Build complete step data
     const stepData: Partial<StepDatesData> = {
       checkIn: data.checkIn,
       checkOut: data.checkOut,
@@ -100,22 +123,20 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
       petCount: data.petCount || 1,
     };
 
-    // Validate with Zod
     const validation = stepDatesSchema.safeParse(stepData);
     
     if (!validation.success) {
       const firstError = validation.error.issues[0];
-      toast.error(firstError.message);
+      setAvailabilityState("invalid_input");
+      setAvailabilityMessage(firstError.message);
       return;
     }
 
-    // Check availability status
-    if (!availabilityResult?.available) {
-      toast.error("Please select dates with available suites");
+    if (availabilityState !== "available") {
+      setAvailabilityMessage("Please select dates with available suites before continuing.");
       return;
     }
 
-    // All valid, proceed to next step
     onNext();
   };
 
@@ -135,11 +156,10 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
           Select Your Dates & Service
         </CardTitle>
         <CardDescription>
-          Choose your check-in and check-out dates, service type, and number of pets
+          Choose your check-in/check-out dates and number of pets for private boarding
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Date Selection */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="checkIn">Check-in Date *</Label>
@@ -167,12 +187,11 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
           </div>
         </div>
 
-        {/* Service Type Selection */}
         <div className="space-y-2">
           <Label htmlFor="serviceType">Service Type *</Label>
           <Select
             value={data.serviceType || ""}
-            onValueChange={(value) => onUpdate({ serviceType: value as "boarding" | "daycare" })}
+            onValueChange={(value) => onUpdate({ serviceType: value as "boarding" })}
           >
             <SelectTrigger id="serviceType">
               <SelectValue placeholder="Select a service" />
@@ -184,17 +203,10 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
                   <span className="text-sm text-muted-foreground">$65-120/night</span>
                 </div>
               </SelectItem>
-              <SelectItem value="daycare">
-                <div className="flex flex-col items-start">
-                  <span className="font-medium">Daycare</span>
-                  <span className="text-sm text-muted-foreground">$45/day</span>
-                </div>
-              </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        {/* Pet Count Selection */}
         <div className="space-y-2">
           <Label htmlFor="petCount">Number of Pets *</Label>
           <Select
@@ -214,15 +226,14 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
           </Select>
         </div>
 
-        {/* Availability Check Status */}
-        {isCheckingAvailability && (
+        {availabilityState === "checking_availability" && (
           <Alert>
             <Loader2 className="h-4 w-4 animate-spin" />
             <AlertDescription>Checking availability...</AlertDescription>
           </Alert>
         )}
 
-        {availabilityResult && !isCheckingAvailability && (
+        {(availabilityState === "available" || availabilityState === "unavailable_recoverable") && availabilityResult && (
           <>
             {availabilityResult.available ? (
               <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
@@ -231,8 +242,7 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
                   <div className="flex flex-col gap-1">
                     <span className="font-semibold">Suites Available!</span>
                     <span className="text-sm">
-                      {availabilityResult.nights} {availabilityResult.nights === 1 ? "night" : "nights"} 
-                      {" • "}Starting from ${availabilityResult.basePrice.toFixed(2)}
+                      {availabilityResult.nights} {availabilityResult.nights === 1 ? "night" : "nights"}
                     </span>
                   </div>
                 </AlertDescription>
@@ -241,14 +251,29 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  No suites available for selected dates. Please choose different dates.
+                  {availabilityMessage}
                 </AlertDescription>
               </Alert>
             )}
           </>
         )}
 
-        {/* Next Button */}
+        {(availabilityState === "invalid_input" || availabilityState === "service_degraded") && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <div className="flex flex-col gap-2">
+                <span>{availabilityMessage}</span>
+                {availabilityState === "service_degraded" && (
+                  <Button type="button" variant="outline" size="sm" onClick={checkAvailability}>
+                    Retry Availability Check
+                  </Button>
+                )}
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="flex justify-end pt-4">
           <Button
             onClick={handleNext}
@@ -257,8 +282,8 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
               !data.checkOut ||
               !data.serviceType ||
               !data.petCount ||
-              isCheckingAvailability ||
-              !availabilityResult?.available
+              availabilityState === "checking_availability" ||
+              availabilityState !== "available"
             }
           >
             Continue to Suite Selection

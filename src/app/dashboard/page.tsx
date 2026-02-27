@@ -46,7 +46,7 @@ export default async function DashboardPage() {
             <p className="mt-3 text-sm text-muted-foreground">No upcoming bookings.</p>
           ) : (
             <ul className="mt-3 space-y-3">
-              {upcomingBookings.map((b) => (
+              {upcomingBookings.map((b: { id: string; suite?: { name?: string } | null; checkInDate: Date; checkOutDate: Date; bookingNumber: string }) => (
                 <li key={b.id} className="p-3 border rounded">
                   <div className="flex justify-between">
                     <div>
@@ -70,7 +70,7 @@ export default async function DashboardPage() {
             <p className="mt-3 text-sm text-muted-foreground">No pets added. Add a pet to speed up bookings.</p>
           ) : (
             <ul className="mt-3 grid grid-cols-2 gap-3">
-              {pets.map((p) => (
+              {pets.map((p: { id: string; name: string; breed?: string | null }) => (
                 <li key={p.id} className="p-3 border rounded">
                   <div className="font-medium">{p.name}</div>
                   <div className="text-sm text-muted-foreground">{p.breed || 'Unknown'}</div>

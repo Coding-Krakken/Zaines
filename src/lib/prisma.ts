@@ -1,13 +1,22 @@
-// Some Prisma client versions expose different type shapes in their
-// type declarations on the build environment. Rely on runtime `@prisma/client`.
-import { PrismaClient } from "@prisma/client";
+// Some Prisma client versions expose different runtime entrypoints.
+// Resolve the client dynamically so local runtime can still boot when
+// Prisma artifacts are unavailable.
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+  prisma: any;
   pool: Pool | undefined;
 };
+
+function loadPrismaClientCtor(): null | (new (args: Record<string, unknown>) => unknown) {
+  try {
+    const loaded = require("@prisma/client") as { PrismaClient?: new (args: Record<string, unknown>) => unknown };
+    return loaded.PrismaClient ?? null;
+  } catch {
+    return null;
+  }
+}
 
 // Check if DATABASE_URL is configured
 export function isDatabaseConfigured(): boolean {
@@ -36,13 +45,41 @@ function createPool(): Pool {
 // Create a connection pool
 const pool = globalForPrisma.pool ?? createPool();
 const adapter = new PrismaPg(pool);
+const PrismaClientCtor = loadPrismaClientCtor();
 
-export const prisma =
+export const prisma: any =
   globalForPrisma.prisma ??
-  new PrismaClient({
-    adapter,
-    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
-  });
+  (PrismaClientCtor
+    ? new PrismaClientCtor({
+        adapter,
+        log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+      })
+    : {
+        suite: {
+          count: async () => {
+            throw new Error("PRISMA_CLIENT_UNAVAILABLE");
+          },
+        },
+        booking: {
+          count: async () => {
+            throw new Error("PRISMA_CLIENT_UNAVAILABLE");
+          },
+        },
+        settings: {
+          findUnique: async () => {
+            throw new Error("PRISMA_CLIENT_UNAVAILABLE");
+          },
+          create: async () => {
+            throw new Error("PRISMA_CLIENT_UNAVAILABLE");
+          },
+          upsert: async () => {
+            throw new Error("PRISMA_CLIENT_UNAVAILABLE");
+          },
+          findMany: async () => {
+            throw new Error("PRISMA_CLIENT_UNAVAILABLE");
+          },
+        },
+      });
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;

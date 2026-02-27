@@ -1,12 +1,20 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
+let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
 
 describe('Environment Variable Safety', () => {
   beforeEach(() => {
+    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
     // Clear environment variables for each test
     delete process.env.DATABASE_URL;
     delete process.env.STRIPE_SECRET_KEY;
     delete process.env.STRIPE_WEBHOOK_SECRET;
     delete process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+  });
+
+  afterEach(() => {
+    consoleWarnSpy?.mockRestore();
   });
 
   describe('Stripe Configuration Helpers', () => {

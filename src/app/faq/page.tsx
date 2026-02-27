@@ -60,48 +60,26 @@ const faqCategories = {
       a: "No problem! As long as we have availability, we can extend your stay. Contact us as soon as possible to avoid any scheduling conflicts.",
     },
   ],
-  daycare: [
+  bookingFlow: [
     {
-      q: "What's the difference between daycare and boarding?",
-      a: "Daycare is for daytime care only - you drop off in the morning and pick up in the evening. Boarding includes overnight accommodations. Daycare is great for socialization and exercise while you work!",
+      q: "How does booking progression work?",
+      a: "Select valid check-in/check-out dates, confirm availability, choose a suite, and complete your reservation in sequence.",
     },
     {
-      q: "Does my dog need to be neutered/spayed for daycare?",
-      a: "Dogs over 7 months must be spayed/neutered to participate in group daycare. This helps reduce behavioral issues and maintain a calm play environment.",
+      q: "What if availability is temporarily unavailable?",
+      a: "You&apos;ll see a recoverable message with retry guidance. No technical error text is shown in customer-facing flow.",
     },
     {
-      q: "How are play groups organized?",
-      a: "We organize play groups by size, temperament, and play style. Small/gentle dogs play separately from large/rowdy dogs. Groups are limited to 12-15 dogs with dedicated staff supervision.",
+      q: "What happens if my date range is invalid?",
+      a: "The booking form blocks progression and asks you to correct dates before any availability request is sent.",
     },
     {
-      q: "Can I do part-time daycare?",
-      a: "Absolutely! We offer flexible options: single days, weekly packages (5 days), or monthly packages (20 days). Packages are valid for 3 months from purchase.",
+      q: "Can I submit contact or review forms more than once?",
+      a: "Yes. The forms support idempotency and retry-safe behavior so duplicate submissions are handled safely.",
     },
     {
-      q: "What if my dog doesn't like group play?",
-      a: "Some dogs prefer quieter time, which is fine! We offer individual play sessions and rest time. Just let us know your dog's preferences during intake.",
-    },
-  ],
-  grooming: [
-    {
-      q: "Do I need an appointment for grooming?",
-      a: "Yes, all grooming services require an appointment. We recommend booking 2-3 weeks in advance, especially during peak seasons (spring/summer).",
-    },
-    {
-      q: "How long does grooming take?",
-      a: "Bath & brush takes about 1-2 hours. Full grooms take 2-4 hours depending on your dog's size, coat condition, and temperament. We'll give you a pickup time when you drop off.",
-    },
-    {
-      q: "What if my dog is nervous about grooming?",
-      a: "Our groomers are trained in gentle handling techniques. We go at your dog's pace and take breaks as needed. For very anxious dogs, we can split services across multiple shorter appointments.",
-    },
-    {
-      q: "Can you groom dogs with matted fur?",
-      a: "Yes, but severe matting may require a shorter cut than desired. We'll assess your dog's coat and discuss options. De-matting can be uncomfortable, so we prioritize your pet's comfort.",
-    },
-    {
-      q: "Do you use natural/organic products?",
-      a: "Yes! All our shampoos and conditioners are hypoallergenic, pH-balanced, and free from harmful chemicals. We also offer CBD-infused spa treatments for anxious pets.",
+      q: "How do reviews appear publicly?",
+      a: "Submitted reviews enter moderation first. Only approved reviews are shown on the public listing.",
     },
   ],
   requirements: [
@@ -137,7 +115,7 @@ const faqCategories = {
     },
     {
       q: "Do you offer discounts?",
-      a: "Yes! We offer: 10% off stays over 14 nights, 15% off for 2nd pet from same family, 20% off for 3rd+ pets, and monthly daycare packages save 20%+.",
+      a: "Yes. We offer 10% off stays over 14 nights, 15% off for a second dog from the same family, and 20% off for third+ dogs sharing a suite.",
     },
     {
       q: "What if I pick up late?",
@@ -191,8 +169,7 @@ export default function FAQPage() {
             <TabsList className="mb-8 grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
               <TabsTrigger value="general">General</TabsTrigger>
               <TabsTrigger value="boarding">Boarding</TabsTrigger>
-              <TabsTrigger value="daycare">Daycare</TabsTrigger>
-              <TabsTrigger value="grooming">Grooming</TabsTrigger>
+              <TabsTrigger value="bookingFlow">Booking Flow</TabsTrigger>
               <TabsTrigger value="requirements">Requirements</TabsTrigger>
               <TabsTrigger value="payment">Payment</TabsTrigger>
             </TabsList>

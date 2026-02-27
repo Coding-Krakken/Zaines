@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Wifi, Camera, Bed, Tv, Music, Thermometer, Home } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Luxury Dog Boarding Suites | Pawfect Stays",
+  title: "Private Boarding Suites | Zaine's Stay & Play",
   description: "Choose from our Standard, Deluxe, and Luxury suites for your dog&apos;s perfect home away from home. All suites include 24/7 supervision and daily activities.",
 };
 

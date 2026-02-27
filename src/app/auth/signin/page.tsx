@@ -12,47 +12,101 @@ import { Mail, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
+type MagicLinkState =
+  | "idle"
+  | "validating_email"
+  | "sending_link"
+  | "sent"
+  | "invalid_email"
+  | "provider_misconfigured"
+  | "transient_failure";
+
+type MagicLinkErrorResponse = {
+  errorCode?: "INVALID_EMAIL" | "AUTH_PROVIDER_MISCONFIGURED" | "AUTH_TRANSIENT_FAILURE";
+  message?: string;
+  retryable?: boolean;
+  correlationId?: string;
+};
+
 function SignInForm() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
-  const [error, setError] = useState("");
+  const [magicLinkState, setMagicLinkState] = useState<MagicLinkState>("idle");
+  const [message, setMessage] = useState("");
+  const [correlationId, setCorrelationId] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+  const sendMagicLink = async () => {
+    setMessage("");
+    setCorrelationId(null);
+    setMagicLinkState("validating_email");
+
+    if (!isValidEmail(email.trim())) {
+      setMagicLinkState("invalid_email");
+      setMessage("Enter a valid email address.");
+      return;
+    }
+
+    setMagicLinkState("sending_link");
     setIsLoading(true);
 
     try {
-      const result = await signIn("resend", {
-        email,
-        redirect: false,
-        callbackUrl,
+      const response = await fetch("/api/auth/magic-link", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          intent: "sign_in",
+        }),
       });
 
-      if (result?.error) {
-        setError(result.error);
-        setIsLoading(false);
+      if (response.status === 202) {
+        setMagicLinkState("sent");
+        setMessage("Check your inbox for your sign-in link.");
       } else {
-        setEmailSent(true);
-        setIsLoading(false);
+        const errorPayload: MagicLinkErrorResponse = await response.json();
+
+        if (errorPayload.errorCode === "INVALID_EMAIL") {
+          setMagicLinkState("invalid_email");
+          setMessage("Enter a valid email address.");
+        } else if (errorPayload.errorCode === "AUTH_PROVIDER_MISCONFIGURED") {
+          setMagicLinkState("provider_misconfigured");
+          setMessage("Sign-in is temporarily unavailable. Please contact support.");
+        } else {
+          setMagicLinkState("transient_failure");
+          setMessage("We couldn't send your sign-in link right now. Please retry.");
+        }
+
+        if (errorPayload.correlationId) {
+          setCorrelationId(errorPayload.correlationId);
+        }
       }
-    } catch (err) {
-      setError("Failed to send magic link. Please try again.");
+    } catch {
+      setMagicLinkState("transient_failure");
+      setMessage("We couldn't send your sign-in link right now. Please retry.");
+    } finally {
       setIsLoading(false);
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await sendMagicLink();
+  };
+
   const handleOAuthSignIn = async (provider: "google" | "facebook") => {
     setIsLoading(true);
-    setError("");
+    setMessage("");
     
     try {
       await signIn(provider, { callbackUrl });
-    } catch (err) {
-      setError(`Failed to sign in with ${provider}. Please try again.`);
+    } catch {
+      setMessage(`Failed to sign in with ${provider}. Please try again.`);
       setIsLoading(false);
     }
   };
@@ -89,11 +143,14 @@ function SignInForm() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {!emailSent ? (
+              {magicLinkState !== "sent" ? (
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {error && (
+                  {message && (
                     <Alert variant="destructive">
-                      <AlertDescription>{error}</AlertDescription>
+                      <AlertDescription>
+                        {message}
+                        {correlationId ? ` (Support code: ${correlationId})` : ""}
+                      </AlertDescription>
                     </Alert>
                   )}
 
@@ -208,15 +265,22 @@ function SignInForm() {
                     <Button
                       variant="outline"
                       className="w-full"
-                      onClick={() => setEmailSent(false)}
+                      onClick={() => {
+                        setMagicLinkState("idle");
+                        setMessage("");
+                        setCorrelationId(null);
+                      }}
                     >
                       Use a different email
                     </Button>
 
                     <Button
                       variant="ghost"
+                      type="button"
                       className="w-full"
-                      onClick={handleSubmit}
+                      onClick={() => {
+                        void sendMagicLink();
+                      }}
                       disabled={isLoading}
                     >
                       Resend link

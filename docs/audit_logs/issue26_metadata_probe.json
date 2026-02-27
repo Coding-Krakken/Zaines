@@ -1,0 +1,37 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "title": "Zaine&#x27;s Stay &amp; Play",
+    "description": "Zaine&#x27;s Stay &amp; Play provides trusted private dog boarding in Syracuse with small-capacity care and dependable booking support.",
+    "brandInTitle": false
+  },
+  {
+    "path": "/about",
+    "status": 200,
+    "title": "About | Zaine&#x27;s Stay &amp; Play | Zaine&#x27;s Stay &amp; Play",
+    "description": "Learn about Zaine&#x27;s Stay &amp; Play - Syracuse&#x27;s premier dog boarding, daycare, and grooming facility with certified staff and luxury accommodations.",
+    "brandInTitle": false
+  },
+  {
+    "path": "/pricing",
+    "status": 200,
+    "title": "Pricing | Zaine&#x27;s Stay &amp; Play | Zaine&#x27;s Stay &amp; Play",
+    "description": "Explore service pricing from Zaine&#x27;s Stay &amp; Play, including boarding suite rates and add-on options.",
+    "brandInTitle": false
+  },
+  {
+    "path": "/book",
+    "status": 500,
+    "title": "",
+    "description": "",
+    "brandInTitle": false
+  },
+  {
+    "path": "/contact",
+    "status": 500,
+    "title": "",
+    "description": "",
+    "brandInTitle": false
+  }
+]

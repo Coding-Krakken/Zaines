@@ -6,8 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Lock, Eye, UserCheck, Database, Mail } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Pawfect Stays",
-  description: "Learn how Pawfect Stays collects, uses, and protects your personal information and data.",
+  title: "Privacy Policy | Zaine's Stay & Play",
+  description: "Learn how Zaine's Stay & Play collects, uses, and protects your personal information and data.",
 };
 
 export default function PrivacyPage() {
@@ -89,7 +89,7 @@ export default function PrivacyPage() {
             <div className="mb-12">
               <h2 className="mb-4 text-2xl font-bold">Introduction</h2>
               <p className="text-muted-foreground">
-                Pawfect Stays (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) operates pawfectstays.com and provides dog boarding, daycare, grooming, and training services. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.
+                Zaine's Stay &amp; Play (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) provides private dog boarding services. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.
               </p>
               <p className="text-muted-foreground">
                 By using our website and services, you consent to the data practices described in this policy. If you do not agree with this policy, please discontinue use of our services.
@@ -142,7 +142,7 @@ export default function PrivacyPage() {
                 We use the collected information for the following purposes:
               </p>
               <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
-                <li>Providing and managing boarding, daycare, grooming, or training services</li>
+                <li>Providing and managing private boarding reservations and approved add-ons</li>
                 <li>Processing payments and maintaining financial records</li>
                 <li>Sending booking confirmations, reminders, and updates about your pet</li>
                 <li>Communicating important information about schedule changes or emergencies</li>
@@ -178,7 +178,7 @@ export default function PrivacyPage() {
 
               <h3 className="mb-3 text-xl font-semibold">Legal Requirements</h3>
               <p className="mb-4 text-muted-foreground">
-                We may disclose information if required by law, court order, or government request, or to protect the rights, property, or safety of Pawfect Stays, our users, or others.
+                We may disclose information if required by law, court order, or government request, or to protect the rights, property, or safety of Zaine&apos;s Stay & Play, our users, or others.
               </p>
 
               <h3 className="mb-3 text-xl font-semibold">Business Transfers</h3>
@@ -273,10 +273,9 @@ export default function PrivacyPage() {
                 If you have questions or concerns about this Privacy Policy or our data practices, please contact us:
               </p>
               <div className="rounded-lg bg-muted p-6">
-                <p className="mb-2"><strong>Pawfect Stays</strong></p>
-                <p className="mb-2">123 Pet Paradise Lane</p>
-                <p className="mb-2">Seattle, WA 98101</p>
-                <p className="mb-2">Email: privacy@pawfectstays.com</p>
+                <p className="mb-2"><strong>Zaine&apos;s Stay & Play</strong></p>
+                <p className="mb-2">Syracuse, NY</p>
+                <p className="mb-2">Email: privacy@zainesstayandplay.com</p>
                 <p>Phone: (315) 657-1332</p>
               </div>
             </div>

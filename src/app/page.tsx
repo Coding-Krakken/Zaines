@@ -1,9 +1,16 @@
 /* eslint-disable react/no-unescaped-entities */
+import { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Star } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Zaine's Stay & Play",
+  description:
+    "Zaine's Stay & Play provides trusted private dog boarding in Syracuse with small-capacity care and dependable booking support.",
+};
 
 export default function Home() {
   return (
@@ -13,13 +20,13 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-3xl text-center">
             <Badge className="mb-4" variant="secondary">
-              Syracuse's Premier Pet Resort
+              Private 3-Suite Boarding in Syracuse
             </Badge>
             <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl">
-              Your Pet&apos;s <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Home Away From Home</span>
+              Safe. Fun. <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Loved.</span>
             </h1>
             <p className="mb-8 text-lg text-muted-foreground md:text-xl">
-              Premium dog boarding, daycare, and grooming with 24/7 care, luxury suites, and real-time photo updates.
+              Owner-on-site private boarding with only three suites, calm routines, and dependable daily updates.
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Button size="lg" asChild>
@@ -31,8 +38,7 @@ export default function Home() {
             </div>
             <div className="mt-6 flex items-center justify-center gap-1 text-sm text-muted-foreground">
               <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-              <span className="font-semibold">4.9/5</span>
-              <span>(500+ reviews)</span>
+              <span className="font-semibold">Trusted by local families</span>
             </div>
           </div>
         </div>
@@ -52,7 +58,7 @@ export default function Home() {
             </div>
             <div className="text-center">
               <div className="mb-2 text-3xl">👁️</div>
-              <h3 className="font-semibold">24/7 Supervision</h3>
+              <h3 className="font-semibold">Owner On-Site</h3>
             </div>
             <div className="text-center">
               <div className="mb-2 text-3xl">📸</div>
@@ -66,33 +72,33 @@ export default function Home() {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Comprehensive Pet Care Services</h2>
-            <p className="text-lg text-muted-foreground">Everything your furry friend needs under one roof</p>
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Private Boarding, Not High-Volume Drop-Off</h2>
+            <p className="text-lg text-muted-foreground">A calm, small-capacity environment designed for safety and consistency</p>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <Card className="transition-shadow hover:shadow-lg">
               <CardHeader>
                 <div className="mb-2 text-4xl">🏨</div>
-                <CardTitle>Dog Boarding</CardTitle>
-                <CardDescription>Overnight & extended stays</CardDescription>
+                <CardTitle>Private Boarding</CardTitle>
+                <CardDescription>Overnight and extended stays</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Luxury suites with webcams</span>
+                    <span>Three-suite capacity for focused care</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>24/7 supervision</span>
+                    <span>Owner-on-site supervision</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Daily activities & playtime</span>
+                    <span>Family-matched daily routines</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Real-time photo updates</span>
+                    <span>Reliable updates and check-ins</span>
                   </li>
                 </ul>
                 <Link href="/services/boarding" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
@@ -103,93 +109,93 @@ export default function Home() {
 
             <Card className="transition-shadow hover:shadow-lg">
               <CardHeader>
-                <div className="mb-2 text-4xl">☀️</div>
-                <CardTitle>Daycare</CardTitle>
-                <CardDescription>Full day play & socialization</CardDescription>
+                <div className="mb-2 text-4xl">🛡️</div>
+                <CardTitle>Safety Standards</CardTitle>
+                <CardDescription>Clear, consistent care practices</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Group play sessions</span>
+                    <span>No overcrowded group handling</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Indoor & outdoor areas</span>
+                    <span>Camera-monitored environment</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Trained play supervisors</span>
+                    <span>Structured feeding and rest windows</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Flexible scheduling</span>
+                    <span>Medication and special instructions tracked</span>
                   </li>
                 </ul>
-                <Link href="/services/daycare" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
-                  Learn More →
+                <Link href="/policies" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
+                  View Policies →
                 </Link>
               </CardContent>
             </Card>
 
             <Card className="transition-shadow hover:shadow-lg">
               <CardHeader>
-                <div className="mb-2 text-4xl">✂️</div>
-                <CardTitle>Grooming</CardTitle>
-                <CardDescription>Professional spa services</CardDescription>
+                <div className="mb-2 text-4xl">💬</div>
+                <CardTitle>Transparent Communication</CardTitle>
+                <CardDescription>Fewer surprises, clearer expectations</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Full grooming packages</span>
+                    <span>Simple booking and confirmation flow</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Bath & nail trim</span>
+                    <span>Support-safe sign-in and recovery messaging</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Breed-specific cuts</span>
+                    <span>Contact confirmations with reference IDs</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Premium products</span>
+                    <span>Reviews moderated before public listing</span>
                   </li>
                 </ul>
-                <Link href="/services/grooming" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
-                  Learn More →
+                <Link href="/contact" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
+                  Contact Us →
                 </Link>
               </CardContent>
             </Card>
 
             <Card className="transition-shadow hover:shadow-lg">
               <CardHeader>
-                <div className="mb-2 text-4xl">🎓</div>
-                <CardTitle>Training</CardTitle>
-                <CardDescription>Expert behavior programs</CardDescription>
+                <div className="mb-2 text-4xl">💵</div>
+                <CardTitle>All-In Pricing Clarity</CardTitle>
+                <CardDescription>Clear rate options before checkout</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Basic obedience</span>
+                    <span>Suite rates shown before reservation</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Advanced commands</span>
+                    <span>Cancellation terms visible up front</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Behavior modification</span>
+                    <span>Multi-dog discounts listed plainly</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Certified trainers</span>
+                    <span>No hidden booking fees at confirmation</span>
                   </li>
                 </ul>
-                <Link href="/services/training" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
-                  Learn More →
+                <Link href="/pricing" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
+                  View Pricing →
                 </Link>
               </CardContent>
             </Card>

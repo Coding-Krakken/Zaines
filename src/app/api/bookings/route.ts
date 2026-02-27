@@ -5,6 +5,37 @@ import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { stripe, formatAmountForStripe, isStripeConfigured } from "@/lib/stripe";
 import { sendBookingConfirmation } from "@/lib/notifications";
 
+let hasLoggedStripeUnavailableWarning = false;
+const shouldLogBookingDiagnostics = process.env.NODE_ENV !== "test";
+
+type BookingsApiPrisma = {
+  $transaction: <T>(
+    fn: (tx: any) => Promise<T>,
+    options?: { isolationLevel?: string; timeout?: number }
+  ) => Promise<T>;
+  payment: {
+    findFirst: (args: { where: { bookingId: string } }) => Promise<{ id: string } | null>;
+    create: (args: {
+      data: {
+        bookingId: string;
+        amount: number;
+        currency: string;
+        status: string;
+        stripePaymentId: string;
+      };
+    }) => Promise<unknown>;
+  };
+  booking: {
+    findMany: (args: {
+      where: { userId: string };
+      orderBy: { createdAt: "desc" | "asc" };
+      include: Record<string, unknown>;
+    }) => Promise<unknown[]>;
+  };
+};
+
+const bookingsPrisma = prisma as BookingsApiPrisma;
+
 const bookingSchema = z.object({
   checkIn: z.string(),
   checkOut: z.string(),
@@ -98,13 +129,15 @@ export async function POST(request: NextRequest) {
     };
 
     // Log advisory lock acquisition
-    console.log('Attempting to acquire advisory lock for suite type:', data.suiteType, 'and check-in date:', checkInDate.toISOString());
+    if (shouldLogBookingDiagnostics) {
+      console.log('Attempting to acquire advisory lock for suite type:', data.suiteType, 'and check-in date:', checkInDate.toISOString());
+    }
 
     // Wrap booking creation in transaction with advisory lock
     // `tx` is the transactional Prisma client provided by Prisma.
     // Use `any` here to avoid importing Prisma types that differ across versions
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const booking = await prisma.$transaction(async (tx: any) => {
+    const booking = await bookingsPrisma.$transaction(async (tx: any) => {
       // 1. Acquire PostgreSQL advisory lock for this suite type + date range
       // This ensures only one request can check capacity and create a booking at a time
       // for the same suite type and check-in date combination
@@ -114,10 +147,14 @@ export async function POST(request: NextRequest) {
         )
       `;
 
-      console.log('Advisory lock acquired for suite type:', data.suiteType, 'and check-in date:', checkInDate.toISOString());
+      if (shouldLogBookingDiagnostics) {
+        console.log('Advisory lock acquired for suite type:', data.suiteType, 'and check-in date:', checkInDate.toISOString());
+      }
 
       // Log capacity check
-      console.log('Checking capacity for suite type:', data.suiteType);
+      if (shouldLogBookingDiagnostics) {
+        console.log('Checking capacity for suite type:', data.suiteType);
+      }
       const overlappingBookings = await tx.booking.count({
         where: {
           suite: {
@@ -160,11 +197,15 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      console.log('Overlapping bookings count:', overlappingBookings);
+      if (shouldLogBookingDiagnostics) {
+        console.log('Overlapping bookings count:', overlappingBookings);
+      }
 
       // 3. Enforce capacity limit
       if (overlappingBookings >= capacity[data.suiteType]) {
-        console.error('Capacity exceeded for suite type:', data.suiteType);
+        if (shouldLogBookingDiagnostics) {
+          console.error('Capacity exceeded for suite type:', data.suiteType);
+        }
         throw new Error('CAPACITY_EXCEEDED');
       }
 
@@ -180,11 +221,15 @@ export async function POST(request: NextRequest) {
       });
 
       if (!availableSuite) {
-        console.error('No available suite found for suite type:', data.suiteType);
+        if (shouldLogBookingDiagnostics) {
+          console.error('No available suite found for suite type:', data.suiteType);
+        }
         throw new Error('NO_SUITE_AVAILABLE');
       }
 
-      console.log('Available suite found:', availableSuite.id);
+      if (shouldLogBookingDiagnostics) {
+        console.log('Available suite found:', availableSuite.id);
+      }
 
       // 5. Create or find user inside transaction
       let user;
@@ -260,10 +305,13 @@ export async function POST(request: NextRequest) {
     let stripeInstance = stripe;
     if (stripePublishableKey && stripeSecretKey) {
       const StripeConstructor = (await import('stripe')).default;
-      stripeInstance = new StripeConstructor(stripeSecretKey, { apiVersion: '2026-01-28.clover' });
+      stripeInstance = new StripeConstructor(stripeSecretKey, { apiVersion: '2026-02-25.clover' });
       console.log('Stripe dynamically configured via request headers.');
     } else if (!isStripeConfigured()) {
-      console.warn('Stripe is not configured. Payment features will be unavailable.');
+      if (process.env.NODE_ENV !== 'test' && !hasLoggedStripeUnavailableWarning) {
+        console.warn('Stripe is not configured. Payment features will be unavailable.');
+        hasLoggedStripeUnavailableWarning = true;
+      }
     }
 
     // Create Stripe Payment Intent if Stripe is configured
@@ -271,7 +319,7 @@ export async function POST(request: NextRequest) {
     if (isStripeConfigured()) {
       try {
         // Check if payment already exists for this booking (idempotency)
-        const existingPayment = await prisma.payment.findFirst({
+        const existingPayment = await bookingsPrisma.payment.findFirst({
           where: {
             bookingId: booking.id,
           },
@@ -287,12 +335,12 @@ export async function POST(request: NextRequest) {
               bookingNumber: booking.bookingNumber,
               userId: booking.userId,
             },
-            description: `Booking #${booking.bookingNumber} at Pawfect Stays`,
+            description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
             receipt_email: data.email,
           });
 
           // Create payment record
-          await prisma.payment.create({
+          await bookingsPrisma.payment.create({
             data: {
               bookingId: booking.id,
               amount: booking.total,
@@ -305,7 +353,9 @@ export async function POST(request: NextRequest) {
           clientSecret = paymentIntent.client_secret || undefined;
         }
       } catch (error) {
-        console.error("Failed to create payment intent:", error);
+        if (shouldLogBookingDiagnostics) {
+          console.error("Failed to create payment intent:", error);
+        }
         // Don't fail booking if payment creation fails
       }
     }
@@ -327,7 +377,9 @@ export async function POST(request: NextRequest) {
         : "Booking created successfully.",
     }, { status: 201 });
   } catch (error) {
-    console.error("Booking creation error:", error);
+    if (shouldLogBookingDiagnostics) {
+      console.error("Booking creation error:", error);
+    }
 
     // Handle custom business logic errors
     if (error instanceof Error) {
@@ -413,7 +465,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const bookings = await prisma.booking.findMany({
+    const bookings = await bookingsPrisma.booking.findMany({
       where: {
         userId: session.user.id,
       },

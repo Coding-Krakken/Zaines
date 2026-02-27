@@ -16,17 +16,6 @@ const services = {
     deluxe: 85,
     luxury: 120,
   },
-  daycare: {
-    single: 45,
-    weekly: 200,
-    monthly: 600,
-  },
-  grooming: {
-    small: 45,
-    medium: 65,
-    large: 85,
-    xlarge: 105,
-  },
 };
 
 const addOns = [
@@ -35,25 +24,17 @@ const addOns = [
   { name: "Photo Package (10 photos)", price: 25 },
   { name: "Spa Treatment", price: 35 },
   { name: "Birthday Party Package", price: 75 },
-  { name: "Training Session (30 min)", price: 50 },
+  { name: "Comfort Care Package", price: 50 },
 ];
 
 export default function PricingPage() {
-  const [serviceType, setServiceType] = useState<"boarding" | "daycare" | "grooming">("boarding");
+  const [serviceType] = useState<"boarding">("boarding");
   const [suiteType, setSuiteType] = useState<"standard" | "deluxe" | "luxury">("deluxe");
   const [nights, setNights] = useState([3]);
   const [selectedAddOns, setSelectedAddOns] = useState<number[]>([]);
 
   const calculateTotal = () => {
-    let total = 0;
-    
-    if (serviceType === "boarding") {
-      total = services.boarding[suiteType] * nights[0];
-    } else if (serviceType === "daycare") {
-      total = services.daycare.single * nights[0]; // Using nights as days for daycare
-    } else if (serviceType === "grooming") {
-      total = services.grooming.medium; // Default to medium
-    }
+    let total = services.boarding[suiteType] * nights[0];
 
     // Add selected add-ons
     selectedAddOns.forEach((index) => {
@@ -79,10 +60,10 @@ export default function PricingPage() {
           <div className="mx-auto max-w-3xl text-center">
             <Badge className="mb-4">Transparent Pricing</Badge>
             <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-              Pricing Calculator
+              Private Boarding Pricing
             </h1>
             <p className="mb-8 text-xl text-muted-foreground">
-              No hidden fees. No surprises. Just honest, upfront pricing for premium pet care.
+              Clear suite rates, clear policies, and no hidden fees at confirmation.
             </p>
           </div>
         </div>
@@ -108,14 +89,12 @@ export default function PricingPage() {
                   <Label htmlFor="service-type" id="service-type-label" className="text-base font-semibold">
                     Select Service
                   </Label>
-                  <Select value={serviceType} onValueChange={(value) => setServiceType(value as "boarding" | "daycare" | "grooming") }>
+                  <Select value={serviceType} disabled>
                     <SelectTrigger id="service-type" aria-labelledby="service-type-label" aria-label="Select Service">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="boarding">Dog Boarding</SelectItem>
-                      <SelectItem value="daycare">Daycare</SelectItem>
-                      <SelectItem value="grooming">Grooming</SelectItem>
+                      <SelectItem value="boarding">Private Boarding</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -143,7 +122,7 @@ export default function PricingPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <Label className="text-base font-semibold">
-                      {serviceType === "boarding" ? "Number of Nights" : "Number of Days"}
+                      Number of Nights
                     </Label>
                     <Badge variant="secondary">{nights[0]}</Badge>
                   </div>
@@ -213,7 +192,7 @@ export default function PricingPage() {
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold">Complete Price List</h2>
             <p className="text-lg text-muted-foreground">
-              All our services at a glance
+              Boarding rates and common booking options at a glance
             </p>
           </div>
 
@@ -243,53 +222,53 @@ export default function PricingPage() {
               </CardContent>
             </Card>
 
-            {/* Daycare Prices */}
+            {/* Multi-Dog Discounts */}
             <Card>
               <CardHeader>
-                <CardTitle>Daycare</CardTitle>
-                <CardDescription>Package pricing</CardDescription>
+                <CardTitle>Multi-Dog Discounts</CardTitle>
+                <CardDescription>Same-family stays</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
-                  <span>Single Day</span>
-                  <span className="font-semibold">$45</span>
+                  <span>Second dog (same suite)</span>
+                  <span className="font-semibold">15% off</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>5-Day Pack</span>
-                  <span className="font-semibold">$200</span>
+                  <span>Third+ dog (same suite)</span>
+                  <span className="font-semibold">20% off</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>20-Day Pack</span>
-                  <span className="font-semibold">$600</span>
+                  <span>14+ night stays</span>
+                  <span className="font-semibold">10% off</span>
                 </div>
                 <div className="pt-2 text-sm text-muted-foreground">
-                  Packages valid for 3 months
+                  Discounts apply to approved booking combinations.
                 </div>
               </CardContent>
             </Card>
 
-            {/* Grooming Prices */}
+            {/* Common Add-Ons */}
             <Card>
               <CardHeader>
-                <CardTitle>Grooming</CardTitle>
-                <CardDescription>By dog size</CardDescription>
+                <CardTitle>Common Add-Ons</CardTitle>
+                <CardDescription>Optional services per stay</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
-                  <span>Small (&lt;25 lbs)</span>
-                  <span className="font-semibold">$45+</span>
+                  <span>Extra playtime (30 min)</span>
+                  <span className="font-semibold">$15</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Medium (26-50 lbs)</span>
-                  <span className="font-semibold">$65+</span>
+                  <span>Private walk</span>
+                  <span className="font-semibold">$20</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Large (51-80 lbs)</span>
-                  <span className="font-semibold">$85+</span>
+                  <span>Photo package</span>
+                  <span className="font-semibold">$25</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>X-Large (80+ lbs)</span>
-                  <span className="font-semibold">$105+</span>
+                  <span>Spa treatment</span>
+                  <span className="font-semibold">$35</span>
                 </div>
               </CardContent>
             </Card>

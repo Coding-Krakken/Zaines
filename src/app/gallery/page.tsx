@@ -22,8 +22,8 @@ const galleryImages = [
   { id: 8, category: "playtime", title: "Pool Time", description: "Splashing in the pool", placeholder: "🏊" },
   
   // Amenities
-  { id: 9, category: "amenities", title: "Grooming Station", description: "Professional spa services", placeholder: "✂️" },
-  { id: 10, category: "amenities", title: "Training Area", description: "Obedience training space", placeholder: "🎓" },
+  { id: 9, category: "amenities", title: "Comfort Care Station", description: "Add-on wellness and comfort services", placeholder: "✂️" },
+  { id: 10, category: "amenities", title: "Enrichment Area", description: "Structured play and enrichment space", placeholder: "🎓" },
   { id: 11, category: "amenities", title: "Reception", description: "Welcoming front desk", placeholder: "🎪" },
   { id: 12, category: "amenities", title: "Outdoor Yard", description: "Secure outdoor space", placeholder: "🌲" },
   
