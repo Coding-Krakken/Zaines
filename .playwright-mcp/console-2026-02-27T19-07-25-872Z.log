@@ -1,0 +1,90 @@
+[     622ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[     623ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[     655ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[     656ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[    8374ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[    8375ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[    8381ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[    8384ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[    9160ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[    9161ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[    9174ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[    9175ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[   10078ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[   10087ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[   10096ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[   10097ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[   10771ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[   10776ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[   10799ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[   10800ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[   11620ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[   11621ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[   11632ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[   11637ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[   12341ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[   12343ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[   12360ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[   12363ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[   13190ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[   13190ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[   13198ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[   13199ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[   13871ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[   13872ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
+[   13878ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:3000/api/auth/session:0
+[   13878ms] [ERROR] i: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+    at a (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:10918)
+    at async g (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:1:12542)
+    at async f._getSession (http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:2:1633) @ http://127.0.0.1:3000/_next/static/chunks/0709fe4ccc3fd8a9.js:0
