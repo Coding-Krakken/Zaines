@@ -27,7 +27,7 @@
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "@stripe/react-stripe-js": "^5.6.0",
-    "@stripe/stripe-js": "^8.7.0",
+    "@stripe/stripe-js": "^8.8.0",
     "@vercel/blob": "^2.2.0",
     "bullmq": "^5.69.0",
     "class-variance-authority": "^0.7.1",
