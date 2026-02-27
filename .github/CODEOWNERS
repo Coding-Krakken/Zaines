@@ -1,0 +1,71 @@
+# CODEOWNERS
+# 
+# This file defines code ownership for the SubZero repository.
+# GitHub will automatically request reviews from these owners when PRs modify their areas.
+#
+# Documentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# === Global Default ===
+# Chief of Staff reviews everything by default
+* @Coding-Krakken
+
+# === Framework & Infrastructure ===
+.github/framework/**                    @Coding-Krakken
+.github/workflows/**                    @Coding-Krakken
+.github/scripts/**                      @Coding-Krakken
+
+# === Comment Templates (Handoff System) ===
+.github/comment_templates/**            @Coding-Krakken
+
+# === Issue & PR Templates ===
+.github/ISSUE_TEMPLATE/**               @Coding-Krakken
+.github/PULL_REQUEST_TEMPLATE.md        @Coding-Krakken
+.github/pull_request_template.md        @Coding-Krakken
+
+# === Documentation ===
+.github/docs/**                         @Coding-Krakken
+.github/*.md                            @Coding-Krakken
+
+# === Agent Definitions ===
+.github/agents/**                       @Coding-Krakken
+
+# === Prompts ===
+.github/prompts/**                      @Coding-Krakken
+
+# === Configuration ===
+.github/framework-config/**             @Coding-Krakken
+.github/copilot-instructions.md         @Coding-Krakken
+
+# === Tests ===
+.github/framework/__tests__/**          @Coding-Krakken
+
+# === Security ===
+.github/SECURITY.md                     @Coding-Krakken
+.github/workflows/security-scan.yml     @Coding-Krakken
+
+# === CI/CD ===
+.github/workflows/ci.yml                @Coding-Krakken
+.github/workflows/deploy.yml            @Coding-Krakken
+
+# === Quality Gates ===
+.github/QUALITY-GATES.md                @Coding-Krakken
+.github/framework/parallel-quality-gates.ts @Coding-Krakken
+
+# === Git Workflow ===
+.github/GIT_WORKFLOW.md                 @Coding-Krakken
+.github/WORKFLOW_INTEGRATION_SUMMARY.md @Coding-Krakken
+
+# === Handoff System (Deprecated) ===
+.github/.handoffs/**                    @Coding-Krakken
+
+# === Root Configuration Files ===
+package.json                            @Coding-Krakken
+tsconfig.json                           @Coding-Krakken
+.gitignore                              @Coding-Krakken
+README.md                               @Coding-Krakken
+
+# === Notes ===
+# 1. Customize @Coding-Krakken with actual GitHub usernames/teams
+# 2. Use teams for broader ownership: @org/team-name
+# 3. More specific paths override less specific ones
+# 4. Last matching pattern takes precedence
