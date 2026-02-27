@@ -15,7 +15,7 @@ export function SiteFooter() {
               <span className="font-bold text-lg">Zaine's Stay & Play</span>
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
-              Syracuse's premier dog boarding, daycare, and grooming resort.
+              Private, safety-first dog boarding in Syracuse with three suite options and owner-led care.
             </p>
             <div className="flex gap-3">
               <Link href={siteConfig.links.facebook} className="text-muted-foreground hover:text-foreground">
@@ -30,28 +30,23 @@ export function SiteFooter() {
             </div>
           </div>
 
-          {/* Services */}
+          {/* Boarding */}
           <div>
-            <h3 className="font-semibold mb-4">Services</h3>
+            <h3 className="font-semibold mb-4">Boarding</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/services/boarding" className="text-muted-foreground hover:text-foreground">
-                  Dog Boarding
+                <Link href="/suites" className="text-muted-foreground hover:text-foreground">
+                  Suite Options
                 </Link>
               </li>
               <li>
-                <Link href="/services/daycare" className="text-muted-foreground hover:text-foreground">
-                  Daycare
+                <Link href="/pricing" className="text-muted-foreground hover:text-foreground">
+                  Pricing
                 </Link>
               </li>
               <li>
-                <Link href="/services/grooming" className="text-muted-foreground hover:text-foreground">
-                  Grooming
-                </Link>
-              </li>
-              <li>
-                <Link href="/services/training" className="text-muted-foreground hover:text-foreground">
-                  Training
+                <Link href="/book" className="text-muted-foreground hover:text-foreground">
+                  Book Now
                 </Link>
               </li>
             </ul>

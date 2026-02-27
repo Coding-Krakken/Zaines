@@ -4,6 +4,40 @@ import { auth } from "@/lib/auth";
 import { stripe, formatAmountForStripe, isStripeConfigured } from "@/lib/stripe";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 
+type PaymentIntentPrisma = {
+  booking: {
+    findUnique: (args: {
+      where: { id: string };
+      include: { user: boolean };
+    }) => Promise<{
+      id: string;
+      userId: string;
+      bookingNumber: string;
+      total: number;
+      user: { email: string | null };
+    } | null>;
+  };
+  payment: {
+    findFirst: (args: {
+      where: {
+        bookingId: string;
+        status: { in: string[] };
+      };
+    }) => Promise<{ id: string } | null>;
+    create: (args: {
+      data: {
+        bookingId: string;
+        amount: number;
+        currency: string;
+        status: string;
+        stripePaymentId: string;
+      };
+    }) => Promise<unknown>;
+  };
+};
+
+const paymentPrisma = prisma as unknown as PaymentIntentPrisma;
+
 const paymentIntentSchema = z.object({
   bookingId: z.string(),
   amount: z.number().positive(),
@@ -49,7 +83,7 @@ export async function POST(request: NextRequest) {
     const { bookingId, amount } = validation.data;
 
     // Fetch booking to verify ownership and amount
-    const booking = await prisma.booking.findUnique({
+    const booking = await paymentPrisma.booking.findUnique({
       where: { id: bookingId },
       include: {
         user: true,
@@ -80,7 +114,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if payment already exists for this booking
-    const existingPayment = await prisma.payment.findFirst({
+    const existingPayment = await paymentPrisma.payment.findFirst({
       where: {
         bookingId,
         status: {
@@ -113,7 +147,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Create payment record in database
-    await prisma.payment.create({
+    await paymentPrisma.payment.create({
       data: {
         bookingId,
         amount: booking.total,

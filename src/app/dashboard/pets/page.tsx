@@ -27,7 +27,7 @@ export default async function PetsPage() {
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {pets.length === 0 && <p className="text-muted-foreground">No pets yet.</p>}
-        {pets.map(p => (
+        {pets.map((p: { id: string; name: string; breed?: string | null }) => (
           <div key={p.id} className="p-4 border rounded">
             <div className="font-medium">{p.name}</div>
             <div className="text-sm text-muted-foreground">{p.breed || 'Unknown'}</div>

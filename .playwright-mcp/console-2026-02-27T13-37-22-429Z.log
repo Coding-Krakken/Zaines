@@ -1,0 +1,12 @@
+[    2466ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/availability?checkIn=2026-03-10&checkOut=2026-03-12&serviceType=boarding:0
+[    2467ms] [ERROR] Error during availability check: TypeError: Failed to fetch
+    at https://zaines.vercel.app/_next/static/chunks/45f6a90f7c021f15.js:37:174739
+    at https://zaines.vercel.app/_next/static/chunks/45f6a90f7c021f15.js:37:175818
+    at ih (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:102174)
+    at uf (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:126024)
+    at uc (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:125686)
+    at uf (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:126069)
+    at uc (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:125686)
+    at uf (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:126069)
+    at uc (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:125686)
+    at uf (https://zaines.vercel.app/_next/static/chunks/eab9fccbd87d7066.js:1:126069) @ https://zaines.vercel.app/_next/static/chunks/45f6a90f7c021f15.js:36

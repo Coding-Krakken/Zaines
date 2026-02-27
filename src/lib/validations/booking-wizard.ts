@@ -8,7 +8,7 @@ import { z } from "zod";
 export const stepDatesSchema = z.object({
   checkIn: z.string().min(1, "Check-in date is required"),
   checkOut: z.string().min(1, "Check-out date is required"),
-  serviceType: z.enum(["boarding", "daycare"]),
+  serviceType: z.enum(["boarding"]),
   petCount: z.number().min(1, "At least 1 pet is required").max(10, "Maximum 10 pets per booking"),
 }).refine(
   (data) => new Date(data.checkOut) > new Date(data.checkIn),

@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Pawfect Stays",
-  description: "Read our terms of service governing the use of Pawfect Stays services and website.",
+  title: "Terms of Service | Zaine's Stay & Play",
+  description: "Read our terms of service governing use of Zaine's Stay & Play private boarding services and website.",
 };
 
 export default function TermsPage() {
@@ -42,7 +42,7 @@ export default function TermsPage() {
                 1. Agreement to Terms
               </h2>
               <p className="text-muted-foreground">
-                These Terms of Service (&quot;Terms&quot;) constitute a legally binding agreement between you (&quot;Client,&quot; &quot;you,&quot; or &quot;your&quot;) and Pawfect Stays LLC (&quot;Company,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) governing your use of our website (pawfectstays.com) and services including dog boarding, daycare, grooming, and training.
+                These Terms of Service (&quot;Terms&quot;) constitute a legally binding agreement between you (&quot;Client,&quot; &quot;you,&quot; or &quot;your&quot;) and Zaine's Stay &amp; Play (&quot;Company,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) governing your use of our website and private dog boarding services.
               </p>
               <p className="text-muted-foreground">
                 By accessing our website, booking services, or using our facilities, you agree to be bound by these Terms. If you disagree with any part of these Terms, you may not access our services.
@@ -53,13 +53,13 @@ export default function TermsPage() {
             <div className="mb-12">
               <h2 className="mb-4 text-2xl font-bold">2. Services Offered</h2>
               <p className="mb-4 text-muted-foreground">
-                Pawfect Stays provides the following services:
+                Zaine's Stay &amp; Play provides the following services:
               </p>
               <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
                 <li><strong>Dog Boarding:</strong> Overnight and extended stay accommodations</li>
-                <li><strong>Daycare:</strong> Daytime care, supervision, and socialization</li>
-                <li><strong>Grooming:</strong> Bath, haircut, nail trim, and spa services</li>
-                <li><strong>Training:</strong> Group classes and private training sessions</li>
+                <li><strong>Suite Selection:</strong> Standard, deluxe, and luxury suite options</li>
+                <li><strong>Care Add-Ons:</strong> Optional care enhancements during a boarding stay</li>
+                <li><strong>Customer Support:</strong> Booking assistance and policy clarification</li>
               </ul>
               <p className="mt-4 text-muted-foreground">
                 Services are subject to availability and may be modified or discontinued at our discretion with advance notice.
@@ -135,9 +135,9 @@ export default function TermsPage() {
               <h3 className="mb-3 text-xl font-semibold">6.2 Payment Schedule</h3>
               <ul className="mb-4 ml-6 list-disc space-y-2 text-muted-foreground">
                 <li>Boarding: Full payment due at booking</li>
-                <li>Daycare: Payment due at time of service or via prepaid package</li>
-                <li>Grooming: Payment due at time of service</li>
-                <li>Training: Payment due at program start</li>
+                <li>Add-ons: Payment due at booking or added to the active reservation</li>
+                <li>Extended stays (14+ nights): Discount applied at checkout summary</li>
+                <li>Multi-dog stays: Same-family discount applied to approved suite combinations</li>
               </ul>
 
               <h3 className="mb-3 text-xl font-semibold">6.3 Additional Fees</h3>
@@ -171,12 +171,12 @@ export default function TermsPage() {
               
               <h3 className="mb-3 text-xl font-semibold">8.1 Limitation of Liability</h3>
               <p className="mb-4 text-muted-foreground">
-                While we maintain high safety standards, dogs at play may sustain minor injuries (scratches, scrapes, bumps). We will notify you of any injuries and provide necessary first aid. Pawfect Stays is not liable for injuries resulting from normal dog behavior during supervised play.
+                While we maintain high safety standards, dogs at play may sustain minor injuries (scratches, scrapes, bumps). We will notify you of any injuries and provide necessary first aid. Zaine&apos;s Stay & Play is not liable for injuries resulting from normal dog behavior during supervised play.
               </p>
 
               <h3 className="mb-3 text-xl font-semibold">8.2 Emergency Care</h3>
               <p className="mb-4 text-muted-foreground">
-                You authorize Pawfect Stays to seek emergency veterinary care if necessary. We will make reasonable efforts to contact you first. All veterinary expenses are your responsibility. We are not liable for treatment decisions made by veterinary professionals.
+                You authorize Zaine&apos;s Stay & Play to seek emergency veterinary care if necessary. We will make reasonable efforts to contact you first. All veterinary expenses are your responsibility. We are not liable for treatment decisions made by veterinary professionals.
               </p>
 
               <h3 className="mb-3 text-xl font-semibold">8.3 Property Damage</h3>
@@ -243,7 +243,7 @@ export default function TermsPage() {
 
               <h3 className="mb-3 text-xl font-semibold">12.2 Arbitration</h3>
               <p className="mb-4 text-muted-foreground">
-                Any disputes not resolved informally shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association. Arbitration will take place in Seattle, Washington.
+                Any disputes not resolved informally shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association. Arbitration will take place in Syracuse, New York.
               </p>
 
               <h3 className="mb-3 text-xl font-semibold">12.3 Class Action Waiver</h3>
@@ -258,7 +258,7 @@ export default function TermsPage() {
               
               <h3 className="mb-3 text-xl font-semibold">13.1 Governing Law</h3>
               <p className="mb-4 text-muted-foreground">
-                These Terms are governed by the laws of the State of Washington, without regard to conflict of law principles.
+                These Terms are governed by the laws of the State of New York, without regard to conflict of law principles.
               </p>
 
               <h3 className="mb-3 text-xl font-semibold">13.2 Severability</h3>
@@ -268,7 +268,7 @@ export default function TermsPage() {
 
               <h3 className="mb-3 text-xl font-semibold">13.3 Entire Agreement</h3>
               <p className="mb-4 text-muted-foreground">
-                These Terms, along with our Privacy Policy and Policies page, constitute the entire agreement between you and Pawfect Stays regarding our services.
+                These Terms, along with our Privacy Policy and Policies page, constitute the entire agreement between you and Zaine&apos;s Stay & Play regarding our services.
               </p>
 
               <h3 className="mb-3 text-xl font-semibold">13.4 Amendments</h3>
@@ -289,10 +289,9 @@ export default function TermsPage() {
                 For questions about these Terms of Service, please contact us:
               </p>
               <div className="rounded-lg bg-muted p-6">
-                <p className="mb-2"><strong>Pawfect Stays LLC</strong></p>
-                <p className="mb-2">123 Pet Paradise Lane</p>
-                <p className="mb-2">Seattle, WA 98101</p>
-                <p className="mb-2">Email: legal@pawfectstays.com</p>
+                <p className="mb-2"><strong>Zaine&apos;s Stay & Play LLC</strong></p>
+                <p className="mb-2">Syracuse, NY</p>
+                <p className="mb-2">Email: legal@zainesstayandplay.com</p>
                 <p>Phone: (315) 657-1332</p>
               </div>
             </div>
@@ -301,7 +300,7 @@ export default function TermsPage() {
             <div className="mt-12 rounded-lg border-2 border-primary bg-primary/5 p-6">
               <h3 className="mb-3 text-xl font-bold">Acknowledgment</h3>
               <p className="text-muted-foreground">
-                BY BOOKING SERVICES WITH PAWFECT STAYS, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND BY THESE TERMS OF SERVICE.
+                BY BOOKING SERVICES WITH ZAINE&apos;S STAY & PLAY, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND BY THESE TERMS OF SERVICE.
               </p>
             </div>
           </div>

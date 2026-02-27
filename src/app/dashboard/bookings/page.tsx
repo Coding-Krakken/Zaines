@@ -31,12 +31,12 @@ export default async function BookingsPage() {
 
       <div className="mt-6 space-y-4">
         {bookings.length === 0 && <p className="text-muted-foreground">You have no bookings.</p>}
-        {bookings.map((b) => (
+        {bookings.map((b: { id: string; suite?: { name?: string } | null; checkInDate: Date; checkOutDate: Date; bookingPets: Array<{ pet?: { name?: string } | null }>; bookingNumber: string }) => (
           <div key={b.id} className="p-4 border rounded flex justify-between">
             <div>
               <div className="font-medium">{b.suite?.name || 'Suite'}</div>
               <div className="text-sm text-muted-foreground">{new Date(b.checkInDate).toLocaleDateString()} → {new Date(b.checkOutDate).toLocaleDateString()}</div>
-              <div className="text-sm">Pets: {b.bookingPets.map(bp => bp.pet?.name).filter(Boolean).join(', ')}</div>
+              <div className="text-sm">Pets: {b.bookingPets.map((bp: { pet?: { name?: string } | null }) => bp.pet?.name).filter(Boolean).join(', ')}</div>
             </div>
             <div className="text-right">
               <div className="font-medium">{b.bookingNumber}</div>

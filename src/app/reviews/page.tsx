@@ -1,15 +1,11 @@
 /* eslint-disable react/no-unescaped-entities */
-"use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Star, Quote, Heart } from "lucide-react";
+import { ReviewSubmissionForm } from "@/app/reviews/components/ReviewSubmissionForm";
 
 const reviews = [
   {
@@ -27,9 +23,9 @@ const reviews = [
     author: "James T.",
     rating: 5,
     date: "1 month ago",
-    service: "Daycare",
+    service: "Boarding",
     petName: "Luna",
-    text: "Luna comes home exhausted and happy every day. She's made so many doggy friends! The staff is incredibly professional and caring. Worth every penny.",
+    text: "Luna settled in quickly and got the calm routine she needs. The updates were clear and on time, and pickup was smooth.",
     verified: true,
   },
   {
@@ -37,9 +33,9 @@ const reviews = [
     author: "Emily R.",
     rating: 5,
     date: "1 month ago",
-    service: "Grooming",
+    service: "Boarding",
     petName: "Charlie",
-    text: "Charlie looks and smells amazing! The groomer was so patient with him (he can be a bit nervous). They took their time and made him comfortable. Will definitely be back!",
+    text: "Charlie can be nervous in new places, but the small-capacity setup helped him relax. Communication was excellent from start to finish.",
     verified: true,
   },
   {
@@ -57,9 +53,9 @@ const reviews = [
     author: "Lisa P.",
     rating: 5,
     date: "2 months ago",
-    service: "Training",
+    service: "Boarding",
     petName: "Rocky",
-    text: "Rocky completed the Puppy Preschool program and we've seen such improvement! He's calmer, more obedient, and much better socialized. The trainers are excellent.",
+    text: "Rocky did great with the structured boarding routine. We appreciated the safety-first approach and daily check-ins.",
     verified: true,
   },
   {
@@ -77,9 +73,9 @@ const reviews = [
     author: "Amanda H.",
     rating: 5,
     date: "3 months ago",
-    service: "Daycare",
+    service: "Boarding",
     petName: "Cooper",
-    text: "We've tried several daycares and this is by far the best. Cooper is always excited to go, and he's visibly tired when we pick him up. Safe, fun, and well-run.",
+    text: "We've tried larger facilities before, but this private setup is far better for Cooper. Calm, safe, and thoughtfully managed.",
     verified: true,
   },
   {
@@ -102,9 +98,6 @@ const stats = [
 ];
 
 export default function ReviewsPage() {
-  const [rating, setRating] = useState(5);
-  const [hoverRating, setHoverRating] = useState(0);
-
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
@@ -116,7 +109,7 @@ export default function ReviewsPage() {
               What Pet Parents Say
             </h1>
             <p className="mb-8 text-xl text-muted-foreground">
-              Don&apos;t just take our word for it - hear from hundreds of happy families who trust us with their furry friends
+              Hear from local families who trust our private, small-capacity boarding model
             </p>
             <div className="flex items-center justify-center gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -225,73 +218,7 @@ export default function ReviewsPage() {
               <p className="mb-6 text-muted-foreground">
                 Have you visited Zaine's Stay & Play? We&apos;d love to hear about your experience!
               </p>
-
-              <form className="space-y-6">
-                {/* Rating */}
-                <div className="space-y-2">
-                  <Label>Your Rating</Label>
-                    <div className="flex gap-2" role="radiogroup" aria-label="Rating">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => setRating(star)}
-                          onMouseEnter={() => setHoverRating(star)}
-                          onMouseLeave={() => setHoverRating(0)}
-                          className="transition-transform hover:scale-110"
-                          aria-label={`Set rating ${star} star${star > 1 ? 's' : ''}`}
-                          role="radio"
-                          aria-checked={star === rating}
-                        >
-                          <Star
-                            className={`h-8 w-8 ${
-                              star <= (hoverRating || rating)
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-gray-200"
-                            }`}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                </div>
-
-                {/* Name */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="review-name">Your Name</Label>
-                    <Input id="review-name" placeholder="Sarah M." />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="review-pet">Pet&apos;s Name</Label>
-                    <Input id="review-pet" placeholder="Max" />
-                  </div>
-                </div>
-
-                {/* Service */}
-                <div className="space-y-2">
-                  <Label htmlFor="review-service">Service Used</Label>
-                  <Input id="review-service" placeholder="Boarding, Daycare, Grooming, or Training" />
-                </div>
-
-                {/* Review */}
-                <div className="space-y-2">
-                  <Label htmlFor="review-text">Your Review</Label>
-                  <Textarea
-                    id="review-text"
-                    placeholder="Tell us about your experience..."
-                    rows={5}
-                  />
-                </div>
-
-                {/* Submit */}
-                <Button type="submit" size="lg" className="w-full">
-                  Submit Review
-                </Button>
-
-                <p className="text-center text-sm text-muted-foreground">
-                  Reviews are moderated and typically appear within 24-48 hours
-                </p>
-              </form>
+              <ReviewSubmissionForm />
             </CardContent>
           </Card>
         </div>

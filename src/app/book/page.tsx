@@ -35,10 +35,11 @@ function calculateTotal(wizardData: { dates?: { checkIn?: string; checkOut?: str
   // Calculate add-ons cost
   const addOnsTotal = (suites.addOns || []).reduce((total: number, addon: { id: string; quantity: number }) => {
     const addonPrices: Record<string, number> = {
-      'grooming': 35,
-      'training': 50,
+      'extra-walk': 10,
       'playtime': 15,
-      'treats': 10,
+      'nail-trim': 15,
+      'medication': 5,
+      'comfort-care': 25,
     };
     return total + ((addonPrices[addon.id] || 0) * addon.quantity);
   }, 0);

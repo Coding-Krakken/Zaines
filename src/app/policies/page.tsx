@@ -9,7 +9,8 @@ import { CheckCircle2, XCircle, AlertTriangle, FileText } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Policies | Zaine's Stay & Play",
-  description: "Read about our boarding policies, cancellation policy, health requirements, and terms of service for dog boarding, daycare, and grooming services.",
+  description:
+    "Read about our private boarding policies, cancellation policy, health requirements, and service terms.",
 };
 
 export default function PoliciesPage() {
@@ -93,7 +94,7 @@ export default function PoliciesPage() {
                 <div>
                   <h3 className="mb-2 font-semibold">Spay/Neuter Policy</h3>
                   <p className="text-muted-foreground">
-                    Dogs over 7 months of age must be spayed or neutered to participate in group daycare. This policy helps maintain a calm, safe environment and reduces behavioral issues.
+                    Dogs over 7 months of age should be spayed or neutered unless your veterinarian has advised otherwise. This helps maintain a calm, safe boarding environment.
                   </p>
                 </div>
                 <div>
@@ -159,7 +160,7 @@ export default function PoliciesPage() {
                 <div>
                   <h3 className="mb-2 font-semibold">Temperament Evaluation</h3>
                   <p className="text-muted-foreground">
-                    First-time daycare guests undergo a temperament evaluation to ensure they play well with others. Dogs must demonstrate appropriate social skills and non-aggressive behavior.
+                    First-time boarding guests may undergo a temperament review to ensure safe handling and suitable care routines during their stay.
                   </p>
                 </div>
                 <div>
@@ -188,9 +189,8 @@ export default function PoliciesPage() {
                   <h3 className="mb-2 font-semibold">Payment Schedule</h3>
                   <ul className="ml-6 list-disc space-y-1 text-muted-foreground">
                     <li>Boarding: Full payment due at booking</li>
-                    <li>Daycare: Payment due at drop-off or via monthly package</li>
-                    <li>Grooming: Payment due at time of service</li>
-                    <li>Training: Payment due at start of program</li>
+                    <li>Add-ons: Payment due at booking confirmation</li>
+                    <li>Late changes: Additional charges confirmed before processing</li>
                   </ul>
                 </div>
                 <div>

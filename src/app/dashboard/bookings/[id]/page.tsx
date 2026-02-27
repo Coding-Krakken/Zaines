@@ -4,6 +4,27 @@ import { redirect } from 'next/navigation';
 
 type Props = { params: { id: string } };
 
+type BookingDetailPrisma = {
+  booking: {
+    findUnique: (args: {
+      where: { id: string };
+      include: { suite: boolean; bookingPets: { include: { pet: boolean } }; payments: boolean };
+    }) => Promise<{
+      userId: string;
+      bookingNumber: string;
+      checkInDate: Date;
+      checkOutDate: Date;
+      total: number;
+      status: string;
+      suite?: { name?: string; tier?: string } | null;
+      bookingPets: Array<{ id: string; pet?: { name?: string } | null }>;
+      payments: Array<{ id: string; status: string; amount: number }>;
+    } | null>;
+  };
+};
+
+const bookingDetailPrisma = prisma as unknown as BookingDetailPrisma;
+
 export default async function BookingDetail({ params }: Props) {
   const session = await auth();
   if (!session?.user?.id) return redirect('/auth/signin');
@@ -17,7 +38,7 @@ export default async function BookingDetail({ params }: Props) {
     );
   }
 
-  const booking = await prisma.booking.findUnique({
+  const booking = await bookingDetailPrisma.booking.findUnique({
     where: { id: params.id },
     include: { suite: true, bookingPets: { include: { pet: true } }, payments: true },
   });
@@ -42,7 +63,7 @@ export default async function BookingDetail({ params }: Props) {
           <p className="text-sm">{new Date(booking.checkInDate).toLocaleString()} → {new Date(booking.checkOutDate).toLocaleString()}</p>
           <h3 className="mt-3 font-medium">Pets</h3>
           <ul className="text-sm list-disc pl-5">
-            {booking.bookingPets.map(bp => (
+            {booking.bookingPets.map((bp: { id: string; pet?: { name?: string } | null }) => (
               <li key={bp.id}>{bp.pet?.name || 'Pet'}</li>
             ))}
           </ul>
@@ -54,7 +75,7 @@ export default async function BookingDetail({ params }: Props) {
           <p className="text-sm">Status: {booking.status}</p>
           <h3 className="mt-3 font-medium">Payments</h3>
           <ul className="text-sm list-disc pl-5">
-            {booking.payments.map(pay => (
+            {booking.payments.map((pay: { id: string; status: string; amount: number }) => (
               <li key={pay.id}>{pay.status} — ${pay.amount}</li>
             ))}
           </ul>

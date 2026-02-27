@@ -1,0 +1,4 @@
+[   30991ms] [ERROR] i: Failed to fetch. Read more at https://errors.authjs.dev#autherror
+    at a (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:10366)
+    at async y (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:1:11990)
+    at async d._getSession (https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:2:1633) @ https://zaines.vercel.app/_next/static/chunks/b00c728cf60024db.js:0

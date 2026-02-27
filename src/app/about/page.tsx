@@ -6,8 +6,9 @@ import { CheckCircle2, Heart, Shield, Star, Users } from "lucide-react";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "About Us",
-  description: "Learn about Zaine's Stay & Play - Syracuse's premier dog boarding, daycare, and grooming facility with certified staff and luxury accommodations.",
+  title: "About | Zaine's Stay & Play",
+  description:
+    "Learn about Zaine's Stay & Play, a private small-capacity dog boarding service in Syracuse focused on safety, consistency, and owner-on-site care.",
 };
 
 export default function AboutPage() {
@@ -21,7 +22,7 @@ export default function AboutPage() {
               Where Every Pet Is Family
             </h1>
             <p className="text-lg text-muted-foreground md:text-xl">
-              Since 2018, we&apos;ve been providing exceptional care for dogs in the Seattle area. Our state-of-the-art facility combines luxury accommodations with expert care.
+              We provide private, small-capacity boarding for Syracuse families who want calm routines and dependable care.
             </p>
           </div>
         </div>
@@ -35,13 +36,13 @@ export default function AboutPage() {
               <h2 className="mb-6 text-3xl font-bold">Our Story</h2>
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  Zaine's Stay & Play was founded by lifelong dog lovers Sarah Chen and Mark Williams, who recognized the need for a premium pet care facility that truly treats pets like family.
+                  Zaine's Stay & Play is built around one core idea: fewer dogs, better care. We intentionally keep capacity limited to three suites so each guest gets attention and a predictable routine.
                 </p>
                 <p>
-                  After years of struggling to find quality care for their own dogs, they decided to create the facility they always wished existed - a place where pets receive individualized attention, luxury accommodations, and round-the-clock care.
+                  Our owner-on-site approach helps us respond quickly, follow household preferences, and keep communication consistent from check-in to pickup.
                 </p>
                 <p>
-                  Today, we&apos;re proud to serve hundreds of Seattle-area families, providing peace of mind while they&apos;re away and enriching experiences for their beloved pets.
+                  We serve Syracuse-area families who value safety, transparency, and a home-style boarding experience over high-volume turnover.
                 </p>
               </div>
             </div>
@@ -99,7 +100,7 @@ export default function AboutPage() {
                 <Users className="mb-4 h-10 w-10 text-primary" />
                 <h3 className="mb-2 text-xl font-semibold">Community</h3>
                 <p className="text-sm text-muted-foreground">
-                  We&apos;re proud to be part of the Seattle pet-loving community.
+                  We&apos;re proud to serve the Syracuse pet-loving community.
                 </p>
               </CardContent>
             </Card>
