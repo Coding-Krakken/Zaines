@@ -34,7 +34,11 @@ export function MobileNav() {
       <SheetContent side="left" className="w-[300px] sm:w-[400px]">
         <SheetHeader>
           <SheetTitle>
-            <Link href="/" className="flex items-center space-x-2" onClick={() => setOpen(false)}>
+            <Link
+              href="/"
+              className="flex items-center space-x-2"
+              onClick={() => setOpen(false)}
+            >
               <span className="text-2xl">🐾</span>
               <span className="font-bold">Zaine's Stay & Play</span>
             </Link>
@@ -47,7 +51,7 @@ export function MobileNav() {
             </Link>
           </Button>
           <Accordion type="single" collapsible className="w-full">
-            {navItems.map((item, index) => (
+            {navItems.map((item, index) =>
               item.children ? (
                 <AccordionItem key={item.href} value={`item-${index}`}>
                   <AccordionTrigger className="text-sm font-medium">
@@ -78,8 +82,8 @@ export function MobileNav() {
                     {item.title}
                   </Link>
                 </div>
-              )
-            ))}
+              ),
+            )}
           </Accordion>
         </div>
       </SheetContent>

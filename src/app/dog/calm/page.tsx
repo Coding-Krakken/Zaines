@@ -21,9 +21,28 @@ export default function CalmModePage() {
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-900 via-purple-900 to-pink-900">
       {/* Animated Background Elements */}
       <div className="absolute inset-0">
-        <div className="absolute h-96 w-96 animate-pulse rounded-full bg-blue-500/20 blur-3xl" style={{ top: "10%", left: "10%", animationDuration: "8s" }}></div>
-        <div className="absolute h-96 w-96 animate-pulse rounded-full bg-purple-500/20 blur-3xl" style={{ top: "40%", right: "10%", animationDuration: "10s", animationDelay: "2s" }}></div>
-        <div className="absolute h-96 w-96 animate-pulse rounded-full bg-pink-500/20 blur-3xl" style={{ bottom: "10%", left: "30%", animationDuration: "12s", animationDelay: "4s" }}></div>
+        <div
+          className="absolute h-96 w-96 animate-pulse rounded-full bg-blue-500/20 blur-3xl"
+          style={{ top: "10%", left: "10%", animationDuration: "8s" }}
+        ></div>
+        <div
+          className="absolute h-96 w-96 animate-pulse rounded-full bg-purple-500/20 blur-3xl"
+          style={{
+            top: "40%",
+            right: "10%",
+            animationDuration: "10s",
+            animationDelay: "2s",
+          }}
+        ></div>
+        <div
+          className="absolute h-96 w-96 animate-pulse rounded-full bg-pink-500/20 blur-3xl"
+          style={{
+            bottom: "10%",
+            left: "30%",
+            animationDuration: "12s",
+            animationDelay: "4s",
+          }}
+        ></div>
       </div>
 
       {/* Floating Clouds */}
@@ -109,16 +128,18 @@ export default function CalmModePage() {
 
       <style jsx>{`
         @keyframes float {
-          0%, 100% {
+          0%,
+          100% {
             transform: translateY(0) translateX(0);
           }
           50% {
             transform: translateY(-100px) translateX(50px);
           }
         }
-        
+
         @keyframes breathe {
-          0%, 100% {
+          0%,
+          100% {
             transform: scale(1);
             opacity: 0.2;
           }
@@ -127,11 +148,11 @@ export default function CalmModePage() {
             opacity: 0.4;
           }
         }
-        
+
         .animate-float {
           animation: float 20s ease-in-out infinite;
         }
-        
+
         .animate-breathe {
           animation: breathe 6s ease-in-out infinite;
         }

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { canDispatchAvailabilityCheck, hasValidDateRange } from "@/lib/booking/availability-flow";
+import {
+  canDispatchAvailabilityCheck,
+  hasValidDateRange,
+} from "@/lib/booking/availability-flow";
 
 describe("booking availability guards", () => {
   it("returns false when check-out is not after check-in", () => {
@@ -12,8 +15,25 @@ describe("booking availability guards", () => {
   });
 
   it("prevents dispatch when required fields are missing or invalid", () => {
-    expect(canDispatchAvailabilityCheck({ checkIn: "2026-03-01", checkOut: "2026-03-01", serviceType: "boarding" })).toBe(false);
-    expect(canDispatchAvailabilityCheck({ checkIn: "2026-03-01", checkOut: "2026-03-05" })).toBe(false);
-    expect(canDispatchAvailabilityCheck({ checkIn: "2026-03-01", checkOut: "2026-03-05", serviceType: "boarding" })).toBe(true);
+    expect(
+      canDispatchAvailabilityCheck({
+        checkIn: "2026-03-01",
+        checkOut: "2026-03-01",
+        serviceType: "boarding",
+      }),
+    ).toBe(false);
+    expect(
+      canDispatchAvailabilityCheck({
+        checkIn: "2026-03-01",
+        checkOut: "2026-03-05",
+      }),
+    ).toBe(false);
+    expect(
+      canDispatchAvailabilityCheck({
+        checkIn: "2026-03-01",
+        checkOut: "2026-03-05",
+        serviceType: "boarding",
+      }),
+    ).toBe(true);
   });
 });

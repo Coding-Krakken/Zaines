@@ -19,19 +19,32 @@ vi.mock("@/lib/prisma", () => ({
         const value = settingsStore.get(where.key);
         return value ? { key: where.key, value } : null;
       }),
-      create: vi.fn(async ({ data }: { data: { key: string; value: string } }) => {
-        settingsStore.set(data.key, data.value);
-        return { key: data.key, value: data.value };
-      }),
-      upsert: vi.fn(async ({ where, create }: { where: { key: string }; create: { key: string; value: string } }) => {
-        if (!settingsStore.has(where.key)) settingsStore.set(create.key, create.value);
-        return { key: where.key, value: settingsStore.get(where.key) || "" };
-      }),
-      findMany: vi.fn(async ({ where }: { where: { key: { startsWith: string } } }) => {
-        return [...settingsStore.entries()]
-          .filter(([key]) => key.startsWith(where.key.startsWith))
-          .map(([key, value]) => ({ key, value, updatedAt: new Date() }));
-      }),
+      create: vi.fn(
+        async ({ data }: { data: { key: string; value: string } }) => {
+          settingsStore.set(data.key, data.value);
+          return { key: data.key, value: data.value };
+        },
+      ),
+      upsert: vi.fn(
+        async ({
+          where,
+          create,
+        }: {
+          where: { key: string };
+          create: { key: string; value: string };
+        }) => {
+          if (!settingsStore.has(where.key))
+            settingsStore.set(create.key, create.value);
+          return { key: where.key, value: settingsStore.get(where.key) || "" };
+        },
+      ),
+      findMany: vi.fn(
+        async ({ where }: { where: { key: { startsWith: string } } }) => {
+          return [...settingsStore.entries()]
+            .filter(([key]) => key.startsWith(where.key.startsWith))
+            .map(([key, value]) => ({ key, value, updatedAt: new Date() }));
+        },
+      ),
     },
   },
   isDatabaseConfigured: vi.fn(() => true),
@@ -44,7 +57,29 @@ import { POST as reviewPost } from "@/app/api/reviews/submissions/route";
 import { GET as reviewsGet } from "@/app/api/reviews/route";
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
-import { __resetIssue26InMemoryState } from "@/lib/api/issue26";
+import {
+  __resetIssue26InMemoryState,
+  logServerFailure,
+} from "@/lib/api/issue26";
+
+const forbiddenLeakageFields = [
+  "stack",
+  "raw_email",
+  "raw_phone",
+  "raw_message",
+  "payment_card_data",
+];
+
+function expectPublicErrorEnvelope(payload: Record<string, unknown>) {
+  expect(payload.errorCode).toEqual(expect.any(String));
+  expect(payload.message).toEqual(expect.any(String));
+  expect(typeof payload.retryable).toBe("boolean");
+  expect(payload.correlationId).toEqual(expect.any(String));
+
+  for (const key of forbiddenLeakageFields) {
+    expect(payload).not.toHaveProperty(key);
+  }
+}
 
 describe("Issue #26 API contracts", () => {
   beforeEach(() => {
@@ -58,17 +93,26 @@ describe("Issue #26 API contracts", () => {
   });
 
   it("blocks invalid booking date range", async () => {
-    const request = new Request("http://localhost:3000/api/booking/availability", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ checkIn: "2026-03-10", checkOut: "2026-03-09", serviceType: "boarding", partySize: 1 }),
-    });
+    const request = new Request(
+      "http://localhost:3000/api/booking/availability",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          checkIn: "2026-03-10",
+          checkOut: "2026-03-09",
+          serviceType: "boarding",
+          partySize: 1,
+        }),
+      },
+    );
 
     const response = await bookingAvailabilityPost(request as NextRequest);
     const data = await response.json();
 
     expect(response.status).toBe(400);
     expect(data.errorCode).toBe("INVALID_DATE_RANGE");
+    expectPublicErrorEnvelope(data);
   });
 
   it("returns invalid email contract", async () => {
@@ -83,6 +127,43 @@ describe("Issue #26 API contracts", () => {
 
     expect(response.status).toBe(422);
     expect(data.errorCode).toBe("INVALID_EMAIL");
+    expectPublicErrorEnvelope(data);
+  });
+
+  it("returns deterministic contact validation error envelope", async () => {
+    const request = new Request(
+      "http://localhost:3000/api/contact/submissions",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fullName: "A" }),
+      },
+    );
+
+    const response = await contactPost(request as NextRequest);
+    const data = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(data.errorCode).toBe("CONTACT_VALIDATION_FAILED");
+    expectPublicErrorEnvelope(data);
+  });
+
+  it("returns deterministic review validation error envelope", async () => {
+    const request = new Request(
+      "http://localhost:3000/api/reviews/submissions",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ displayName: "A" }),
+      },
+    );
+
+    const response = await reviewPost(request as NextRequest);
+    const data = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(data.errorCode).toBe("REVIEW_VALIDATION_FAILED");
+    expectPublicErrorEnvelope(data);
   });
 
   it("supports contact idempotency", async () => {
@@ -94,17 +175,29 @@ describe("Issue #26 API contracts", () => {
       idempotencyKey: "contact-idem-001",
     };
 
-    const requestA = new Request("http://localhost:3000/api/contact/submissions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-forwarded-for": "10.0.0.1" },
-      body: JSON.stringify(payload),
-    });
+    const requestA = new Request(
+      "http://localhost:3000/api/contact/submissions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-forwarded-for": "10.0.0.1",
+        },
+        body: JSON.stringify(payload),
+      },
+    );
 
-    const requestB = new Request("http://localhost:3000/api/contact/submissions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-forwarded-for": "10.0.0.1" },
-      body: JSON.stringify(payload),
-    });
+    const requestB = new Request(
+      "http://localhost:3000/api/contact/submissions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-forwarded-for": "10.0.0.1",
+        },
+        body: JSON.stringify(payload),
+      },
+    );
 
     const responseA = await contactPost(requestA as NextRequest);
     const dataA = await responseA.json();
@@ -117,26 +210,34 @@ describe("Issue #26 API contracts", () => {
   });
 
   it("enforces approved-only reviews filter", async () => {
-    const submitRequest = new Request("http://localhost:3000/api/reviews/submissions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        displayName: "Guest One",
-        rating: 5,
-        title: "Excellent stay",
-        body: "Our dog had excellent care and we received regular updates during the stay.",
-        idempotencyKey: "review-idem-001",
-      }),
-    });
+    const submitRequest = new Request(
+      "http://localhost:3000/api/reviews/submissions",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          displayName: "Guest One",
+          rating: 5,
+          title: "Excellent stay",
+          body: "Our dog had excellent care and we received regular updates during the stay.",
+          idempotencyKey: "review-idem-001",
+        }),
+      },
+    );
 
     const submitResponse = await reviewPost(submitRequest as NextRequest);
     expect(submitResponse.status).toBe(201);
 
-    const createdKey = [...settingsStore.keys()].find((key) => key.startsWith("review:submission:"));
+    const createdKey = [...settingsStore.keys()].find((key) =>
+      key.startsWith("review:submission:"),
+    );
     if (!createdKey) throw new Error("Expected review record");
 
     const current = JSON.parse(settingsStore.get(createdKey) || "{}");
-    settingsStore.set(createdKey, JSON.stringify({ ...current, moderationStatus: "approved" }));
+    settingsStore.set(
+      createdKey,
+      JSON.stringify({ ...current, moderationStatus: "approved" }),
+    );
 
     const listResponse = await reviewsGet();
     const listData = await listResponse.json();
@@ -151,6 +252,54 @@ describe("Issue #26 API contracts", () => {
     const sitemapConfig = sitemap();
 
     expect(robotsConfig.sitemap).toBe("https://zaines.vercel.app/sitemap.xml");
+    expect(robotsConfig.rules).toEqual(
+      expect.objectContaining({
+        userAgent: "*",
+        disallow: expect.arrayContaining([
+          "/api/",
+          "/dashboard/",
+          "/auth/",
+          "/book/confirmation",
+          "/preview-themes/",
+        ]),
+      }),
+    );
     expect(Array.isArray(sitemapConfig)).toBe(true);
+  });
+
+  it("redacts sensitive payload content from server failure logs", () => {
+    const errorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+
+    logServerFailure(
+      "/api/contact/submissions",
+      "CONTACT_PERSISTENCE_FAILED",
+      "cid-redaction-test",
+      new Error(
+        "email=test@example.com phone=555-1111 message=Need private suite details",
+      ),
+    );
+
+    expect(errorSpy).toHaveBeenCalledOnce();
+    const serialized = errorSpy.mock.calls[0]?.[0];
+    expect(typeof serialized).toBe("string");
+
+    const payload = JSON.parse(String(serialized)) as Record<string, unknown>;
+    expect(payload).toEqual({
+      route: "/api/contact/submissions",
+      errorCode: "CONTACT_PERSISTENCE_FAILED",
+      correlationId: "cid-redaction-test",
+      errorType: "Error",
+    });
+    expect(JSON.stringify(payload).toLowerCase()).not.toContain(
+      "test@example.com",
+    );
+    expect(JSON.stringify(payload).toLowerCase()).not.toContain("555-1111");
+    expect(JSON.stringify(payload).toLowerCase()).not.toContain(
+      "private suite details",
+    );
+
+    errorSpy.mockRestore();
   });
 });

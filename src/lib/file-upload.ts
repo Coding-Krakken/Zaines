@@ -13,7 +13,7 @@ const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/jpg"];
 export function validateFile(
   file: File,
   allowedTypes: string[],
-  maxSize: number = MAX_FILE_SIZE
+  maxSize: number = MAX_FILE_SIZE,
 ): { valid: boolean; error?: string } {
   if (!allowedTypes.includes(file.type)) {
     return {
@@ -38,7 +38,7 @@ export function validateFile(
  */
 export async function uploadVaccinePDF(
   file: File,
-  petId: string
+  petId: string,
 ): Promise<{ url: string; fileName: string }> {
   // Validate file
   const validation = validateFile(file, ALLOWED_PDF_TYPES);
@@ -52,7 +52,7 @@ export async function uploadVaccinePDF(
   if (blobToken) {
     // Use Vercel Blob
     const { put } = await import("@vercel/blob");
-    
+
     const fileName = `vaccines/${petId}/${Date.now()}-${file.name}`;
     const blob = await put(fileName, file, {
       access: "public",
@@ -93,7 +93,7 @@ export async function uploadVaccinePDF(
 export async function uploadPetPhoto(
   file: File,
   petId: string,
-  bookingId?: string
+  bookingId?: string,
 ): Promise<{ url: string; fileName: string }> {
   // Validate file
   const validation = validateFile(file, ALLOWED_IMAGE_TYPES, 5 * 1024 * 1024); // 5MB for images
@@ -105,7 +105,7 @@ export async function uploadPetPhoto(
 
   if (blobToken) {
     const { put } = await import("@vercel/blob");
-    
+
     const fileName = `photos/${bookingId || petId}/${Date.now()}-${file.name}`;
     const blob = await put(fileName, file, {
       access: "public",
@@ -163,5 +163,5 @@ export function formatFileSize(bytes: number): string {
   const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
 }

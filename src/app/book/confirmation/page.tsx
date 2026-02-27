@@ -2,7 +2,13 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, CalendarDays, Loader2 } from "lucide-react";
 import { downloadICSFile } from "@/lib/calendar-export";
@@ -25,8 +31,8 @@ function ConfirmationContent() {
 
   useEffect(() => {
     const loadAndApplyBookingData = () => {
-      const bookingId = searchParams.get('bookingId');
-      
+      const bookingId = searchParams.get("bookingId");
+
       if (bookingId) {
         const storedBooking = sessionStorage.getItem(`booking-${bookingId}`);
         if (storedBooking) {
@@ -55,7 +61,8 @@ function ConfirmationContent() {
           <CardHeader>
             <CardTitle>Booking Not Found</CardTitle>
             <CardDescription>
-            We couldn&apos;t find your booking information. Please check your email for confirmation details.
+              We couldn&apos;t find your booking information. Please check your
+              email for confirmation details.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -67,7 +74,7 @@ function ConfirmationContent() {
       </div>
     );
   }
-  
+
   const handleDownloadCalendar = () => {
     downloadICSFile({
       bookingNumber: booking.id,
@@ -84,7 +91,9 @@ function ConfirmationContent() {
         <div className="flex justify-center mb-4">
           <CheckCircle2 className="h-16 w-16 text-green-600" />
         </div>
-        <CardTitle className="text-center text-2xl">Booking Confirmed!</CardTitle>
+        <CardTitle className="text-center text-2xl">
+          Booking Confirmed!
+        </CardTitle>
         <CardDescription className="text-center">
           Thank you for choosing Zaine&apos;s Stay & Play
         </CardDescription>
@@ -96,7 +105,8 @@ function ConfirmationContent() {
             <div className="flex justify-between">
               <span className="text-muted-foreground">Dates:</span>
               <span className="font-medium">
-                {new Date(booking.checkIn).toLocaleDateString()} to {new Date(booking.checkOut).toLocaleDateString()}
+                {new Date(booking.checkIn).toLocaleDateString()} to{" "}
+                {new Date(booking.checkOut).toLocaleDateString()}
               </span>
             </div>
             <div className="flex justify-between">
@@ -105,7 +115,9 @@ function ConfirmationContent() {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Total Paid:</span>
-              <span className="font-bold text-green-600">${booking.total.toFixed(2)}</span>
+              <span className="font-bold text-green-600">
+                ${booking.total.toFixed(2)}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Pets:</span>
@@ -119,7 +131,8 @@ function ConfirmationContent() {
         </div>
         <div className="rounded-lg bg-blue-50 border border-blue-200 p-4">
           <p className="text-sm text-blue-900">
-            📧 A confirmation email has been sent to <strong>{booking.email}</strong>
+            📧 A confirmation email has been sent to{" "}
+            <strong>{booking.email}</strong>
           </p>
           <p className="mt-2 text-sm text-blue-900">
             📱 You can view and manage your booking in your dashboard.
@@ -144,11 +157,13 @@ function ConfirmationContent() {
 
 export default function ConfirmationPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      }
+    >
       <ConfirmationContent />
     </Suspense>
   );

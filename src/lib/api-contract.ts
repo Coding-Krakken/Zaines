@@ -28,7 +28,7 @@ export function createContractErrorResponse(params: {
       retryable: params.retryable,
       correlationId,
     },
-    { status: params.status }
+    { status: params.status },
   );
 }
 
@@ -38,7 +38,8 @@ export function logContractFailure(params: {
   errorCode: string;
   error: unknown;
 }) {
-  const message = params.error instanceof Error ? params.error.message : "Unknown error";
+  const message =
+    params.error instanceof Error ? params.error.message : "Unknown error";
 
   console.error(`[${params.route}] ${params.errorCode}`, {
     correlationId: params.correlationId,

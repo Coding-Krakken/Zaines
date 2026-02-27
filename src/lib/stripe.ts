@@ -2,7 +2,10 @@ import Stripe from "stripe";
 
 // Check if Stripe is configured
 export function isStripeConfigured(): boolean {
-  return !!process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.trim().length > 0;
+  return (
+    !!process.env.STRIPE_SECRET_KEY &&
+    process.env.STRIPE_SECRET_KEY.trim().length > 0
+  );
 }
 
 let _stripe: Stripe | undefined;
@@ -10,17 +13,17 @@ let _stripe: Stripe | undefined;
 function getStripeInstance(): Stripe {
   if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error(
-      "Stripe is not configured. Set STRIPE_SECRET_KEY environment variable to enable payment processing."
+      "Stripe is not configured. Set STRIPE_SECRET_KEY environment variable to enable payment processing.",
     );
   }
-  
+
   if (!_stripe) {
     _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: "2026-02-25.clover",
       typescript: true,
     });
   }
-  
+
   return _stripe;
 }
 

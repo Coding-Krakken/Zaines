@@ -1,13 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Home, CheckCircle2, ArrowRight, ArrowLeft, Tv, Camera } from "lucide-react";
-import { stepSuitesSchema, type StepSuitesData } from "@/lib/validations/booking-wizard";
+import {
+  Home,
+  CheckCircle2,
+  ArrowRight,
+  ArrowLeft,
+  Tv,
+  Camera,
+} from "lucide-react";
+import {
+  stepSuitesSchema,
+  type StepSuitesData,
+} from "@/lib/validations/booking-wizard";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +50,12 @@ const SUITES = [
     label: "Deluxe Suite",
     pricePerNight: 85,
     size: "8x10 ft",
-    amenities: ["Raised bed", "TV with DogTV", "Webcam access", "Three daily walks"],
+    amenities: [
+      "Raised bed",
+      "TV with DogTV",
+      "Webcam access",
+      "Three daily walks",
+    ],
     icon: Tv,
     badge: "Most Popular",
   },
@@ -43,7 +64,13 @@ const SUITES = [
     label: "Luxury Suite",
     pricePerNight: 120,
     size: "10x12 ft",
-    amenities: ["Private patio", "HD webcam", "Orthopedic bed", "24/7 monitoring", "Four daily walks"],
+    amenities: [
+      "Private patio",
+      "HD webcam",
+      "Orthopedic bed",
+      "24/7 monitoring",
+      "Four daily walks",
+    ],
     icon: Camera,
     badge: "Premium",
   },
@@ -83,9 +110,15 @@ const ADD_ONS = [
   },
 ];
 
-export function StepSuites({ data, onUpdate, onNext, onBack, nights = 1 }: StepSuitesProps) {
+export function StepSuites({
+  data,
+  onUpdate,
+  onNext,
+  onBack,
+  nights = 1,
+}: StepSuitesProps) {
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>(
-    data.addOns?.map((a) => a.id) || []
+    data.addOns?.map((a) => a.id) || [],
   );
 
   const handleSuiteSelect = (suiteValue: "standard" | "deluxe" | "luxury") => {
@@ -94,36 +127,36 @@ export function StepSuites({ data, onUpdate, onNext, onBack, nights = 1 }: StepS
 
   const handleAddOnToggle = (addOnId: string, checked: boolean) => {
     let newSelectedAddOns: string[];
-    
+
     if (checked) {
       newSelectedAddOns = [...selectedAddOns, addOnId];
     } else {
       newSelectedAddOns = selectedAddOns.filter((id) => id !== addOnId);
     }
-    
+
     setSelectedAddOns(newSelectedAddOns);
-    
+
     // Update wizard data with add-on objects
     const addOnObjects = newSelectedAddOns.map((id) => ({
       id,
       quantity: 1, // Default quantity
     }));
-    
+
     onUpdate({ addOns: addOnObjects });
   };
 
   const calculateTotal = () => {
     if (!data.suiteType) return 0;
-    
+
     const suite = SUITES.find((s) => s.value === data.suiteType);
     if (!suite) return 0;
-    
+
     const suiteTotal = suite.pricePerNight * nights;
     const addOnsTotal = selectedAddOns.reduce((sum, addOnId) => {
       const addOn = ADD_ONS.find((a) => a.id === addOnId);
       return sum + (addOn?.price || 0);
     }, 0);
-    
+
     return suiteTotal + addOnsTotal;
   };
 
@@ -133,13 +166,13 @@ export function StepSuites({ data, onUpdate, onNext, onBack, nights = 1 }: StepS
       suiteType: data.suiteType,
       addOns: data.addOns || [],
     });
-    
+
     if (!validation.success) {
       const firstError = validation.error.issues[0];
       toast.error(firstError.message);
       return;
     }
-    
+
     onNext();
   };
 
@@ -163,38 +196,45 @@ export function StepSuites({ data, onUpdate, onNext, onBack, nights = 1 }: StepS
             {SUITES.map((suite) => {
               const Icon = suite.icon;
               const isSelected = data.suiteType === suite.value;
-              
+
               return (
                 <button
                   key={suite.value}
                   onClick={() => handleSuiteSelect(suite.value)}
                   className={cn(
                     "relative flex flex-col rounded-lg border-2 p-4 text-left transition-all hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
-                    isSelected ? "border-primary bg-primary/5" : "border-muted"
+                    isSelected ? "border-primary bg-primary/5" : "border-muted",
                   )}
                 >
                   {/* Badge */}
                   {suite.badge && (
-                    <Badge className="absolute right-2 top-2 text-xs" variant="secondary">
+                    <Badge
+                      className="absolute right-2 top-2 text-xs"
+                      variant="secondary"
+                    >
                       {suite.badge}
                     </Badge>
                   )}
-                  
+
                   {/* Icon */}
                   <div className="mb-3 flex items-center gap-2">
                     <Icon className="h-5 w-5 text-primary" />
-                    {isSelected && <CheckCircle2 className="ml-auto h-5 w-5 text-primary" />}
+                    {isSelected && (
+                      <CheckCircle2 className="ml-auto h-5 w-5 text-primary" />
+                    )}
                   </div>
-                  
+
                   {/* Title & Price */}
                   <div className="mb-2">
                     <div className="font-semibold">{suite.label}</div>
                     <div className="text-lg font-bold text-primary">
                       ${suite.pricePerNight}/night
                     </div>
-                    <div className="text-sm text-muted-foreground">{suite.size}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {suite.size}
+                    </div>
                   </div>
-                  
+
                   {/* Amenities */}
                   <ul className="space-y-1 text-sm text-muted-foreground">
                     {suite.amenities.map((amenity, idx) => (
@@ -216,7 +256,7 @@ export function StepSuites({ data, onUpdate, onNext, onBack, nights = 1 }: StepS
           <div className="space-y-2 rounded-lg border p-4">
             {ADD_ONS.map((addOn) => {
               const isChecked = selectedAddOns.includes(addOn.id);
-              
+
               return (
                 <div
                   key={addOn.id}
@@ -225,7 +265,9 @@ export function StepSuites({ data, onUpdate, onNext, onBack, nights = 1 }: StepS
                   <Checkbox
                     id={addOn.id}
                     checked={isChecked}
-                    onCheckedChange={(checked) => handleAddOnToggle(addOn.id, checked as boolean)}
+                    onCheckedChange={(checked) =>
+                      handleAddOnToggle(addOn.id, checked as boolean)
+                    }
                   />
                   <div className="flex-1 space-y-1">
                     <Label
@@ -233,7 +275,9 @@ export function StepSuites({ data, onUpdate, onNext, onBack, nights = 1 }: StepS
                       className="flex items-center justify-between text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
                       <span>{addOn.name}</span>
-                      <span className="font-semibold text-primary">${addOn.price}</span>
+                      <span className="font-semibold text-primary">
+                        ${addOn.price}
+                      </span>
                     </Label>
                     <p className="text-sm text-muted-foreground">
                       {addOn.description}
@@ -250,13 +294,16 @@ export function StepSuites({ data, onUpdate, onNext, onBack, nights = 1 }: StepS
           <div className="rounded-lg border bg-muted/50 p-4">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span>Suite ({nights} {nights === 1 ? "night" : "nights"})</span>
+                <span>
+                  Suite ({nights} {nights === 1 ? "night" : "nights"})
+                </span>
                 <span>
                   $
-                  {(SUITES.find((s) => s.value === data.suiteType)?.pricePerNight || 0) * nights}
+                  {(SUITES.find((s) => s.value === data.suiteType)
+                    ?.pricePerNight || 0) * nights}
                 </span>
               </div>
-              
+
               {selectedAddOns.length > 0 && (
                 <div className="flex justify-between text-sm">
                   <span>Add-ons</span>
@@ -269,11 +316,13 @@ export function StepSuites({ data, onUpdate, onNext, onBack, nights = 1 }: StepS
                   </span>
                 </div>
               )}
-              
+
               <div className="border-t pt-2">
                 <div className="flex justify-between font-semibold">
                   <span>Subtotal</span>
-                  <span className="text-lg text-primary">${calculateTotal()}</span>
+                  <span className="text-lg text-primary">
+                    ${calculateTotal()}
+                  </span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Tax and final total calculated at payment

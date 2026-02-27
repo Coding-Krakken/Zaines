@@ -16,7 +16,7 @@ interface BookingDetails {
  */
 function formatICSDate(date: Date): string {
   const pad = (num: number) => num.toString().padStart(2, "0");
-  
+
   return (
     date.getUTCFullYear() +
     pad(date.getUTCMonth() + 1) +
@@ -33,23 +33,26 @@ function formatICSDate(date: Date): string {
  * Generate ICS file content
  */
 export function generateICSFile(booking: BookingDetails): string {
-  const checkIn = typeof booking.checkIn === "string" 
-    ? new Date(booking.checkIn) 
-    : booking.checkIn;
-  
-  const checkOut = typeof booking.checkOut === "string"
-    ? new Date(booking.checkOut)
-    : booking.checkOut;
+  const checkIn =
+    typeof booking.checkIn === "string"
+      ? new Date(booking.checkIn)
+      : booking.checkIn;
+
+  const checkOut =
+    typeof booking.checkOut === "string"
+      ? new Date(booking.checkOut)
+      : booking.checkOut;
 
   // Set check-in to 2 PM (14:00)
   checkIn.setHours(14, 0, 0, 0);
-  
+
   // Set check-out to 12 PM (12:00)
   checkOut.setHours(12, 0, 0, 0);
 
   const now = new Date();
   const summary = `Dog Boarding - ${booking.petNames.join(", ")} - Zaine's Stay & Play`;
-  const description = `Booking #${booking.bookingNumber}\\n\\n` +
+  const description =
+    `Booking #${booking.bookingNumber}\\n\\n` +
     `Pet(s): ${booking.petNames.join(", ")}\\n` +
     (booking.suiteName ? `Suite: ${booking.suiteName}\\n` : "") +
     `\\nCheck-in: 2:00 PM\\n` +
@@ -96,13 +99,13 @@ export function downloadICSFile(booking: BookingDetails): void {
   const icsContent = generateICSFile(booking);
   const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
   const url = URL.createObjectURL(blob);
-  
+
   const link = document.createElement("a");
   link.href = url;
   link.download = `zaines-booking-${booking.bookingNumber}.ics`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  
+
   URL.revokeObjectURL(url);
 }

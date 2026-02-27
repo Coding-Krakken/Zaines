@@ -6,9 +6,9 @@ import { CheckCircle2, Heart, Shield, Star, Users } from "lucide-react";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "About | Zaine's Stay & Play",
+  title: "About Private Dog Boarding Syracuse",
   description:
-    "Learn about Zaine's Stay & Play, a private small-capacity dog boarding service in Syracuse focused on safety, consistency, and owner-on-site care.",
+    "Learn how Zaine's Stay & Play delivers private dog boarding Syracuse families rely on, including small dog boarding Syracuse-focused capacity and owner-on-site safety routines.",
 };
 
 export default function AboutPage() {
@@ -22,7 +22,8 @@ export default function AboutPage() {
               Where Every Pet Is Family
             </h1>
             <p className="text-lg text-muted-foreground md:text-xl">
-              We provide private, small-capacity boarding for Syracuse families who want calm routines and dependable care.
+              We provide private, small-capacity boarding for Syracuse families
+              who want calm routines and dependable care.
             </p>
           </div>
         </div>
@@ -36,13 +37,19 @@ export default function AboutPage() {
               <h2 className="mb-6 text-3xl font-bold">Our Story</h2>
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  Zaine's Stay & Play is built around one core idea: fewer dogs, better care. We intentionally keep capacity limited to three suites so each guest gets attention and a predictable routine.
+                  Zaine's Stay & Play is built around one core idea: fewer dogs,
+                  better care. We intentionally keep capacity limited to three
+                  suites so each guest gets attention and a predictable routine.
                 </p>
                 <p>
-                  Our owner-on-site approach helps us respond quickly, follow household preferences, and keep communication consistent from check-in to pickup.
+                  Our owner-on-site approach helps us respond quickly, follow
+                  household preferences, and keep communication consistent from
+                  check-in to pickup.
                 </p>
                 <p>
-                  We serve Syracuse-area families who value safety, transparency, and a home-style boarding experience over high-volume turnover.
+                  We serve Syracuse-area families who value safety,
+                  transparency, and a home-style boarding experience over
+                  high-volume turnover.
                 </p>
               </div>
             </div>
@@ -73,7 +80,8 @@ export default function AboutPage() {
                 <Heart className="mb-4 h-10 w-10 text-primary" />
                 <h3 className="mb-2 text-xl font-semibold">Love & Care</h3>
                 <p className="text-sm text-muted-foreground">
-                  Every pet receives individualized attention and affection from our caring team.
+                  Every pet receives individualized attention and affection from
+                  our caring team.
                 </p>
               </CardContent>
             </Card>
@@ -82,7 +90,8 @@ export default function AboutPage() {
                 <Shield className="mb-4 h-10 w-10 text-primary" />
                 <h3 className="mb-2 text-xl font-semibold">Safety First</h3>
                 <p className="text-sm text-muted-foreground">
-                  Certified staff, secure facilities, and 24/7 supervision ensure your pet&apos;s safety.
+                  Certified staff, secure facilities, and 24/7 supervision
+                  ensure your pet&apos;s safety.
                 </p>
               </CardContent>
             </Card>
@@ -91,7 +100,8 @@ export default function AboutPage() {
                 <Star className="mb-4 h-10 w-10 text-primary" />
                 <h3 className="mb-2 text-xl font-semibold">Excellence</h3>
                 <p className="text-sm text-muted-foreground">
-                  We maintain the highest standards in pet care, facilities, and customer service.
+                  We maintain the highest standards in pet care, facilities, and
+                  customer service.
                 </p>
               </CardContent>
             </Card>
@@ -121,7 +131,11 @@ export default function AboutPage() {
             {[
               { name: "Sarah Chen", role: "Co-Founder & CEO", emoji: "👩‍💼" },
               { name: "Mark Williams", role: "Co-Founder & COO", emoji: "👨‍💼" },
-              { name: "Dr. Emily Rodriguez", role: "Veterinary Consultant", emoji: "👩‍⚕️" },
+              {
+                name: "Dr. Emily Rodriguez",
+                role: "Veterinary Consultant",
+                emoji: "👩‍⚕️",
+              },
               { name: "James Park", role: "Head Trainer", emoji: "👨‍🏫" },
             ].map((member) => (
               <Card key={member.name}>
@@ -140,7 +154,9 @@ export default function AboutPage() {
       <section className="bg-muted/50 py-20">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold">Certifications & Standards</h2>
+            <h2 className="mb-4 text-3xl font-bold">
+              Certifications & Standards
+            </h2>
             <p className="text-lg text-muted-foreground">
               We maintain the highest industry standards
             </p>
@@ -167,15 +183,23 @@ export default function AboutPage() {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="rounded-lg bg-primary px-8 py-16 text-center text-primary-foreground">
-            <h2 className="mb-4 text-3xl font-bold">Ready to Join Our Family?</h2>
+            <h2 className="mb-4 text-3xl font-bold">
+              Ready to Join Our Family?
+            </h2>
             <p className="mb-8 text-lg opacity-90">
-              Book a tour and see why pet parents trust us with their furry family members
+              Book a tour and see why pet parents trust us with their furry
+              family members
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Button size="lg" variant="secondary" asChild>
                 <Link href="/contact">Schedule a Tour</Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                asChild
+              >
                 <Link href="/book">Book Your Stay</Link>
               </Button>
             </div>

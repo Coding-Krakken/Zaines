@@ -3,7 +3,9 @@ import { z } from "zod";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 
 type Issue26SettingsStore = {
-  findUnique: (args: { where: { key: string } }) => Promise<{ value: string } | null>;
+  findUnique: (args: {
+    where: { key: string };
+  }) => Promise<{ value: string } | null>;
   create: (args: { data: { key: string; value: string } }) => Promise<unknown>;
   upsert: (args: {
     where: { key: string };
@@ -16,7 +18,8 @@ type Issue26SettingsStore = {
   }) => Promise<Array<{ value: string }>>;
 };
 
-const prismaSettings = (prisma as unknown as { settings: Issue26SettingsStore }).settings;
+const prismaSettings = (prisma as unknown as { settings: Issue26SettingsStore })
+  .settings;
 
 const contactRateLimitBucket = new Map<string, number[]>();
 
@@ -54,12 +57,36 @@ export function getCorrelationId(request: Request): string {
   return request.headers.get("x-correlation-id") || randomUUID();
 }
 
+export function createPublicErrorEnvelope(params: {
+  errorCode: string;
+  message: string;
+  retryable: boolean;
+  correlationId: string;
+}): {
+  errorCode: string;
+  message: string;
+  retryable: boolean;
+  correlationId: string;
+} {
+  return {
+    errorCode: params.errorCode,
+    message: params.message,
+    retryable: params.retryable,
+    correlationId: params.correlationId,
+  };
+}
+
 export function parseDate(value: string): Date | null {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-export function logServerFailure(route: string, errorCode: string, correlationId: string, error: unknown): void {
+export function logServerFailure(
+  route: string,
+  errorCode: string,
+  correlationId: string,
+  error: unknown,
+): void {
   const errorType = error instanceof Error ? error.name : "unknown_error";
   console.error(
     JSON.stringify({
@@ -67,16 +94,23 @@ export function logServerFailure(route: string, errorCode: string, correlationId
       errorCode,
       correlationId,
       errorType,
-    })
+    }),
   );
 }
 
-export function shouldThrottle(request: Request, routeKey: string, limit = 5, windowMs = 60_000): boolean {
+export function shouldThrottle(
+  request: Request,
+  routeKey: string,
+  limit = 5,
+  windowMs = 60_000,
+): boolean {
   const ip = request.headers.get("x-forwarded-for") || "unknown";
   const key = `${routeKey}:${ip.split(",")[0].trim()}`;
   const now = Date.now();
   const current = contactRateLimitBucket.get(key) || [];
-  const withinWindow = current.filter((timestamp) => now - timestamp < windowMs);
+  const withinWindow = current.filter(
+    (timestamp) => now - timestamp < windowMs,
+  );
 
   if (withinWindow.length >= limit) {
     contactRateLimitBucket.set(key, withinWindow);
@@ -97,11 +131,15 @@ async function ensureDatabaseReady(): Promise<void> {
 type ContactPayload = z.infer<typeof contactSubmissionSchema>;
 type ReviewPayload = z.infer<typeof reviewSubmissionSchema>;
 
-export async function persistContactSubmission(payload: ContactPayload): Promise<{ submissionId: string }> {
+export async function persistContactSubmission(
+  payload: ContactPayload,
+): Promise<{ submissionId: string }> {
   await ensureDatabaseReady();
 
   const idempotencyLookupKey = `contact:idempotency:${payload.idempotencyKey}`;
-  const existingIdempotency = await prismaSettings.findUnique({ where: { key: idempotencyLookupKey } });
+  const existingIdempotency = await prismaSettings.findUnique({
+    where: { key: idempotencyLookupKey },
+  });
 
   if (existingIdempotency) {
     const parsed = safeParseStoredValue(existingIdempotency.value);
@@ -139,11 +177,15 @@ export async function persistContactSubmission(payload: ContactPayload): Promise
   return { submissionId };
 }
 
-export async function persistReviewSubmission(payload: ReviewPayload): Promise<{ reviewId: string }> {
+export async function persistReviewSubmission(
+  payload: ReviewPayload,
+): Promise<{ reviewId: string }> {
   await ensureDatabaseReady();
 
   const idempotencyLookupKey = `review:idempotency:${payload.idempotencyKey}`;
-  const existingIdempotency = await prismaSettings.findUnique({ where: { key: idempotencyLookupKey } });
+  const existingIdempotency = await prismaSettings.findUnique({
+    where: { key: idempotencyLookupKey },
+  });
 
   if (existingIdempotency) {
     const parsed = safeParseStoredValue(existingIdempotency.value);

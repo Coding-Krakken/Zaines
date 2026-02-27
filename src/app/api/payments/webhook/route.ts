@@ -11,34 +11,37 @@ export async function POST(request: NextRequest) {
     // Check if Stripe is configured
     if (!isStripeConfigured()) {
       return NextResponse.json(
-        { 
+        {
           error: "Payment processing is not available",
-          message: "Stripe is not configured. Please set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET environment variables."
+          message:
+            "Stripe is not configured. Please set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET environment variables.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Check if database is configured
     if (!isDatabaseConfigured()) {
       return NextResponse.json(
-        { 
+        {
           error: "Database is not available",
-          message: "Database is not configured. Please set DATABASE_URL environment variable."
+          message:
+            "Database is not configured. Please set DATABASE_URL environment variable.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-    
+
     if (!webhookSecret) {
       return NextResponse.json(
-        { 
+        {
           error: "Webhook processing is not available",
-          message: "Stripe webhook secret is not configured. Please set STRIPE_WEBHOOK_SECRET environment variable."
+          message:
+            "Stripe webhook secret is not configured. Please set STRIPE_WEBHOOK_SECRET environment variable.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -48,7 +51,7 @@ export async function POST(request: NextRequest) {
     if (!signature) {
       return NextResponse.json(
         { error: "Missing stripe-signature header" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -61,7 +64,7 @@ export async function POST(request: NextRequest) {
       console.error("Webhook signature verification failed:", errorMessage);
       return NextResponse.json(
         { error: `Webhook Error: ${errorMessage}` },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -100,7 +103,7 @@ export async function POST(request: NextRequest) {
     console.error("Webhook handler error:", error);
     return NextResponse.json(
       { error: "Webhook handler failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -135,7 +138,10 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
 
     // Send confirmation email (or record to dev queue)
     try {
-      const booking = await prisma.booking.findUnique({ where: { id: bookingId }, include: { user: true } });
+      const booking = await prisma.booking.findUnique({
+        where: { id: bookingId },
+        include: { user: true },
+      });
       await sendPaymentNotification(bookingId, "success", booking ?? undefined);
     } catch (err) {
       console.error("Notification send error:", err);
@@ -175,7 +181,10 @@ async function handlePaymentFailure(paymentIntent: Stripe.PaymentIntent) {
 
     // Send payment failure notification email (or record to dev queue)
     try {
-      const booking = await prisma.booking.findUnique({ where: { id: bookingId }, include: { user: true } });
+      const booking = await prisma.booking.findUnique({
+        where: { id: bookingId },
+        include: { user: true },
+      });
       await sendPaymentNotification(bookingId, "failure", booking ?? undefined);
     } catch (err) {
       console.error("Notification send error:", err);

@@ -18,8 +18,8 @@ export default function GroomingPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-muted-foreground">
-            We currently operate as a private, small-capacity boarding service. Standalone grooming is not
-            offered at this time.
+            We currently operate as a private, small-capacity boarding service.
+            Standalone grooming is not offered at this time.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button asChild>

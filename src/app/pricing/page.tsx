@@ -3,10 +3,22 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { CheckCircle2, Calculator } from "lucide-react";
 
@@ -29,7 +41,9 @@ const addOns = [
 
 export default function PricingPage() {
   const [serviceType] = useState<"boarding">("boarding");
-  const [suiteType, setSuiteType] = useState<"standard" | "deluxe" | "luxury">("deluxe");
+  const [suiteType, setSuiteType] = useState<"standard" | "deluxe" | "luxury">(
+    "deluxe",
+  );
   const [nights, setNights] = useState([3]);
   const [selectedAddOns, setSelectedAddOns] = useState<number[]>([]);
 
@@ -63,7 +77,30 @@ export default function PricingPage() {
               Private Boarding Pricing
             </h1>
             <p className="mb-8 text-xl text-muted-foreground">
-              Clear suite rates, clear policies, and no hidden fees at confirmation.
+              Clear suite rates, clear policies, and no hidden fees at
+              confirmation.
+            </p>
+            <p className="mb-6 text-sm text-muted-foreground md:text-base">
+              Only 3 private suites, owner onsite, camera-monitored safety, no
+              harsh chemicals, and no hidden fees.
+            </p>
+            <div className="mb-4 md:hidden">
+              <Button size="lg" className="w-full" asChild>
+                <Link href="/book">Book Your Stay</Link>
+              </Button>
+            </div>
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <Button size="lg" asChild>
+                <Link href="/book">Book Your Stay</Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild>
+                <Link href="/contact">Talk With Our Team</Link>
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Rates below are planning ranges while package selection remains in
+              progress; you see a clear total before confirmation with no hidden
+              fees and no surprise add-ons.
             </p>
           </div>
         </div>
@@ -77,20 +114,30 @@ export default function PricingPage() {
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Calculator className="h-6 w-6" />
-                  <CardTitle className="text-2xl">Calculate Your Stay</CardTitle>
+                  <CardTitle className="text-2xl">
+                    Calculate Your Stay
+                  </CardTitle>
                 </div>
                 <CardDescription>
-                  Customize your services to see the total cost
+                  Customize your services to see a planning estimate
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-8">
                 {/* Service Type */}
                 <div className="space-y-2">
-                  <Label htmlFor="service-type" id="service-type-label" className="text-base font-semibold">
+                  <Label
+                    htmlFor="service-type"
+                    id="service-type-label"
+                    className="text-base font-semibold"
+                  >
                     Select Service
                   </Label>
                   <Select value={serviceType} disabled>
-                    <SelectTrigger id="service-type" aria-labelledby="service-type-label" aria-label="Select Service">
+                    <SelectTrigger
+                      id="service-type"
+                      aria-labelledby="service-type-label"
+                      aria-label="Select Service"
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -102,17 +149,36 @@ export default function PricingPage() {
                 {/* Suite Type (for boarding) */}
                 {serviceType === "boarding" && (
                   <div className="space-y-2">
-                    <Label htmlFor="suite-type" id="suite-type-label" className="text-base font-semibold">
+                    <Label
+                      htmlFor="suite-type"
+                      id="suite-type-label"
+                      className="text-base font-semibold"
+                    >
                       Suite Type
                     </Label>
-                    <Select value={suiteType} onValueChange={(value) => setSuiteType(value as "standard" | "deluxe" | "luxury") }>
-                      <SelectTrigger id="suite-type" aria-labelledby="suite-type-label" aria-label="Suite Type">
+                    <Select
+                      value={suiteType}
+                      onValueChange={(value) =>
+                        setSuiteType(value as "standard" | "deluxe" | "luxury")
+                      }
+                    >
+                      <SelectTrigger
+                        id="suite-type"
+                        aria-labelledby="suite-type-label"
+                        aria-label="Suite Type"
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="standard">Standard Suite - $65/night</SelectItem>
-                        <SelectItem value="deluxe">Deluxe Suite - $85/night</SelectItem>
-                        <SelectItem value="luxury">Luxury Suite - $120/night</SelectItem>
+                        <SelectItem value="standard">
+                          Standard Suite - $65/night
+                        </SelectItem>
+                        <SelectItem value="deluxe">
+                          Deluxe Suite - $85/night
+                        </SelectItem>
+                        <SelectItem value="luxury">
+                          Luxury Suite - $120/night
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -138,12 +204,16 @@ export default function PricingPage() {
 
                 {/* Add-Ons */}
                 <div className="space-y-4">
-                  <Label className="text-base font-semibold">Add-On Services</Label>
+                  <Label className="text-base font-semibold">
+                    Add-On Services
+                  </Label>
                   <div className="grid gap-3 sm:grid-cols-2">
                     {addOns.map((addOn, index) => (
-                      <div
+                      <button
+                        type="button"
                         key={addOn.name}
                         onClick={() => toggleAddOn(index)}
+                        aria-pressed={selectedAddOns.includes(index)}
                         className={`cursor-pointer rounded-lg border-2 p-4 transition-all ${
                           selectedAddOns.includes(index)
                             ? "border-primary bg-primary/5"
@@ -161,7 +231,7 @@ export default function PricingPage() {
                             <CheckCircle2 className="h-5 w-5 text-primary" />
                           )}
                         </div>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -170,10 +240,13 @@ export default function PricingPage() {
                 <div className="rounded-lg bg-primary/10 p-6">
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-lg font-medium">Estimated Total</span>
-                    <span className="text-3xl font-bold">${calculateTotal()}</span>
+                    <span className="text-3xl font-bold">
+                      ${calculateTotal()}
+                    </span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Final price may vary based on your pet&apos;s specific needs
+                    This is a planning estimate; final pricing is confirmed
+                    before checkout.
                   </p>
                 </div>
 
@@ -276,7 +349,8 @@ export default function PricingPage() {
 
           <div className="mt-12 text-center">
             <p className="text-muted-foreground">
-              All prices subject to change. Special discounts available for multi-pet families and extended stays.
+              Rates are reviewed regularly and confirmed before checkout. We
+              keep pricing transparent and free of hidden fees.
             </p>
           </div>
         </div>
@@ -286,30 +360,36 @@ export default function PricingPage() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-3xl">
-            <h2 className="mb-8 text-center text-3xl font-bold">Pricing Policies</h2>
+            <h2 className="mb-8 text-center text-3xl font-bold">
+              Pricing Policies
+            </h2>
             <div className="space-y-6">
               <div>
                 <h3 className="mb-2 text-lg font-semibold">Payment</h3>
                 <p className="text-muted-foreground">
-                  Payment is required at booking. We accept all major credit cards, debit cards, and digital wallets.
+                  Payment is required at booking. We accept all major credit
+                  cards, debit cards, and digital wallets.
                 </p>
               </div>
               <div>
                 <h3 className="mb-2 text-lg font-semibold">Cancellation</h3>
                 <p className="text-muted-foreground">
-                  Free cancellation up to 48 hours before check-in. Cancellations within 48 hours are subject to a 50% charge.
+                  Free cancellation up to 48 hours before check-in.
+                  Cancellations within 48 hours are subject to a 50% charge.
                 </p>
               </div>
               <div>
                 <h3 className="mb-2 text-lg font-semibold">Holiday Rates</h3>
                 <p className="text-muted-foreground">
-                  A 20% surcharge applies to major holidays (Thanksgiving, Christmas, New Year&apos;s). Early booking recommended.
+                  A 20% surcharge applies to major holidays (Thanksgiving,
+                  Christmas, New Year&apos;s). Early booking recommended.
                 </p>
               </div>
               <div>
                 <h3 className="mb-2 text-lg font-semibold">Multiple Pets</h3>
                 <p className="text-muted-foreground">
-                  Second pet receives 15% discount. Third and additional pets receive 20% discount when staying in the same suite.
+                  Second pet receives 15% discount. Third and additional pets
+                  receive 20% discount when staying in the same suite.
                 </p>
               </div>
             </div>
@@ -322,13 +402,19 @@ export default function PricingPage() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="mb-4 text-3xl font-bold">Questions About Pricing?</h2>
           <p className="mb-8 text-lg opacity-90">
-            Our team is happy to help you find the best package for your needs and budget
+            Our team is happy to help you find the best package for your needs
+            and budget
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" variant="secondary" asChild>
               <Link href="/contact">Contact Us</Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+              asChild
+            >
               <Link href="/book">Book Now</Link>
             </Button>
           </div>

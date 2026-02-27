@@ -34,11 +34,12 @@ export async function GET(request: NextRequest) {
     // Check if database is configured
     if (!isDatabaseConfigured()) {
       return NextResponse.json(
-        { 
+        {
           error: "Availability check is not available",
-          message: "Database is not configured. Please set DATABASE_URL environment variable."
+          message:
+            "Database is not configured. Please set DATABASE_URL environment variable.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
     if (!checkIn || !checkOut) {
       return NextResponse.json(
         { error: "checkIn and checkOut dates are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
     if (!validation.success) {
       return NextResponse.json(
         { error: "Invalid parameters", details: validation.error },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -124,7 +125,7 @@ export async function GET(request: NextRequest) {
         acc[tier] = (acc[tier] || 0) + 1;
         return acc;
       },
-      {} as Record<string, number>
+      {} as Record<string, number>,
     );
 
     // Suite capacity (adjust these numbers based on your actual inventory)
@@ -153,7 +154,7 @@ export async function GET(request: NextRequest) {
     console.error("Availability check error:", error);
     return NextResponse.json(
       { error: "Failed to check availability" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

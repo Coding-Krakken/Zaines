@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
         retryable: false,
         correlationId,
       },
-      { status: 422 }
+      { status: 422 },
     );
   }
 
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
         retryable: false,
         correlationId,
       },
-      { status: 422 }
+      { status: 422 },
     );
   }
 
@@ -45,10 +45,15 @@ export async function POST(request: NextRequest) {
         reviewId: persisted.reviewId,
         moderationStatus: "pending",
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
-    logServerFailure("/api/reviews/submissions", "REVIEW_PERSISTENCE_FAILED", correlationId, error);
+    logServerFailure(
+      "/api/reviews/submissions",
+      "REVIEW_PERSISTENCE_FAILED",
+      correlationId,
+      error,
+    );
     return NextResponse.json(
       {
         errorCode: "REVIEW_PERSISTENCE_FAILED",
@@ -56,7 +61,7 @@ export async function POST(request: NextRequest) {
         retryable: true,
         correlationId,
       },
-      { status: 503 }
+      { status: 503 },
     );
   }
 }

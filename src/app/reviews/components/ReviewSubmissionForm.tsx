@@ -43,7 +43,8 @@ type ReviewSuccessResponse = {
 };
 
 export function ReviewSubmissionForm() {
-  const [submissionState, setSubmissionState] = useState<ReviewSubmissionState>("draft");
+  const [submissionState, setSubmissionState] =
+    useState<ReviewSubmissionState>("draft");
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewId, setReviewId] = useState<string | null>(null);
   const [correlationId, setCorrelationId] = useState<string | null>(null);
@@ -76,19 +77,29 @@ export function ReviewSubmissionForm() {
         }),
       });
 
-      const body = (await response.json().catch(() => ({}))) as ReviewSuccessResponse & ReviewErrorResponse;
+      const body = (await response
+        .json()
+        .catch(() => ({}))) as ReviewSuccessResponse & ReviewErrorResponse;
 
-      if (response.status === 201 && body.reviewId && body.moderationStatus === "pending") {
+      if (
+        response.status === 201 &&
+        body.reviewId &&
+        body.moderationStatus === "pending"
+      ) {
         setSubmissionState("moderation_pending");
         setReviewId(body.reviewId);
         form.reset();
         return;
       }
 
-      if (body.errorCode === "REVIEW_VALIDATION_FAILED" || response.status === 422) {
+      if (
+        body.errorCode === "REVIEW_VALIDATION_FAILED" ||
+        response.status === 422
+      ) {
         setSubmissionState("rejected_validation");
         form.setError("root", {
-          message: body.message || "Please fix highlighted fields before submitting.",
+          message:
+            body.message || "Please fix highlighted fields before submitting.",
         });
         return;
       }
@@ -107,7 +118,8 @@ export function ReviewSubmissionForm() {
   };
 
   const rootError = form.formState.errors.root?.message;
-  const currentRating = useWatch({ control: form.control, name: "rating" }) ?? 5;
+  const currentRating =
+    useWatch({ control: form.control, name: "rating" }) ?? 5;
 
   if (submissionState === "moderation_pending") {
     return (
@@ -116,10 +128,14 @@ export function ReviewSubmissionForm() {
           <CheckCircle2 className="h-4 w-4 text-green-600" />
           <AlertDescription>
             Thanks! Your review was received and is pending moderation.
-            {reviewId ? <span className="block text-xs mt-2">Review ID: {reviewId}</span> : null}
+            {reviewId ? (
+              <span className="block text-xs mt-2">Review ID: {reviewId}</span>
+            ) : null}
           </AlertDescription>
         </Alert>
-        <Button variant="outline" onClick={() => setSubmissionState("draft")}>Submit Another Review</Button>
+        <Button variant="outline" onClick={() => setSubmissionState("draft")}>
+          Submit Another Review
+        </Button>
       </div>
     );
   }
@@ -131,7 +147,11 @@ export function ReviewSubmissionForm() {
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             {rootError}
-            {correlationId ? <span className="block text-xs mt-2">Reference ID: {correlationId}</span> : null}
+            {correlationId ? (
+              <span className="block text-xs mt-2">
+                Reference ID: {correlationId}
+              </span>
+            ) : null}
           </AlertDescription>
         </Alert>
       )}
@@ -143,7 +163,9 @@ export function ReviewSubmissionForm() {
             <button
               key={star}
               type="button"
-              onClick={() => form.setValue("rating", star, { shouldValidate: true })}
+              onClick={() =>
+                form.setValue("rating", star, { shouldValidate: true })
+              }
               onMouseEnter={() => setHoverRating(star)}
               onMouseLeave={() => setHoverRating(0)}
               className="transition-transform hover:scale-110"
@@ -153,7 +175,9 @@ export function ReviewSubmissionForm() {
             >
               <Star
                 className={`h-8 w-8 ${
-                  star <= (hoverRating || currentRating) ? "fill-yellow-400 text-yellow-400" : "text-gray-200"
+                  star <= (hoverRating || currentRating)
+                    ? "fill-yellow-400 text-yellow-400"
+                    : "text-gray-200"
                 }`}
               />
             </button>
@@ -163,34 +187,68 @@ export function ReviewSubmissionForm() {
 
       <div className="space-y-2">
         <Label htmlFor="displayName">Your Name</Label>
-        <Input id="displayName" placeholder="Sarah M." {...form.register("displayName")} />
+        <Input
+          id="displayName"
+          placeholder="Sarah M."
+          {...form.register("displayName")}
+        />
         {form.formState.errors.displayName && (
-          <p className="text-sm text-destructive">{form.formState.errors.displayName.message}</p>
+          <p className="text-sm text-destructive">
+            {form.formState.errors.displayName.message}
+          </p>
         )}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="title">Review Title</Label>
-        <Input id="title" placeholder="Excellent boarding experience" {...form.register("title")} />
-        {form.formState.errors.title && <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>}
+        <Input
+          id="title"
+          placeholder="Excellent boarding experience"
+          {...form.register("title")}
+        />
+        {form.formState.errors.title && (
+          <p className="text-sm text-destructive">
+            {form.formState.errors.title.message}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="body">Your Review</Label>
-        <Textarea id="body" rows={5} placeholder="Tell us about your stay..." {...form.register("body")} />
-        {form.formState.errors.body && <p className="text-sm text-destructive">{form.formState.errors.body.message}</p>}
+        <Textarea
+          id="body"
+          rows={5}
+          placeholder="Tell us about your stay..."
+          {...form.register("body")}
+        />
+        {form.formState.errors.body && (
+          <p className="text-sm text-destructive">
+            {form.formState.errors.body.message}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="stayMonth">Stay Month (Optional)</Label>
-        <Input id="stayMonth" placeholder="2026-02" {...form.register("stayMonth")} />
+        <Input
+          id="stayMonth"
+          placeholder="2026-02"
+          {...form.register("stayMonth")}
+        />
       </div>
 
-      <Button type="submit" size="lg" className="w-full" disabled={submissionState === "submitting"}>
+      <Button
+        type="submit"
+        size="lg"
+        className="w-full"
+        disabled={submissionState === "submitting"}
+      >
         {submissionState === "submitting" ? "Submitting..." : "Submit Review"}
       </Button>
 
-      <p className="text-center text-sm text-muted-foreground">Reviews are moderated before publication.</p>
+      <p className="text-center text-sm text-muted-foreground">
+        Reviews are moderated before publication.
+      </p>
     </form>
   );
 }

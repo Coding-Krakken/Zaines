@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Pricing | Zaine's Stay & Play",
+  title: "Pricing Private Dog Boarding Syracuse",
   description:
-    "Explore service pricing from Zaine's Stay & Play, including boarding suite rates and add-on options.",
+    "Review planning ranges for private dog boarding Syracuse services, including small dog boarding Syracuse suite options and add-ons with transparent confirmation pricing.",
 };
 
-export default function PricingLayout({ children }: { children: React.ReactNode }) {
+export default function PricingLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return children;
 }

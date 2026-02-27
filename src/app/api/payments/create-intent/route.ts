@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
-import { stripe, formatAmountForStripe, isStripeConfigured } from "@/lib/stripe";
+import {
+  stripe,
+  formatAmountForStripe,
+  isStripeConfigured,
+} from "@/lib/stripe";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 
 type PaymentIntentPrisma = {
@@ -49,34 +53,36 @@ export async function POST(request: NextRequest) {
     // Check if Stripe is configured
     if (!isStripeConfigured()) {
       return NextResponse.json(
-        { 
+        {
           error: "Payment processing is not available",
-          message: "Stripe is not configured. Please contact support or set STRIPE_SECRET_KEY environment variable."
+          message:
+            "Stripe is not configured. Please contact support or set STRIPE_SECRET_KEY environment variable.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Check if database is configured
     if (!isDatabaseConfigured()) {
       return NextResponse.json(
-        { 
+        {
           error: "Database is not available",
-          message: "Database is not configured. Please set DATABASE_URL environment variable."
+          message:
+            "Database is not configured. Please set DATABASE_URL environment variable.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const session = await auth();
-    
+
     const body = await request.json();
     const validation = paymentIntentSchema.safeParse(body);
 
     if (!validation.success) {
       return NextResponse.json(
         { error: "Invalid payment data", details: validation.error },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -91,26 +97,20 @@ export async function POST(request: NextRequest) {
     });
 
     if (!booking) {
-      return NextResponse.json(
-        { error: "Booking not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
     // Verify user owns this booking or is authenticated
     if (session?.user?.id && booking.userId !== session.user.id) {
       return NextResponse.json(
         { error: "Unauthorized - this booking belongs to another user" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     // Verify amount matches booking
     if (Math.abs(booking.total - amount) > 0.01) {
-      return NextResponse.json(
-        { error: "Amount mismatch" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Amount mismatch" }, { status: 400 });
     }
 
     // Check if payment already exists for this booking
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
     if (existingPayment) {
       return NextResponse.json(
         { error: "Payment already exists for this booking" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -163,10 +163,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: unknown) {
     console.error("Payment intent creation error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Failed to create payment intent";
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    );
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Failed to create payment intent";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

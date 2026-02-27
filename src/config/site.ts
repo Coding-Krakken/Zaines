@@ -5,7 +5,8 @@ export const siteConfig = {
   url: "https://zainesstayandplay.com",
   ogImage: "https://zainesstayandplay.com/og.jpg",
   links: {
-    facebook: "https://www.facebook.com/people/Zaines-Stay-Play/61550036005682/",
+    facebook:
+      "https://www.facebook.com/people/Zaines-Stay-Play/61550036005682/",
     instagram: "https://instagram.com/zainesstayandplay",
     twitter: "https://twitter.com/zainesstayandplay",
   },
@@ -22,7 +23,14 @@ export const siteConfig = {
     weekend: "8:00 AM - 6:00 PM",
     available: "24/7 Supervision",
   },
-  serviceArea: ["Syracuse", "Liverpool", "Cicero", "Baldwinsville", "Fayetteville", "Manlius"],
+  serviceArea: [
+    "Syracuse",
+    "Liverpool",
+    "Cicero",
+    "Baldwinsville",
+    "Fayetteville",
+    "Manlius",
+  ],
 };
 
 type NavChildItem = {
@@ -63,4 +71,11 @@ export const navItems: NavItem[] = [
   },
 ];
 
-export const cities = ["Syracuse", "Liverpool", "Cicero", "Baldwinsville", "Fayetteville", "Manlius"];
+export const cities = [
+  "Syracuse",
+  "Liverpool",
+  "Cicero",
+  "Baldwinsville",
+  "Fayetteville",
+  "Manlius",
+];

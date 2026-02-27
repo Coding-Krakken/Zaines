@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   contactSubmissionSchema,
+  createPublicErrorEnvelope,
   getCorrelationId,
   logServerFailure,
   persistContactSubmission,
@@ -15,38 +16,38 @@ export async function POST(request: NextRequest) {
     body = await request.json();
   } catch {
     return NextResponse.json(
-      {
+      createPublicErrorEnvelope({
         errorCode: "CONTACT_VALIDATION_FAILED",
         message: "Please provide valid contact details and message.",
         retryable: false,
         correlationId,
-      },
-      { status: 422 }
+      }),
+      { status: 422 },
     );
   }
 
   const parsed = contactSubmissionSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      {
+      createPublicErrorEnvelope({
         errorCode: "CONTACT_VALIDATION_FAILED",
         message: "Please provide valid contact details and message.",
         retryable: false,
         correlationId,
-      },
-      { status: 422 }
+      }),
+      { status: 422 },
     );
   }
 
   if (shouldThrottle(request, "contact_submit")) {
     return NextResponse.json(
-      {
+      createPublicErrorEnvelope({
         errorCode: "CONTACT_RATE_LIMITED",
         message: "Too many attempts. Please wait and try again.",
         retryable: true,
         correlationId,
-      },
-      { status: 429 }
+      }),
+      { status: 429 },
     );
   }
 
@@ -58,18 +59,23 @@ export async function POST(request: NextRequest) {
         submissionId: persisted.submissionId,
         status: "received",
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
-    logServerFailure("/api/contact/submissions", "CONTACT_PERSISTENCE_FAILED", correlationId, error);
+    logServerFailure(
+      "/api/contact/submissions",
+      "CONTACT_PERSISTENCE_FAILED",
+      correlationId,
+      error,
+    );
     return NextResponse.json(
-      {
+      createPublicErrorEnvelope({
         errorCode: "CONTACT_PERSISTENCE_FAILED",
         message: "We couldn't submit your message right now. Please retry.",
         retryable: true,
         correlationId,
-      },
-      { status: 503 }
+      }),
+      { status: 503 },
     );
   }
 }

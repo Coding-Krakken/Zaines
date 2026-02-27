@@ -143,7 +143,8 @@ export default function FAQPage() {
               Frequently Asked Questions
             </h1>
             <p className="mb-8 text-xl text-muted-foreground">
-              Find answers to common questions about our services, policies, and facility
+              Find answers to common questions about our services, policies, and
+              facility
             </p>
 
             {/* Search */}
@@ -165,7 +166,11 @@ export default function FAQPage() {
       {/* FAQ Content */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mx-auto max-w-4xl">
+          <Tabs
+            value={activeCategory}
+            onValueChange={setActiveCategory}
+            className="mx-auto max-w-4xl"
+          >
             <TabsList className="mb-8 grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
               <TabsTrigger value="general">General</TabsTrigger>
               <TabsTrigger value="boarding">Boarding</TabsTrigger>
@@ -180,9 +185,13 @@ export default function FAQPage() {
                   {questions
                     .filter((faq) =>
                       searchQuery
-                        ? faq.q.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          faq.a.toLowerCase().includes(searchQuery.toLowerCase())
-                        : true
+                        ? faq.q
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                          faq.a
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase())
+                        : true,
                     )
                     .map((faq, index) => (
                       <AccordionItem
@@ -204,11 +213,13 @@ export default function FAQPage() {
                   searchQuery
                     ? faq.q.toLowerCase().includes(searchQuery.toLowerCase()) ||
                       faq.a.toLowerCase().includes(searchQuery.toLowerCase())
-                    : true
+                    : true,
                 ).length === 0 && (
                   <div className="py-12 text-center">
                     <HelpCircle className="mx-auto mb-4 h-16 w-16 text-muted-foreground" />
-                    <h3 className="mb-2 text-xl font-semibold">No results found</h3>
+                    <h3 className="mb-2 text-xl font-semibold">
+                      No results found
+                    </h3>
                     <p className="text-muted-foreground">
                       Try adjusting your search or browse other categories
                     </p>
@@ -223,7 +234,9 @@ export default function FAQPage() {
       {/* Quick Links */}
       <section className="bg-muted/50 py-16">
         <div className="container mx-auto px-4">
-          <h2 className="mb-8 text-center text-3xl font-bold">Need More Information?</h2>
+          <h2 className="mb-8 text-center text-3xl font-bold">
+            Need More Information?
+          </h2>
           <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-3">
             <Card className="text-center transition-shadow hover:shadow-lg">
               <CardContent className="pt-6">
@@ -232,9 +245,12 @@ export default function FAQPage() {
                     <HelpCircle className="h-8 w-8 text-primary" />
                   </div>
                 </div>
-                <h3 className="mb-2 text-xl font-semibold">View Our Policies</h3>
+                <h3 className="mb-2 text-xl font-semibold">
+                  View Our Policies
+                </h3>
                 <p className="mb-4 text-sm text-muted-foreground">
-                  Detailed information about cancellations, health requirements, and more
+                  Detailed information about cancellations, health requirements,
+                  and more
                 </p>
                 <Button variant="outline" asChild>
                   <Link href="/policies">Read Policies</Link>
@@ -282,17 +298,20 @@ export default function FAQPage() {
       {/* CTA */}
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-4 text-3xl font-bold">Ready to Book Your Pet&apos;s Stay?</h2>
+          <h2 className="mb-4 text-3xl font-bold">
+            Ready to Book Your Pet&apos;s Stay?
+          </h2>
           <p className="mb-8 text-lg opacity-90">
-            We&apos;re here to answer any remaining questions and get your pet scheduled
+            We&apos;re here to answer any remaining questions and get your pet
+            scheduled
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" variant="secondary" asChild>
               <Link href="/book">Book Now</Link>
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
+            <Button
+              size="lg"
+              variant="outline"
               className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
               asChild
             >

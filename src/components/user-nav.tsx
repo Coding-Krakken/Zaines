@@ -13,20 +13,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, Calendar, PawPrint, MessageSquare, Settings, LogOut } from "lucide-react";
+import {
+  User,
+  Calendar,
+  PawPrint,
+  MessageSquare,
+  Settings,
+  LogOut,
+} from "lucide-react";
 
 export function UserNav() {
   const { data: session, status } = useSession();
 
   if (status === "loading") {
-    return (
-      <div className="h-9 w-9 animate-pulse rounded-full bg-muted" />
-    );
+    return <div className="h-9 w-9 animate-pulse rounded-full bg-muted" />;
   }
 
   if (!session) {
     return (
-      <Button variant="outline" size="sm" onClick={() => signIn()} className="hidden sm:inline-flex">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => signIn()}
+        className="hidden sm:inline-flex"
+      >
         Sign In
       </Button>
     );
@@ -34,7 +44,11 @@ export function UserNav() {
 
   const user = session.user;
   const initials = user?.name
-    ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase()
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
     : user?.email?.[0].toUpperCase() || "U";
 
   return (
@@ -42,7 +56,10 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-9 w-9 rounded-full">
           <Avatar className="h-9 w-9">
-            <AvatarImage src={user?.image || undefined} alt={user?.name || "User"} />
+            <AvatarImage
+              src={user?.image || undefined}
+              alt={user?.name || "User"}
+            />
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         </Button>
@@ -50,7 +67,9 @@ export function UserNav() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user?.name || "User"}</p>
+            <p className="text-sm font-medium leading-none">
+              {user?.name || "User"}
+            </p>
             <p className="text-xs leading-none text-muted-foreground">
               {user?.email}
             </p>
@@ -90,8 +109,8 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
-          className="cursor-pointer text-red-600" 
+        <DropdownMenuItem
+          className="cursor-pointer text-red-600"
           onClick={() => signOut({ callbackUrl: "/" })}
         >
           <LogOut className="mr-2 h-4 w-4" />
