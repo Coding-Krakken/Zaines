@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme 8: Coastal Cottage - Zaine's Stay & Play</title>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Satisfy&family=Lora:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Lora', serif;
+            line-height: 1.7;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #e8f4f8 0%, #d4e9f2 100%);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
+            padding: 1.2rem 2rem;
+            box-shadow: 0 3px 15px rgba(52, 152, 219, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Satisfy', cursive;
+            font-size: 2.2rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            background: white;
+            color: #3498db;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            box-shadow: none;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4.5rem 2rem;
+            background: white;
+            margin: 2.5rem auto;
+            max-width: 1400px;
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(52, 152, 219, 0.15);
+            border: 4px solid #ebf5fb;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #aed6f1 0%, #d6eaf8 100%);
+            color: #1b4f72;
+            padding: 0.5rem 1.6rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            font-family: 'Courier Prime', monospace;
+        }
+
+        h1 {
+            font-family: 'Satisfy', cursive;
+            font-size: 3.8rem;
+            font-weight: 400;
+            color: #1b4f72;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            color: #34495e;
+            margin-bottom: 2.5rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1.2rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .rating {
+            color: #5d6d7e;
+            font-size: 1.05rem;
+        }
+
+        .star {
+            color: #f39c12;
+            font-size: 1.2rem;
+        }
+
+        .trust-section {
+            background: white;
+            padding: 3.5rem 2rem;
+            margin: 2.5rem auto;
+            max-width: 1400px;
+            border-radius: 25px;
+            box-shadow: 0 8px 30px rgba(52, 152, 219, 0.12);
+            border: 4px solid #ebf5fb;
+        }
+
+        .trust-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2.5rem;
+            text-align: center;
+        }
+
+        .trust-item {
+            padding: 2rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(93, 173, 226, 0.05) 0%, rgba(212, 230, 241, 0.08) 100%);
+        }
+
+        .trust-item:hover {
+            background: linear-gradient(135deg, rgba(93, 173, 226, 0.1) 0%, rgba(212, 230, 241, 0.15) 100%);
+            transform: scale(1.05);
+        }
+
+        .trust-item h3 {
+            color: #1b4f72;
+            font-family: 'Courier Prime', monospace;
+        }
+
+        .emoji {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .section {
+            max-width: 1400px;
+            margin: 4rem auto;
+            padding: 2rem;
+        }
+
+        .section-title {
+            font-family: 'Satisfy', cursive;
+            font-size: 3rem;
+            color: #1b4f72;
+            text-align: center;
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+
+        .section-description {
+            text-align: center;
+            color: #34495e;
+            font-size: 1.15rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 25px;
+            box-shadow: 0 8px 30px rgba(52, 152, 219, 0.12);
+            transition: all 0.4s ease;
+            border: 3px solid #ebf5fb;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(52, 152, 219, 0.2);
+            border-color: #aed6f1;
+        }
+
+        .card-title {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.6rem;
+            color: #2874a6;
+            margin: 1rem 0;
+            font-weight: 700;
+        }
+
+        .card-description {
+            color: #5d6d7e;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-list li {
+            padding: 0.6rem 0;
+            color: #2c3e50;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.7rem;
+        }
+
+        .check-icon {
+            color: #5dade2;
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .learn-more {
+            color: #2874a6;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.05rem;
+        }
+
+        .learn-more:hover {
+            color: #5dade2;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
+            color: white;
+            text-align: center;
+            padding: 5rem 2rem;
+            margin: 3rem auto;
+            max-width: 1400px;
+            border-radius: 25px;
+            box-shadow: 0 15px 50px rgba(52, 152, 219, 0.3);
+        }
+
+        .cta-title {
+            font-family: 'Satisfy', cursive;
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+        }
+
+        .cta-description {
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .btn-white {
+            background: white;
+            color: #3498db;
+        }
+
+        .btn-white:hover {
+            background: #ebf5fb;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            .section-title {
+                font-size: 2.2rem;
+            }
+            .cta-title {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span>🐾</span>
+                <span>Zaine's Stay & Play</span>
+            </div>
+            <button class="btn">Book Now</button>
+        </div>
+    </header>
+
+    <div class="hero">
+        <span class="badge">Syracuse's Premier Pet Resort</span>
+        <h1>Your Pet's <span class="gradient-text">Home Away From Home</span></h1>
+        <p class="hero-description">
+            Premium dog boarding, daycare, and grooming with 24/7 care, luxury suites, and real-time photo updates.
+        </p>
+        <div class="button-group">
+            <button class="btn">Book Your Stay</button>
+            <button class="btn btn-outline">View Our Suites</button>
+        </div>
+        <div class="rating">
+            <span class="star">★</span>
+            <strong>4.9/5</strong>
+            <span>(500+ reviews)</span>
+        </div>
+    </div>
+
+    <div class="trust-section">
+        <div class="trust-grid">
+            <div class="trust-item">
+                <div class="emoji">🏆</div>
+                <h3>Licensed & Insured</h3>
+            </div>
+            <div class="trust-item">
+                <div class="emoji">👨‍⚕️</div>
+                <h3>Certified Staff</h3>
+            </div>
+            <div class="trust-item">
+                <div class="emoji">👁️</div>
+                <h3>24/7 Supervision</h3>
+            </div>
+            <div class="trust-item">
+                <div class="emoji">📸</div>
+                <h3>Live Photo Updates</h3>
+            </div>
+        </div>
+    </div>
+
+    <section class="section">
+        <h2 class="section-title">Comprehensive Pet Care Services</h2>
+        <p class="section-description">Everything your furry friend needs under one roof</p>
+        
+        <div class="card-grid">
+            <div class="card">
+                <div class="emoji">🏨</div>
+                <h3 class="card-title">Dog Boarding</h3>
+                <p class="card-description">Overnight & extended stays</p>
+                <ul class="feature-list">
+                    <li><span class="check-icon">✓</span> Luxury suites with webcams</li>
+                    <li><span class="check-icon">✓</span> 24/7 supervision</li>
+                    <li><span class="check-icon">✓</span> Daily activities & playtime</li>
+                    <li><span class="check-icon">✓</span> Real-time photo updates</li>
+                </ul>
+                <a href="#" class="learn-more">Learn More →</a>
+            </div>
+
+            <div class="card">
+                <div class="emoji">☀️</div>
+                <h3 class="card-title">Daycare</h3>
+                <p class="card-description">Full day play & socialization</p>
+                <ul class="feature-list">
+                    <li><span class="check-icon">✓</span> Group play sessions</li>
+                    <li><span class="check-icon">✓</span> Indoor & outdoor areas</li>
+                    <li><span class="check-icon">✓</span> Trained play supervisors</li>
+                    <li><span class="check-icon">✓</span> Flexible scheduling</li>
+                </ul>
+                <a href="#" class="learn-more">Learn More →</a>
+            </div>
+
+            <div class="card">
+                <div class="emoji">✂️</div>
+                <h3 class="card-title">Grooming</h3>
+                <p class="card-description">Professional spa services</p>
+                <ul class="feature-list">
+                    <li><span class="check-icon">✓</span> Full grooming packages</li>
+                    <li><span class="check-icon">✓</span> Bath & nail trim</li>
+                    <li><span class="check-icon">✓</span> Breed-specific cuts</li>
+                    <li><span class="check-icon">✓</span> Premium products</li>
+                </ul>
+                <a href="#" class="learn-more">Learn More →</a>
+            </div>
+
+            <div class="card">
+                <div class="emoji">🎓</div>
+                <h3 class="card-title">Training</h3>
+                <p class="card-description">Expert behavior programs</p>
+                <ul class="feature-list">
+                    <li><span class="check-icon">✓</span> Basic obedience</li>
+                    <li><span class="check-icon">✓</span> Advanced commands</li>
+                    <li><span class="check-icon">✓</span> Behavior modification</li>
+                    <li><span class="check-icon">✓</span> Certified trainers</li>
+                </ul>
+                <a href="#" class="learn-more">Learn More →</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="cta-section">
+        <h2 class="cta-title">Ready to Book Your Pet's Stay?</h2>
+        <p class="cta-description">Join hundreds of happy pet parents who trust us with their furry family members</p>
+        <div class="button-group">
+            <button class="btn btn-white">Book Now</button>
+            <button class="btn btn-outline">Call Us: (315) 657-1332</button>
+        </div>
+    </div>
+</body>
+</html>
