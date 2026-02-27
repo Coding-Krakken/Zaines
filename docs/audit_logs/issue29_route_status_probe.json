@@ -1,0 +1,16 @@
+[
+  {
+    "path": "/robots.txt",
+    "status": 200,
+    "ok": true,
+    "contentType": "text/plain",
+    "sample": "User-Agent: *\nAllow: /\nDisallow: /api/\nDisallow: /dashboard/\nDisallow: /auth/\nDisallow: /book/confirmation\nDisallow: /_next/\nDisallow: /static/\nDisallow: /preview-themes/\n\nSitemap: https://zaines.verc"
+  },
+  {
+    "path": "/sitemap.xml",
+    "status": 200,
+    "ok": true,
+    "contentType": "application/xml",
+    "sample": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n<url>\n<loc>https://zaines.vercel.app/</loc>\n<lastmod>2026-02-27T19:18:55.196Z</lastmod>\n<changefreq>"
+  }
+]

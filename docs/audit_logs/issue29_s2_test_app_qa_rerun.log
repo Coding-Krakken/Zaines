@@ -1,0 +1,38 @@
+
+> zaines-stay-and-play@0.1.0 test:app C:\Users\david\Desktop\Zaines
+> vitest run
+
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90mC:/Users/david/Desktop/Zaines[39m
+
+ [32mΓ£ô[39m src/lib/validations/__tests__/booking-wizard.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32mΓ£ô[39m src/app/api/availability/__tests__/route.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+[90mstdout[2m | src/__tests__/booking-payment-e2e.test.ts[2m > [22m[2mBooking ΓåÆ Payment E2E Flow[2m > [22m[2mwebhook payment_intent.succeeded updates booking to confirmed
+[22m[39mPayment succeeded for booking booking-123
+
+[90mstdout[2m | src/__tests__/booking-payment-e2e.test.ts[2m > [22m[2mBooking ΓåÆ Payment E2E Flow[2m > [22m[2mwebhook payment_intent.payment_failed updates booking to cancelled
+[22m[39mPayment failed for booking booking-123
+
+ [32mΓ£ô[39m src/__tests__/notifications-resend.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 792[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m retries transient failures and succeeds [33m 781[2mms[22m[39m
+ [32mΓ£ô[39m src/__tests__/booking-payment-e2e.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 90[2mms[22m[39m
+ [32mΓ£ô[39m src/__tests__/issue26-api-contracts.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32mΓ£ô[39m src/__tests__/api-routes.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 946[2mms[22m[39m
+       [33m[2mΓ£ô[22m[39m should detect when Stripe is not configured [33m 603[2mms[22m[39m
+       [33m[2mΓ£ô[22m[39m should detect when database is not configured [33m 301[2mms[22m[39m
+ [32mΓ£ô[39m src/__tests__/notifications.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32mΓ£ô[39m src/app/api/reviews/__tests__/route.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/booking/__tests__/availability-flow.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32mΓ£ô[39m src/__tests__/bookings-concurrency.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 1335[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m rejects 11th concurrent booking with 409 status [33m 365[2mms[22m[39m
+     [33m[2mΓ£ô[22m[39m returns proper error codes for capacity exceeded [33m 323[2mms[22m[39m
+ [32mΓ£ô[39m src/app/api/booking/availability/__tests__/route.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32mΓ£ô[39m src/app/api/auth/magic-link/__tests__/route.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32mΓ£ô[39m src/app/api/contact/submissions/__tests__/route.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32mΓ£ô[39m src/app/__tests__/seo-metadata-routes.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m14 passed[39m[22m[90m (14)[39m
+[2m      Tests [22m [1m[32m60 passed[39m[22m[90m (60)[39m
+[2m   Start at [22m 14:16:48
+[2m   Duration [22m 5.47s[2m (transform 2.36s, setup 554ms, import 7.64s, tests 3.48s, environment 5ms)[22m
+

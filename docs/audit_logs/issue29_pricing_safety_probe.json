@@ -1,0 +1,34 @@
+{
+  "scannedAt": "2026-02-27T19:10:00.451Z",
+  "base": "http://127.0.0.1:3000",
+  "out": [
+    {
+      "route": "/",
+      "status": 200,
+      "prohibitedClaimMatches": [],
+      "mentionsPriceRange": true,
+      "mentionsTBD": false
+    },
+    {
+      "route": "/pricing",
+      "status": 200,
+      "prohibitedClaimMatches": [],
+      "mentionsPriceRange": true,
+      "mentionsTBD": false
+    },
+    {
+      "route": "/book",
+      "status": 200,
+      "prohibitedClaimMatches": [],
+      "mentionsPriceRange": true,
+      "mentionsTBD": false
+    },
+    {
+      "route": "/contact",
+      "status": 200,
+      "prohibitedClaimMatches": [],
+      "mentionsPriceRange": true,
+      "mentionsTBD": false
+    }
+  ]
+}

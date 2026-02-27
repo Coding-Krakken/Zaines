@@ -1,129 +1,129 @@
 {
-  "base": "http://localhost:3000",
-  "scannedAt": "2026-02-16T03:55:37.747Z",
+  "base": "http://127.0.0.1:3100",
+  "scannedAt": "2026-02-27T19:24:55.608Z",
   "results": [
     {
       "route": "/",
-      "url": "http://localhost:3000/",
+      "url": "http://127.0.0.1:3100/",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/about",
-      "url": "http://localhost:3000/about",
+      "url": "http://127.0.0.1:3100/about",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/contact",
-      "url": "http://localhost:3000/contact",
+      "url": "http://127.0.0.1:3100/contact",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/book",
-      "url": "http://localhost:3000/book",
+      "url": "http://127.0.0.1:3100/book",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/dog",
-      "url": "http://localhost:3000/dog",
+      "url": "http://127.0.0.1:3100/dog",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/dog/calm",
-      "url": "http://localhost:3000/dog/calm",
+      "url": "http://127.0.0.1:3100/dog/calm",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/faq",
-      "url": "http://localhost:3000/faq",
+      "url": "http://127.0.0.1:3100/faq",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/gallery",
-      "url": "http://localhost:3000/gallery",
+      "url": "http://127.0.0.1:3100/gallery",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/policies",
-      "url": "http://localhost:3000/policies",
+      "url": "http://127.0.0.1:3100/policies",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/pricing",
-      "url": "http://localhost:3000/pricing",
+      "url": "http://127.0.0.1:3100/pricing",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/privacy",
-      "url": "http://localhost:3000/privacy",
+      "url": "http://127.0.0.1:3100/privacy",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/reviews",
-      "url": "http://localhost:3000/reviews",
+      "url": "http://127.0.0.1:3100/reviews",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/services/boarding",
-      "url": "http://localhost:3000/services/boarding",
+      "url": "http://127.0.0.1:3100/services/boarding",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/services/daycare",
-      "url": "http://localhost:3000/services/daycare",
+      "url": "http://127.0.0.1:3100/services/daycare",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/services/grooming",
-      "url": "http://localhost:3000/services/grooming",
+      "url": "http://127.0.0.1:3100/services/grooming",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/services/training",
-      "url": "http://localhost:3000/services/training",
+      "url": "http://127.0.0.1:3100/services/training",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/suites",
-      "url": "http://localhost:3000/suites",
+      "url": "http://127.0.0.1:3100/suites",
       "status": 200,
       "issuesCount": 0,
       "issues": []
     },
     {
       "route": "/auth/signin",
-      "url": "http://localhost:3000/auth/signin",
+      "url": "http://127.0.0.1:3100/auth/signin",
       "status": 200,
       "issuesCount": 0,
       "issues": []

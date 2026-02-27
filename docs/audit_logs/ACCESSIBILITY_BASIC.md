@@ -1,5 +1,6 @@
-# Basic accessibility scan (http://localhost:3000)
-Scanned: 2026-02-16T03:55:37.747Z
+# Basic accessibility scan (http://127.0.0.1:3100)
+
+Scanned: 2026-02-27T19:24:55.608Z
 
 - / — status: 200, issues: 0
 - /about — status: 200, issues: 0

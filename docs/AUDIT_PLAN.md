@@ -3,6 +3,7 @@
 This document captures Phase 0 (Discovery) outcomes and an actionable plan for the full autonomous audit (PHASES 0–7).
 
 ## Quick repo summary (tech stack)
+
 - Framework: Next.js 15 (App Router)
 - Language: TypeScript (TS 5)
 - UI: Tailwind CSS 4 + shadcn/ui components
@@ -15,6 +16,7 @@ This document captures Phase 0 (Discovery) outcomes and an actionable plan for t
 - Package manager: pnpm (pnpm-lock.yaml present) but package.json scripts use npm; Dockerfile uses pnpm
 
 ## Key entrypoints & config
+
 - Frontend entrypoint: `src/app/page.tsx` (Next App Router)
 - API routes: `src/app/api/*` (e.g. `/api/bookings`, `/api/payments/webhook`)
 - Prisma schema: `prisma/schema.prisma`
@@ -27,28 +29,29 @@ This document captures Phase 0 (Discovery) outcomes and an actionable plan for t
 
 Notes: repository supports `pnpm` in Docker and `npm` in README/scripts. Use `pnpm install` or `npm install` depending on local preference. The project includes a `pnpm-lock.yaml` so prefer `pnpm` for lockfile fidelity.
 
-1) Install
+1. Install
    - pnpm: `corepack enable && corepack prepare pnpm@latest --activate && pnpm install --frozen-lockfile`
    - or npm: `npm install`
 
-2) Generate Prisma client (required before build/typecheck)
+2. Generate Prisma client (required before build/typecheck)
    - `npm run prisma:generate` (or `pnpm prisma:generate`)
 
-3) Typecheck / Lint / Tests
+3. Typecheck / Lint / Tests
    - Typecheck: `npm run typecheck`
    - Lint: `npm run lint`
    - Tests: `npm test` (Vitest)
 
-4) Build / Start
+4. Build / Start
    - Build: `npm run build` (runs `prisma generate && next build`)
    - Start (production): `npm start`
    - Dev: `npm run dev` (Next dev server)
 
-5) Worker / Compose
+5. Worker / Compose
    - Docker compose: `RESEND_API_KEY=... pnpm docker-compose up --build`
    - Worker (local): `npm run worker` (requires `REDIS_URL` in env)
 
 ## Critical workflows (must be validated)
+
 - User authentication (sign in, sign out, session handling)
 - Booking funnel (create booking, validation, capacity checks)
 - Payment flow (create payment intent, client secret, webhook processing)
@@ -58,6 +61,7 @@ Notes: repository supports `pnpm` in Docker and `npm` in README/scripts. Use `pn
 - Admin / content flows (reviews, suite management)
 
 ## Environment variables & secrets strategy
+
 - Key env vars (see README): `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `REDIS_URL`, `EMAIL_FROM`.
 - Repo contains `.env.example` referenced in README — ensure `.env` is gitignored (verify during Phase 5).
 - Secrets must never be committed. CI should validate presence for production pipelines.
@@ -86,10 +90,12 @@ Notes: repository supports `pnpm` in Docker and `npm` in README/scripts. Use `pn
   - Mitigation: Automated a11y checks (axe core) and manual route pass in Phase 4.
 
 ## Deliverables for Phase 0
+
 - `docs/AUDIT_PLAN.md` (this file)
 - Updated todo list entry created in root audit plan tracker (managed via tool)
 
 ## Next steps (Phase 1)
+
 1. Run clean dependency install respecting `pnpm-lock.yaml` and capture output
 2. Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` and record all results in `docs/audit_logs/BASELINE.md`
 3. Triage failures and prioritize fixes (P0..P3)

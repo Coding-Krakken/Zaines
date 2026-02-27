@@ -1,0 +1,73 @@
+
+> zaines-stay-and-play@0.1.0 build C:\Users\david\Desktop\Zaines
+> prisma generate && next build
+
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma\schema.prisma.
+
+Γ£ö Generated Prisma Client (v7.4.2) to .\node_modules\.pnpm\@prisma+client@7.4.1_prisma@7.4.2_typescript@5.9.3\node_modules\@prisma\client in 420ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+
+Γû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local, .env
+
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 12.8s
+  Running TypeScript ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/39) ...
+  Generating static pages using 7 workers (9/39) 
+  Generating static pages using 7 workers (19/39) 
+  Generating static pages using 7 workers (29/39) 
+Γ£ô Generating static pages using 7 workers (39/39) in 1487.5ms
+  Finalizing page optimization ...
+
+Route (app)
+Γöî Γùï /
+Γö£ Γùï /_not-found
+Γö£ Γùï /about
+Γö£ ╞Æ /api/auth/[...nextauth]
+Γö£ ╞Æ /api/auth/magic-link
+Γö£ ╞Æ /api/availability
+Γö£ ╞Æ /api/booking/availability
+Γö£ ╞Æ /api/bookings
+Γö£ ╞Æ /api/contact/submissions
+Γö£ ╞Æ /api/payments/create-intent
+Γö£ ╞Æ /api/payments/webhook
+Γö£ ╞Æ /api/reviews
+Γö£ ╞Æ /api/reviews/submissions
+Γö£ Γùï /auth/signin
+Γö£ Γùï /book
+Γö£ Γùï /book/confirmation
+Γö£ Γùï /contact
+Γö£ ╞Æ /dashboard
+Γö£ ╞Æ /dashboard/bookings
+Γö£ ╞Æ /dashboard/bookings/[id]
+Γö£ ╞Æ /dashboard/pets
+Γö£ ╞Æ /dashboard/pets/[id]
+Γö£ ╞Æ /dashboard/settings
+Γö£ Γùï /dog
+Γö£ Γùï /dog/calm
+Γö£ Γùï /faq
+Γö£ Γùï /gallery
+Γö£ Γùï /policies
+Γö£ Γùï /preview-themes
+Γö£ Γùï /pricing
+Γö£ Γùï /privacy
+Γö£ Γùï /reviews
+Γö£ Γùï /robots.txt
+Γö£ Γùï /services/boarding
+Γö£ Γùï /services/daycare
+Γö£ Γùï /services/grooming
+Γö£ Γùï /services/training
+Γö£ Γùï /sitemap.xml
+Γö£ Γùï /suites
+Γöö Γùï /terms
+
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+

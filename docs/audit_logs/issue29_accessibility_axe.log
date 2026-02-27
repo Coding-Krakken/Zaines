@@ -1,0 +1,60 @@
+
+> zaines-stay-and-play@0.1.0 audit:ui:accessibility C:\Users\david\Desktop\Zaines
+> node scripts/audit/accessibility_check.js "http://127.0.0.1:3100"
+
+Scanning http://127.0.0.1:3100/
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 2
+Scanning http://127.0.0.1:3100/about
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 1
+Scanning http://127.0.0.1:3100/contact
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 1
+Scanning http://127.0.0.1:3100/book
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 2
+Scanning http://127.0.0.1:3100/dog
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 2
+Scanning http://127.0.0.1:3100/dog/calm
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 1
+Scanning http://127.0.0.1:3100/faq
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 2
+Scanning http://127.0.0.1:3100/gallery
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 3
+Scanning http://127.0.0.1:3100/policies
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 2
+Scanning http://127.0.0.1:3100/pricing
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 1
+Scanning http://127.0.0.1:3100/privacy
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 1
+Scanning http://127.0.0.1:3100/reviews
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 1
+Scanning http://127.0.0.1:3100/services/boarding
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 1
+Scanning http://127.0.0.1:3100/services/daycare
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 1
+Scanning http://127.0.0.1:3100/services/grooming
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 1
+Scanning http://127.0.0.1:3100/services/training
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 1
+Scanning http://127.0.0.1:3100/suites
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 1
+Scanning http://127.0.0.1:3100/auth/signin
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  Violations: 1
+
+Accessibility scan complete ΓÇö results written to docs/audit_logs

@@ -16,6 +16,7 @@ After analyzing 20+ leading pet boarding websites (London Dog Club, Kennel Club 
 ## 1. Visual Design & Brand Strategy
 
 ### What Competitors Do:
+
 - **London Dog Club**: Deep navy, serif fonts, British elegance
 - **Kennel Club LAX**: Urban monochrome + bold red accents, contemporary
 - **Meadow View**: Rustic, earthy tones, pastoral imagery
@@ -26,7 +27,9 @@ After analyzing 20+ leading pet boarding websites (London Dog Club, Kennel Club 
 ### Pattern: Split between "cozy/rustic" and "urban/luxury"
 
 ### **Our Upgrade:**
+
 ✅ **Adaptive Design System**: Offer toggleable theme modes
+
 - **Cozy Mode** (default): Warm gradients (peach → lavender), rounded corners, soft shadows, "home away from home"
 - **Modern Mode**: Clean lines, high contrast, bold typography
 - **Playful Mode**: For Dog Mode—bright, high contrast, large tap targets
@@ -43,28 +46,34 @@ After analyzing 20+ leading pet boarding websites (London Dog Club, Kennel Club 
 ## 2. Information Architecture & UX
 
 ### What Competitors Do:
+
 - Most have: Home, About, Services, Pricing, Contact
 - Better sites add: Gallery, Reviews, FAQ, Policies
 - Few have: Virtual tours, live availability teasers
 
 ### **Our Upgrade:**
+
 ✅ **Service-Specific Landing Pages** for SEO:
+
 - `/dog-boarding-[city]`
 - `/daycare-[city]`
 - `/grooming-[city]`
 - Each optimized for local keywords
 
 ✅ **Progressive Disclosure UX**:
+
 - Homepage → Quick availability checker (no login)
 - Pricing page → Interactive calculator (suite type + add-ons + dates = instant quote)
 - FAQ → Searchable, categorized, linked to booking steps
 
 ✅ **Facility Transparency**:
+
 - 360° virtual tour embeds
 - "Day in the Life" video section
 - Live webcam feed teaser (opt-in for clients)
 
 ✅ **Mobile-First Navigation**:
+
 - Sticky bottom nav on mobile (Home, Book, My Pets, Messages, Profile)
 - Swipeable gallery cards
 - One-thumb booking flow
@@ -76,16 +85,19 @@ After analyzing 20+ leading pet boarding websites (London Dog Club, Kennel Club 
 ## 3. Booking Funnel Innovation
 
 ### What Competitors Do:
+
 - Basic forms, often requiring phone call follow-up
 - No deposit/payment during booking
 - Limited add-on visibility
 
 ### Friction Points Identified:
+
 ❌ No availability preview before account creation  
 ❌ Vaccine requirements unclear until checkout  
 ❌ Add-ons buried or require separate inquiry
 
 ### **Our Upgrade:**
+
 ✅ **Smart Availability Preview**: Show real-time open suites BEFORE login  
 ✅ **Vaccine Pre-Check**: AI-powered vaccine date extraction from uploaded PDFs  
 ✅ **Add-On Upsell Engine**: "Dogs who booked [Standard Suite] also loved [Extra Playtime]" suggestions  
@@ -100,27 +112,33 @@ After analyzing 20+ leading pet boarding websites (London Dog Club, Kennel Club 
 ## 4. Portal & Customer Dashboard
 
 ### What Competitors Do (per Paw Partner analysis):
+
 - Booking history
 - Basic pet profiles
 - Photo timeline (delayed updates)
 
 ### **Our Upgrade:**
+
 ✅ **Real-Time Dashboard**:
+
 - Live activity feed: "Bella is playing in Yard 3 🎾" (staff-updated via mobile app)
 - Today's schedule with completion checkmarks
 
 ✅ **Pet Health Hub**:
+
 - Vaccine expiration alerts (30/60/90 day warnings)
 - Weight tracking over visits
 - Medication schedule with dispense confirmations
 - Vet contact quick-dial
 
 ✅ **Messaging Evolution**:
+
 - In-app chat (real-time WebSocket, not email relay)
 - Photo/video sending from staff → owners (push notifications)
 - Read receipts + typing indicators
 
 ✅ **Loyalty & Rewards**:
+
 - "Paw Points" system (1 point per $, redeem for add-ons)
 - Referral tracking with unique codes
 - Birthday month discounts
@@ -132,27 +150,33 @@ After analyzing 20+ leading pet boarding websites (London Dog Club, Kennel Club 
 ## 5. Trust Signals & Transparency
 
 ### What Competitors Do:
+
 - Static testimonials
 - Generic "insured & bonded" claims
 - Hidden cancellation policies
 
 ### **Our Upgrade:**
+
 ✅ **Live Review Integration**:
+
 - Google Business Profile reviews pulled via API
 - Review response timeline visible
 - Filter by service type (boarding vs daycare)
 
 ✅ **Staff Credentials Showcase**:
+
 - Bio pages with certifications (CPR, Fear Free, training)
 - Background check badges
 - "Meet the Team" video intros
 
 ✅ **Policy Transparency**:
+
 - Cancellation policy calculator (enter date → see refund)
 - "What Happens If..." scenarios (illness, aggression, emergency)
 - Insurance certificate viewable in footer
 
 ✅ **Safety Page**:
+
 - Facility features (secure fencing, climate control, fire suppression)
 - Health protocols (cleaning schedule, disease prevention)
 - Emergency procedures
@@ -164,23 +188,28 @@ After analyzing 20+ leading pet boarding websites (London Dog Club, Kennel Club 
 ## 6. SEO Dominance Strategy
 
 ### What Competitors Do:
+
 - Basic meta tags
 - Minimal schema markup
 - No content strategy
 
 ### SEO Gaps Identified:
+
 ❌ Generic titles ("Dog Boarding | Company Name")  
 ❌ No LocalBusiness schema  
 ❌ Slow page speeds (3-5s load)  
 ❌ Thin service pages (1-2 paragraphs)
 
 ### **Our Upgrade:**
+
 ✅ **Hyper-Local SEO**:
+
 - Separate landing pages per service per city
 - URL structure: `/dog-boarding-seattle`, `/daycare-bellevue`, etc.
 - City-specific content (local park partnerships, neighborhood service areas)
 
 ✅ **Comprehensive Schema.org**:
+
 - `LocalBusiness` with geo coordinates
 - `Service` markup for each offering
 - `FAQPage` for FAQ section
@@ -188,17 +217,20 @@ After analyzing 20+ leading pet boarding websites (London Dog Club, Kennel Club 
 - `Event` for workshops/tours
 
 ✅ **Content Velocity**:
+
 - 2 blog posts/month (local pet events, care tips, breed spotlights)
 - Category pages: "Best Dog Breeds for Boarding," "Daycare vs Dog Walker"
 - Video transcripts for accessibility + SEO
 
 ✅ **Technical Excellence**:
+
 - Target: <1.5s FCP (First Contentful Paint)
 - Next.js Image optimization with AVIF/WebP
 - Lazy-load below-fold content
 - Critical CSS inline, rest deferred
 
 ✅ **Link Building**:
+
 - Partner with local vets (badge exchange)
 - Guest posts on pet blogs
 - Local business directory submissions
@@ -215,6 +247,7 @@ After analyzing 20+ leading pet boarding websites (London Dog Club, Kennel Club 
 **Concept:** A separate web app route (`/dog`) optimized for **dogs as users**.
 
 ### Features:
+
 ✅ **Boop-to-Check-In**: Large nose-tap area (haptic feedback)  
 ✅ **Visual Schedule**: Icons (bowl, leash, ball, bed) with time markers  
 ✅ **Treat Meter Mini-Game**: Tap to "earn treats" (gamification, no real purchases)  
@@ -231,18 +264,22 @@ After analyzing 20+ leading pet boarding websites (London Dog Club, Kennel Club 
 ## 8. Performance & Accessibility
 
 ### What Competitors Do:
+
 - Average Lighthouse scores: 60-75
 - Poor mobile scores (55-65)
 - Minimal ARIA labels
 
 ### **Our Upgrade:**
+
 ✅ **Target Metrics**:
+
 - Performance: >95
 - Accessibility: >95
 - Best Practices: 100
 - SEO: 100
 
 ✅ **Accessibility Features**:
+
 - WCAG 2.1 AA compliance
 - Keyboard-only navigation tested
 - Screen reader optimized (semantic HTML)
@@ -250,6 +287,7 @@ After analyzing 20+ leading pet boarding websites (London Dog Club, Kennel Club 
 - Focus indicators on all interactive elements
 
 ✅ **PWA Capabilities**:
+
 - Add to home screen
 - Offline booking draft saving
 - Push notifications for booking confirmations
@@ -262,12 +300,14 @@ After analyzing 20+ leading pet boarding websites (London Dog Club, Kennel Club 
 ## 9. Technology Stack (Production-Grade)
 
 ### What Competitors Use:
+
 - WordPress (60% of sites)
 - Wix/Squarespace (25%)
 - Custom PHP (10%)
 - Modern stack (5%)
 
 ### **Our Stack:**
+
 ✅ **Frontend**: Next.js 15 (App Router), React 19, TypeScript  
 ✅ **Styling**: Tailwind CSS 4, shadcn/ui, Framer Motion  
 ✅ **Backend**: Next.js API routes, tRPC for type-safe APIs  
@@ -290,46 +330,51 @@ After analyzing 20+ leading pet boarding websites (London Dog Club, Kennel Club 
 
 ## 10. Differentiating Features Summary
 
-| Feature | Competitors Have It? | Our Implementation | Impact |
-|---------|---------------------|-------------------|--------|
-| Real-time booking | ❌ Most require calls | ✅ Live availability + instant confirm | 40% faster conversions |
-| Vaccine tracking | ⚠️ Manual uploads | ✅ AI-powered expiry alerts | Reduces admin by 60% |
-| In-app messaging | ⚠️ Email only | ✅ Real-time chat (WebSocket) | 2x faster response time |
-| Photo sharing | ⚠️ Delayed posts | ✅ Live timeline + push notifs | 95% engagement rate |
-| Dog Mode | ❌ None | ✅ Fully accessible dog UI | Viral marketing potential |
-| PWA | ❌ <5% | ✅ Installable app experience | 25% more repeat visits |
-| Separate SEO pages | ⚠️ 20% | ✅ Service × City matrix | 3x organic traffic |
-| Lighthouse >90 | ❌ <10% | ✅ All scores >95 | Better rankings + UX |
+| Feature            | Competitors Have It?  | Our Implementation                     | Impact                    |
+| ------------------ | --------------------- | -------------------------------------- | ------------------------- |
+| Real-time booking  | ❌ Most require calls | ✅ Live availability + instant confirm | 40% faster conversions    |
+| Vaccine tracking   | ⚠️ Manual uploads     | ✅ AI-powered expiry alerts            | Reduces admin by 60%      |
+| In-app messaging   | ⚠️ Email only         | ✅ Real-time chat (WebSocket)          | 2x faster response time   |
+| Photo sharing      | ⚠️ Delayed posts      | ✅ Live timeline + push notifs         | 95% engagement rate       |
+| Dog Mode           | ❌ None               | ✅ Fully accessible dog UI             | Viral marketing potential |
+| PWA                | ❌ <5%                | ✅ Installable app experience          | 25% more repeat visits    |
+| Separate SEO pages | ⚠️ 20%                | ✅ Service × City matrix               | 3x organic traffic        |
+| Lighthouse >90     | ❌ <10%               | ✅ All scores >95                      | Better rankings + UX      |
 
 ---
 
 ## 11. Implementation Priority Roadmap
 
 ### Phase 1: Foundation (Weeks 1-2)
+
 1. ✅ Next.js scaffold + Tailwind + shadcn/ui
 2. ✅ Database schema (Prisma)
 3. ✅ Auth flow (magic links)
 4. ✅ Marketing site pages (Home, About, Services)
 
 ### Phase 2: Booking Core (Weeks 3-4)
+
 1. ✅ Booking availability system
 2. ✅ Multi-step booking wizard
 3. ✅ Stripe payment integration
 4. ✅ Email confirmations
 
 ### Phase 3: Portal (Weeks 5-6)
+
 1. ✅ User dashboard
 2. ✅ Pet profiles + vaccine upload
 3. ✅ Reservation management
 4. ✅ In-app messaging
 
 ### Phase 4: Differentiation (Weeks 7-8)
+
 1. ✅ Dog Mode implementation
 2. ✅ Review integration
 3. ✅ Photo timeline
 4. ✅ Loyalty system
 
 ### Phase 5: SEO & Polish (Weeks 9-10)
+
 1. ✅ Schema markup all pages
 2. ✅ Blog system + initial posts
 3. ✅ Performance optimization
@@ -340,21 +385,22 @@ After analyzing 20+ leading pet boarding websites (London Dog Club, Kennel Club 
 
 ## 12. Success Metrics (6-Month Targets)
 
-| Metric | Industry Average | Our Target | Advantage |
-|--------|-----------------|-----------|-----------|
-| Booking conversion rate | 8-12% | 18% | +50-125% |
-| Organic traffic growth | 5-10%/mo | 15%/mo | +50-200% |
-| Lighthouse Performance | 65 | 95+ | +46% |
-| Customer retention | 60% | 80% | +33% |
-| Average booking value | $450 | $625 | +39% (via add-on upsells) |
-| Review rating | 4.3 | 4.8+ | +12% |
-| Mobile traffic | 55% | 70% | +27% (PWA adoption) |
+| Metric                  | Industry Average | Our Target | Advantage                 |
+| ----------------------- | ---------------- | ---------- | ------------------------- |
+| Booking conversion rate | 8-12%            | 18%        | +50-125%                  |
+| Organic traffic growth  | 5-10%/mo         | 15%/mo     | +50-200%                  |
+| Lighthouse Performance  | 65               | 95+        | +46%                      |
+| Customer retention      | 60%              | 80%        | +33%                      |
+| Average booking value   | $450             | $625       | +39% (via add-on upsells) |
+| Review rating           | 4.3              | 4.8+       | +12%                      |
+| Mobile traffic          | 55%              | 70%        | +27% (PWA adoption)       |
 
 ---
 
 ## Conclusion: Built to Win
 
 This platform doesn't just **match** competitors—it **redefines** what a pet boarding website can be:
+
 - **For pet owners:** Transparent, fast, trustworthy, delightful
 - **For staff:** Streamlined operations, real-time tools
 - **For search engines:** Perfectly optimized, schema-rich

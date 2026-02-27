@@ -9,6 +9,7 @@
 ## 1) Contract Blocker Closure (AC-P0-4)
 
 Implemented missing endpoint:
+
 - `src/app/api/reviews/submissions/route.ts`
 - Added full POST contract behavior:
   - `422 REVIEW_VALIDATION_FAILED`
@@ -20,13 +21,16 @@ Implemented missing endpoint:
 ## 2) Environment Blocker Closure (ENOSPC / Installability)
 
 Disk free-space check:
+
 - Drive `C:` free space: **1.64 GB** (previously blocked at 0.00 GB)
 
 Dependency restore:
+
 - Command: `pnpm install`
 - Result: **succeeded** (completed dependency graph + install scripts)
 
 Prisma runtime artifact generation:
+
 - Command: `pnpm prisma generate`
 - Result: **succeeded** (`Prisma Client (v7.4.1)` generated)
 
@@ -39,6 +43,7 @@ Command executed:
 `pnpm test -- src/__tests__/issue26-api-contracts.test.ts src/app/api/booking/availability/__tests__/route.test.ts src/app/api/auth/magic-link/__tests__/route.test.ts src/app/api/contact/submissions/__tests__/route.test.ts src/app/api/reviews/__tests__/route.test.ts`
 
 Result:
+
 - **Test Files:** 5 passed (5)
 - **Tests:** 12 passed (12)
 - **Duration:** 694ms
@@ -48,13 +53,16 @@ Result:
 ## 4) Runtime Checks (Latency + SEO Route HTTP Status)
 
 Server run:
+
 - `pnpm dev -- --port 3000`
 
 Required HTTP status checks:
+
 - `GET /robots.txt` → **200**
 - `GET /sitemap.xml` → **200**
 
 Latency probe method:
+
 - 20 requests per path, compute p95 from sorted sample latencies
 
 Runtime probe results:
@@ -97,6 +105,7 @@ Runtime probe results:
 ```
 
 Latency gate check:
+
 - All measured p95 values are **<= 2s** (max p95 observed: **18.41ms**).
 
 ---

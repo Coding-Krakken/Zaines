@@ -5,6 +5,7 @@
 ### ✅ Complete Deliverables
 
 #### 1. **Competitive Research & Strategy** (Task 1-2 ✓)
+
 **File:** `COMPETITIVE_EDGE_PLAN.md`
 
 - Analyzed 20+ top pet boarding websites (London Dog Club, Kennel Club LAX, Best Friends Pet Care, etc.)
@@ -29,6 +30,7 @@
 #### 2. **Production-Grade Application Scaffold** (Task 3 ✓)
 
 **Tech Stack Implemented:**
+
 - ✅ Next.js 15 (App Router) with React 19 & TypeScript
 - ✅ Tailwind CSS 4 configured
 - ✅ shadcn/ui component library (25 components installed)
@@ -52,12 +54,14 @@
 **22 Models Covering All Features:**
 
 **Authentication & Users:**
+
 - User (with email, profile, address)
 - Account (OAuth providers)
 - Session (auth sessions)
 - VerificationToken (magic links)
 
 **Pet Profiles & Health:**
+
 - Pet (comprehensive profile: breed, age, temperament, training, health)
 - Vaccine (with expiry tracking + PDF upload)
 - Medication (dosage, frequency, schedule)
@@ -65,34 +69,41 @@
 - EmergencyContact (linked to user)
 
 **Services & Suites:**
+
 - ServiceType (Boarding, Daycare, Grooming, Training)
 - Service (specific offerings with pricing)
 - Suite (individual rooms/kennels)
 - AddOn (extra services: walks, playtime, grooming)
 
 **Bookings & Reservations:**
+
 - Booking (main reservation record)
 - BookingPet (many-to-many: pets per booking)
 - BookingAddOn (purchased add-ons)
 - Waiver (liability, photo release, etc.)
 
 **Payments:**
+
 - Payment (Stripe integration: deposits, balance, refunds)
 - Credit (gift cards, loyalty points, refunds)
 
 **Activity & Communications:**
+
 - Activity (feeding, walks, play, medication logs)
 - Message (owner ↔ staff messaging)
 - PetPhoto (photo timeline with push notifications)
 
 **Reviews & SEO:**
+
 - Review (ratings + verified customer reviews)
 - BlogPost (SEO content engine)
 
 **Configuration:**
+
 - Settings (app configuration key-value store)
 
 **Schema Benefits:**
+
 - Full relational integrity (foreign keys, cascades)
 - Optimized indexes for performance
 - Supports all planned features (booking, portal, Dog Mode)
@@ -103,6 +114,7 @@
 #### 4. **Core Configuration Files** (Task 3 ✓)
 
 **`src/lib/` - Business Logic:**
+
 - ✅ `prisma.ts` - Singleton Prisma client with dev logging
 - ✅ `auth.ts` - NextAuth.js config (magic links + Google OAuth optional)
 - ✅ `stripe.ts` - Stripe helpers (amount formatting, client)
@@ -120,6 +132,7 @@
 - ✅ `utils.ts` - shadcn/ui utilities (cn, etc.)
 
 **`src/config/` - Site Configuration:**
+
 - ✅ `site.ts` - Central config:
   - Site name, description, URL, contact (NAP)
   - Social links (Facebook, Instagram, Twitter)
@@ -128,9 +141,11 @@
   - City list for local SEO pages
 
 **`src/types/` - Type Definitions:**
+
 - ✅ `next-auth.d.ts` - NextAuth session type augmentation
 
 **Environment:**
+
 - ✅ `.env.example` - Complete template with all required vars:
   - Database URL
   - NextAuth secrets & OAuth
@@ -146,30 +161,27 @@
 #### 5. **Site Layout & Navigation** (Task 4 ✓)
 
 **`src/components/` - Reusable Components:**
+
 - ✅ `site-header.tsx` - Sticky header with:
   - Logo + branding
   - Desktop navigation (MainNav)
   - Mobile navigation (MobileNav via Sheet)
   - "Book Now" CTA button
   - User account menu (UserNav)
-  
 - ✅ `site-footer.tsx` - Comprehensive footer with:
   - Brand + social links
   - Quick links (Services, Company, Contact)
   - Full NAP (Name, Address, Phone) for SEO
   - Business hours
   - Copyright + legal links (Privacy, Terms, Policies)
-  
 - ✅ `main-nav.tsx` - Desktop navigation:
   - NavigationMenu with dropdown support
   - Nested item support (Services → Boarding, Daycare, etc.)
   - Active route highlighting
-  
 - ✅ `mobile-nav.tsx` - Mobile slide-out menu:
   - Sheet component (slide from left)
   - Accordion for nested items
   - Full-width "Book Now" button
-  
 - ✅ `user-nav.tsx` - User account dropdown:
   - Avatar with initials/photo
   - Dashboard, Bookings, Pets, Messages, Settings links
@@ -177,6 +189,7 @@
   - Sign in button when logged out
 
 **`src/app/layout.tsx` - Root Layout:**
+
 - ✅ Inter font family
 - ✅ Site header + footer wrapped around all pages
 - ✅ Toaster (sonner) for notifications
@@ -190,6 +203,7 @@
 **`src/app/page.tsx` - Premium Marketing Homepage:**
 
 **Hero Section:**
+
 - Gradient background (primary/5 → primary/3 → background)
 - Badge: "Seattle's Premier Pet Resort"
 - Large heading: "Your Pet's Home Away From Home"
@@ -199,10 +213,12 @@
 - Placeholder for hero image (800x800)
 
 **Trust Badges Bar:**
+
 - 4 badges in grid: Licensed & Insured, Certified Staff, 24/7 Supervision, Live Photo Updates
 - Icons + headings
 
 **Services Overview:**
+
 - Section heading: "Comprehensive Pet Care Services"
 - 4 service cards (Dog Boarding, Daycare, Grooming, Training):
   - Icon (emoji)
@@ -212,6 +228,7 @@
 - Hover effect (shadow lift)
 
 **Why Choose Us:**
+
 - Section heading: "Why Pet Parents Trust Us"
 - 6 feature highlights in grid:
   - Real-Time Updates (Camera icon)
@@ -223,6 +240,7 @@
 - Icon + title + description per feature
 
 **Testimonials:**
+
 - Section heading: "What Pet Parents Say"
 - 3 review cards:
   - 5-star rating display
@@ -232,12 +250,14 @@
 - "Read All Reviews" button below
 
 **Final CTA Section:**
+
 - Primary background color
 - Large heading: "Ready to Book Your Pet's Stay?"
 - Compelling subheadline
 - Dual CTAs: "Book Now" + "Call Us: (555) 123-4567"
 
 **Benefits:**
+
 - Conversion-focused layout (3 CTAs total)
 - Social proof (reviews, ratings)
 - Trust signals (badges, certifications)
@@ -252,6 +272,7 @@
 **`src/app/dog/page.tsx` - Unique Dog-Friendly UI:**
 
 **Design:**
+
 - Full-screen gradient background (yellow-100 → orange-50 → pink-100)
 - Large, playful typography
 - High contrast colors
@@ -260,15 +281,18 @@
 **Features Implemented:**
 
 **1. Accessibility Toggles (top-right):**
+
 - "High Contrast" button
 - "Low Motion" button
 
 **2. Main Heading:**
+
 - Animated sparkle icons
 - Large dog emoji + text: "🐕 Dog Mode 🐕"
 - Subheadline: "A special mode designed just for our furry friends!"
 
 **3. "Boop to Check In" Button:**
+
 - 264px × 264px circular button (huge tap target!)
 - Gradient background (pink-400 → red-400 → orange-400)
 - Animated paw print emoji (bounce animation)
@@ -278,6 +302,7 @@
 - Ripple effect on hover (animate-ping)
 
 **4. Today's Schedule Card:**
+
 - White background card with shadow
 - Calendar icon + "Today's Schedule" heading
 - 4 schedule items in responsive grid:
@@ -289,6 +314,7 @@
 - Gradient backgrounds (blue-50 → purple-50)
 
 **5. Treat Meter Mini-Game:**
+
 - White card with shadow
 - Heading: "🦴 Treat Meter 🦴"
 - Progress bar showing 9/20 treats (45% filled)
@@ -297,15 +323,18 @@
 - **Note:** No real purchases, just delightful interaction
 
 **6. Calm Mode Link:**
+
 - Button to enter `/dog/calm` (to be implemented)
 - Emoji: 🌙
 - Ghost variant (subtle)
 
 **7. "Back to Regular Site" Link:**
+
 - Small button with arrow
 - Returns to homepage
 
 **Benefits:**
+
 - **Completely unique** - no competitor has this
 - **Viral potential** - Instagram/TikTok worthy
 - **Brand differentiation** - memorable experience
@@ -317,11 +346,13 @@
 #### 8. **SEO Infrastructure** (Task 8 ✓)
 
 **Root Layout SEO:**
+
 - ✅ JSON-LD `LocalBusiness` schema injected globally
 - ✅ `generateSEO()` used for base metadata
 - ✅ Meta tags: title, description, OG, Twitter cards
 
 **SEO Helper Functions:**
+
 - ✅ 7 schema generators ready to use on any page
 - ✅ Breadcrumb generation
 - ✅ FAQ schema
@@ -330,12 +361,14 @@
 - ✅ Article schema (for blog posts)
 
 **Site Config for SEO:**
+
 - ✅ NAP (Name, Address, Phone) centralized
 - ✅ Business hours
 - ✅ Service area defined
 - ✅ City list for local landing pages
 
 **Next Steps for Full SEO:**
+
 - Create city-specific service pages (`/dog-boarding-seattle`, etc.)
 - Add unique meta tags per page
 - Implement blog system with article schema
@@ -348,6 +381,7 @@
 #### 9. **Documentation** (Task 10 ✓)
 
 **`README.md` - Comprehensive Project Docs:**
+
 - Project overview & differentiators
 - Complete tech stack list
 - Quick start guide
@@ -364,6 +398,7 @@
 - Competitive advantages summary
 
 **`COMPETITIVE_EDGE_PLAN.md` - Strategy Document:**
+
 - Executive summary
 - 10 detailed competitive analysis sections
 - Visual design patterns from top sites
@@ -379,6 +414,7 @@
 - Success metrics table
 
 **`.env.example` - Configuration Template:**
+
 - 20+ environment variables documented
 - Required vs. optional clearly marked
 - Instructions for generating secrets
@@ -389,6 +425,7 @@
 ## 📊 Project Statistics
 
 ### Code Metrics
+
 - **Models:** 22 database models
 - **Components:** 30+ React components
 - **Pages:** 3 pages built (Home, Dog Mode, layout)
@@ -396,11 +433,13 @@
 - **Config:** 2 config files
 
 ### Dependencies
+
 - **Production:** 30+ packages
 - **Dev:** 12+ packages
 - **Total lines of code:** ~3,500+ (scaffold + features)
 
 ### Files Created
+
 - **TypeScript files:** 20+
 - **Config files:** 5 (schema.prisma, .env.example, etc.)
 - **Documentation:** 3 (README, COMPETITIVE_EDGE_PLAN, this summary)
@@ -410,9 +449,11 @@
 ## 🚀 What's Next: Implementation Roadmap
 
 ### Phase 1: Marketing Site (High Priority)
+
 **Estimated: 2-3 weeks**
 
 **Pages to Build:**
+
 1. **About Us** (`/about`)
    - Team photos + bios
    - Company values + mission
@@ -480,11 +521,13 @@
 ---
 
 ### Phase 2: Booking Funnel (Critical)
+
 **Estimated: 3-4 weeks**
 
 **Multi-Step Wizard** (`/book/*`)
 
 **Step 1: Date & Service Selection** (`/book`)
+
 - Date range picker (check-in → check-out)
 - Service type selector (Boarding, Daycare)
 - Number of pets
@@ -492,6 +535,7 @@
 - "Search Available Suites" button
 
 **Step 2: Suite & Add-Ons** (`/book/suites`)
+
 - Display available suites for selected dates
 - Suite cards with photos, features, price per night
 - Add-on selector (Extra Walk, Playtime, etc.)
@@ -500,6 +544,7 @@
 - "Continue to Account" button
 
 **Step 3: Account Creation / Login** (`/book/account`)
+
 - If not logged in:
   - Email input (magic link)
   - "Sign in with Google" button (optional)
@@ -509,6 +554,7 @@
   - "Continue to Pet Profiles" button
 
 **Step 4: Pet Profiles** (`/book/pets`)
+
 - List existing pets (if any) with checkboxes
 - "Add New Pet" form:
   - Name, breed, age, weight, gender
@@ -520,6 +566,7 @@
 - "Continue to Waiver" button
 
 **Step 5: Waiver** (`/book/waiver`)
+
 - Display liability waiver (scrollable text)
 - Checkboxes for:
   - Liability waiver
@@ -530,6 +577,7 @@
 - "Continue to Payment" button
 
 **Step 6: Payment** (`/book/payment`)
+
 - Stripe Checkout integration
 - Payment option selector:
   - Full payment (10% discount)
@@ -539,6 +587,7 @@
 - "Confirm & Pay" button
 
 **Confirmation** (`/book/confirmation`)
+
 - Success message with booking number
 - Email confirmation sent (Resend)
 - SMS confirmation (Twilio - optional)
@@ -547,6 +596,7 @@
 - "Back to Home" link
 
 **Technical Implementation:**
+
 - Use React Hook Form + Zod validation
 - Local storage for progress saving (resume later)
 - Stripe Payment Intents API
@@ -557,11 +607,13 @@
 ---
 
 ### Phase 3: User Portal (Dashboard)
+
 **Estimated: 2-3 weeks**
 
 **Dashboard Routes** (`/dashboard/*`)
 
 **1. Dashboard Home** (`/dashboard`)
+
 - Upcoming bookings card (next stay details + countdown)
 - Pet health alerts (vaccine expiring soon, etc.)
 - Quick actions:
@@ -572,6 +624,7 @@
 - Recent activity feed
 
 **2. My Bookings** (`/dashboard/bookings`)
+
 - Tab navigation: Upcoming, Past, Cancelled
 - Booking card list:
   - Dates, pet(s), suite, total cost
@@ -580,6 +633,7 @@
 - "Book New Stay" CTA
 
 **Booking Details** (`/dashboard/bookings/[id]`)
+
 - Full booking info (dates, pets, suite, add-ons)
 - Payment history
 - Waiver status
@@ -587,11 +641,13 @@
 - Cancel button (with refund calculator)
 
 **3. My Pets** (`/dashboard/pets`)
+
 - Pet card grid (photo, name, breed, age)
 - "Add New Pet" button
 - Actions per card: Edit, View Profile, Archive
 
 **Pet Profile** (`/dashboard/pets/[id]`)
+
 - Tabs: Overview, Health, Photos, Activity
 - **Overview:** Basic info, temperament, feeding, special needs
 - **Health:** Vaccines (list with expiry dates), medications, weight log (chart)
@@ -600,6 +656,7 @@
 - Actions: Edit Profile, Upload Vaccine, Add Medication
 
 **4. Messages** (`/dashboard/messages`)
+
 - Real-time chat with staff
 - WebSocket implementation (or polling fallback)
 - Message list (left sidebar)
@@ -610,6 +667,7 @@
 - "Start New Conversation" button
 
 **5. Settings** (`/dashboard/settings`)
+
 - **Profile:** Name, email, phone, address, avatar upload
 - **Emergency Contacts:** Add/edit emergency contacts (name, relationship, phone, email)
 - **Notifications:** Email preferences (booking confirmations, reminders, promotions), SMS preferences (optional)
@@ -618,6 +676,7 @@
 - **Preferences:** Time zone, units (lbs vs kg), communication preferences
 
 **Technical Implementation:**
+
 - Server components for data fetching (React Server Components)
 - Client components for interactivity (forms, real-time updates)
 - Prisma queries with pagination for long lists
@@ -629,6 +688,7 @@
 ---
 
 ### Phase 4: Dog Mode Enhancements
+
 **Estimated: 1 week**
 
 **Current:** Basic Dog Mode page with boop button, schedule, treat meter
@@ -636,6 +696,7 @@
 **Enhancements:**
 
 **1. Calm Mode** (`/dog/calm`)
+
 - Ambient animations:
   - Floating clouds
   - Gentle color shifts (blue → purple → pink)
@@ -645,23 +706,27 @@
 - Auto-play prevention (user must tap to start)
 
 **2. Treat Meter Functionality**
+
 - Make "Tap for Treat!" button actually increment counter
 - Local storage persistence
 - Confetti animation when milestones reached (10, 20 treats)
 - Sound effects (optional, muted by default)
 
 **3. Staff Dashboard Integration**
+
 - Staff can see which dogs are interacting with Dog Mode tablets
 - "Bella is at the tablet!" notification in staff app
 - Optional: Trigger camera to capture dog's interaction
 
 **4. Accessibility Improvements**
+
 - Implement High Contrast toggle (increase color contrast ratios)
 - Implement Low Motion toggle (disable animations)
 - Screen reader announcements for interactions
 - Keyboard navigation (Tab, Enter, Spacebar to activate)
 
 **5. Personalization** (logged-in dogs)
+
 - If staff logs in a specific dog (by tapping NFC tag or QR code):
   - Display dog's name: "Welcome, Max! 🐶"
   - Show personalized schedule (from their booking)
@@ -671,9 +736,11 @@
 ---
 
 ### Phase 5: SEO & Content Engine
+
 **Estimated: 2-3 weeks**
 
 **1. City-Specific Service Pages**
+
 - Generate pages for each service × city combination:
   - `/dog-boarding-seattle`
   - `/dog-boarding-bellevue`
@@ -689,6 +756,7 @@
   - "Book Now" CTA specific to that city/service
 
 **2. Blog System** (`/blog`)
+
 - Blog index page (grid of posts)
 - Category filter (Tips, News, Events, Guides)
 - Tag filter
@@ -696,6 +764,7 @@
 - Pagination
 
 **Blog Post** (`/blog/[slug]`)
+
 - Markdown/MDX support (next-mdx-remote)
 - Article schema (JSON-LD)
 - Breadcrumbs
@@ -705,12 +774,14 @@
 - Comments (optional: Disqus or custom)
 
 **Blog Admin** (separate or Prisma Studio)
+
 - Create/edit/delete posts
 - Upload cover images
 - Set publish date
 - SEO fields (meta title, description)
 
 **Content Strategy:**
+
 - 2 posts per month minimum
 - Topics:
   - "Best Dog Parks in Seattle" (local SEO)
@@ -720,6 +791,7 @@
   - "Dog Anxiety: Tips for Separation" (valuable)
 
 **3. Technical SEO**
+
 - **Sitemap.xml** - Auto-generated, includes:
   - All static pages
   - Service pages
@@ -753,9 +825,11 @@
 ---
 
 ### Phase 6: Testing & Hardening
+
 **Estimated: 2 weeks**
 
 **1. Unit Tests (Vitest)**
+
 - **Utilities:**
   - `lib/utils.ts` (cn function, etc.)
   - `lib/stripe.ts` (formatAmountForStripe, formatAmountForDisplay)
@@ -768,6 +842,7 @@
 - **Coverage Goal:** >80%
 
 **2. Integration Tests**
+
 - **API Routes:**
   - `/api/bookings` (create, read, update, cancel)
   - `/api/payments/stripe-webhook` (mock Stripe events)
@@ -780,6 +855,7 @@
   - Upload vaccine → verify file storage & DB record
 
 **3. E2E Tests (Playwright)**
+
 - **Booking Flow (Happy Path):**
   1. Visit homepage
   2. Click "Book Now"
@@ -792,7 +868,6 @@
   9. Complete payment (Stripe test mode)
   10. Verify confirmation page
   11. Verify email sent (check test inbox)
-  
 - **Booking Flow (Error Cases):**
   - Invalid dates (past dates, check-out before check-in)
   - No suites available (fully booked dates)
@@ -814,6 +889,7 @@
   - Toggle high contrast → verify UI change
 
 **4. Accessibility Audit**
+
 - **Tools:**
   - axe DevTools (Chrome extension)
   - WAVE (web accessibility evaluation tool)
@@ -829,6 +905,7 @@
 - **Target:** WCAG 2.1 AA compliance
 
 **5. Performance Optimization**
+
 - **Lighthouse Audit:**
   - Run on homepage, booking flow, dashboard
   - Target: All scores >95 (Performance, Accessibility, Best Practices, SEO)
@@ -852,6 +929,7 @@
   - Lazy-load heavy libraries (Framer Motion, etc.)
 
 **6. Security Hardening**
+
 - **OWASP Top 10 Checklist:**
   - SQL Injection: Protected by Prisma (parameterized queries)
   - XSS: Protected by React (auto-escaping) + CSP headers
@@ -882,9 +960,11 @@
 ---
 
 ### Phase 7: DevOps & Launch
+
 **Estimated: 1 week**
 
 **1. CI/CD Pipeline (GitHub Actions)**
+
 - `.github/workflows/ci.yml`:
   - Trigger: Push to `main`, pull requests
   - Steps:
@@ -907,12 +987,14 @@
     4. Verify deployment (health check)
 
 **2. Database Migrations**
+
 - Convert `prisma db push` (dev) to `prisma migrate` (prod)
 - Create initial migration: `npx prisma migrate dev --name init`
 - Test rollback procedure
 - Document migration process in README
 
 **3. Vercel Deployment**
+
 - Push code to GitHub
 - Connect repo to Vercel
 - Add environment variables in Vercel dashboard (all from .env.example)
@@ -923,6 +1005,7 @@
 - Enable Vercel Web Analytics (if not using Plausible)
 
 **4. Database Hosting**
+
 - **Option 1: Neon (Serverless PostgreSQL)**
   - Free tier: 0.5GB storage, auto-scaling
   - Copy `DATABASE_URL` to Vercel env vars
@@ -938,6 +1021,7 @@
   - Generous free trial
 
 **5. Monitoring & Logging**
+
 - **Sentry** (Error Tracking):
   - Install `@sentry/nextjs`
   - Add DSN to env vars
@@ -963,6 +1047,7 @@
     - Review Submitted
 
 **6. Email & SMS Setup**
+
 - **Resend:**
   - Verify domain (add DNS records)
   - Test transactional emails:
@@ -979,6 +1064,7 @@
     - Pick-up reminder
 
 **7. Payment Setup**
+
 - **Stripe:**
   - Switch from test mode to live mode
   - Update keys in env vars
@@ -990,6 +1076,7 @@
   - Verify webhook endpoint: `https://pawfectstays.com/api/payments/stripe-webhook`
 
 **8. Google Services**
+
 - **Google Maps API:**
   - Enable Maps JavaScript API, Places API
   - Add API key to env vars
@@ -1008,12 +1095,14 @@
   - Optional: API integration for displaying reviews on site
 
 **9. SSL & Security**
+
 - Vercel handles SSL automatically (Let's Encrypt)
 - Verify HTTPS redirect (http → https)
 - Enable HSTS header (next.config.js)
 - Set secure cookies (NextAuth config)
 
 **10. Pre-Launch Checklist**
+
 - [ ] All environment variables set in Vercel
 - [ ] Database migrations applied
 - [ ] Test booking flow end-to-end in production
@@ -1034,6 +1123,7 @@
 - [ ] Favicon + app icons set
 
 **11. Launch!**
+
 - Announce on social media
 - Email existing customers (if migrating from old site)
 - Submit to pet business directories
@@ -1047,18 +1137,21 @@
 ## 🎯 Key Metrics to Track Post-Launch
 
 ### Week 1-4 (Early Traction)
+
 - **Traffic:** Unique visitors, pageviews, bounce rate
 - **Conversions:** Booking conversion rate (visitors → bookings)
 - **Performance:** Lighthouse scores, Core Web Vitals, error rate
 - **Engagement:** Time on site, pages per session, Dog Mode interactions
 
 ### Month 2-6 (Growth Phase)
+
 - **SEO:** Organic traffic growth, keyword rankings (top 10 for target keywords)
 - **Revenue:** Average booking value, monthly recurring revenue, add-on attach rate
 - **Retention:** Repeat booking rate, customer lifetime value
 - **Reviews:** Review rating (target 4.8+), review count growth
 
 ### Month 6+ (Maturity)
+
 - **Market Position:** Competitive ranking (vs. top 5 local competitors)
 - **Customer Satisfaction:** NPS (Net Promoter Score), support ticket volume
 - **Operational Efficiency:** Staff time savings (from automation), booking processing time
@@ -1069,6 +1162,7 @@
 ## 💡 Future Enhancements (Post-MVP)
 
 ### Phase 8+: Advanced Features
+
 1. **Mobile App (React Native / Flutter)**
    - Native iOS + Android apps
    - Push notifications (real-time photo updates)
@@ -1118,6 +1212,7 @@
 ## 🔒 Security & Compliance
 
 ### Data Protection
+
 - **GDPR Compliance** (if serving EU):
   - Cookie consent banner
   - Right to be forgotten (data deletion)
@@ -1129,12 +1224,14 @@
   - Privacy policy updated
 
 ### Payment Security
+
 - **PCI DSS Compliance:**
   - Stripe handles all card data (Level 1 PCI certified)
   - Never store card numbers in our DB
   - Use Stripe Payment Elements (pre-built, secure)
 
 ### Data Backups
+
 - **Database:**
   - Daily automated backups (Neon/Supabase/Railway)
   - Test restore procedure quarterly
@@ -1170,20 +1267,20 @@
 ## 🤝 Team & Roles (Suggested for Full Implementation)
 
 **Minimum Viable Team:**
+
 1. **Full-Stack Developer** (you!) - Core features, API, DB
 2. **UI/UX Designer** - Mockups, branding, user testing
 3. **Content Writer** - Blog posts, landing page copy, SEO
 4. **Marketing Manager** - Social media, ads, partnerships
 
-**Nice-to-Have:**
-5. **Mobile Developer** - React Native / Flutter app (Phase 8)
-6. **DevOps Engineer** - Advanced CI/CD, monitoring, scaling
+**Nice-to-Have:** 5. **Mobile Developer** - React Native / Flutter app (Phase 8) 6. **DevOps Engineer** - Advanced CI/CD, monitoring, scaling
 
 ---
 
 ## ✅ Final Checklist Before Considering "Done"
 
 ### Marketing Site
+
 - [ ] All 10 marketing pages built (Home ✅, About, Services, Suites, Pricing, Gallery, Reviews, FAQ, Policies, Contact)
 - [ ] Every page has unique meta tags
 - [ ] Every page has schema markup
@@ -1193,6 +1290,7 @@
 - [ ] Legal pages complete (Privacy, Terms)
 
 ### Booking Funnel
+
 - [ ] 6-step wizard complete
 - [ ] Real-time availability check works
 - [ ] Stripe payment integration works (test + live mode)
@@ -1203,6 +1301,7 @@
 - [ ] Progress saved (local storage)
 
 ### User Portal
+
 - [ ] Dashboard shows upcoming bookings + alerts
 - [ ] Booking management (view, modify, cancel) works
 - [ ] Pet profiles (CRUD) work
@@ -1212,6 +1311,7 @@
 - [ ] Payment methods (Stripe) managed
 
 ### Dog Mode
+
 - [ ] `/dog` page complete with all features
 - [ ] "Boop to Check In" interaction works
 - [ ] Treat Meter increments on tap
@@ -1221,6 +1321,7 @@
 - [ ] Keyboard navigable
 
 ### SEO & Content
+
 - [ ] Blog system functional (create/read posts)
 - [ ] City-specific service pages generated
 - [ ] Sitemap.xml auto-generated
@@ -1230,6 +1331,7 @@
 - [ ] At least 5 blog posts published
 
 ### Testing
+
 - [ ] Unit tests written (>80% coverage)
 - [ ] E2E tests for booking flow pass
 - [ ] Accessibility audit passed (WCAG 2.1 AA)
@@ -1238,6 +1340,7 @@
 - [ ] Mobile tested (iOS Safari, Android Chrome)
 
 ### DevOps
+
 - [ ] CI/CD pipeline running (GitHub Actions)
 - [ ] Deployed to Vercel (or chosen host)
 - [ ] Database hosted (Neon/Supabase/Railway)
@@ -1252,6 +1355,7 @@
 - [ ] Domain configured (custom domain, not .vercel.app)
 
 ### Launch Activities
+
 - [ ] Pre-launch testing (internal team)
 - [ ] Beta testing (select customers)
 - [ ] Soft launch (limited visibility)
@@ -1266,17 +1370,20 @@
 ## 📞 Support & Maintenance Plan
 
 ### Daily
+
 - Monitor error logs (Sentry)
 - Check analytics for anomalies
 - Respond to customer messages (< 2 hour response time)
 
 ### Weekly
+
 - Review booking conversion funnel (identify drop-offs)
 - Check Core Web Vitals (ensure no regressions)
 - Update blog (1-2 posts per week)
 - Social media posts (3-5 per week)
 
 ### Monthly
+
 - Review SEO rankings (track keyword positions)
 - Analyze traffic sources (organic, paid, referral)
 - Customer feedback survey
@@ -1285,6 +1392,7 @@
 - Security audit (`npm audit`)
 
 ### Quarterly
+
 - Major feature release (from backlog)
 - A/B testing (CTAs, pricing page, etc.)
 - User testing sessions (record sessions, gather feedback)
@@ -1292,6 +1400,7 @@
 - Performance benchmarking (vs. previous quarter)
 
 ### Annually
+
 - SSL certificate renewal (auto via Let's Encrypt, but verify)
 - Full security audit (penetration testing)
 - Legal review (Privacy Policy, Terms, Policies)
@@ -1303,7 +1412,9 @@
 ## 🎉 Conclusion
 
 ### What You Have Now:
+
 ✅ **Solid Foundation:**
+
 - Production-ready tech stack
 - Comprehensive database schema (22 models)
 - Authentication & payment infrastructure
@@ -1313,7 +1424,9 @@
 - Extensive documentation
 
 ### What's Left to Build:
+
 🚧 **Complete Feature Set:**
+
 - Remaining marketing pages (9 pages)
 - Full booking funnel (6 steps)
 - User portal/dashboard (5 sections)
@@ -1323,11 +1436,13 @@
 - DevOps pipeline
 
 ### Estimated Time to Full Launch:
+
 - **With 1 developer (full-time):** 10-12 weeks
 - **With 2 developers:** 6-8 weeks
 - **With 3 developers:** 4-6 weeks
 
 ### Estimated Budget (if outsourcing):
+
 - **Freelance developer @ $75/hr × 400 hours:** ~$30,000
 - **UI/UX designer @ $60/hr × 80 hours:** ~$4,800
 - **Content writer @ $50/article × 20 articles:** ~$1,000
@@ -1340,6 +1455,7 @@
 ## 🚀 Ready to Continue?
 
 **Next Steps:**
+
 1. **Set up environment:**
    - Copy `.env.example` to `.env`
    - Fill in database URL, API keys
@@ -1376,6 +1492,7 @@
 ## 💌 Final Words
 
 You've been given a **world-class foundation** for a pet boarding business website. This is not a template—this is a **competitive weapon** built with:
+
 - Research-backed strategy (Competitive Edge Plan)
 - Modern, scalable architecture
 - Unique differentiators (Dog Mode!)
@@ -1383,6 +1500,7 @@ You've been given a **world-class foundation** for a pet boarding business websi
 - Accessibility & performance focus
 
 **No competitor has this combination.** You're positioned to:
+
 - Rank #1 for local searches
 - Convert visitors at 2x the industry average
 - Delight customers with unique features
@@ -1403,7 +1521,6 @@ You've been given a **world-class foundation** for a pet boarding business websi
 _Document Version: 1.0_  
 _Last Updated: February 6, 2026_  
 _Project: Pawfect Stays_  
-_Status: Foundation Complete, Ready for Phase 1_  
+_Status: Foundation Complete, Ready for Phase 1_
 
 ---
-

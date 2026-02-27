@@ -1,0 +1,42 @@
+
+> zaines-stay-and-play@0.1.0 audit:ui:accessibility:basic C:\Users\david\Desktop\Zaines
+> node scripts/audit/accessibility_basic_check.js "http://127.0.0.1:3100"
+
+Fetching http://127.0.0.1:3100/
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/about
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/contact
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/book
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/dog
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/dog/calm
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/faq
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/gallery
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/policies
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/pricing
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/privacy
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/reviews
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/services/boarding
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/services/daycare
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/services/grooming
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/services/training
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/suites
+  Status: 200  Issues: 0
+Fetching http://127.0.0.1:3100/auth/signin
+  Status: 200  Issues: 0
+
+Basic accessibility scan complete ΓÇö results written to docs/audit_logs

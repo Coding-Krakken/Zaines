@@ -9,6 +9,7 @@
 ## Overview
 
 Three Pull Requests have been **designed and initialized** to unlock the End-to-End Pilot Loop. Each PR has:
+
 - ✅ Detailed design document (see above)
 - ✅ Feature branch created
 - ✅ Foundation code implemented
@@ -26,6 +27,7 @@ Three Pull Requests have been **designed and initialized** to unlock the End-to-
 ### ✅ COMPLETED (Foundation)
 
 **Files Created:**
+
 1. `/src/lib/validations/booking-wizard.ts` (170 lines)
    - 6 validation schemas (Zod) for each wizard step
    - Type exports for TypeScript safety
@@ -50,11 +52,13 @@ Three Pull Requests have been **designed and initialized** to unlock the End-to-
    - Shows completed/current/upcoming steps
 
 **API Routes:**
+
 - GET `/api/availability` (already existed, verified working)
 
 ### ⏳ REMAINING WORK
 
 **Step Components (6 files needed):**
+
 - [ ] `/src/app/book/components/StepDates.tsx`
 - [ ] `/src/app/book/components/StepSuites.tsx`
 - [ ] `/src/app/book/components/StepAccount.tsx`
@@ -63,14 +67,17 @@ Three Pull Requests have been **designed and initialized** to unlock the End-to-
 - [ ] `/src/app/book/components/StepPayment.tsx`
 
 **Pages:**
+
 - [ ] Refactor `/src/app/book/page.tsx` (integrate wizard hook + step components)
 - [ ] Create `/src/app/book/confirmation/page.tsx`
 
 **API Routes:**
+
 - [ ] POST `/api/bookings/validate` (pre-flight validation endpoint)
 - [ ] Update POST `/api/bookings` (handle pets, vaccines, waivers, add-ons)
 
 **Testing:**
+
 - [ ] Unit tests for validation schemas
 - [ ] Integration test: Full wizard flow
 - [ ] E2E test (Playwright): dates → payment → confirmation
@@ -86,6 +93,7 @@ Three Pull Requests have been **designed and initialized** to unlock the End-to-
 ### ✅ COMPLETED (Foundation)
 
 **Files Created:**
+
 1. `/src/middleware.ts` (50 lines)
    - Protects `/admin/*` routes
    - Checks authentication + role
@@ -109,6 +117,7 @@ Three Pull Requests have been **designed and initialized** to unlock the End-to-
 ### ⏳ REMAINING WORK
 
 **Pages:**
+
 - [ ] `/src/app/admin/check-in/[bookingId]/page.tsx` (check-in form)
 - [ ] `/src/app/admin/check-out/[bookingId]/page.tsx` (check-out form)
 - [ ] `/src/app/admin/activities/page.tsx` (activity logging UI)
@@ -117,6 +126,7 @@ Three Pull Requests have been **designed and initialized** to unlock the End-to-
 - [ ] `/src/app/admin/contacts/page.tsx` (emergency contacts)
 
 **API Routes:**
+
 - [ ] POST `/api/admin/activities` (create activity logs)
 - [ ] GET `/api/admin/activities` (fetch activities with filters)
 - [ ] POST `/api/admin/photos` (upload photos)
@@ -124,17 +134,20 @@ Three Pull Requests have been **designed and initialized** to unlock the End-to-
 - [ ] GET `/api/admin/contacts` (emergency contacts list)
 
 **Components:**
+
 - [ ] Admin layout with sidebar navigation
 - [ ] Activity logging form
 - [ ] Photo upload dropzone
 - [ ] Suite occupancy map/grid
 
 **Database Schema Updates:**
+
 - [ ] Add `assignedSuiteId` to Booking model (or create SuiteAssignment table)
 - [ ] Add `role` enum to User model (customer, staff, admin)
 - [ ] Run migrations
 
 **Testing:**
+
 - [ ] Unit tests: Check-in/out logic
 - [ ] Integration test: Activity logging
 - [ ] E2E test: Staff flow (check-in → log → photo → check-out)
@@ -150,6 +163,7 @@ Three Pull Requests have been **designed and initialized** to unlock the End-to-
 ### ✅ COMPLETED (Foundation)
 
 **Files Created:**
+
 1. `/src/app/api/bookings/[id]/activities/route.ts` (90 lines)
    - GET endpoint: fetch activities for booking
    - Supports polling with `?since=timestamp`
@@ -167,6 +181,7 @@ Three Pull Requests have been **designed and initialized** to unlock the End-to-
 ### ⏳ REMAINING WORK
 
 **Components:**
+
 - [ ] `/src/components/ActivityTimeline.tsx` (activity feed UI)
 - [ ] `/src/components/PhotoGallery.tsx` (photo grid + lightbox)
 - [ ] `/src/components/ActivityFilter.tsx` (filter by type, date)
@@ -174,14 +189,17 @@ Three Pull Requests have been **designed and initialized** to unlock the End-to-
 - [ ] `/src/components/LatestPhotosWidget.tsx` (dashboard carousel)
 
 **Pages:**
+
 - [ ] Update `/src/app/dashboard/bookings/[id]/page.tsx` (add tabs: Activity Feed, Photos)
 - [ ] Update `/src/app/dashboard/page.tsx` (add activity/photo widgets)
 
 **Email Notifications:**
+
 - [ ] Update `/src/app/api/admin/photos/route.ts` (send email on photo upload)
 - [ ] Update `/src/app/api/admin/activities/route.ts` (send email for medication logs)
 
 **Testing:**
+
 - [ ] Unit tests: Activity filtering logic
 - [ ] Integration test: Polling fetches new data
 - [ ] E2E test: Customer views timeline, new activity appears
@@ -195,6 +213,7 @@ Three Pull Requests have been **designed and initialized** to unlock the End-to-
 ### 1. Choose a PR to Work On
 
 **Recommended Order:**
+
 1. **PR-1 first** (highest priority, unblocks paying customers)
 2. **PR-2 second** (needs PR-1 data to be fully functional)
 3. **PR-3 third** (needs PR-2 staff logging to populate data)
@@ -207,7 +226,7 @@ Three Pull Requests have been **designed and initialized** to unlock the End-to-
 # For PR-1
 git checkout feature/booking-wizard-complete
 
-# For PR-2  
+# For PR-2
 git checkout feature/staff-operations-dashboard
 
 # For PR-3
@@ -250,6 +269,7 @@ git push -u origin premerge/booking-wizard-complete
 ## Environment Variables Needed
 
 ### For PR-1 (Booking Flow)
+
 ```env
 # Vercel Blob (for vaccine/photo uploads)
 BLOB_READ_WRITE_TOKEN=vercel_blob_...
@@ -264,6 +284,7 @@ EMAIL_FROM=noreply@zaines.com
 ```
 
 ### For PR-2 (Staff Dashboard)
+
 ```env
 # Database (required)
 DATABASE_URL=postgresql://...
@@ -274,6 +295,7 @@ NEXTAUTH_URL=http://localhost:3000
 ```
 
 ### For PR-3 (Activity Feed)
+
 ```env
 # Same as PR-2 (uses database + auth)
 DATABASE_URL=postgresql://...
@@ -285,6 +307,7 @@ NEXTAUTH_SECRET=...
 ## Testing Strategy
 
 ### Unit Tests (Vitest)
+
 ```bash
 # Run all tests
 pnpm test
@@ -297,6 +320,7 @@ pnpm test:watch
 ```
 
 ### E2E Tests (Playwright)
+
 ```bash
 # Run E2E tests
 pnpm test:e2e
@@ -309,6 +333,7 @@ pnpm playwright test --ui
 ```
 
 ### Manual Testing
+
 ```bash
 # Start dev server
 pnpm dev
@@ -326,11 +351,13 @@ pnpm dev
 **File:** `.github/workflows/ci.yml`
 
 **Triggers:**
+
 - Push to `main`
 - Push to `premerge/*`
 - Pull requests to `main`
 
 **Jobs:**
+
 1. Install dependencies (pnpm)
 2. Type check (`pnpm typecheck`)
 3. Lint (`pnpm lint`)
@@ -338,6 +365,7 @@ pnpm dev
 5. Build (`pnpm build`)
 
 **To pass CI, ensure:**
+
 - No TypeScript errors
 - No ESLint warnings/errors
 - All tests passing
@@ -350,6 +378,7 @@ pnpm dev
 ### Required for PR-2
 
 **Add role field to User model:**
+
 ```prisma
 model User {
   // ... existing fields
@@ -359,6 +388,7 @@ model User {
 
 **Add assigned suite tracking:**
 Option A: Add field to Booking
+
 ```prisma
 model Booking {
   // ... existing fields
@@ -370,6 +400,7 @@ model Booking {
 Option B: Create separate SuiteAssignment table (better for audit trail)
 
 **Run migrations:**
+
 ```bash
 npx prisma migrate dev --name add-user-roles-and-suite-assignment
 npx prisma generate
@@ -380,6 +411,7 @@ npx prisma generate
 ## File Structure Summary
 
 ### PR-1 Files
+
 ```
 src/
 ├── lib/
@@ -406,6 +438,7 @@ src/
 ```
 
 ### PR-2 Files
+
 ```
 src/
 ├── middleware.ts ✅
@@ -442,6 +475,7 @@ src/
 ```
 
 ### PR-3 Files
+
 ```
 src/
 ├── hooks/
@@ -468,6 +502,7 @@ src/
 ```
 
 **Legend:**
+
 - ✅ Created and complete
 - ⏳ Exists but needs updates
 - ❌ Not created yet
@@ -477,6 +512,7 @@ src/
 ## Quick Reference
 
 ### PR-1 Next Steps
+
 1. Create StepDates component (date picker + availability check)
 2. Create StepSuites component (suite cards + add-on selection)
 3. Create StepAccount component (magic link auth)
@@ -488,6 +524,7 @@ src/
 9. Write tests
 
 ### PR-2 Next Steps
+
 1. Add database migrations (user roles, suite assignment)
 2. Create admin layout with sidebar navigation
 3. Create check-in page (with verification checklist)
@@ -500,6 +537,7 @@ src/
 10. Write tests
 
 ### PR-3 Next Steps
+
 1. Create ActivityTimeline component (timeline UI)
 2. Create PhotoGallery component (grid + lightbox)
 3. Create ActivityFilter component
