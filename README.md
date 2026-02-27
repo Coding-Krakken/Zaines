@@ -5,17 +5,20 @@ A modern, full-featured dog boarding, daycare, and grooming website built with N
 ## ✨ Features Implemented
 
 ### Core Pages
+
 - **Homepage** - Hero section, services overview, testimonials, and CTAs
 - **About Us** - Company story, team, values, and certifications
 - **Contact** - Contact form, location map, hours, and social links
 
 ### Service Pages
+
 - **Dog Boarding** - Suite options, daily schedule, pricing, requirements
 - **Daycare** - Full-day care programs, packages, and pricing
 - **Grooming** - Bath packages, full groom services, spa treatments
 - **Training** - Puppy preschool, obedience classes, private sessions
 
 ### Interactive Features
+
 - **Booking Funnel** - Multi-step form with date selection, service type, suite choice, and contact info
 - **Dog Mode** 🐶 - Unique dog-friendly interface with:
   - Large "Boop Me!" interaction button
@@ -25,6 +28,7 @@ A modern, full-featured dog boarding, daycare, and grooming website built with N
   - Calm Mode with ambient animations
 
 ### Navigation
+
 - **Responsive Header** - Desktop navigation with dropdowns
 - **Mobile Menu** - Slide-out drawer with accordion navigation
 - **Footer** - Comprehensive links, contact info (NAP), social media
@@ -45,7 +49,8 @@ A modern, full-featured dog boarding, daycare, and grooming website built with N
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - PostgreSQL database (optional for development - see below)
 - Stripe account (optional for development - see below)
 
@@ -54,17 +59,20 @@ A modern, full-featured dog boarding, daycare, and grooming website built with N
 The app is designed to boot and run without any external services configured. You can start with minimal setup and add services as needed.
 
 1. Clone the repository
+
 ```bash
 git clone <repository-url>
 cd Zaines
 ```
 
 2. Install dependencies
+
 ```bash
 npm install
 ```
 
 3. Generate Prisma Client (required)
+
 ```bash
 npm run prisma:generate
 ```
@@ -72,6 +80,7 @@ npm run prisma:generate
 **Note:** You must run `npm run prisma:generate` after installing dependencies or after any changes to the Prisma schema. This generates the TypeScript types for database operations.
 
 Edit `.env` and configure required environment variables:
+
 - `DATABASE_URL`: PostgreSQL connection string (required for database operations)
   - Format: `postgresql://user:password@localhost:5432/database_name`
   - Example: `postgresql://postgres:password@localhost:5432/pawfect_stays`
@@ -80,6 +89,7 @@ Edit `.env` and configure required environment variables:
     - Production: App fails to start with clear error message
 
 4. Set up the database (if using PostgreSQL)
+
 ```bash
 # Generate Prisma Client (MUST run before build/typecheck)
 npm run prisma:generate
@@ -92,6 +102,7 @@ npm run prisma:studio
 ```
 
 **Important Prisma Commands:**
+
 - `npm run prisma:generate` - Generate Prisma Client from schema (run after clone or schema changes)
 - `npm run prisma:migrate` - Apply database migrations in development
 - `npm run prisma:studio` - Open visual database browser
@@ -113,6 +124,7 @@ npm run test:prisma
 ```
 
 **Expected test:smoke output:**
+
 ```
 ⚠️  DATABASE_URL is not set. Database operations will fail.
    To fix: Create a .env file with DATABASE_URL=postgresql://localhost:5432/dbname
@@ -127,6 +139,7 @@ npm run test:prisma
 ```
 
 6. Run the development server
+
 ```bash
 npm run dev
 ```
@@ -142,6 +155,7 @@ To enable all features including payments, authentication, and database operatio
 1. **Set up environment variables**
 
 Create a `.env` file in the project root:
+
 ```bash
 cp .env.example .env
 ```
@@ -151,11 +165,13 @@ cp .env.example .env
 Edit `.env` and configure the following:
 
 #### Database (Required for bookings, users, payments)
+
 ```env
 DATABASE_URL="postgresql://username:password@localhost:5432/pawfect_stays"
 ```
 
 **Local PostgreSQL Setup:**
+
 ```bash
 # Install PostgreSQL (if not already installed)
 # macOS: brew install postgresql
@@ -169,17 +185,20 @@ npx prisma migrate dev
 ```
 
 #### Authentication (Required for user accounts)
+
 ```env
 NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
 NEXTAUTH_URL="http://localhost:3000"
 ```
 
 **Generate a secret:**
+
 ```bash
 openssl rand -base64 32
 ```
 
 #### Stripe Payments (Required for booking payments)
+
 ```env
 STRIPE_SECRET_KEY="sk_test_..."
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
@@ -187,6 +206,7 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 ```
 
 **Get Stripe keys:**
+
 1. Sign up at https://stripe.com
 2. Get test keys from https://dashboard.stripe.com/test/apikeys
 3. Create webhook endpoint at https://dashboard.stripe.com/test/webhooks
@@ -195,70 +215,79 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 4. Copy webhook secret
 
 #### Email (Optional - for email auth)
+
 ```env
 EMAIL_FROM="noreply@pawfectstays.com"
 RESEND_API_KEY="re_..."
 ```
 
 #### Google OAuth (Optional)
+
 ```env
 GOOGLE_CLIENT_ID="your-id.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="your-secret"
 ```
 
 **Get Google OAuth credentials:**
+
 1. Go to https://console.cloud.google.com/apis/credentials
 2. Create OAuth 2.0 Client ID
 3. Add authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
 
-3. **Run database migrations** (if database is configured)
+4. **Run database migrations** (if database is configured)
+
 ```bash
 npx prisma migrate dev
 ```
 
 4. **Seed the database** (optional)
+
 ```bash
 npx prisma db seed
 ```
 
 5. **Run the development server**
+
 ```bash
 npm run dev
 ```
 
 ### Environment Variables Reference
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `DATABASE_URL` | No* | - | PostgreSQL connection string. *Required for database features |
-| `NEXTAUTH_SECRET` | No* | - | Secret for NextAuth.js session encryption. *Required for authentication |
-| `NEXTAUTH_URL` | No* | `http://localhost:3000` | Base URL of the application |
-| `STRIPE_SECRET_KEY` | No* | - | Stripe secret key (use test key `sk_test_...`). *Required for payments |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | No* | - | Stripe publishable key (use test key `pk_test_...`). *Required for payments |
-| `STRIPE_WEBHOOK_SECRET` | No* | - | Stripe webhook signing secret. *Required for webhook handling |
-| `EMAIL_FROM` | No | `noreply@pawfectstays.com` | Default sender email address |
-| `RESEND_API_KEY` | No | - | Resend API key for sending emails |
-| `GOOGLE_CLIENT_ID` | No | - | Google OAuth client ID |
-| `GOOGLE_CLIENT_SECRET` | No | - | Google OAuth client secret |
-| `NODE_ENV` | No | `development` | Node environment (`development` or `production`) |
+| Variable                             | Required | Default                    | Description                                                                  |
+| ------------------------------------ | -------- | -------------------------- | ---------------------------------------------------------------------------- |
+| `DATABASE_URL`                       | No\*     | -                          | PostgreSQL connection string. \*Required for database features               |
+| `NEXTAUTH_SECRET`                    | No\*     | -                          | Secret for NextAuth.js session encryption. \*Required for authentication     |
+| `NEXTAUTH_URL`                       | No\*     | `http://localhost:3000`    | Base URL of the application                                                  |
+| `STRIPE_SECRET_KEY`                  | No\*     | -                          | Stripe secret key (use test key `sk_test_...`). \*Required for payments      |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | No\*     | -                          | Stripe publishable key (use test key `pk_test_...`). \*Required for payments |
+| `STRIPE_WEBHOOK_SECRET`              | No\*     | -                          | Stripe webhook signing secret. \*Required for webhook handling               |
+| `EMAIL_FROM`                         | No       | `noreply@pawfectstays.com` | Default sender email address                                                 |
+| `RESEND_API_KEY`                     | No       | -                          | Resend API key for sending emails                                            |
+| `GOOGLE_CLIENT_ID`                   | No       | -                          | Google OAuth client ID                                                       |
+| `GOOGLE_CLIENT_SECRET`               | No       | -                          | Google OAuth client secret                                                   |
+| `NODE_ENV`                           | No       | `development`              | Node environment (`development` or `production`)                             |
 
-**Note:** Services marked as "No*" are optional for starting the app but required for specific features. The app will display helpful error messages when trying to use features that require missing configuration.
+**Note:** Services marked as "No\*" are optional for starting the app but required for specific features. The app will display helpful error messages when trying to use features that require missing configuration.
 
 ### Development vs Production Behavior
 
 **Development Mode (`NODE_ENV=development` or not set):**
+
 - App starts even if required environment variables are missing
 - Console warnings displayed for missing services (DATABASE_URL, Stripe keys)
 - API routes return clear 400 errors with actionable messages when services are unavailable
 - Allows developers to work on UI/frontend without backend setup
 
 **Production Mode (`NODE_ENV=production`):**
+
 - Same graceful degradation as development
 - Services should be properly configured for production deployments
 - Missing critical environment variables will cause API routes to return 400 errors
 - Use environment-specific validation in CI/CD to enforce required variables
 
 **Best Practices:**
+
 - Use test/sandbox keys in development (e.g., `sk_test_...` for Stripe)
 - Set up `.env.local` for local overrides (automatically ignored by git)
 - Use environment variable validation in your CI/CD pipeline for production
@@ -267,6 +296,7 @@ npm run dev
 ### What Works Without Configuration?
 
 ✅ **Works without any env vars:**
+
 - Homepage and all marketing pages
 - Service pages (boarding, daycare, grooming, training)
 - Contact page and forms (except email sending)
@@ -274,6 +304,7 @@ npm run dev
 - UI components and navigation
 
 ⚠️ **Requires configuration:**
+
 - User authentication (needs `NEXTAUTH_SECRET`, `DATABASE_URL`)
 - Booking system (needs `DATABASE_URL`)
 - Payment processing (needs Stripe keys)
@@ -281,18 +312,19 @@ npm run dev
 
 ## 🛠️ Available Scripts
 
-| Script | Command | Description |
-|--------|---------|-------------|
-| **dev** | `npm run dev` | Start development server on http://localhost:3000 |
-| **build** | `npm run build` | Build production bundle |
-| **start** | `npm start` | Start production server |
-| **lint** | `npm run lint` | Run ESLint to check code quality |
-| **typecheck** | `npm run typecheck` | Run TypeScript type checking |
+| Script              | Command                   | Description                                       |
+| ------------------- | ------------------------- | ------------------------------------------------- |
+| **dev**             | `npm run dev`             | Start development server on http://localhost:3000 |
+| **build**           | `npm run build`           | Build production bundle                           |
+| **start**           | `npm start`               | Start production server                           |
+| **lint**            | `npm run lint`            | Run ESLint to check code quality                  |
+| **typecheck**       | `npm run typecheck`       | Run TypeScript type checking                      |
 | **prisma:generate** | `npm run prisma:generate` | Generate Prisma Client (run after schema changes) |
-| **test** | `npm test` | Run test suite |
-| **test:watch** | `npm run test:watch` | Run tests in watch mode |
+| **test**            | `npm test`                | Run test suite                                    |
+| **test:watch**      | `npm run test:watch`      | Run tests in watch mode                           |
 
 **Important Notes:**
+
 - Run `npm run prisma:generate` after cloning the repo or updating the Prisma schema
 - Run `npm run typecheck` before committing to catch type errors
 - Tests validate that API routes return proper errors when environment variables are missing
@@ -308,6 +340,7 @@ This project uses GitHub Actions for continuous integration and deployment. The 
 **Triggers:** Push to `main`, `premerge/*` branches, or pull requests to `main`
 
 **Jobs:**
+
 1. **Install Dependencies** - Installs dependencies with pnpm and caches for faster subsequent runs
 2. **Type Check** - Runs TypeScript compiler to validate types
 3. **Lint** - Runs ESLint to enforce code quality standards
@@ -323,6 +356,7 @@ This project uses GitHub Actions for continuous integration and deployment. The 
 **Triggers:** Push to `main` (automatic) or manual dispatch
 
 **Jobs:**
+
 1. **Database Migration** - Runs Prisma migrations on production database
 2. **Build** - Builds application with production environment variables
 3. **Deploy to Vercel** - Deploys to Vercel hosting platform
@@ -331,6 +365,7 @@ This project uses GitHub Actions for continuous integration and deployment. The 
 ### Branch Protection Rules
 
 Recommended branch protection settings for `main`:
+
 - ✅ Require status checks to pass before merging
 - ✅ Require branches to be up to date before merging
 - ✅ Require pull request reviews (1 reviewer minimum)
@@ -358,6 +393,7 @@ pnpm build      # Build
 ### Environment Variables for CI/CD
 
 **Required in GitHub Secrets:**
+
 - `DATABASE_URL` - Production database connection string
 - `NEXTAUTH_SECRET` - NextAuth.js session encryption secret
 - `NEXTAUTH_URL` - Production URL of the application
@@ -372,6 +408,7 @@ pnpm build      # Build
 - `DEPLOYMENT_URL` - Production URL for health checks
 
 **Setting Secrets:**
+
 1. Go to repository Settings → Secrets and variables → Actions
 2. Click "New repository secret"
 3. Add each required secret with its value
@@ -381,12 +418,14 @@ pnpm build      # Build
 This project uses **pnpm** as the package manager (specified in `package.json` via `packageManager` field). The `pnpm-lock.yaml` lockfile ensures consistent dependency versions across all environments.
 
 **Why pnpm?**
+
 - ⚡ Faster installations (shared dependency cache)
 - 💾 Disk space efficient (content-addressable storage)
 - 🔒 Strict lockfile (better reproducibility)
 - 📦 Monorepo support (if needed in future)
 
 **Installation:**
+
 ```bash
 corepack enable
 corepack prepare pnpm@latest --activate
@@ -405,9 +444,11 @@ The booking and payment system is fully integrated, creating a seamless experien
 ### API Endpoints
 
 #### POST /api/bookings
+
 Creates a new booking and optionally generates a Stripe payment intent.
 
 **Request Body:**
+
 ```json
 {
   "checkIn": "2026-03-01",
@@ -425,6 +466,7 @@ Creates a new booking and optionally generates a Stripe payment intent.
 ```
 
 **Response (with Stripe configured):**
+
 ```json
 {
   "success": true,
@@ -450,6 +492,7 @@ Creates a new booking and optionally generates a Stripe payment intent.
 ```
 
 **Response (without Stripe configured):**
+
 ```json
 {
   "success": true,
@@ -459,20 +502,24 @@ Creates a new booking and optionally generates a Stripe payment intent.
 ```
 
 **Key Features:**
+
 - **Graceful Degradation**: Booking succeeds even if Stripe is unavailable
 - **Idempotent Payment Creation**: Checks for existing payments to prevent duplicates
 - **Metadata Tracking**: Stores `bookingId`, `bookingNumber`, and `userId` in Stripe for reconciliation
 
 #### POST /api/payments/webhook
+
 Handles Stripe webhook events for payment lifecycle updates.
 
 **Supported Events:**
+
 - `payment_intent.succeeded` → Updates payment to `succeeded`, booking to `confirmed`
 - `payment_intent.payment_failed` → Updates payment to `failed`, booking to `cancelled`
 - `payment_intent.canceled` → Updates payment to `cancelled`, booking to `cancelled`
 - `charge.refunded` → Updates payment to `refunded`, booking to `cancelled`
 
 **Webhook Setup:**
+
 ```bash
 # Install Stripe CLI
 brew install stripe/stripe-cli/stripe
@@ -491,6 +538,7 @@ stripe trigger payment_intent.payment_failed
 ### Status Values
 
 #### Booking Status
+
 - `pending` - Initial state after creation, awaiting payment
 - `confirmed` - Payment succeeded, booking confirmed
 - `checked_in` - Customer checked in
@@ -498,6 +546,7 @@ stripe trigger payment_intent.payment_failed
 - `cancelled` - Booking cancelled (payment failed or manually cancelled)
 
 #### Payment Status
+
 - `pending` - Payment intent created, awaiting payment
 - `succeeded` - Payment completed successfully
 - `failed` - Payment attempt failed
@@ -507,6 +556,7 @@ stripe trigger payment_intent.payment_failed
 ### Testing the Flow
 
 #### 1. Happy Path (Payment Success)
+
 ```bash
 # Start dev server
 npm run dev
@@ -534,12 +584,14 @@ curl -X POST http://localhost:3000/api/bookings \
 ```
 
 #### 2. Failure Path (Payment Failure)
+
 ```bash
 # Use Stripe test card that fails: 4000 0000 0000 0002
 # Payment intent fails → Webhook fires → Booking cancelled
 ```
 
 #### 3. Degraded Mode (No Stripe)
+
 ```bash
 # Unset Stripe keys
 unset STRIPE_SECRET_KEY
@@ -550,11 +602,11 @@ unset STRIPE_SECRET_KEY
 
 ### Test Cards (Stripe Test Mode)
 
-| Card Number | Scenario |
-|-------------|----------|
-| `4242 4242 4242 4242` | Successful payment |
-| `4000 0000 0000 0002` | Payment declined |
-| `4000 0000 0000 9995` | Payment fails |
+| Card Number           | Scenario                |
+| --------------------- | ----------------------- |
+| `4242 4242 4242 4242` | Successful payment      |
+| `4000 0000 0000 0002` | Payment declined        |
+| `4000 0000 0000 9995` | Payment fails           |
 | `4000 0025 0000 3155` | Requires authentication |
 
 **CVV:** Any 3 digits  
@@ -566,7 +618,7 @@ unset STRIPE_SECRET_KEY
 <<<<<<< HEAD
 Run the test suite covering booking and payment functionality:
 
-```bash
+````bash
 npm test
 =======
 Run the E2E test suite covering the full booking → payment → webhook flow:
@@ -574,9 +626,10 @@ Run the E2E test suite covering the full booking → payment → webhook flow:
 ```bash
 npm test src/__tests__/booking-payment-e2e.test.ts
 >>>>>>> origin/main
-```
+````
 
 **Test Coverage:**
+
 - ✅ Booking creation with payment intent
 - ✅ Payment record creation with pending status
 - ✅ Graceful handling of Stripe failures
@@ -593,15 +646,19 @@ npm test src/__tests__/booking-payment-e2e.test.ts
 - ✅ **Idempotency**: Duplicate payment records prevented via booking ID check
 
 <<<<<<< HEAD
+
 ## 🔒 Concurrency & Data Safety
 
 ### Overview
+
 The booking system uses **PostgreSQL advisory locks** and **serializable transactions** to prevent overbooking under concurrent load. This ensures capacity limits are never exceeded, even when multiple users attempt to book the same suite type simultaneously.
 
 ### How It Works
 
 #### 1. Advisory Lock Acquisition
+
 When a booking request arrives, the system acquires a PostgreSQL advisory lock:
+
 ```typescript
 await tx.$executeRaw`
   SELECT pg_advisory_xact_lock(
@@ -609,12 +666,15 @@ await tx.$executeRaw`
   )
 `;
 ```
+
 - **Lock Key**: Hash of `suiteType + checkInDate` (e.g., "standard2026-03-01")
 - **Scope**: Transaction-level lock (released automatically on commit/rollback)
 - **Blocking Behavior**: Concurrent requests for the same suite/date wait in queue
 
 #### 2. Atomic Capacity Check
+
 Inside the transaction:
+
 1. Lock acquired (blocks other concurrent requests)
 2. Count overlapping confirmed bookings
 3. Reject if `count >= capacity[suiteType]`
@@ -622,67 +682,73 @@ Inside the transaction:
 5. Lock released on commit
 
 #### 3. Serializable Isolation
+
 ```typescript
-prisma.$transaction(callback, { 
-  isolationLevel: 'Serializable',
-  timeout: 10000
-})
+prisma.$transaction(callback, {
+  isolationLevel: "Serializable",
+  timeout: 10000,
+});
 ```
+
 - Prevents phantom reads (new bookings appearing mid-transaction)
 - PostgreSQL automatically detects serialization conflicts
 - Failed transactions return `P2034` error code
 
 ### Capacity Limits
+
 | Suite Tier | Max Concurrent Bookings |
-|------------|-------------------------|
+| ---------- | ----------------------- |
 | Standard   | 10                      |
 | Deluxe     | 8                       |
 | Luxury     | 5                       |
 
 ### Performance Impact
+
 - **Typical Latency**: +5-15ms per booking (lock acquisition + serialization)
 - **High Load**: Requests wait in queue (FIFO order)
 - **Timeout**: 10 seconds (returns `503 Service Unavailable`)
 
 ### Error Codes & Retry Logic
 
-| HTTP Status | Error Code | Retry Strategy |
-|-------------|------------|----------------|
-| `409 Conflict` | `CAPACITY_EXCEEDED` | Do not retry (no availability) |
-| `409 Conflict` | `TRANSACTION_CONFLICT` | Retry after 3 seconds |
-| `503 Service Unavailable` | `TIMEOUT` | Retry after 5 seconds |
+| HTTP Status               | Error Code             | Retry Strategy                 |
+| ------------------------- | ---------------------- | ------------------------------ |
+| `409 Conflict`            | `CAPACITY_EXCEEDED`    | Do not retry (no availability) |
+| `409 Conflict`            | `TRANSACTION_CONFLICT` | Retry after 3 seconds          |
+| `503 Service Unavailable` | `TIMEOUT`              | Retry after 5 seconds          |
 
 **Client Implementation Example:**
+
 ```javascript
 async function createBookingWithRetry(data, maxRetries = 3) {
   for (let i = 0; i < maxRetries; i++) {
-    const response = await fetch('/api/bookings', {
-      method: 'POST',
-      body: JSON.stringify(data)
+    const response = await fetch("/api/bookings", {
+      method: "POST",
+      body: JSON.stringify(data),
     });
-    
+
     if (response.ok) return response.json();
-    
+
     const error = await response.json();
-    
+
     // Don't retry if no capacity available
-    if (error.code === 'CAPACITY_EXCEEDED') {
-      throw new Error('No availability for selected dates');
+    if (error.code === "CAPACITY_EXCEEDED") {
+      throw new Error("No availability for selected dates");
     }
-    
+
     // Retry on conflicts/timeouts
-    if (error.code === 'TRANSACTION_CONFLICT' || error.code === 'TIMEOUT') {
-      const retryAfter = parseInt(response.headers.get('Retry-After') || '3');
-      await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+    if (error.code === "TRANSACTION_CONFLICT" || error.code === "TIMEOUT") {
+      const retryAfter = parseInt(response.headers.get("Retry-After") || "3");
+      await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
       continue;
     }
-    
+
     throw new Error(error.error);
   }
 }
 ```
 
 ### Database Requirements
+
 - **PostgreSQL 9.1+** (for `pg_advisory_xact_lock`)
 - **Connection Pooling**: Recommended max 20 connections
 - **Deadlock Detection**: Automatic (PostgreSQL default: 1s timeout)
@@ -690,6 +756,7 @@ async function createBookingWithRetry(data, maxRetries = 3) {
 ### Troubleshooting
 
 #### High Lock Wait Times
+
 ```sql
 -- Check active advisory locks
 SELECT pid, locktype, mode, granted
@@ -700,6 +767,7 @@ WHERE locktype = 'advisory';
 **Solution:** Increase connection pool size or reduce transaction timeout.
 
 #### Frequent Serialization Failures
+
 ```sql
 -- Monitor transaction conflicts
 SELECT * FROM pg_stat_database WHERE datname = 'your_db';
@@ -707,11 +775,13 @@ SELECT * FROM pg_stat_database WHERE datname = 'your_db';
 ```
 
 **Solution:** Indicates high contention. Consider:
+
 - Shorter transaction scope
 - Optimistic locking for non-critical operations
 - Caching capacity checks (with short TTL)
 
 #### Deadlocks
+
 Rare but possible if multiple suite types are locked out of order.
 
 **Solution:** Locks are acquired deterministically by suite type + date combination, minimizing deadlock risk.
@@ -719,6 +789,7 @@ Rare but possible if multiple suite types are locked out of order.
 ### Testing Concurrency
 
 #### Stress Test (Local)
+
 ```bash
 # Terminal 1: Start dev server
 npm run dev
@@ -750,11 +821,13 @@ wait
 ```
 
 #### Automated Tests
+
 ```bash
 npm test src/__tests__/bookings-concurrency.test.ts
 ```
 
 **Test Coverage:**
+
 - ✅ 20 concurrent requests enforce capacity limits
 - ✅ Exactly 10 bookings succeed for standard tier
 - ✅ Independent locking per suite type
@@ -762,6 +835,7 @@ npm test src/__tests__/bookings-concurrency.test.ts
 - ✅ Transaction conflicts return 409 with Retry-After
 
 ### Security Considerations
+
 - ✅ **No User-Controlled Lock Keys**: Lock keys derived from internal data only
 - ✅ **DoS Protection**: 10s timeout prevents indefinite blocking
 - ✅ **Fair Scheduling**: PostgreSQL FIFO lock queue prevents starvation
@@ -769,6 +843,7 @@ npm test src/__tests__/bookings-concurrency.test.ts
 - ✅ **Audit Trail**: All booking attempts logged for monitoring
 
 ### Resources
+
 - [PostgreSQL Advisory Locks](https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS)
 - [Prisma Transactions](https://www.prisma.io/docs/concepts/components/prisma-client/transactions)
 - [Serializable Isolation](https://www.postgresql.org/docs/current/transaction-iso.html#XACT-SERIALIZABLE)
@@ -813,6 +888,7 @@ Zaines/
 ## 🎯 Key Pages
 
 ### Marketing Pages
+
 - `/` - Homepage with hero, services, and CTAs
 - `/about` - About us, team, values
 - `/contact` - Contact form and location
@@ -822,6 +898,7 @@ Zaines/
 - `/services/training` - Training classes
 
 ### Interactive Features
+
 - `/book` - Multi-step booking wizard
 - `/dog` - Dog Mode (unique feature!)
 - `/dog/calm` - Calm Mode (ambient relaxation)
@@ -829,6 +906,7 @@ Zaines/
 ## 🔧 What's Next
 
 ### Ready to Implement
+
 - ✅ Database setup (schema ready)
 - ✅ Authentication (NextAuth configured)
 - ✅ Payment processing (Stripe configured)
@@ -839,6 +917,7 @@ Zaines/
 - 📝 Photo upload system
 
 ### Future Enhancements
+
 - Blog/content management
 - City-specific landing pages (SEO)
 - Review system integration
@@ -870,12 +949,12 @@ One of our unique features! Dog Mode (`/dog`) is an interface designed specifica
 ## 🤝 Contributing
 
 This is a demonstration project. For production use, additional features needed:
+
 - Complete authentication flow
 - Payment integration
 - Email service setup
 
-Email notifications / Dev queue
-------------------------------
+## Email notifications / Dev queue
 
 The application can send transactional emails (booking confirmations and payment notifications) using Resend. To enable real sending, set `RESEND_API_KEY` in your environment (see `.env.example`). If `RESEND_API_KEY` is not configured, the app will write outgoing messages to a local dev queue file at `tmp/email-queue.log` for easy inspection during development.
 
@@ -889,8 +968,7 @@ Environment variables:
 - `RESEND_API_KEY` - API key for Resend (optional for local development)
 - `EMAIL_FROM` - sender address (defaults to `noreply@pawfectstays.com`)
 
-Optional Redis worker (production)
----------------------------------
+## Optional Redis worker (production)
 
 For production reliability, configure a Redis instance and set `REDIS_URL` (e.g. `redis://user:pass@host:6379`). The app will push email entries to a Redis-backed BullMQ queue when `REDIS_URL` is present. Run the worker to process the queue:
 
@@ -901,8 +979,7 @@ pnpm run worker
 
 The worker processes queued `booking_confirmation` and `payment_notification` jobs and will attempt retries using BullMQ job attempts/backoff. If Redis is not configured the app will continue using the local `tmp/email-queue.log` file.
 
-CI and Docker
---------------
+## CI and Docker
 
 - A GitHub Actions CI workflow runs typecheck, lint and tests for pushes to `main` and `premerge/*` branches, and for PRs targeting `main`. See `.github/workflows/ci.yml`.
 - To run the worker and Redis locally via Docker Compose:
@@ -926,6 +1003,7 @@ This project is for demonstration purposes.
 ## ✨ Credits
 
 Built with modern tools:
+
 - [Next.js](https://nextjs.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [shadcn/ui](https://ui.shadcn.com/)

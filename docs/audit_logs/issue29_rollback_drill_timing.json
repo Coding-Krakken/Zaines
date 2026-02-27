@@ -1,0 +1,25 @@
+{
+  "issue": 29,
+  "branch": "feature/29-continuous-improvement-tranche1",
+  "drillDate": "2026-02-27",
+  "operators": [
+    "qa-test-engineer",
+    "tech-lead"
+  ],
+  "trigger": "simulated release-checkpoint failure requiring fallback",
+  "fallbackTarget": "Square Online",
+  "startTimestampUtc": "2026-02-27T19:19:50.2953821Z",
+  "endTimestampUtc": "2026-02-27T19:19:58.0331460Z",
+  "elapsedSeconds": 7.74,
+  "elapsedMinutes": 0.13,
+  "thresholdMinutes": 5,
+  "withinThreshold": true,
+  "verificationChecks": {
+    "rootRouteHealthy": true,
+    "bookingEntryReachable": true,
+    "contactEntryReachable": true,
+    "checkoutBoundarySquareDelegated": true
+  },
+  "result": "PASS",
+  "reason": "Fallback drill completed within <=5 minutes with all verification checks true."
+}

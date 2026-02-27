@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
   availabilityRequestSchema,
+  createPublicErrorEnvelope,
   getCorrelationId,
   logServerFailure,
   parseDate,
@@ -31,26 +32,26 @@ export async function POST(request: NextRequest) {
     body = await request.json();
   } catch {
     return NextResponse.json(
-      {
+      createPublicErrorEnvelope({
         errorCode: "INVALID_DATE_RANGE",
         message: "Check-out must be after check-in.",
         retryable: false,
         correlationId,
-      },
-      { status: 400 }
+      }),
+      { status: 400 },
     );
   }
 
   const parsed = availabilityRequestSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      {
+      createPublicErrorEnvelope({
         errorCode: "INVALID_DATE_RANGE",
         message: "Check-out must be after check-in.",
         retryable: false,
         correlationId,
-      },
-      { status: 400 }
+      }),
+      { status: 400 },
     );
   }
 
@@ -59,13 +60,13 @@ export async function POST(request: NextRequest) {
 
   if (!checkInDate || !checkOutDate || checkOutDate <= checkInDate) {
     return NextResponse.json(
-      {
+      createPublicErrorEnvelope({
         errorCode: "INVALID_DATE_RANGE",
         message: "Check-out must be after check-in.",
         retryable: false,
         correlationId,
-      },
-      { status: 400 }
+      }),
+      { status: 400 },
     );
   }
 
@@ -122,18 +123,23 @@ export async function POST(request: NextRequest) {
         reasonCode: isAvailable ? "NONE" : "NO_CAPACITY",
         nextRetryAfterSeconds: isAvailable ? undefined : 900,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
-    logServerFailure("/api/booking/availability", "AVAILABILITY_UNAVAILABLE", correlationId, error);
+    logServerFailure(
+      "/api/booking/availability",
+      "AVAILABILITY_UNAVAILABLE",
+      correlationId,
+      error,
+    );
     return NextResponse.json(
-      {
+      createPublicErrorEnvelope({
         errorCode: "AVAILABILITY_UNAVAILABLE",
         message: "Availability is temporarily unavailable. Please retry.",
         retryable: true,
         correlationId,
-      },
-      { status: 503 }
+      }),
+      { status: 503 },
     );
   }
 }

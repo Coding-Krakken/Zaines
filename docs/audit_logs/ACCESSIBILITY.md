@@ -1,22 +1,41 @@
 # Accessibility scan summary
-- Base: http://localhost:3000
-- Scanned at: 2026-02-16T03:36:57.872Z
 
-- / — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /about — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /contact — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /book — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /dog — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /dog/calm — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /faq — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /gallery — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /policies — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /pricing — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /privacy — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /reviews — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /services/boarding — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /services/daycare — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /services/grooming — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /services/training — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /suites — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
-- /auth/signin — ERROR: Error: Required "window" or "document" globals not defined and cannot be deduced from the context. Either set the globals before running or pass in a valid Element.
+- Base: http://127.0.0.1:3100
+- Scanned at: 2026-02-27T19:24:57.640Z
+
+- / — Violations: 2
+  - Example: heading-order — Heading levels should only increase by one (nodes: 1)
+- /about — Violations: 1
+  - Example: link-name — Links must have discernible text (nodes: 3)
+- /contact — Violations: 1
+  - Example: link-name — Links must have discernible text (nodes: 3)
+- /book — Violations: 2
+  - Example: heading-order — Heading levels should only increase by one (nodes: 1)
+- /dog — Violations: 2
+  - Example: aria-progressbar-name — ARIA progressbar nodes must have an accessible name (nodes: 1)
+- /dog/calm — Violations: 1
+  - Example: link-name — Links must have discernible text (nodes: 3)
+- /faq — Violations: 2
+  - Example: heading-order — Heading levels should only increase by one (nodes: 1)
+- /gallery — Violations: 3
+  - Example: aria-valid-attr-value — ARIA attributes must conform to valid values (nodes: 1)
+- /policies — Violations: 2
+  - Example: heading-order — Heading levels should only increase by one (nodes: 1)
+- /pricing — Violations: 1
+  - Example: link-name — Links must have discernible text (nodes: 3)
+- /privacy — Violations: 1
+  - Example: link-name — Links must have discernible text (nodes: 3)
+- /reviews — Violations: 1
+  - Example: link-name — Links must have discernible text (nodes: 3)
+- /services/boarding — Violations: 1
+  - Example: link-name — Links must have discernible text (nodes: 3)
+- /services/daycare — Violations: 1
+  - Example: link-name — Links must have discernible text (nodes: 3)
+- /services/grooming — Violations: 1
+  - Example: link-name — Links must have discernible text (nodes: 3)
+- /services/training — Violations: 1
+  - Example: link-name — Links must have discernible text (nodes: 3)
+- /suites — Violations: 1
+  - Example: link-name — Links must have discernible text (nodes: 3)
+- /auth/signin — Violations: 1
+  - Example: link-name — Links must have discernible text (nodes: 3)

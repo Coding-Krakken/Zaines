@@ -2,18 +2,44 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  PawPrint, Plus, Upload, FileText, X, ArrowRight, ArrowLeft, Loader2, CheckCircle2, AlertCircle 
+import {
+  PawPrint,
+  Plus,
+  Upload,
+  FileText,
+  X,
+  ArrowRight,
+  ArrowLeft,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
-import { stepPetsSchema, newPetSchema, type StepPetsData, type NewPetData } from "@/lib/validations/booking-wizard";
+import {
+  stepPetsSchema,
+  newPetSchema,
+  type StepPetsData,
+  type NewPetData,
+} from "@/lib/validations/booking-wizard";
 import { validateFile } from "@/lib/file-upload";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -34,12 +60,22 @@ interface Pet {
   weight: number;
 }
 
-export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepPetsProps) {
+export function StepPets({
+  data,
+  onUpdate,
+  onNext,
+  onBack,
+  petCount = 1,
+}: StepPetsProps) {
   const { data: session } = useSession();
   const [existingPets, setExistingPets] = useState<Pet[]>([]);
-  const [selectedPetIds, setSelectedPetIds] = useState<string[]>(data.selectedPetIds || []);
+  const [selectedPetIds, setSelectedPetIds] = useState<string[]>(
+    data.selectedPetIds || [],
+  );
   const [newPets, setNewPets] = useState<NewPetData[]>(data.newPets || []);
-  const [vaccines, setVaccines] = useState<Array<{ petId: string; file: File; fileUrl?: string }>>([]);
+  const [vaccines, setVaccines] = useState<
+    Array<{ petId: string; file: File; fileUrl?: string }>
+  >([]);
   const [uploadingVaccine, setUploadingVaccine] = useState<string | null>(null);
   const [showNewPetForm, setShowNewPetForm] = useState(false);
   const [newPetForm, setNewPetForm] = useState<Partial<NewPetData>>({
@@ -79,17 +115,17 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
 
   const handleAddNewPet = () => {
     const validation = newPetSchema.safeParse(newPetForm);
-    
+
     if (!validation.success) {
       toast.error(validation.error.issues[0].message);
       return;
     }
-    
+
     const petWithId = {
       ...validation.data,
       tempId: `new-${Date.now()}`,
     };
-    
+
     const updated = [...newPets, petWithId as NewPetData];
     setNewPets(updated);
     onUpdate({ newPets: updated });
@@ -130,7 +166,7 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
       }
 
       const result = await response.json();
-      
+
       // Store vaccine info
       const updatedVaccines = [
         ...vaccines.filter((v) => v.petId !== petId),
@@ -142,9 +178,9 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
           fileSize: file.size,
         },
       ];
-      
+
       setVaccines(updatedVaccines);
-      
+
       // Update wizard data
       const vaccineData = updatedVaccines.map((v) => ({
         petId: v.petId,
@@ -152,9 +188,9 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
         fileName: v.file.name,
         fileSize: v.file.size,
       }));
-      
+
       onUpdate({ vaccines: vaccineData });
-      
+
       toast.success("Vaccine record uploaded");
     } catch (error) {
       console.error("Upload error:", error);
@@ -166,17 +202,19 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
 
   const handleNext = () => {
     const totalPets = selectedPetIds.length + newPets.length;
-    
+
     if (totalPets === 0) {
       toast.error("Please select or add at least one pet");
       return;
     }
-    
+
     if (totalPets < (petCount || 1)) {
-      toast.error(`You selected ${petCount} pets in step 1. Please add ${petCount} pet(s).`);
+      toast.error(
+        `You selected ${petCount} pets in step 1. Please add ${petCount} pet(s).`,
+      );
       return;
     }
-    
+
     // Validate with schema
     const validation = stepPetsSchema.safeParse({
       selectedPetIds,
@@ -188,12 +226,12 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
         fileSize: v.file.size,
       })),
     });
-    
+
     if (!validation.success) {
       toast.error(validation.error.issues[0].message);
       return;
     }
-    
+
     onNext();
   };
 
@@ -205,7 +243,8 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
           Pet Profiles & Vaccination
         </CardTitle>
         <CardDescription>
-          Select existing pets or add new profiles ({selectedPetIds.length + newPets.length} of {petCount} selected)
+          Select existing pets or add new profiles (
+          {selectedPetIds.length + newPets.length} of {petCount} selected)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -217,29 +256,39 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
               {existingPets.map((pet) => {
                 const isSelected = selectedPetIds.includes(pet.id);
                 const hasVaccine = vaccines.some((v) => v.petId === pet.id);
-                
+
                 return (
                   <div
                     key={pet.id}
                     className={cn(
                       "flex items-start space-x-3 rounded-md border-2 p-3 transition-colors",
-                      isSelected ? "border-primary bg-primary/5" : "border-transparent bg-muted/50"
+                      isSelected
+                        ? "border-primary bg-primary/5"
+                        : "border-transparent bg-muted/50",
                     )}
                   >
                     <Checkbox
                       id={pet.id}
                       checked={isSelected}
-                      onCheckedChange={(checked) => handlePetSelection(pet.id, checked as boolean)}
+                      onCheckedChange={(checked) =>
+                        handlePetSelection(pet.id, checked as boolean)
+                      }
                     />
                     <div className="flex-1">
-                      <Label htmlFor={pet.id} className="flex items-center gap-2 font-medium">
+                      <Label
+                        htmlFor={pet.id}
+                        className="flex items-center gap-2 font-medium"
+                      >
                         {pet.name}
-                        {hasVaccine && <CheckCircle2 className="h-4 w-4 text-green-600" />}
+                        {hasVaccine && (
+                          <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        )}
                       </Label>
                       <p className="text-sm text-muted-foreground">
-                        {pet.breed} • {pet.age} {pet.age === 1 ? "year" : "years"} • {pet.weight} lbs
+                        {pet.breed} • {pet.age}{" "}
+                        {pet.age === 1 ? "year" : "years"} • {pet.weight} lbs
                       </p>
-                      
+
                       {/* Vaccine Upload */}
                       {isSelected && (
                         <div className="mt-2">
@@ -290,11 +339,15 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
             <Label>New Pets Being Added</Label>
             <div className="space-y-2">
               {newPets.map((pet, index) => (
-                <div key={index} className="flex items-center gap-2 rounded-lg border bg-blue-50 p-3 dark:bg-blue-950">
+                <div
+                  key={index}
+                  className="flex items-center gap-2 rounded-lg border bg-blue-50 p-3 dark:bg-blue-950"
+                >
                   <div className="flex-1">
                     <div className="font-medium">{pet.name}</div>
                     <div className="text-sm text-muted-foreground">
-                      {pet.breed} • {pet.age} {pet.age === 1 ? "year" : "years"} • {pet.weight} lbs
+                      {pet.breed} • {pet.age} {pet.age === 1 ? "year" : "years"}{" "}
+                      • {pet.weight} lbs
                     </div>
                   </div>
                   <Button
@@ -326,30 +379,38 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
           <div className="space-y-4 rounded-lg border p-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">Add New Pet</h3>
-              <Button variant="ghost" size="sm" onClick={() => setShowNewPetForm(false)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowNewPetForm(false)}
+              >
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="petName">Name *</Label>
                 <Input
                   id="petName"
                   value={newPetForm.name || ""}
-                  onChange={(e) => setNewPetForm({ ...newPetForm, name: e.target.value })}
+                  onChange={(e) =>
+                    setNewPetForm({ ...newPetForm, name: e.target.value })
+                  }
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="breed">Breed *</Label>
                 <Input
                   id="breed"
                   value={newPetForm.breed || ""}
-                  onChange={(e) => setNewPetForm({ ...newPetForm, breed: e.target.value })}
+                  onChange={(e) =>
+                    setNewPetForm({ ...newPetForm, breed: e.target.value })
+                  }
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="age">Age (years) *</Label>
                 <Input
@@ -358,10 +419,15 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
                   min="0"
                   max="30"
                   value={newPetForm.age || ""}
-                  onChange={(e) => setNewPetForm({ ...newPetForm, age: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setNewPetForm({
+                      ...newPetForm,
+                      age: parseInt(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="weight">Weight (lbs) *</Label>
                 <Input
@@ -370,15 +436,25 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
                   min="1"
                   max="300"
                   value={newPetForm.weight || ""}
-                  onChange={(e) => setNewPetForm({ ...newPetForm, weight: parseFloat(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setNewPetForm({
+                      ...newPetForm,
+                      weight: parseFloat(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="gender">Gender *</Label>
                 <Select
                   value={newPetForm.gender}
-                  onValueChange={(value) => setNewPetForm({ ...newPetForm, gender: value as "male" | "female" })}
+                  onValueChange={(value) =>
+                    setNewPetForm({
+                      ...newPetForm,
+                      gender: value as "male" | "female",
+                    })
+                  }
                 >
                   <SelectTrigger id="gender">
                     <SelectValue />
@@ -389,12 +465,22 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="temperament">Temperament</Label>
                 <Select
                   value={newPetForm.temperament}
-                  onValueChange={(value) => setNewPetForm({ ...newPetForm, temperament: value as "friendly" | "shy" | "energetic" | "calm" | "anxious" })}
+                  onValueChange={(value) =>
+                    setNewPetForm({
+                      ...newPetForm,
+                      temperament: value as
+                        | "friendly"
+                        | "shy"
+                        | "energetic"
+                        | "calm"
+                        | "anxious",
+                    })
+                  }
                 >
                   <SelectTrigger id="temperament">
                     <SelectValue />
@@ -409,27 +495,36 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
                 </Select>
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="specialNeeds">Special Needs (Optional)</Label>
               <Textarea
                 id="specialNeeds"
                 value={newPetForm.specialNeeds || ""}
-                onChange={(e) => setNewPetForm({ ...newPetForm, specialNeeds: e.target.value })}
+                onChange={(e) =>
+                  setNewPetForm({ ...newPetForm, specialNeeds: e.target.value })
+                }
                 placeholder="Allergies, medications, disabilities, etc."
               />
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="feedingInstructions">Feeding Instructions (Optional)</Label>
+              <Label htmlFor="feedingInstructions">
+                Feeding Instructions (Optional)
+              </Label>
               <Textarea
                 id="feedingInstructions"
                 value={newPetForm.feedingInstructions || ""}
-                onChange={(e) => setNewPetForm({ ...newPetForm, feedingInstructions: e.target.value })}
+                onChange={(e) =>
+                  setNewPetForm({
+                    ...newPetForm,
+                    feedingInstructions: e.target.value,
+                  })
+                }
                 placeholder="Diet, portion sizes, feeding times, etc."
               />
             </div>
-            
+
             <Button onClick={handleAddNewPet} className="w-full">
               <Plus className="mr-2 h-4 w-4" />
               Add Pet
@@ -438,12 +533,13 @@ export function StepPets({ data, onUpdate, onNext, onBack, petCount = 1 }: StepP
         )}
 
         {/* Vaccine Requirements Alert */}
-        {(selectedPetIds.length + newPets.length) > 0 && (
+        {selectedPetIds.length + newPets.length > 0 && (
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              <strong>Vaccination Required:</strong> All pets must have current vaccination records
-              (Rabies, DHPP, Bordetella). Please upload PDF documents.
+              <strong>Vaccination Required:</strong> All pets must have current
+              vaccination records (Rabies, DHPP, Bordetella). Please upload PDF
+              documents.
             </AlertDescription>
           </Alert>
         )}

@@ -1,13 +1,29 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Wifi, Camera, Bed, Tv, Music, Thermometer, Home } from "lucide-react";
+import {
+  CheckCircle2,
+  Wifi,
+  Camera,
+  Bed,
+  Tv,
+  Music,
+  Thermometer,
+  Home,
+} from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Private Boarding Suites | Zaine's Stay & Play",
-  description: "Choose from our Standard, Deluxe, and Luxury suites for your dog&apos;s perfect home away from home. All suites include 24/7 supervision and daily activities.",
+  description:
+    "Choose from our Standard, Deluxe, and Luxury suites for your dog&apos;s perfect home away from home. All suites include 24/7 supervision and daily activities.",
 };
 
 const suites = [
@@ -69,12 +85,36 @@ const suites = [
 ];
 
 const amenities = [
-  { icon: Camera, title: "Live Webcams", description: "Check in on your pet anytime from anywhere" },
-  { icon: Wifi, title: "Smart Monitoring", description: "Temperature and air quality sensors" },
-  { icon: Thermometer, title: "Climate Control", description: "Perfect temperature year-round" },
-  { icon: Music, title: "Calming Music", description: "Curated playlists for relaxation" },
-  { icon: Bed, title: "Premium Bedding", description: "Comfortable, washable, hypoallergenic" },
-  { icon: Tv, title: "Entertainment", description: "Dog-friendly TV content (Luxury only)" },
+  {
+    icon: Camera,
+    title: "Live Webcams",
+    description: "Check in on your pet anytime from anywhere",
+  },
+  {
+    icon: Wifi,
+    title: "Smart Monitoring",
+    description: "Temperature and air quality sensors",
+  },
+  {
+    icon: Thermometer,
+    title: "Climate Control",
+    description: "Perfect temperature year-round",
+  },
+  {
+    icon: Music,
+    title: "Calming Music",
+    description: "Curated playlists for relaxation",
+  },
+  {
+    icon: Bed,
+    title: "Premium Bedding",
+    description: "Comfortable, washable, hypoallergenic",
+  },
+  {
+    icon: Tv,
+    title: "Entertainment",
+    description: "Dog-friendly TV content (Luxury only)",
+  },
 ];
 
 export default function SuitesPage() {
@@ -89,7 +129,8 @@ export default function SuitesPage() {
               Choose Your Pet&apos;s Perfect Suite
             </h1>
             <p className="mb-8 text-xl text-muted-foreground">
-              From cozy and comfortable to lavish and luxurious, we have the perfect space for every pet and budget.
+              From cozy and comfortable to lavish and luxurious, we have the
+              perfect space for every pet and budget.
             </p>
           </div>
         </div>
@@ -101,13 +142,17 @@ export default function SuitesPage() {
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold">Compare Our Suites</h2>
             <p className="text-lg text-muted-foreground">
-              All suites include 24/7 supervision, daily activities, and lots of love
+              All suites include 24/7 supervision, daily activities, and lots of
+              love
             </p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {suites.map((suite) => (
-              <Card key={suite.name} className={`relative flex flex-col ${suite.popular ? 'border-primary shadow-lg' : ''}`}>
+              <Card
+                key={suite.name}
+                className={`relative flex flex-col ${suite.popular ? "border-primary shadow-lg" : ""}`}
+              >
                 {suite.popular && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
                     Most Popular
@@ -121,10 +166,14 @@ export default function SuitesPage() {
                     </div>
                   </div>
                   <CardTitle className="text-2xl">{suite.name}</CardTitle>
-                  <CardDescription className="text-sm">{suite.size} • {suite.bestFor}</CardDescription>
+                  <CardDescription className="text-sm">
+                    {suite.size} • {suite.bestFor}
+                  </CardDescription>
                   <div className="mt-4">
                     <span className="text-4xl font-bold">{suite.price}</span>
-                    <span className="text-muted-foreground">{suite.period}</span>
+                    <span className="text-muted-foreground">
+                      {suite.period}
+                    </span>
                   </div>
                 </CardHeader>
                 <CardContent className="flex-1">
@@ -179,27 +228,39 @@ export default function SuitesPage() {
             <h2 className="mb-8 text-center text-3xl font-bold">Suite FAQs</h2>
             <div className="space-y-6">
               <div>
-                <h3 className="mb-2 text-lg font-semibold">Can I upgrade my suite after booking?</h3>
+                <h3 className="mb-2 text-lg font-semibold">
+                  Can I upgrade my suite after booking?
+                </h3>
                 <p className="text-muted-foreground">
-                  Yes! Subject to availability, you can upgrade to a larger suite. Contact us before your check-in date.
+                  Yes! Subject to availability, you can upgrade to a larger
+                  suite. Contact us before your check-in date.
                 </p>
               </div>
               <div>
-                <h3 className="mb-2 text-lg font-semibold">Can multiple dogs share a suite?</h3>
+                <h3 className="mb-2 text-lg font-semibold">
+                  Can multiple dogs share a suite?
+                </h3>
                 <p className="text-muted-foreground">
-                  Yes, dogs from the same family can share a Deluxe or Luxury suite. Additional pet fees apply.
+                  Yes, dogs from the same family can share a Deluxe or Luxury
+                  suite. Additional pet fees apply.
                 </p>
               </div>
               <div>
-                <h3 className="mb-2 text-lg font-semibold">How do the webcams work?</h3>
+                <h3 className="mb-2 text-lg font-semibold">
+                  How do the webcams work?
+                </h3>
                 <p className="text-muted-foreground">
-                  After booking, you&apos;ll receive secure login credentials to view your pet&apos;s suite webcam 24/7 through our portal.
+                  After booking, you&apos;ll receive secure login credentials to
+                  view your pet&apos;s suite webcam 24/7 through our portal.
                 </p>
               </div>
               <div>
-                <h3 className="mb-2 text-lg font-semibold">What if my dog has special needs?</h3>
+                <h3 className="mb-2 text-lg font-semibold">
+                  What if my dog has special needs?
+                </h3>
                 <p className="text-muted-foreground">
-                  We accommodate special needs including medications, dietary restrictions, and mobility issues. Let us know during booking.
+                  We accommodate special needs including medications, dietary
+                  restrictions, and mobility issues. Let us know during booking.
                 </p>
               </div>
             </div>
@@ -210,15 +271,23 @@ export default function SuitesPage() {
       {/* CTA Section */}
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-4 text-3xl font-bold">Ready to Book Your Pet&apos;s Stay?</h2>
+          <h2 className="mb-4 text-3xl font-bold">
+            Ready to Book Your Pet&apos;s Stay?
+          </h2>
           <p className="mb-8 text-lg opacity-90">
-            Reserve your preferred suite today and give your pet the vacation they deserve
+            Reserve your preferred suite today and give your pet the vacation
+            they deserve
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" variant="secondary" asChild>
               <Link href="/book">Book Now</Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+              asChild
+            >
               <Link href="/contact">Schedule a Tour</Link>
             </Button>
           </div>

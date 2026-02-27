@@ -7,7 +7,9 @@ export type AvailabilityState =
   | "invalid_input"
   | "service_degraded";
 
-export type AvailabilityErrorCode = "INVALID_DATE_RANGE" | "AVAILABILITY_UNAVAILABLE";
+export type AvailabilityErrorCode =
+  | "INVALID_DATE_RANGE"
+  | "AVAILABILITY_UNAVAILABLE";
 
 export type AvailabilitySuccessResponse = {
   isAvailable: boolean;

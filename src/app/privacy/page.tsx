@@ -7,7 +7,8 @@ import { Shield, Lock, Eye, UserCheck, Database, Mail } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Zaine's Stay & Play",
-  description: "Learn how Zaine's Stay & Play collects, uses, and protects your personal information and data.",
+  description:
+    "Learn how Zaine's Stay & Play collects, uses, and protects your personal information and data.",
 };
 
 export default function PrivacyPage() {
@@ -22,7 +23,8 @@ export default function PrivacyPage() {
               Privacy Policy
             </h1>
             <p className="mb-8 text-xl text-muted-foreground">
-              Your privacy matters to us. Learn how we collect, use, and protect your information.
+              Your privacy matters to us. Learn how we collect, use, and protect
+              your information.
             </p>
             <p className="text-sm text-muted-foreground">
               Last updated: February 6, 2026 • Effective Date: January 1, 2026
@@ -34,18 +36,23 @@ export default function PrivacyPage() {
       {/* Key Highlights */}
       <section className="border-b py-12">
         <div className="container mx-auto px-4">
-          <h2 className="mb-8 text-center text-2xl font-bold">Privacy at a Glance</h2>
+          <h2 className="mb-8 text-center text-2xl font-bold">
+            Privacy at a Glance
+          </h2>
           <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
             <Card>
               <CardHeader>
                 <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
                   <Shield className="h-6 w-6 text-green-600" />
                 </div>
-                <CardTitle className="text-lg">We Don&apos;t Sell Data</CardTitle>
+                <CardTitle className="text-lg">
+                  We Don&apos;t Sell Data
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  We never sell your personal information to third parties. Your data stays private.
+                  We never sell your personal information to third parties. Your
+                  data stays private.
                 </p>
               </CardContent>
             </Card>
@@ -59,7 +66,8 @@ export default function PrivacyPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  All data is encrypted and stored securely using industry-standard security measures.
+                  All data is encrypted and stored securely using
+                  industry-standard security measures.
                 </p>
               </CardContent>
             </Card>
@@ -69,11 +77,14 @@ export default function PrivacyPage() {
                 <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
                   <UserCheck className="h-6 w-6 text-purple-600" />
                 </div>
-                <CardTitle className="text-lg">You&apos;re in Control</CardTitle>
+                <CardTitle className="text-lg">
+                  You&apos;re in Control
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Access, update, or delete your data anytime. We respect your privacy rights.
+                  Access, update, or delete your data anytime. We respect your
+                  privacy rights.
                 </p>
               </CardContent>
             </Card>
@@ -89,10 +100,16 @@ export default function PrivacyPage() {
             <div className="mb-12">
               <h2 className="mb-4 text-2xl font-bold">Introduction</h2>
               <p className="text-muted-foreground">
-                Zaine&apos;s Stay &amp; Play (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) provides private dog boarding services. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.
+                Zaine&apos;s Stay &amp; Play (&quot;we,&quot; &quot;us,&quot; or
+                &quot;our&quot;) provides private dog boarding services. This
+                Privacy Policy explains how we collect, use, disclose, and
+                safeguard your information when you visit our website or use our
+                services.
               </p>
               <p className="text-muted-foreground">
-                By using our website and services, you consent to the data practices described in this policy. If you do not agree with this policy, please discontinue use of our services.
+                By using our website and services, you consent to the data
+                practices described in this policy. If you do not agree with
+                this policy, please discontinue use of our services.
               </p>
             </div>
 
@@ -102,10 +119,13 @@ export default function PrivacyPage() {
                 <Database className="h-6 w-6" />
                 Information We Collect
               </h2>
-              
-              <h3 className="mb-3 text-xl font-semibold">Personal Information</h3>
+
+              <h3 className="mb-3 text-xl font-semibold">
+                Personal Information
+              </h3>
               <p className="mb-4 text-muted-foreground">
-                When you create an account, book services, or contact us, we may collect:
+                When you create an account, book services, or contact us, we may
+                collect:
               </p>
               <ul className="mb-6 ml-6 list-disc space-y-2 text-muted-foreground">
                 <li>Name, email address, phone number</li>
@@ -123,7 +143,9 @@ export default function PrivacyPage() {
                 <li>Photos and videos of your pet (taken during stay)</li>
               </ul>
 
-              <h3 className="mb-3 text-xl font-semibold">Automatically Collected Information</h3>
+              <h3 className="mb-3 text-xl font-semibold">
+                Automatically Collected Information
+              </h3>
               <ul className="mb-6 ml-6 list-disc space-y-2 text-muted-foreground">
                 <li>IP address, browser type, operating system</li>
                 <li>Pages visited, time spent on pages, clickstream data</li>
@@ -142,48 +164,79 @@ export default function PrivacyPage() {
                 We use the collected information for the following purposes:
               </p>
               <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
-                <li>Providing and managing private boarding reservations and approved add-ons</li>
+                <li>
+                  Providing and managing private boarding reservations and
+                  approved add-ons
+                </li>
                 <li>Processing payments and maintaining financial records</li>
-                <li>Sending booking confirmations, reminders, and updates about your pet</li>
-                <li>Communicating important information about schedule changes or emergencies</li>
-                <li>Improving our services based on user feedback and usage patterns</li>
-                <li>Marketing communications (with your consent - you can opt-out anytime)</li>
+                <li>
+                  Sending booking confirmations, reminders, and updates about
+                  your pet
+                </li>
+                <li>
+                  Communicating important information about schedule changes or
+                  emergencies
+                </li>
+                <li>
+                  Improving our services based on user feedback and usage
+                  patterns
+                </li>
+                <li>
+                  Marketing communications (with your consent - you can opt-out
+                  anytime)
+                </li>
                 <li>Ensuring safety and security of our facility and guests</li>
-                <li>Complying with legal obligations and protecting our legal rights</li>
+                <li>
+                  Complying with legal obligations and protecting our legal
+                  rights
+                </li>
               </ul>
             </div>
 
             {/* Information Sharing */}
             <div className="mb-12">
-              <h2 className="mb-4 text-2xl font-bold">Information Sharing and Disclosure</h2>
+              <h2 className="mb-4 text-2xl font-bold">
+                Information Sharing and Disclosure
+              </h2>
               <p className="mb-4 text-muted-foreground">
                 We may share your information in the following circumstances:
               </p>
-              
+
               <h3 className="mb-3 text-xl font-semibold">Service Providers</h3>
               <p className="mb-4 text-muted-foreground">
-                We work with trusted third-party service providers who assist us in operating our business:
+                We work with trusted third-party service providers who assist us
+                in operating our business:
               </p>
               <ul className="mb-6 ml-6 list-disc space-y-2 text-muted-foreground">
-                <li>Payment processors (Stripe) - for secure payment processing</li>
-                <li>Email service providers (Resend) - for transactional emails</li>
+                <li>
+                  Payment processors (Stripe) - for secure payment processing
+                </li>
+                <li>
+                  Email service providers (Resend) - for transactional emails
+                </li>
                 <li>Cloud storage providers - for secure data storage</li>
                 <li>Analytics providers - to understand website usage</li>
               </ul>
 
-              <h3 className="mb-3 text-xl font-semibold">Emergency Situations</h3>
+              <h3 className="mb-3 text-xl font-semibold">
+                Emergency Situations
+              </h3>
               <p className="mb-4 text-muted-foreground">
-                We may share pet health information with veterinarians in case of medical emergencies.
+                We may share pet health information with veterinarians in case
+                of medical emergencies.
               </p>
 
               <h3 className="mb-3 text-xl font-semibold">Legal Requirements</h3>
               <p className="mb-4 text-muted-foreground">
-                We may disclose information if required by law, court order, or government request, or to protect the rights, property, or safety of Zaine&apos;s Stay & Play, our users, or others.
+                We may disclose information if required by law, court order, or
+                government request, or to protect the rights, property, or
+                safety of Zaine&apos;s Stay & Play, our users, or others.
               </p>
 
               <h3 className="mb-3 text-xl font-semibold">Business Transfers</h3>
               <p className="mb-4 text-muted-foreground">
-                If we are involved in a merger, acquisition, or sale of assets, your information may be transferred as part of that transaction.
+                If we are involved in a merger, acquisition, or sale of assets,
+                your information may be transferred as part of that transaction.
               </p>
             </div>
 
@@ -194,17 +247,22 @@ export default function PrivacyPage() {
                 Data Security
               </h2>
               <p className="mb-4 text-muted-foreground">
-                We implement appropriate technical and organizational measures to protect your information:
+                We implement appropriate technical and organizational measures
+                to protect your information:
               </p>
               <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
                 <li>SSL/TLS encryption for data transmission</li>
                 <li>Encrypted storage of sensitive information</li>
                 <li>Regular security audits and vulnerability assessments</li>
-                <li>Restricted access to personal information (need-to-know basis)</li>
+                <li>
+                  Restricted access to personal information (need-to-know basis)
+                </li>
                 <li>Employee training on data privacy and security</li>
               </ul>
               <p className="mt-4 text-sm text-muted-foreground">
-                However, no method of transmission over the internet or electronic storage is 100% secure. While we strive to protect your information, we cannot guarantee absolute security.
+                However, no method of transmission over the internet or
+                electronic storage is 100% secure. While we strive to protect
+                your information, we cannot guarantee absolute security.
               </p>
             </div>
 
@@ -215,51 +273,98 @@ export default function PrivacyPage() {
                 Your Privacy Rights
               </h2>
               <p className="mb-4 text-muted-foreground">
-                You have the following rights regarding your personal information:
+                You have the following rights regarding your personal
+                information:
               </p>
               <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
-                <li><strong>Access:</strong> Request a copy of the personal information we hold about you</li>
-                <li><strong>Correction:</strong> Update or correct inaccurate information</li>
-                <li><strong>Deletion:</strong> Request deletion of your personal information (subject to legal obligations)</li>
-                <li><strong>Opt-Out:</strong> Unsubscribe from marketing emails at any time</li>
-                <li><strong>Data Portability:</strong> Receive your data in a structured, machine-readable format</li>
-                <li><strong>Objection:</strong> Object to processing of your personal information</li>
+                <li>
+                  <strong>Access:</strong> Request a copy of the personal
+                  information we hold about you
+                </li>
+                <li>
+                  <strong>Correction:</strong> Update or correct inaccurate
+                  information
+                </li>
+                <li>
+                  <strong>Deletion:</strong> Request deletion of your personal
+                  information (subject to legal obligations)
+                </li>
+                <li>
+                  <strong>Opt-Out:</strong> Unsubscribe from marketing emails at
+                  any time
+                </li>
+                <li>
+                  <strong>Data Portability:</strong> Receive your data in a
+                  structured, machine-readable format
+                </li>
+                <li>
+                  <strong>Objection:</strong> Object to processing of your
+                  personal information
+                </li>
               </ul>
               <p className="mt-4 text-muted-foreground">
-                To exercise these rights, please contact us at privacy@zainesstayandplay.com or call (315) 657-1332.
+                To exercise these rights, please contact us at
+                privacy@zainesstayandplay.com or call (315) 657-1332.
               </p>
             </div>
 
             {/* Cookies */}
             <div className="mb-12">
-              <h2 className="mb-4 text-2xl font-bold">Cookies and Tracking Technologies</h2>
+              <h2 className="mb-4 text-2xl font-bold">
+                Cookies and Tracking Technologies
+              </h2>
               <p className="mb-4 text-muted-foreground">
-                We use cookies and similar technologies to enhance your experience:
+                We use cookies and similar technologies to enhance your
+                experience:
               </p>
               <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
-                <li><strong>Essential Cookies:</strong> Required for basic website functionality</li>
-                <li><strong>Performance Cookies:</strong> Help us understand how visitors use our website</li>
-                <li><strong>Functional Cookies:</strong> Remember your preferences (e.g., language)</li>
-                <li><strong>Advertising Cookies:</strong> Deliver relevant ads (with your consent)</li>
+                <li>
+                  <strong>Essential Cookies:</strong> Required for basic website
+                  functionality
+                </li>
+                <li>
+                  <strong>Performance Cookies:</strong> Help us understand how
+                  visitors use our website
+                </li>
+                <li>
+                  <strong>Functional Cookies:</strong> Remember your preferences
+                  (e.g., language)
+                </li>
+                <li>
+                  <strong>Advertising Cookies:</strong> Deliver relevant ads
+                  (with your consent)
+                </li>
               </ul>
               <p className="mt-4 text-muted-foreground">
-                You can control cookies through your browser settings. Note that disabling cookies may affect website functionality.
+                You can control cookies through your browser settings. Note that
+                disabling cookies may affect website functionality.
               </p>
             </div>
 
             {/* Children&apos;s Privacy */}
             <div className="mb-12">
-              <h2 className="mb-4 text-2xl font-bold">Children&apos;s Privacy</h2>
+              <h2 className="mb-4 text-2xl font-bold">
+                Children&apos;s Privacy
+              </h2>
               <p className="text-muted-foreground">
-                Our services are not directed to children under 18. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately.
+                Our services are not directed to children under 18. We do not
+                knowingly collect personal information from children. If you
+                believe we have collected information from a child, please
+                contact us immediately.
               </p>
             </div>
 
             {/* Changes to Policy */}
             <div className="mb-12">
-              <h2 className="mb-4 text-2xl font-bold">Changes to This Policy</h2>
+              <h2 className="mb-4 text-2xl font-bold">
+                Changes to This Policy
+              </h2>
               <p className="text-muted-foreground">
-                We may update this Privacy Policy from time to time. We will notify you of significant changes by posting the new policy on this page and updating the &quot;Last Updated&quot; date. Continued use of our services after changes constitutes acceptance of the updated policy.
+                We may update this Privacy Policy from time to time. We will
+                notify you of significant changes by posting the new policy on
+                this page and updating the &quot;Last Updated&quot; date.
+                Continued use of our services after changes constitutes
+                acceptance of the updated policy.
               </p>
             </div>
 
@@ -270,10 +375,13 @@ export default function PrivacyPage() {
                 Contact Us
               </h2>
               <p className="mb-4 text-muted-foreground">
-                If you have questions or concerns about this Privacy Policy or our data practices, please contact us:
+                If you have questions or concerns about this Privacy Policy or
+                our data practices, please contact us:
               </p>
               <div className="rounded-lg bg-muted p-6">
-                <p className="mb-2"><strong>Zaine&apos;s Stay & Play</strong></p>
+                <p className="mb-2">
+                  <strong>Zaine&apos;s Stay & Play</strong>
+                </p>
                 <p className="mb-2">Syracuse, NY</p>
                 <p className="mb-2">Email: privacy@zainesstayandplay.com</p>
                 <p>Phone: (315) 657-1332</p>
@@ -294,9 +402,9 @@ export default function PrivacyPage() {
             <Button size="lg" variant="secondary" asChild>
               <Link href="/contact">Contact Us</Link>
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
+            <Button
+              size="lg"
+              variant="outline"
               className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
               asChild
             >

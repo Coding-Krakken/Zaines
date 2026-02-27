@@ -1,0 +1,432 @@
+{
+  "base": "http://127.0.0.1:3100",
+  "scannedAt": "2026-02-27T19:25:16.710Z",
+  "routes": [
+    "/",
+    "/pricing",
+    "/book",
+    "/contact"
+  ],
+  "walkthrough": [
+    {
+      "route": "/",
+      "focusTrail": [
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "🐾Zaine's Stay & Play",
+          "href": "/"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Suites",
+          "href": "/suites"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Pricing",
+          "href": "/pricing"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Book Now",
+          "href": "/book"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "About",
+          "href": "/about"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Contact",
+          "href": "/contact"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Book Now",
+          "href": "/book"
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Sign In",
+          "href": null
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Book Your Stay",
+          "href": "/book"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "View Our Suites",
+          "href": "/suites"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Learn More →",
+          "href": "/services/boarding"
+        }
+      ],
+      "checks": {
+        "hasFocusableProgress": true,
+        "hasCtaFocus": true
+      }
+    },
+    {
+      "route": "/pricing",
+      "focusTrail": [
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "🐾Zaine's Stay & Play",
+          "href": "/"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Suites",
+          "href": "/suites"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Pricing",
+          "href": "/pricing"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Book Now",
+          "href": "/book"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "About",
+          "href": "/about"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Contact",
+          "href": "/contact"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Book Now",
+          "href": "/book"
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Sign In",
+          "href": null
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Book Your Stay",
+          "href": "/book"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Talk With Our Team",
+          "href": "/contact"
+        },
+        {
+          "tag": "button",
+          "role": "combobox",
+          "ariaLabel": "Suite Type",
+          "id": "suite-type",
+          "text": "Deluxe Suite - $85/night",
+          "href": null
+        }
+      ],
+      "checks": {
+        "hasFocusableProgress": true,
+        "hasCtaFocus": true
+      }
+    },
+    {
+      "route": "/book",
+      "focusTrail": [
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "🐾Zaine's Stay & Play",
+          "href": "/"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Suites",
+          "href": "/suites"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Pricing",
+          "href": "/pricing"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Book Now",
+          "href": "/book"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "About",
+          "href": "/about"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Contact",
+          "href": "/contact"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Book Now",
+          "href": "/book"
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Sign In",
+          "href": null
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Start Booking",
+          "href": "#booking-wizard"
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "ariaLabel": null,
+          "id": "checkIn",
+          "text": "",
+          "href": null
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "ariaLabel": null,
+          "id": "checkIn",
+          "text": "",
+          "href": null
+        }
+      ],
+      "checks": {
+        "hasFocusableProgress": true,
+        "hasCtaFocus": true
+      }
+    },
+    {
+      "route": "/contact",
+      "focusTrail": [
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "🐾Zaine's Stay & Play",
+          "href": "/"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Suites",
+          "href": "/suites"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Pricing",
+          "href": "/pricing"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Book Now",
+          "href": "/book"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "About",
+          "href": "/about"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Contact",
+          "href": "/contact"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Book Now",
+          "href": "/book"
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Sign In",
+          "href": null
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Book Your Stay",
+          "href": "/book"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Call (315) 657-1332",
+          "href": "tel:(315) 657-1332"
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "ariaLabel": null,
+          "id": null,
+          "text": "Get Directions →",
+          "href": "https://maps.google.com/?q=123%20Pet%20Paradise%20Lane%2C%20Syracuse%2C%20NY%2013202"
+        }
+      ],
+      "checks": {
+        "hasFocusableProgress": true,
+        "hasCtaFocus": true
+      }
+    }
+  ]
+}

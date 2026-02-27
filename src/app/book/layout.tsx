@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Book | Zaine's Stay & Play",
+  title: "Book Private Dog Boarding Syracuse",
   description:
-    "Book your pet's stay with Zaine's Stay & Play. Select your dates, confirm availability, and complete your reservation.",
+    "Book private dog boarding Syracuse pet parents can trust. Choose dates, check small dog boarding Syracuse availability, and confirm your stay.",
 };
 
-export default function BookLayout({ children }: { children: React.ReactNode }) {
+export default function BookLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return children;
 }

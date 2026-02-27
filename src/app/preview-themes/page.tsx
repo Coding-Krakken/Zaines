@@ -23,12 +23,18 @@ export default function Page() {
     <div className="container mx-auto py-12 px-4">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Theme previews (temporary)</h1>
-        <p className="text-sm text-muted-foreground mt-2">Each card shows an embedded preview — click &quot;Open&quot; to view full page.</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          Each card shows an embedded preview — click &quot;Open&quot; to view
+          full page.
+        </p>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {themes.map((t) => (
-          <div key={t.id} className="overflow-hidden rounded-lg border bg-card shadow-sm">
+          <div
+            key={t.id}
+            className="overflow-hidden rounded-lg border bg-card shadow-sm"
+          >
             <div className="h-64 bg-muted">
               <iframe
                 src={`/themes/${t.id}`}
@@ -39,7 +45,9 @@ export default function Page() {
             <div className="flex items-center justify-between gap-4 p-4">
               <div>
                 <div className="font-semibold">{t.name}</div>
-                <div className="text-sm text-muted-foreground">Preview of the exact site content with this theme</div>
+                <div className="text-sm text-muted-foreground">
+                  Preview of the exact site content with this theme
+                </div>
               </div>
               <div className="flex gap-2">
                 <a
@@ -56,7 +64,9 @@ export default function Page() {
         ))}
       </div>
 
-      <div className="mt-8 text-sm text-muted-foreground">Remove this page when you&apos;ve chosen a theme.</div>
+      <div className="mt-8 text-sm text-muted-foreground">
+        Remove this page when you&apos;ve chosen a theme.
+      </div>
     </div>
   );
 }

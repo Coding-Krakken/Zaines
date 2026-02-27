@@ -1,34 +1,34 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 async function main() {
   const prisma = new PrismaClient();
 
   const suites = [
     {
-      id: 'suite-standard-1',
-      name: 'Standard Suite 1',
-      tier: 'standard',
+      id: "suite-standard-1",
+      name: "Standard Suite 1",
+      tier: "standard",
       pricePerNight: 65,
       isActive: true,
     },
     {
-      id: 'suite-standard-2',
-      name: 'Standard Suite 2',
-      tier: 'standard',
+      id: "suite-standard-2",
+      name: "Standard Suite 2",
+      tier: "standard",
       pricePerNight: 65,
       isActive: true,
     },
     {
-      id: 'suite-deluxe-1',
-      name: 'Deluxe Suite 1',
-      tier: 'deluxe',
+      id: "suite-deluxe-1",
+      name: "Deluxe Suite 1",
+      tier: "deluxe",
       pricePerNight: 85,
       isActive: true,
     },
     {
-      id: 'suite-luxury-1',
-      name: 'Luxury Suite 1',
-      tier: 'luxury',
+      id: "suite-luxury-1",
+      name: "Luxury Suite 1",
+      tier: "luxury",
       pricePerNight: 120,
       isActive: true,
     },
@@ -42,7 +42,7 @@ async function main() {
     });
   }
 
-  console.log('Seeded suites');
+  console.log("Seeded suites");
   await prisma.$disconnect();
 }
 

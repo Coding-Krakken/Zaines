@@ -88,9 +88,7 @@ export default function DogModePage() {
               <div className="absolute inset-0 animate-ping rounded-full bg-pink-400 opacity-20"></div>
             )}
             <div className="flex h-full flex-col items-center justify-center gap-4">
-              <span
-                className={`text-7xl ${!lowMotion && "animate-bounce"}`}
-              >
+              <span className={`text-7xl ${!lowMotion && "animate-bounce"}`}>
                 🐾
               </span>
               <span className="text-3xl font-bold text-white">BOOP ME!</span>
@@ -134,9 +132,7 @@ export default function DogModePage() {
           <Card className="mx-auto max-w-2xl">
             <CardContent className="pt-8">
               <div className="mb-6 text-center">
-                <h2 className="mb-4 text-3xl font-bold">
-                  🦴 Treat Meter 🦴
-                </h2>
+                <h2 className="mb-4 text-3xl font-bold">🦴 Treat Meter 🦴</h2>
                 <div className="mb-2 text-xl font-semibold">
                   {treats} / 20 treats today!
                 </div>
@@ -160,9 +156,7 @@ export default function DogModePage() {
         {/* Calm Mode Link */}
         <div className="mb-8 flex justify-center">
           <Button variant="ghost" size="lg" asChild>
-            <Link href="/dog/calm">
-              🌙 Enter Calm Mode
-            </Link>
+            <Link href="/dog/calm">🌙 Enter Calm Mode</Link>
           </Button>
         </div>
 

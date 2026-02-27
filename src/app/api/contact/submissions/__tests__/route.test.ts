@@ -12,14 +12,25 @@ vi.mock("@/lib/prisma", () => ({
         const value = settingsStore.get(where.key);
         return value ? { key: where.key, value } : null;
       }),
-      create: vi.fn(async ({ data }: { data: { key: string; value: string } }) => {
-        settingsStore.set(data.key, data.value);
-        return { key: data.key, value: data.value };
-      }),
-      upsert: vi.fn(async ({ where, create }: { where: { key: string }; create: { key: string; value: string } }) => {
-        if (!settingsStore.has(where.key)) settingsStore.set(create.key, create.value);
-        return { key: where.key, value: settingsStore.get(where.key) || "" };
-      }),
+      create: vi.fn(
+        async ({ data }: { data: { key: string; value: string } }) => {
+          settingsStore.set(data.key, data.value);
+          return { key: data.key, value: data.value };
+        },
+      ),
+      upsert: vi.fn(
+        async ({
+          where,
+          create,
+        }: {
+          where: { key: string };
+          create: { key: string; value: string };
+        }) => {
+          if (!settingsStore.has(where.key))
+            settingsStore.set(create.key, create.value);
+          return { key: where.key, value: settingsStore.get(where.key) || "" };
+        },
+      ),
       findMany: vi.fn(),
     },
     suite: { count: vi.fn() },
@@ -36,10 +47,13 @@ describe("POST /api/contact/submissions", () => {
   });
 
   it("returns CONTACT_VALIDATION_FAILED for invalid payload", async () => {
-    const request = new NextRequest("http://localhost:3000/api/contact/submissions", {
-      method: "POST",
-      body: JSON.stringify({ fullName: "A" }),
-    });
+    const request = new NextRequest(
+      "http://localhost:3000/api/contact/submissions",
+      {
+        method: "POST",
+        body: JSON.stringify({ fullName: "A" }),
+      },
+    );
 
     const response = await POST(request);
     const data = await response.json();

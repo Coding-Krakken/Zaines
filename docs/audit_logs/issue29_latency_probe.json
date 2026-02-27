@@ -1,0 +1,62 @@
+[
+  {
+    "name": "booking-success",
+    "iterations": 20,
+    "p95Ms": 164.63,
+    "minMs": 46.03,
+    "maxMs": 606.37,
+    "statuses": {
+      "200": 20
+    },
+    "schemaSample": {
+      "isAvailable": true,
+      "reasonCode": "NONE"
+    }
+  },
+  {
+    "name": "booking-invalid-range",
+    "iterations": 20,
+    "p95Ms": 9.34,
+    "minMs": 5.46,
+    "maxMs": 9.47,
+    "statuses": {
+      "400": 20
+    },
+    "schemaSample": {
+      "errorCode": "INVALID_DATE_RANGE",
+      "message": "Check-out must be after check-in.",
+      "retryable": false,
+      "correlationId": "7531c14f-7803-41c5-b608-f344ab302978"
+    }
+  },
+  {
+    "name": "contact-success",
+    "iterations": 20,
+    "p95Ms": 131.94,
+    "minMs": 45.37,
+    "maxMs": 160.89,
+    "statuses": {
+      "201": 20
+    },
+    "schemaSample": {
+      "submissionId": "2902a88a-9024-403d-a310-e5662abe1bfc",
+      "status": "received"
+    }
+  },
+  {
+    "name": "auth-invalid-email",
+    "iterations": 20,
+    "p95Ms": 13.25,
+    "minMs": 6.09,
+    "maxMs": 70.87,
+    "statuses": {
+      "422": 20
+    },
+    "schemaSample": {
+      "errorCode": "INVALID_EMAIL",
+      "message": "Enter a valid email address.",
+      "retryable": false,
+      "correlationId": "93e63544-1645-4986-b2d3-c18fc06f9081"
+    }
+  }
+]

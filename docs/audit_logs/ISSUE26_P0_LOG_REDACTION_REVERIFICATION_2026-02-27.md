@@ -14,15 +14,15 @@
 
 ## Evidence Summary
 
-| Check | Result | Evidence |
-|---|---|---|
-| Auth endpoint exists | PASS | `src/app/api/auth/magic-link/route.ts` present |
-| Contact endpoint exists | FAIL | `Test-Path src/app/api/contact/submissions/route.ts` => `False` |
-| Reviews endpoint exists | PASS | `src/app/api/reviews/submissions/route.ts` present |
-| No raw provider/internal auth errors surfaced to user | PASS (magic-link path) | `src/app/auth/signin/page.tsx` maps API `errorCode` to safe copy + optional support code |
-| Correlation IDs + modeled error codes emitted | PARTIAL | Present in auth/reviews route logic; missing for contact route due missing handler and compile-invalid duplicates in scoped routes |
-| No raw sensitive details in server logs | FAIL | `src/lib/api/issue26.ts` logs `error.message` directly in `logServerFailure` |
-| Deterministic, unambiguous handler implementation | FAIL | Duplicate appended implementations in scoped files create drift/instability |
+| Check                                                 | Result                 | Evidence                                                                                                                           |
+| ----------------------------------------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Auth endpoint exists                                  | PASS                   | `src/app/api/auth/magic-link/route.ts` present                                                                                     |
+| Contact endpoint exists                               | FAIL                   | `Test-Path src/app/api/contact/submissions/route.ts` => `False`                                                                    |
+| Reviews endpoint exists                               | PASS                   | `src/app/api/reviews/submissions/route.ts` present                                                                                 |
+| No raw provider/internal auth errors surfaced to user | PASS (magic-link path) | `src/app/auth/signin/page.tsx` maps API `errorCode` to safe copy + optional support code                                           |
+| Correlation IDs + modeled error codes emitted         | PARTIAL                | Present in auth/reviews route logic; missing for contact route due missing handler and compile-invalid duplicates in scoped routes |
+| No raw sensitive details in server logs               | FAIL                   | `src/lib/api/issue26.ts` logs `error.message` directly in `logServerFailure`                                                       |
+| Deterministic, unambiguous handler implementation     | FAIL                   | Duplicate appended implementations in scoped files create drift/instability                                                        |
 
 ## Blocking Defects (Current Branch)
 

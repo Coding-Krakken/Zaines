@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
-import { stripe, formatAmountForStripe, isStripeConfigured } from "@/lib/stripe";
+import {
+  stripe,
+  formatAmountForStripe,
+  isStripeConfigured,
+} from "@/lib/stripe";
 import { sendBookingConfirmation } from "@/lib/notifications";
 
 let hasLoggedStripeUnavailableWarning = false;
@@ -10,11 +14,13 @@ const shouldLogBookingDiagnostics = process.env.NODE_ENV !== "test";
 
 type BookingsApiPrisma = {
   $transaction: <T>(
-    fn: (tx: unknown) => Promise<T>,
-    options?: { isolationLevel?: string; timeout?: number }
+    fn: (tx: BookingsTransactionClient) => Promise<T>,
+    options?: { isolationLevel?: string; timeout?: number },
   ) => Promise<T>;
   payment: {
-    findFirst: (args: { where: { bookingId: string } }) => Promise<{ id: string } | null>;
+    findFirst: (args: {
+      where: { bookingId: string };
+    }) => Promise<{ id: string } | null>;
     create: (args: {
       data: {
         bookingId: string;
@@ -34,6 +40,36 @@ type BookingsApiPrisma = {
   };
 };
 
+type BookingRecord = {
+  id: string;
+  total: number;
+  bookingNumber: string;
+  userId: string;
+  [key: string]: unknown;
+};
+
+type BookingsTransactionClient = {
+  $executeRaw: (
+    query: TemplateStringsArray,
+    ...values: unknown[]
+  ) => Promise<unknown>;
+  booking: {
+    count: (args: Record<string, unknown>) => Promise<number>;
+    create: (args: Record<string, unknown>) => Promise<BookingRecord>;
+  };
+  suite: {
+    findFirst: (
+      args: Record<string, unknown>,
+    ) => Promise<{ id: string } | null>;
+  };
+  user: {
+    findUnique: (
+      args: Record<string, unknown>,
+    ) => Promise<{ id: string } | null>;
+    upsert: (args: Record<string, unknown>) => Promise<{ id: string }>;
+  };
+};
+
 const bookingsPrisma = prisma as unknown as BookingsApiPrisma;
 
 const bookingSchema = z.object({
@@ -47,23 +83,29 @@ const bookingSchema = z.object({
   phone: z.string().min(10, "Valid phone number is required"),
   petNames: z.string().min(1, "Pet name(s) required"),
   specialRequests: z.string().optional(),
-  addOns: z.array(z.object({ id: z.string(), quantity: z.number().min(1) })).optional(),
-  newPets: z.array(
-    z.object({
-      name: z.string().min(1),
-      breed: z.string().min(1),
-      age: z.number().min(0),
-      weight: z.number().min(1),
-      gender: z.enum(["male", "female"]),
-    })
-  ).optional(),
-  vaccines: z.array(
-    z.object({
-      petId: z.string(),
-      fileUrl: z.string().url(),
-      fileName: z.string(),
-    })
-  ).optional(),
+  addOns: z
+    .array(z.object({ id: z.string(), quantity: z.number().min(1) }))
+    .optional(),
+  newPets: z
+    .array(
+      z.object({
+        name: z.string().min(1),
+        breed: z.string().min(1),
+        age: z.number().min(0),
+        weight: z.number().min(1),
+        gender: z.enum(["male", "female"]),
+      }),
+    )
+    .optional(),
+  vaccines: z
+    .array(
+      z.object({
+        petId: z.string(),
+        fileUrl: z.string().url(),
+        fileName: z.string(),
+      }),
+    )
+    .optional(),
   waiver: z.object({
     liabilityAccepted: z.boolean(),
     medicalAuthorizationAccepted: z.boolean(),
@@ -78,24 +120,25 @@ export async function POST(request: NextRequest) {
     // Check if database is configured
     if (!isDatabaseConfigured()) {
       return NextResponse.json(
-        { 
+        {
           error: "Booking system is not available",
-          message: "Database is not configured. Please set DATABASE_URL environment variable."
+          message:
+            "Database is not configured. Please set DATABASE_URL environment variable.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Check if user is authenticated
     const session = await auth();
-    
+
     const body = await request.json();
     const validation = bookingSchema.safeParse(body);
 
     if (!validation.success) {
       return NextResponse.json(
         { error: "Invalid booking data", details: validation.error },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -106,7 +149,7 @@ export async function POST(request: NextRequest) {
       data.checkIn,
       data.checkOut,
       data.suiteType,
-      data.petCount
+      data.petCount,
     );
 
     // Prepare dates and booking number outside transaction
@@ -114,11 +157,16 @@ export async function POST(request: NextRequest) {
     const checkOutDate = new Date(data.checkOut);
     const today = new Date();
     const dateStr = today.toISOString().split("T")[0].replace(/-/g, "");
-    const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, "0");
+    const randomNum = Math.floor(Math.random() * 10000)
+      .toString()
+      .padStart(4, "0");
     const bookingNumber = `PB-${dateStr}-${randomNum}`;
     const totalNights = Math.max(
       1,
-      Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))
+      Math.ceil(
+        (checkOutDate.getTime() - checkInDate.getTime()) /
+          (1000 * 60 * 60 * 24),
+      ),
     );
 
     // Suite capacity configuration
@@ -130,165 +178,178 @@ export async function POST(request: NextRequest) {
 
     // Log advisory lock acquisition
     if (shouldLogBookingDiagnostics) {
-      console.log('Attempting to acquire advisory lock for suite type:', data.suiteType, 'and check-in date:', checkInDate.toISOString());
+      console.log(
+        "Attempting to acquire advisory lock for suite type:",
+        data.suiteType,
+        "and check-in date:",
+        checkInDate.toISOString(),
+      );
     }
 
     // Wrap booking creation in transaction with advisory lock
-    // `tx` is the transactional Prisma client provided by Prisma.
-    // Use `any` here to avoid importing Prisma types that differ across versions
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const booking = await bookingsPrisma.$transaction(async (tx: any) => {
-      // 1. Acquire PostgreSQL advisory lock for this suite type + date range
-      // This ensures only one request can check capacity and create a booking at a time
-      // for the same suite type and check-in date combination
-      await tx.$executeRaw`
+    const booking = await bookingsPrisma.$transaction(
+      async (tx) => {
+        // 1. Acquire PostgreSQL advisory lock for this suite type + date range
+        // This ensures only one request can check capacity and create a booking at a time
+        // for the same suite type and check-in date combination
+        await tx.$executeRaw`
         SELECT pg_advisory_xact_lock(
           hashtext(${data.suiteType}::text || ${checkInDate.toISOString()}::text)
         )
       `;
 
-      if (shouldLogBookingDiagnostics) {
-        console.log('Advisory lock acquired for suite type:', data.suiteType, 'and check-in date:', checkInDate.toISOString());
-      }
+        if (shouldLogBookingDiagnostics) {
+          console.log(
+            "Advisory lock acquired for suite type:",
+            data.suiteType,
+            "and check-in date:",
+            checkInDate.toISOString(),
+          );
+        }
 
-      // Log capacity check
-      if (shouldLogBookingDiagnostics) {
-        console.log('Checking capacity for suite type:', data.suiteType);
-      }
-      const overlappingBookings = await tx.booking.count({
-        where: {
-          suite: {
+        // Log capacity check
+        if (shouldLogBookingDiagnostics) {
+          console.log("Checking capacity for suite type:", data.suiteType);
+        }
+        const overlappingBookings = await tx.booking.count({
+          where: {
+            suite: {
+              tier: {
+                equals: data.suiteType,
+                mode: "insensitive",
+              },
+            },
+            status: {
+              in: ["confirmed", "checked_in"],
+            },
+            OR: [
+              {
+                checkInDate: {
+                  gte: checkInDate,
+                  lt: checkOutDate,
+                },
+              },
+              {
+                checkOutDate: {
+                  gt: checkInDate,
+                  lte: checkOutDate,
+                },
+              },
+              {
+                AND: [
+                  {
+                    checkInDate: {
+                      lte: checkInDate,
+                    },
+                  },
+                  {
+                    checkOutDate: {
+                      gte: checkOutDate,
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        });
+
+        if (shouldLogBookingDiagnostics) {
+          console.log("Overlapping bookings count:", overlappingBookings);
+        }
+
+        // 3. Enforce capacity limit
+        if (overlappingBookings >= capacity[data.suiteType]) {
+          if (shouldLogBookingDiagnostics) {
+            console.error("Capacity exceeded for suite type:", data.suiteType);
+          }
+          throw new Error("CAPACITY_EXCEEDED");
+        }
+
+        // 4. Find an available suite of the requested tier
+        const availableSuite = await tx.suite.findFirst({
+          where: {
             tier: {
               equals: data.suiteType,
               mode: "insensitive",
             },
-          },
-          status: {
-            in: ["confirmed", "checked_in"],
-          },
-          OR: [
-            {
-              checkInDate: {
-                gte: checkInDate,
-                lt: checkOutDate,
-              },
-            },
-            {
-              checkOutDate: {
-                gt: checkInDate,
-                lte: checkOutDate,
-              },
-            },
-            {
-              AND: [
-                {
-                  checkInDate: {
-                    lte: checkInDate,
-                  },
-                },
-                {
-                  checkOutDate: {
-                    gte: checkOutDate,
-                  },
-                },
-              ],
-            },
-          ],
-        },
-      });
-
-      if (shouldLogBookingDiagnostics) {
-        console.log('Overlapping bookings count:', overlappingBookings);
-      }
-
-      // 3. Enforce capacity limit
-      if (overlappingBookings >= capacity[data.suiteType]) {
-        if (shouldLogBookingDiagnostics) {
-          console.error('Capacity exceeded for suite type:', data.suiteType);
-        }
-        throw new Error('CAPACITY_EXCEEDED');
-      }
-
-      // 4. Find an available suite of the requested tier
-      const availableSuite = await tx.suite.findFirst({
-        where: {
-          tier: {
-            equals: data.suiteType,
-            mode: "insensitive",
-          },
-          isActive: true,
-        },
-      });
-
-      if (!availableSuite) {
-        if (shouldLogBookingDiagnostics) {
-          console.error('No available suite found for suite type:', data.suiteType);
-        }
-        throw new Error('NO_SUITE_AVAILABLE');
-      }
-
-      if (shouldLogBookingDiagnostics) {
-        console.log('Available suite found:', availableSuite.id);
-      }
-
-      // 5. Create or find user inside transaction
-      let user;
-      if (session?.user?.id) {
-        user = await tx.user.findUnique({
-          where: { id: session.user.id },
-        });
-      } else {
-        user = await tx.user.upsert({
-          where: { email: data.email },
-          create: {
-            email: data.email,
-            name: `${data.firstName} ${data.lastName}`,
-            phone: data.phone,
-          },
-          update: {
-            phone: data.phone,
+            isActive: true,
           },
         });
-      }
 
-      // 6. Create booking atomically
-      return await tx.booking.create({
-        data: {
-          userId: user!.id,
-          suiteId: availableSuite.id,
-          bookingNumber,
-          checkInDate,
-          checkOutDate,
-          totalNights,
-          subtotal: pricing.subtotal,
-          tax: pricing.tax,
-          total: pricing.total,
-          status: "pending",
-          specialRequests: data.specialRequests || null,
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              phone: true,
+        if (!availableSuite) {
+          if (shouldLogBookingDiagnostics) {
+            console.error(
+              "No available suite found for suite type:",
+              data.suiteType,
+            );
+          }
+          throw new Error("NO_SUITE_AVAILABLE");
+        }
+
+        if (shouldLogBookingDiagnostics) {
+          console.log("Available suite found:", availableSuite.id);
+        }
+
+        // 5. Create or find user inside transaction
+        let user;
+        if (session?.user?.id) {
+          user = await tx.user.findUnique({
+            where: { id: session.user.id },
+          });
+        } else {
+          user = await tx.user.upsert({
+            where: { email: data.email },
+            create: {
+              email: data.email,
+              name: `${data.firstName} ${data.lastName}`,
+              phone: data.phone,
+            },
+            update: {
+              phone: data.phone,
+            },
+          });
+        }
+
+        // 6. Create booking atomically
+        return await tx.booking.create({
+          data: {
+            userId: user!.id,
+            suiteId: availableSuite.id,
+            bookingNumber,
+            checkInDate,
+            checkOutDate,
+            totalNights,
+            subtotal: pricing.subtotal,
+            tax: pricing.tax,
+            total: pricing.total,
+            status: "pending",
+            specialRequests: data.specialRequests || null,
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+              },
+            },
+            suite: {
+              select: {
+                id: true,
+                name: true,
+                tier: true,
+                pricePerNight: true,
+              },
             },
           },
-          suite: {
-            select: {
-              id: true,
-              name: true,
-              tier: true,
-              pricePerNight: true,
-            },
-          },
-        },
-      });
-    }, {
-      isolationLevel: 'Serializable',
-      timeout: 20000, // Increased timeout to 20 seconds
-    });
+        });
+      },
+      {
+        isolationLevel: "Serializable",
+        timeout: 20000, // Increased timeout to 20 seconds
+      },
+    );
 
     // Send confirmation email (Resend if configured, otherwise record to dev queue)
     try {
@@ -298,18 +359,27 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if Stripe is configured dynamically via request headers
-    const stripePublishableKey = request.headers.get('x-stripe-publishable-key');
-    const stripeSecretKey = request.headers.get('x-stripe-secret-key');
+    const stripePublishableKey = request.headers.get(
+      "x-stripe-publishable-key",
+    );
+    const stripeSecretKey = request.headers.get("x-stripe-secret-key");
 
     // Use a local variable for the dynamically configured Stripe instance
     let stripeInstance = stripe;
     if (stripePublishableKey && stripeSecretKey) {
-      const StripeConstructor = (await import('stripe')).default;
-      stripeInstance = new StripeConstructor(stripeSecretKey, { apiVersion: '2026-02-25.clover' });
-      console.log('Stripe dynamically configured via request headers.');
+      const StripeConstructor = (await import("stripe")).default;
+      stripeInstance = new StripeConstructor(stripeSecretKey, {
+        apiVersion: "2026-02-25.clover",
+      });
+      console.log("Stripe dynamically configured via request headers.");
     } else if (!isStripeConfigured()) {
-      if (process.env.NODE_ENV !== 'test' && !hasLoggedStripeUnavailableWarning) {
-        console.warn('Stripe is not configured. Payment features will be unavailable.');
+      if (
+        process.env.NODE_ENV !== "test" &&
+        !hasLoggedStripeUnavailableWarning
+      ) {
+        console.warn(
+          "Stripe is not configured. Payment features will be unavailable.",
+        );
         hasLoggedStripeUnavailableWarning = true;
       }
     }
@@ -360,22 +430,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      booking: {
-        id: booking.id,
-        bookingNumber: booking.bookingNumber,
-        checkIn: booking.checkInDate,
-        checkOut: booking.checkOutDate,
-        suite: booking.suite,
-        total: booking.total,
-        status: booking.status,
+    return NextResponse.json(
+      {
+        success: true,
+        booking: {
+          id: booking.id,
+          bookingNumber: booking.bookingNumber,
+          checkIn: booking.checkInDate,
+          checkOut: booking.checkOutDate,
+          suite: booking.suite,
+          total: booking.total,
+          status: booking.status,
+        },
+        payment: clientSecret ? { clientSecret } : undefined,
+        message: clientSecret
+          ? "Booking created. Please complete payment."
+          : "Booking created successfully.",
       },
-      payment: clientSecret ? { clientSecret } : undefined,
-      message: clientSecret
-        ? "Booking created. Please complete payment."
-        : "Booking created successfully.",
-    }, { status: 201 });
+      { status: 201 },
+    );
   } catch (error) {
     if (shouldLogBookingDiagnostics) {
       console.error("Booking creation error:", error);
@@ -383,56 +456,59 @@ export async function POST(request: NextRequest) {
 
     // Handle custom business logic errors
     if (error instanceof Error) {
-      if (error.message === 'CAPACITY_EXCEEDED') {
+      if (error.message === "CAPACITY_EXCEEDED") {
         return NextResponse.json(
-          { 
+          {
             error: "Selected suite type is not available for these dates",
-            code: "CAPACITY_EXCEEDED"
+            code: "CAPACITY_EXCEEDED",
           },
-          { status: 409 }
+          { status: 409 },
         );
       }
 
-      if (error.message === 'NO_SUITE_AVAILABLE') {
+      if (error.message === "NO_SUITE_AVAILABLE") {
         return NextResponse.json(
-          { 
+          {
             error: "No suites available for the selected tier",
-            code: "NO_SUITE_AVAILABLE"
+            code: "NO_SUITE_AVAILABLE",
           },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
       // Handle transaction timeout
-      if (error.message.includes('timeout') || error.message.includes('timed out')) {
+      if (
+        error.message.includes("timeout") ||
+        error.message.includes("timed out")
+      ) {
         return NextResponse.json(
-          { 
+          {
             error: "High server load. Please retry in a few seconds.",
-            code: "TIMEOUT"
+            code: "TIMEOUT",
           },
-          { 
+          {
             status: 503,
-            headers: { 'Retry-After': '5' }
-          }
+            headers: { "Retry-After": "5" },
+          },
         );
       }
     }
 
     // Handle Prisma transaction errors
-    if (error && typeof error === 'object' && 'code' in error) {
+    if (error && typeof error === "object" && "code" in error) {
       const prismaError = error as { code: string };
 
       // P2034: Transaction conflict (serialization failure, deadlock)
-      if (prismaError.code === 'P2034') {
+      if (prismaError.code === "P2034") {
         return NextResponse.json(
-          { 
+          {
             error: "Booking conflict detected. Please retry your request.",
-            code: "TRANSACTION_CONFLICT"
+            code: "TRANSACTION_CONFLICT",
           },
-          { 
+          {
             status: 409,
-            headers: { 'Retry-After': '3' }
-          }
+            headers: { "Retry-After": "3" },
+          },
         );
       }
     }
@@ -440,7 +516,7 @@ export async function POST(request: NextRequest) {
     // Generic error fallback
     return NextResponse.json(
       { error: "Failed to create booking. Please try again." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -451,11 +527,12 @@ export async function GET() {
     // Check if database is configured
     if (!isDatabaseConfigured()) {
       return NextResponse.json(
-        { 
+        {
           error: "Booking system is not available",
-          message: "Database is not configured. Please set DATABASE_URL environment variable."
+          message:
+            "Database is not configured. Please set DATABASE_URL environment variable.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -493,7 +570,7 @@ export async function GET() {
     console.error("Fetch bookings error:", error);
     return NextResponse.json(
       { error: "Failed to fetch bookings" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -503,12 +580,12 @@ function calculateBookingPrice(
   checkIn: string,
   checkOut: string,
   suiteType: string,
-  petCount: number
+  petCount: number,
 ): { subtotal: number; tax: number; total: number } {
   const checkInDate = new Date(checkIn);
   const checkOutDate = new Date(checkOut);
   const nights = Math.ceil(
-    (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
+    (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24),
   );
 
   const prices: Record<string, number> = {
@@ -525,12 +602,12 @@ function calculateBookingPrice(
   // Additional pet discount (15% off for 2nd pet, 20% off for 3rd+)
   if (petCount > 1) {
     const additionalPets = petCount - 1;
-    const discount = petCount === 2 ? 0.15 : 0.20;
+    const discount = petCount === 2 ? 0.15 : 0.2;
     subtotal += nightlyRate * nights * additionalPets * (1 - discount);
   }
 
   // Tax (10%)
-  const tax = subtotal * 0.10;
+  const tax = subtotal * 0.1;
   const total = subtotal + tax;
 
   return {

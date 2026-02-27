@@ -10,7 +10,13 @@ import type {
   StepPaymentData,
 } from "@/lib/validations/booking-wizard";
 
-export type BookingStep = "dates" | "suites" | "account" | "pets" | "waiver" | "payment";
+export type BookingStep =
+  | "dates"
+  | "suites"
+  | "account"
+  | "pets"
+  | "waiver"
+  | "payment";
 
 interface BookingWizardData {
   dates?: StepDatesData;
@@ -21,7 +27,14 @@ interface BookingWizardData {
   payment?: StepPaymentData;
 }
 
-const STEPS: BookingStep[] = ["dates", "suites", "account", "pets", "waiver", "payment"];
+const STEPS: BookingStep[] = [
+  "dates",
+  "suites",
+  "account",
+  "pets",
+  "waiver",
+  "payment",
+];
 const STORAGE_KEY = "booking-wizard-progress";
 
 /**
@@ -40,7 +53,10 @@ export function useBookingWizard() {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
-          const progressData = { data: parsed.data || {}, step: parsed.currentStep || "dates" as BookingStep };
+          const progressData = {
+            data: parsed.data || {},
+            step: parsed.currentStep || ("dates" as BookingStep),
+          };
           setWizardData(progressData.data);
           setCurrentStep(progressData.step);
         }
@@ -53,24 +69,30 @@ export function useBookingWizard() {
   }, []);
 
   // Save progress to localStorage whenever data changes
-  const saveProgress = useCallback((data: BookingWizardData, step: BookingStep) => {
-    try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-          data,
-          currentStep: step,
-          savedAt: new Date().toISOString(),
-        })
-      );
-    } catch (error) {
-      console.error("Failed to save progress:", error);
-    }
-  }, []);
+  const saveProgress = useCallback(
+    (data: BookingWizardData, step: BookingStep) => {
+      try {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            data,
+            currentStep: step,
+            savedAt: new Date().toISOString(),
+          }),
+        );
+      } catch (error) {
+        console.error("Failed to save progress:", error);
+      }
+    },
+    [],
+  );
 
   // Update step data
   const updateStepData = useCallback(
-    (step: BookingStep, data: Partial<BookingWizardData[keyof BookingWizardData]>) => {
+    (
+      step: BookingStep,
+      data: Partial<BookingWizardData[keyof BookingWizardData]>,
+    ) => {
       setWizardData((prev) => {
         const updated = {
           ...prev,
@@ -80,7 +102,7 @@ export function useBookingWizard() {
         return updated;
       });
     },
-    [currentStep, saveProgress]
+    [currentStep, saveProgress],
   );
 
   // Navigate to next step
@@ -109,7 +131,7 @@ export function useBookingWizard() {
       setCurrentStep(step);
       saveProgress(wizardData, step);
     },
-    [wizardData, saveProgress]
+    [wizardData, saveProgress],
   );
 
   // Clear all data and start over
@@ -129,12 +151,12 @@ export function useBookingWizard() {
     (step: BookingStep) => {
       return !!wizardData[step as keyof BookingWizardData];
     },
-    [wizardData]
+    [wizardData],
   );
 
   // Can navigate to next step?
   const canGoNext = currentStepIndex < STEPS.length - 1;
-  
+
   // Can navigate to previous step?
   const canGoBack = currentStepIndex > 0;
 

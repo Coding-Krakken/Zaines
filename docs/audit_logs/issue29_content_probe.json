@@ -1,0 +1,100 @@
+{
+  "base": "http://127.0.0.1:3000",
+  "scannedAt": "2026-02-27T19:19:07.206Z",
+  "routes": [
+    "/",
+    "/pricing",
+    "/book",
+    "/contact"
+  ],
+  "results": [
+    {
+      "route": "/",
+      "profile": "desktop",
+      "ctaVisibleInViewport": true,
+      "ctaText": "Book Now",
+      "fiveSecondSummarySignals": {
+        "heading": "Safe. Fun. Loved.",
+        "leadSnippet": "Owner-on-site private boarding with only three suites, calm routines, and dependable daily updates."
+      },
+      "screenshot": "docs/audit_logs/issue29_cta_snapshots/desktop-home.png"
+    },
+    {
+      "route": "/pricing",
+      "profile": "desktop",
+      "ctaVisibleInViewport": true,
+      "ctaText": "Book Now",
+      "fiveSecondSummarySignals": {
+        "heading": "Private Boarding Pricing",
+        "leadSnippet": "Clear suite rates, clear policies, and no hidden fees at confirmation."
+      },
+      "screenshot": "docs/audit_logs/issue29_cta_snapshots/desktop-pricing.png"
+    },
+    {
+      "route": "/book",
+      "profile": "desktop",
+      "ctaVisibleInViewport": true,
+      "ctaText": "Book Now",
+      "fiveSecondSummarySignals": {
+        "heading": "Book Your Stay",
+        "leadSnippet": "Just a few steps to reserve your pet's vacation"
+      },
+      "screenshot": "docs/audit_logs/issue29_cta_snapshots/desktop-book.png"
+    },
+    {
+      "route": "/contact",
+      "profile": "desktop",
+      "ctaVisibleInViewport": true,
+      "ctaText": "Book Now",
+      "fiveSecondSummarySignals": {
+        "heading": "Get In Touch",
+        "leadSnippet": "Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible."
+      },
+      "screenshot": "docs/audit_logs/issue29_cta_snapshots/desktop-contact.png"
+    },
+    {
+      "route": "/",
+      "profile": "mobile",
+      "ctaVisibleInViewport": true,
+      "ctaText": "Book Your Stay",
+      "fiveSecondSummarySignals": {
+        "heading": "Safe. Fun. Loved.",
+        "leadSnippet": "Owner-on-site private boarding with only three suites, calm routines, and dependable daily updates."
+      },
+      "screenshot": "docs/audit_logs/issue29_cta_snapshots/mobile-home.png"
+    },
+    {
+      "route": "/pricing",
+      "profile": "mobile",
+      "ctaVisibleInViewport": true,
+      "ctaText": "Book Your Stay",
+      "fiveSecondSummarySignals": {
+        "heading": "Private Boarding Pricing",
+        "leadSnippet": "Clear suite rates, clear policies, and no hidden fees at confirmation."
+      },
+      "screenshot": "docs/audit_logs/issue29_cta_snapshots/mobile-pricing.png"
+    },
+    {
+      "route": "/book",
+      "profile": "mobile",
+      "ctaVisibleInViewport": true,
+      "ctaText": "Start Booking",
+      "fiveSecondSummarySignals": {
+        "heading": "Book Your Stay",
+        "leadSnippet": "Just a few steps to reserve your pet's vacation"
+      },
+      "screenshot": "docs/audit_logs/issue29_cta_snapshots/mobile-book.png"
+    },
+    {
+      "route": "/contact",
+      "profile": "mobile",
+      "ctaVisibleInViewport": true,
+      "ctaText": "Book Your Stay",
+      "fiveSecondSummarySignals": {
+        "heading": "Get In Touch",
+        "leadSnippet": "Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible."
+      },
+      "screenshot": "docs/audit_logs/issue29_cta_snapshots/mobile-contact.png"
+    }
+  ]
+}

@@ -2,12 +2,21 @@
 
 import { useRef, useState } from "react";
 import SignaturePad from "signature_pad";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckCircle2, ArrowRight, ArrowLeft } from "lucide-react";
-import { stepWaiverSchema, type StepWaiverData } from "@/lib/validations/booking-wizard";
+import {
+  stepWaiverSchema,
+  type StepWaiverData,
+} from "@/lib/validations/booking-wizard";
 import { toast } from "sonner";
 
 interface StepWaiverProps {
@@ -17,12 +26,20 @@ interface StepWaiverProps {
   onBack: () => void;
 }
 
-export function StepWaiver({ data, onUpdate, onNext, onBack }: StepWaiverProps) {
-  const [liabilityAccepted, setLiabilityAccepted] = useState(data.liabilityAccepted || false);
-  const [medicalAuthorizationAccepted, setMedicalAuthorizationAccepted] = useState(
-    data.medicalAuthorizationAccepted || false
+export function StepWaiver({
+  data,
+  onUpdate,
+  onNext,
+  onBack,
+}: StepWaiverProps) {
+  const [liabilityAccepted, setLiabilityAccepted] = useState(
+    data.liabilityAccepted || false,
   );
-  const [photoReleaseAccepted, setPhotoReleaseAccepted] = useState(data.photoReleaseAccepted || false);
+  const [medicalAuthorizationAccepted, setMedicalAuthorizationAccepted] =
+    useState(data.medicalAuthorizationAccepted || false);
+  const [photoReleaseAccepted, setPhotoReleaseAccepted] = useState(
+    data.photoReleaseAccepted || false,
+  );
   const signaturePadRef = useRef<HTMLCanvasElement>(null);
   const [signature, setSignature] = useState(data.signature || "");
 
@@ -76,7 +93,8 @@ export function StepWaiver({ data, onUpdate, onNext, onBack }: StepWaiverProps) 
           Waivers & E-Signature
         </CardTitle>
         <CardDescription>
-          Please review and accept the waivers below. Your signature is required to proceed.
+          Please review and accept the waivers below. Your signature is required
+          to proceed.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -85,11 +103,14 @@ export function StepWaiver({ data, onUpdate, onNext, onBack }: StepWaiverProps) 
           <Checkbox
             id="liability"
             checked={liabilityAccepted}
-            onCheckedChange={(checked) => setLiabilityAccepted(checked as boolean)}
+            onCheckedChange={(checked) =>
+              setLiabilityAccepted(checked as boolean)
+            }
           />
           <Label htmlFor="liability" className="text-sm">
-            I accept the <strong>liability waiver</strong>, releasing Zaine&apos;s Stay & Play from any
-            liability for injuries or damages during my pet&apos;s stay.
+            I accept the <strong>liability waiver</strong>, releasing
+            Zaine&apos;s Stay & Play from any liability for injuries or damages
+            during my pet&apos;s stay.
           </Label>
         </div>
 
@@ -98,11 +119,14 @@ export function StepWaiver({ data, onUpdate, onNext, onBack }: StepWaiverProps) 
           <Checkbox
             id="medical"
             checked={medicalAuthorizationAccepted}
-            onCheckedChange={(checked) => setMedicalAuthorizationAccepted(checked as boolean)}
+            onCheckedChange={(checked) =>
+              setMedicalAuthorizationAccepted(checked as boolean)
+            }
           />
           <Label htmlFor="medical" className="text-sm">
-            I authorize Zaine&apos;s Stay & Play to seek emergency medical treatment for my pet if
-            necessary, and I agree to cover all associated costs.
+            I authorize Zaine&apos;s Stay & Play to seek emergency medical
+            treatment for my pet if necessary, and I agree to cover all
+            associated costs.
           </Label>
         </div>
 
@@ -111,10 +135,13 @@ export function StepWaiver({ data, onUpdate, onNext, onBack }: StepWaiverProps) 
           <Checkbox
             id="photo"
             checked={photoReleaseAccepted}
-            onCheckedChange={(checked) => setPhotoReleaseAccepted(checked as boolean)}
+            onCheckedChange={(checked) =>
+              setPhotoReleaseAccepted(checked as boolean)
+            }
           />
           <Label htmlFor="photo" className="text-sm">
-            I consent to the use of photos/videos of my pet for promotional purposes.
+            I consent to the use of photos/videos of my pet for promotional
+            purposes.
           </Label>
         </div>
 
@@ -130,10 +157,18 @@ export function StepWaiver({ data, onUpdate, onNext, onBack }: StepWaiverProps) 
               className="w-full border rounded-md"
             />
             <div className="mt-2 flex justify-between">
-              <Button variant="outline" size="sm" onClick={handleClearSignature}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearSignature}
+              >
                 Clear
               </Button>
-              <Button variant="secondary" size="sm" onClick={handleSaveSignature}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleSaveSignature}
+              >
                 Save Signature
               </Button>
             </div>

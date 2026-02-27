@@ -1,0 +1,7 @@
+
+> zaines-stay-and-play@0.1.0 typecheck C:\Users\david\Desktop\Zaines
+> tsc --noEmit
+
+src/__tests__/issue26-api-contracts.test.ts(45,20): error TS2307: Cannot find module '@/app/robots' or its corresponding type declarations.
+src/app/__tests__/seo-metadata-routes.test.ts(2,20): error TS2307: Cannot find module '../robots' or its corresponding type declarations.
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 2.

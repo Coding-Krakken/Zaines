@@ -1,23 +1,45 @@
 "use client";
 
 import { useState } from "react";
-import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Elements,
+  PaymentElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowLeft, Loader2 } from "lucide-react";
-import { stepPaymentSchema, type StepPaymentData } from "@/lib/validations/booking-wizard";
+import {
+  stepPaymentSchema,
+  type StepPaymentData,
+} from "@/lib/validations/booking-wizard";
 import { getStripe } from "@/lib/stripe-client";
 import { toast } from "sonner";
 
 interface StepPaymentProps {
   data: Partial<StepPaymentData> & { clientSecret?: string };
-  onUpdate: (data: Partial<StepPaymentData> & { clientSecret?: string }) => void;
+  onUpdate: (
+    data: Partial<StepPaymentData> & { clientSecret?: string },
+  ) => void;
   onNext: () => void;
   onBack: () => void;
   totalAmount: number; // From previous steps
 }
 
-function PaymentForm({ onSuccess, onBack }: { onSuccess: () => void; onBack: () => void }) {
+function PaymentForm({
+  onSuccess,
+  onBack,
+}: {
+  onSuccess: () => void;
+  onBack: () => void;
+}) {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -54,7 +76,12 @@ function PaymentForm({ onSuccess, onBack }: { onSuccess: () => void; onBack: () 
     <form onSubmit={handleSubmit} className="space-y-4">
       <PaymentElement />
       <div className="flex justify-between pt-4">
-        <Button type="button" variant="outline" onClick={onBack} disabled={isProcessing}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onBack}
+          disabled={isProcessing}
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
@@ -76,7 +103,13 @@ function PaymentForm({ onSuccess, onBack }: { onSuccess: () => void; onBack: () 
   );
 }
 
-export function StepPayment({ data, onUpdate, onNext, onBack, totalAmount }: StepPaymentProps) {
+export function StepPayment({
+  data,
+  onUpdate,
+  onNext,
+  onBack,
+  totalAmount,
+}: StepPaymentProps) {
   const [clientSecret, setClientSecret] = useState(data.clientSecret || "");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -153,10 +186,7 @@ export function StepPayment({ data, onUpdate, onNext, onBack, totalAmount }: Ste
             appearance: { theme: "stripe" },
           }}
         >
-          <PaymentForm
-            onSuccess={handleNext}
-            onBack={onBack}
-          />
+          <PaymentForm onSuccess={handleNext} onBack={onBack} />
         </Elements>
       </CardContent>
     </Card>

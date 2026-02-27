@@ -10,28 +10,124 @@ import { Camera, Heart, Play } from "lucide-react";
 
 const galleryImages = [
   // Suites
-  { id: 1, category: "suites", title: "Luxury Suite", description: "Spacious luxury accommodations", placeholder: "🏠" },
-  { id: 2, category: "suites", title: "Deluxe Suite", description: "Comfortable deluxe rooms", placeholder: "🛏️" },
-  { id: 3, category: "suites", title: "Standard Suite", description: "Cozy standard rooms", placeholder: "🏡" },
-  { id: 4, category: "suites", title: "Outdoor Patio", description: "Private outdoor spaces", placeholder: "🌳" },
-  
+  {
+    id: 1,
+    category: "suites",
+    title: "Luxury Suite",
+    description: "Spacious luxury accommodations",
+    placeholder: "🏠",
+  },
+  {
+    id: 2,
+    category: "suites",
+    title: "Deluxe Suite",
+    description: "Comfortable deluxe rooms",
+    placeholder: "🛏️",
+  },
+  {
+    id: 3,
+    category: "suites",
+    title: "Standard Suite",
+    description: "Cozy standard rooms",
+    placeholder: "🏡",
+  },
+  {
+    id: 4,
+    category: "suites",
+    title: "Outdoor Patio",
+    description: "Private outdoor spaces",
+    placeholder: "🌳",
+  },
+
   // Playtime
-  { id: 5, category: "playtime", title: "Group Play", description: "Dogs socializing together", placeholder: "🐕" },
-  { id: 6, category: "playtime", title: "Indoor Play Area", description: "Climate-controlled fun", placeholder: "🎾" },
-  { id: 7, category: "playtime", title: "Agility Course", description: "Active play equipment", placeholder: "🏃" },
-  { id: 8, category: "playtime", title: "Pool Time", description: "Splashing in the pool", placeholder: "🏊" },
-  
+  {
+    id: 5,
+    category: "playtime",
+    title: "Group Play",
+    description: "Dogs socializing together",
+    placeholder: "🐕",
+  },
+  {
+    id: 6,
+    category: "playtime",
+    title: "Indoor Play Area",
+    description: "Climate-controlled fun",
+    placeholder: "🎾",
+  },
+  {
+    id: 7,
+    category: "playtime",
+    title: "Agility Course",
+    description: "Active play equipment",
+    placeholder: "🏃",
+  },
+  {
+    id: 8,
+    category: "playtime",
+    title: "Pool Time",
+    description: "Splashing in the pool",
+    placeholder: "🏊",
+  },
+
   // Amenities
-  { id: 9, category: "amenities", title: "Comfort Care Station", description: "Add-on wellness and comfort services", placeholder: "✂️" },
-  { id: 10, category: "amenities", title: "Enrichment Area", description: "Structured play and enrichment space", placeholder: "🎓" },
-  { id: 11, category: "amenities", title: "Reception", description: "Welcoming front desk", placeholder: "🎪" },
-  { id: 12, category: "amenities", title: "Outdoor Yard", description: "Secure outdoor space", placeholder: "🌲" },
-  
+  {
+    id: 9,
+    category: "amenities",
+    title: "Comfort Care Station",
+    description: "Add-on wellness and comfort services",
+    placeholder: "✂️",
+  },
+  {
+    id: 10,
+    category: "amenities",
+    title: "Enrichment Area",
+    description: "Structured play and enrichment space",
+    placeholder: "🎓",
+  },
+  {
+    id: 11,
+    category: "amenities",
+    title: "Reception",
+    description: "Welcoming front desk",
+    placeholder: "🎪",
+  },
+  {
+    id: 12,
+    category: "amenities",
+    title: "Outdoor Yard",
+    description: "Secure outdoor space",
+    placeholder: "🌲",
+  },
+
   // Happy Guests
-  { id: 13, category: "guests", title: "Max the Golden", description: "Having a great time", placeholder: "🦮" },
-  { id: 14, category: "guests", title: "Bella the Beagle", description: "Making new friends", placeholder: "🐶" },
-  { id: 15, category: "guests", title: "Charlie & Luna", description: "Best friends forever", placeholder: "🐕‍🦺" },
-  { id: 16, category: "guests", title: "Rocky the Bulldog", description: "Loving his stay", placeholder: "🐕" },
+  {
+    id: 13,
+    category: "guests",
+    title: "Max the Golden",
+    description: "Having a great time",
+    placeholder: "🦮",
+  },
+  {
+    id: 14,
+    category: "guests",
+    title: "Bella the Beagle",
+    description: "Making new friends",
+    placeholder: "🐶",
+  },
+  {
+    id: 15,
+    category: "guests",
+    title: "Charlie & Luna",
+    description: "Best friends forever",
+    placeholder: "🐕‍🦺",
+  },
+  {
+    id: 16,
+    category: "guests",
+    title: "Rocky the Bulldog",
+    description: "Loving his stay",
+    placeholder: "🐕",
+  },
 ];
 
 const categories = [
@@ -45,9 +141,10 @@ const categories = [
 export default function GalleryPage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
 
-  const filteredImages = selectedCategory === "all" 
-    ? galleryImages 
-    : galleryImages.filter(img => img.category === selectedCategory);
+  const filteredImages =
+    selectedCategory === "all"
+      ? galleryImages
+      : galleryImages.filter((img) => img.category === selectedCategory);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -60,7 +157,8 @@ export default function GalleryPage() {
               See Happy Tails in Action
             </h1>
             <p className="mb-8 text-xl text-muted-foreground">
-              Take a virtual tour of our facilities and see the fun your pet will have at Zaine's Stay & Play
+              Take a virtual tour of our facilities and see the fun your pet
+              will have at Zaine's Stay & Play
             </p>
           </div>
         </div>
@@ -70,7 +168,11 @@ export default function GalleryPage() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           {/* Category Tabs */}
-          <Tabs defaultValue="all" className="mb-8" onValueChange={setSelectedCategory}>
+          <Tabs
+            defaultValue="all"
+            className="mb-8"
+            onValueChange={setSelectedCategory}
+          >
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
               {categories.map((category) => (
                 <TabsTrigger key={category.value} value={category.value}>
@@ -100,7 +202,9 @@ export default function GalleryPage() {
                 </div>
                 <div className="p-4">
                   <h3 className="font-semibold">{image.title}</h3>
-                  <p className="text-sm text-muted-foreground">{image.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {image.description}
+                  </p>
                 </div>
               </Card>
             ))}
@@ -111,7 +215,9 @@ export default function GalleryPage() {
             <div className="py-16 text-center">
               <Camera className="mx-auto mb-4 h-16 w-16 text-muted-foreground" />
               <h3 className="mb-2 text-xl font-semibold">No photos yet</h3>
-              <p className="text-muted-foreground">Check back soon for more photos!</p>
+              <p className="text-muted-foreground">
+                Check back soon for more photos!
+              </p>
             </div>
           )}
         </div>
@@ -134,7 +240,10 @@ export default function GalleryPage() {
               { title: "Suite Walkthrough", duration: "4:00", views: "1.5K" },
               { title: "Meet Our Team", duration: "2:45", views: "750" },
             ].map((video) => (
-              <Card key={video.title} className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg">
+              <Card
+                key={video.title}
+                className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg"
+              >
                 <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-purple-100 to-pink-100">
                   <div className="flex h-full items-center justify-center">
                     <div className="rounded-full bg-white/90 p-6 transition-all group-hover:scale-110 group-hover:bg-white">
@@ -207,7 +316,8 @@ export default function GalleryPage() {
                 </div>
               </div>
               <p className="rounded-lg bg-blue-50 p-4 text-sm text-muted-foreground">
-                Webcam access is included with Deluxe and Luxury suites. Available as an add-on for Standard suites.
+                Webcam access is included with Deluxe and Luxury suites.
+                Available as an add-on for Standard suites.
               </p>
             </div>
           </Card>
@@ -217,17 +327,20 @@ export default function GalleryPage() {
       {/* CTA */}
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-4 text-3xl font-bold">Ready to Create Your Own Happy Memories?</h2>
+          <h2 className="mb-4 text-3xl font-bold">
+            Ready to Create Your Own Happy Memories?
+          </h2>
           <p className="mb-8 text-lg opacity-90">
-            Book your pet&apos;s stay and see firsthand why families love Zaine's Stay & Play
+            Book your pet&apos;s stay and see firsthand why families love
+            Zaine's Stay & Play
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" variant="secondary" asChild>
               <a href="/book">Book Now</a>
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
+            <Button
+              size="lg"
+              variant="outline"
               className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
               asChild
             >

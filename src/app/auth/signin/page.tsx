@@ -5,7 +5,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Mail, ArrowLeft, CheckCircle2 } from "lucide-react";
@@ -22,7 +28,10 @@ type MagicLinkState =
   | "transient_failure";
 
 type MagicLinkErrorResponse = {
-  errorCode?: "INVALID_EMAIL" | "AUTH_PROVIDER_MISCONFIGURED" | "AUTH_TRANSIENT_FAILURE";
+  errorCode?:
+    | "INVALID_EMAIL"
+    | "AUTH_PROVIDER_MISCONFIGURED"
+    | "AUTH_TRANSIENT_FAILURE";
   message?: string;
   retryable?: boolean;
   correlationId?: string;
@@ -37,7 +46,8 @@ function SignInForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
-  const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  const isValidEmail = (value: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
   const sendMagicLink = async () => {
     setMessage("");
@@ -76,10 +86,14 @@ function SignInForm() {
           setMessage("Enter a valid email address.");
         } else if (errorPayload.errorCode === "AUTH_PROVIDER_MISCONFIGURED") {
           setMagicLinkState("provider_misconfigured");
-          setMessage("Sign-in is temporarily unavailable. Please contact support.");
+          setMessage(
+            "Sign-in is temporarily unavailable. Please contact support.",
+          );
         } else {
           setMagicLinkState("transient_failure");
-          setMessage("We couldn't send your sign-in link right now. Please retry.");
+          setMessage(
+            "We couldn't send your sign-in link right now. Please retry.",
+          );
         }
 
         if (errorPayload.correlationId) {
@@ -102,7 +116,7 @@ function SignInForm() {
   const handleOAuthSignIn = async (provider: "google" | "facebook") => {
     setIsLoading(true);
     setMessage("");
-    
+
     try {
       await signIn(provider, { callbackUrl });
     } catch {
@@ -139,7 +153,8 @@ function SignInForm() {
             <CardHeader>
               <CardTitle>Sign In</CardTitle>
               <CardDescription>
-                We&apos;ll send you a magic link to sign in securely - no password needed!
+                We&apos;ll send you a magic link to sign in securely - no
+                password needed!
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -149,7 +164,9 @@ function SignInForm() {
                     <Alert variant="destructive">
                       <AlertDescription>
                         {message}
-                        {correlationId ? ` (Support code: ${correlationId})` : ""}
+                        {correlationId
+                          ? ` (Support code: ${correlationId})`
+                          : ""}
                       </AlertDescription>
                     </Alert>
                   )}
@@ -289,7 +306,10 @@ function SignInForm() {
 
                   <p className="text-sm text-muted-foreground">
                     Didn&apos;t receive it? Check your spam folder or{" "}
-                    <Link href="/contact" className="text-primary hover:underline">
+                    <Link
+                      href="/contact"
+                      className="text-primary hover:underline"
+                    >
                       contact support
                     </Link>
                   </p>
@@ -319,14 +339,16 @@ function SignInForm() {
 
 export default function SignInPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading...</p>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <SignInForm />
     </Suspense>
   );

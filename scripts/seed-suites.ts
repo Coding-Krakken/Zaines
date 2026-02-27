@@ -1,43 +1,43 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 async function main() {
   const prisma = new PrismaClient();
 
   const suites = [
     {
-      id: 'suite-standard-1',
-      name: 'Standard Suite 1',
-      tier: 'standard',
-      size: 'medium',
+      id: "suite-standard-1",
+      name: "Standard Suite 1",
+      tier: "standard",
+      size: "medium",
       pricePerNight: 65,
-      amenities: ['raised_bed'],
+      amenities: ["raised_bed"],
       isActive: true,
     },
     {
-      id: 'suite-standard-2',
-      name: 'Standard Suite 2',
-      tier: 'standard',
-      size: 'medium',
+      id: "suite-standard-2",
+      name: "Standard Suite 2",
+      tier: "standard",
+      size: "medium",
       pricePerNight: 65,
-      amenities: ['raised_bed'],
+      amenities: ["raised_bed"],
       isActive: true,
     },
     {
-      id: 'suite-deluxe-1',
-      name: 'Deluxe Suite 1',
-      tier: 'deluxe',
-      size: 'large',
+      id: "suite-deluxe-1",
+      name: "Deluxe Suite 1",
+      tier: "deluxe",
+      size: "large",
       pricePerNight: 85,
-      amenities: ['webcam','raised_bed'],
+      amenities: ["webcam", "raised_bed"],
       isActive: true,
     },
     {
-      id: 'suite-luxury-1',
-      name: 'Luxury Suite 1',
-      tier: 'luxury',
-      size: 'large',
+      id: "suite-luxury-1",
+      name: "Luxury Suite 1",
+      tier: "luxury",
+      size: "large",
       pricePerNight: 120,
-      amenities: ['webcam','tv','raised_bed'],
+      amenities: ["webcam", "tv", "raised_bed"],
       isActive: true,
     },
   ];
@@ -50,7 +50,7 @@ async function main() {
     });
   }
 
-  console.log('Seeded suites');
+  console.log("Seeded suites");
   await prisma.$disconnect();
 }
 

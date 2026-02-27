@@ -109,11 +109,16 @@ export default function ReviewsPage() {
               What Pet Parents Say
             </h1>
             <p className="mb-8 text-xl text-muted-foreground">
-              Hear from local families who trust our private, small-capacity boarding model
+              Hear from local families who trust our private, small-capacity
+              boarding model
             </p>
             <div className="flex items-center justify-center gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
-                <Star key={star} className="h-8 w-8 fill-yellow-400 text-yellow-400" aria-hidden="true" />
+                <Star
+                  key={star}
+                  className="h-8 w-8 fill-yellow-400 text-yellow-400"
+                  aria-hidden="true"
+                />
               ))}
               <span className="ml-2 text-2xl font-bold">4.9/5</span>
             </div>
@@ -127,8 +132,12 @@ export default function ReviewsPage() {
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
-                <div className="mb-2 text-4xl font-bold text-primary">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <div className="mb-2 text-4xl font-bold text-primary">
+                  {stat.value}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
@@ -216,7 +225,8 @@ export default function ReviewsPage() {
             <CardContent className="pt-6">
               <h2 className="mb-2 text-2xl font-bold">Share Your Experience</h2>
               <p className="mb-6 text-muted-foreground">
-                Have you visited Zaine's Stay & Play? We&apos;d love to hear about your experience!
+                Have you visited Zaine's Stay & Play? We&apos;d love to hear
+                about your experience!
               </p>
               <ReviewSubmissionForm />
             </CardContent>
@@ -227,17 +237,20 @@ export default function ReviewsPage() {
       {/* CTA */}
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-4 text-3xl font-bold">Join Our Community of Happy Pet Parents</h2>
+          <h2 className="mb-4 text-3xl font-bold">
+            Join Our Community of Happy Pet Parents
+          </h2>
           <p className="mb-8 text-lg opacity-90">
-            Experience the care and service that earns us 5-star reviews every day
+            Experience the care and service that earns us 5-star reviews every
+            day
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" variant="secondary" asChild>
               <Link href="/book">Book Your Stay</Link>
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
+            <Button
+              size="lg"
+              variant="outline"
               className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
               asChild
             >
