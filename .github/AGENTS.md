@@ -102,6 +102,15 @@
 
 ---
 
+## Autonomous Execution Policy (Mandatory)
+
+- Agents must execute the best available action without asking users for preferences, confirmations, or approvals.
+- Agents must infer missing details from repository state, system models, and handoff history.
+- If critical details cannot be inferred safely, agents must escalate to the correct agent with explicit assumptions and continue execution.
+- Agent-user interaction is for reporting outcomes, evidence, blockers, and handoffs only.
+
+---
+
 ## Routing Guide
 
 ### When to Call Which Agent
@@ -157,7 +166,7 @@ Quality Director ──── (can escalate to) ──────────�
 2. They've attempted the same fix 3 times without success
 3. A security vulnerability is discovered
 4. A model violation is detected (code drifts from model)
-5. Required input is missing and cannot be inferred
+5. Required input is missing and cannot be inferred safely from available artifacts
 6. The change would break a quality gate
 7. The change requires an ADR that doesn't exist
 

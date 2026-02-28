@@ -77,12 +77,13 @@ export default function PricingPage() {
               Private Boarding Pricing
             </h1>
             <p className="mb-8 text-xl text-muted-foreground">
-              Clear suite rates, clear policies, and no hidden fees at
-              confirmation.
+              Premium but fair suite rates with clear pricing before
+              confirmation, no hidden fees, and no surprise add-ons.
             </p>
             <p className="mb-6 text-sm text-muted-foreground md:text-base">
               Only 3 private suites, owner onsite, camera-monitored safety, no
-              harsh chemicals, and no hidden fees.
+              harsh chemicals, and premium but fair pricing with no hidden
+              fees.
             </p>
             <div className="mb-4 md:hidden">
               <Button size="lg" className="w-full" asChild>
@@ -100,7 +101,7 @@ export default function PricingPage() {
             <p className="text-sm text-muted-foreground">
               Rates below are planning ranges while package selection remains in
               progress; you see a clear total before confirmation with no hidden
-              fees and no surprise add-ons.
+              fees, no surprise add-ons, and a premium but fair pricing model.
             </p>
           </div>
         </div>
@@ -119,7 +120,7 @@ export default function PricingPage() {
                   </CardTitle>
                 </div>
                 <CardDescription>
-                  Customize your services to see a planning estimate
+                  Customize your selections to see a planning estimate
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-8">
@@ -205,8 +206,12 @@ export default function PricingPage() {
                 {/* Add-Ons */}
                 <div className="space-y-4">
                   <Label className="text-base font-semibold">
-                    Add-On Services
+                    Optional Care Selections
                   </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Optional selections are only included when you choose them;
+                    nothing is auto-added.
+                  </p>
                   <div className="grid gap-3 sm:grid-cols-2">
                     {addOns.map((addOn, index) => (
                       <button
@@ -245,8 +250,9 @@ export default function PricingPage() {
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    This is a planning estimate; final pricing is confirmed
-                    before checkout.
+                    This is a pre-confirmation estimate with premium but fair
+                    pricing. Final subtotal, tax, and total are shown before you
+                    confirm payment.
                   </p>
                 </div>
 
@@ -290,40 +296,42 @@ export default function PricingPage() {
                   <span className="font-semibold">$120</span>
                 </div>
                 <div className="pt-2 text-sm text-muted-foreground">
-                  10% discount for stays over 14 nights
+                  Extended stays receive quote-specific totals shown before
+                  confirmation.
                 </div>
               </CardContent>
             </Card>
 
-            {/* Multi-Dog Discounts */}
+            {/* Multi-Dog Pricing */}
             <Card>
               <CardHeader>
-                <CardTitle>Multi-Dog Discounts</CardTitle>
+                <CardTitle>Multi-Dog Pricing</CardTitle>
                 <CardDescription>Same-family stays</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span>Second dog (same suite)</span>
-                  <span className="font-semibold">15% off</span>
+                  <span className="font-semibold">Priced in quote</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Third+ dog (same suite)</span>
-                  <span className="font-semibold">20% off</span>
+                  <span className="font-semibold">Priced in quote</span>
                 </div>
                 <div className="flex justify-between">
                   <span>14+ night stays</span>
-                  <span className="font-semibold">10% off</span>
+                  <span className="font-semibold">Priced in quote</span>
                 </div>
                 <div className="pt-2 text-sm text-muted-foreground">
-                  Discounts apply to approved booking combinations.
+                  Additional-dog pricing is disclosed before confirmation with
+                  no hidden fees.
                 </div>
               </CardContent>
             </Card>
 
-            {/* Common Add-Ons */}
+            {/* Optional Care Selections */}
             <Card>
               <CardHeader>
-                <CardTitle>Common Add-Ons</CardTitle>
+                <CardTitle>Optional Care Selections</CardTitle>
                 <CardDescription>Optional services per stay</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -349,8 +357,9 @@ export default function PricingPage() {
 
           <div className="mt-12 text-center">
             <p className="text-muted-foreground">
-              Rates are reviewed regularly and confirmed before checkout. We
-              keep pricing transparent and free of hidden fees.
+              Rates are reviewed regularly and confirmed before checkout. We use
+              premium but fair pricing with no hidden fees and no surprise
+              add-ons.
             </p>
           </div>
         </div>
@@ -388,8 +397,8 @@ export default function PricingPage() {
               <div>
                 <h3 className="mb-2 text-lg font-semibold">Multiple Pets</h3>
                 <p className="text-muted-foreground">
-                  Second pet receives 15% discount. Third and additional pets
-                  receive 20% discount when staying in the same suite.
+                  Multi-dog totals are itemized in your pre-confirmation quote.
+                  No hidden fees or surprise add-ons are introduced at checkout.
                 </p>
               </div>
             </div>
@@ -402,8 +411,8 @@ export default function PricingPage() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="mb-4 text-3xl font-bold">Questions About Pricing?</h2>
           <p className="mb-8 text-lg opacity-90">
-            Our team is happy to help you find the best package for your needs
-            and budget
+            Our team can walk you through premium but fair pricing before
+            confirmation so there are no hidden fees or surprise add-ons.
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" variant="secondary" asChild>

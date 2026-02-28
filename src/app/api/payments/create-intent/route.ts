@@ -7,6 +7,10 @@ import {
   isStripeConfigured,
 } from "@/lib/stripe";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import {
+  getCorrelationId,
+  logServerFailure,
+} from "@/lib/api/issue26";
 
 type PaymentIntentPrisma = {
   booking: {
@@ -47,8 +51,24 @@ const paymentIntentSchema = z.object({
   amount: z.number().positive(),
 });
 
+function createPaymentValidationDetails(validationError: z.ZodError): {
+  fields: string[];
+} {
+  const fields = validationError.issues
+    .map((issue) => issue.path.join("."))
+    .filter((field) => field.length > 0);
+
+  const uniqueSortedFields = [...new Set(fields)].sort((left, right) =>
+    left.localeCompare(right),
+  );
+
+  return { fields: uniqueSortedFields };
+}
+
 // POST /api/payments/create-intent - Create a Stripe Payment Intent
 export async function POST(request: NextRequest) {
+  const correlationId = getCorrelationId(request);
+
   try {
     // Check if Stripe is configured
     if (!isStripeConfigured()) {
@@ -76,12 +96,28 @@ export async function POST(request: NextRequest) {
 
     const session = await auth();
 
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        {
+          error: "Authentication required",
+          code: "AUTH_REQUIRED",
+          correlationId,
+        },
+        { status: 401 },
+      );
+    }
+
     const body = await request.json();
     const validation = paymentIntentSchema.safeParse(body);
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Invalid payment data", details: validation.error },
+        {
+          error: "Invalid payment data",
+          code: "PAYMENT_VALIDATION_ERROR",
+          details: createPaymentValidationDetails(validation.error),
+          correlationId,
+        },
         { status: 400 },
       );
     }
@@ -101,7 +137,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify user owns this booking or is authenticated
-    if (session?.user?.id && booking.userId !== session.user.id) {
+    if (booking.userId !== session.user.id) {
       return NextResponse.json(
         { error: "Unauthorized - this booking belongs to another user" },
         { status: 403 },
@@ -162,7 +198,12 @@ export async function POST(request: NextRequest) {
       paymentIntentId: paymentIntent.id,
     });
   } catch (error: unknown) {
-    console.error("Payment intent creation error:", error);
+    logServerFailure(
+      "/api/payments/create-intent",
+      "PAYMENT_INTENT_CREATE_FAILED",
+      correlationId,
+      error,
+    );
     const errorMessage =
       error instanceof Error
         ? error.message

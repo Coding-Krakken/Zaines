@@ -112,6 +112,11 @@ export default function ReviewsPage() {
               Hear from local families who trust our private, small-capacity
               boarding model
             </p>
+            <p className="mb-6 text-sm text-muted-foreground md:text-base">
+              Families consistently cite our premium but fair pricing, clear
+              totals before confirmation, no hidden fees, and no surprise
+              add-ons.
+            </p>
             <div className="flex items-center justify-center gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
@@ -243,6 +248,10 @@ export default function ReviewsPage() {
           <p className="mb-8 text-lg opacity-90">
             Experience the care and service that earns us 5-star reviews every
             day
+          </p>
+          <p className="mb-6 text-sm opacity-90 md:text-base">
+            Premium but fair pricing is shared before confirmation with no
+            hidden fees and no surprise add-ons.
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" variant="secondary" asChild>

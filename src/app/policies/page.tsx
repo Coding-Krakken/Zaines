@@ -34,6 +34,10 @@ export default function PoliciesPage() {
               Clear, transparent policies to ensure the safety and happiness of
               all our guests
             </p>
+            <p className="mb-4 text-sm text-muted-foreground md:text-base">
+              We use premium but fair pricing with clear totals before
+              confirmation, no hidden fees, and no surprise add-ons.
+            </p>
             <p className="text-sm text-muted-foreground">
               Last updated: February 6, 2026
             </p>
@@ -254,6 +258,9 @@ export default function PoliciesPage() {
                       Late changes: Additional charges confirmed before
                       processing
                     </li>
+                    <li>
+                      Clear subtotal, tax, and total shown before confirmation
+                    </li>
                   </ul>
                 </div>
                 <div>
@@ -267,7 +274,9 @@ export default function PoliciesPage() {
                   </p>
                 </div>
                 <div>
-                  <h3 className="mb-2 font-semibold">Additional Fees</h3>
+                  <h3 className="mb-2 font-semibold">
+                    Additional Charges (Always Disclosed)
+                  </h3>
                   <ul className="ml-6 list-disc space-y-1 text-muted-foreground">
                     <li>Late pickup (after 8 PM): $25 per 30 minutes</li>
                     <li>Early drop-off (before 6 AM): $15 per occurrence</li>
@@ -385,6 +394,10 @@ export default function PoliciesPage() {
                 us before booking. We&apos;re happy to clarify and ensure
                 you&apos;re comfortable with our terms.
               </p>
+              <p className="mt-4 text-muted-foreground">
+                Total price is shown before confirmation with no hidden fees or
+                surprise add-ons, and our pricing remains premium but fair.
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -398,6 +411,10 @@ export default function PoliciesPage() {
           </h2>
           <p className="mb-8 text-lg opacity-90">
             Our team is here to help clarify any questions you may have
+          </p>
+          <p className="mb-6 text-sm opacity-90 md:text-base">
+            Premium but fair pricing is disclosed before confirmation with no
+            hidden fees and no surprise add-ons.
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" variant="secondary" asChild>

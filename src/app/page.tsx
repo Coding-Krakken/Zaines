@@ -39,7 +39,12 @@ export default function Home() {
             </p>
             <p className="mb-6 text-sm text-muted-foreground md:text-base">
               Only 3 private suites, owner onsite, camera-monitored safety, no
-              harsh chemicals, and no hidden fees.
+              harsh chemicals, and premium but fair pricing with no hidden
+              fees.
+            </p>
+            <p className="mb-4 text-sm text-muted-foreground md:text-base">
+              No surprise add-ons are introduced after your pre-confirmation
+              quote.
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Button size="lg" asChild>
@@ -211,7 +216,7 @@ export default function Home() {
                 <div className="mb-2 text-4xl">💵</div>
                 <CardTitle>All-In Pricing Clarity</CardTitle>
                 <CardDescription>
-                  Clear rate options before checkout
+                  Premium but fair rates shown before confirmation
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -230,7 +235,7 @@ export default function Home() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>No hidden booking fees at confirmation</span>
+                    <span>No hidden booking fees and no surprise add-ons</span>
                   </li>
                 </ul>
                 <Link
@@ -256,8 +261,7 @@ export default function Home() {
             family members
           </p>
           <p className="mb-6 text-sm opacity-90 md:text-base">
-            Clear total before confirmation, no hidden fees, and no surprise
-            add-ons.
+            Clear total before confirmation, no hidden fees, no surprise add-ons, and premium but fair pricing.
           </p>
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
             <Button size="lg" variant="secondary" asChild>
