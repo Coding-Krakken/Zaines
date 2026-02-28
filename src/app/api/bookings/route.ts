@@ -8,10 +8,7 @@ import {
   isStripeConfigured,
 } from "@/lib/stripe";
 import { sendBookingConfirmation } from "@/lib/notifications";
-import {
-  getCorrelationId,
-  logServerFailure,
-} from "@/lib/api/issue26";
+import { getCorrelationId, logServerFailure } from "@/lib/api/issue26";
 
 let hasLoggedStripeUnavailableWarning = false;
 const shouldLogBookingDiagnostics = process.env.NODE_ENV !== "test";
@@ -456,9 +453,13 @@ export async function POST(request: NextRequest) {
     }
 
     const responseSubtotal =
-      typeof booking.subtotal === "number" ? booking.subtotal : pricing.subtotal;
-    const responseTax = typeof booking.tax === "number" ? booking.tax : pricing.tax;
-    const responseTotal = Math.round((responseSubtotal + responseTax) * 100) / 100;
+      typeof booking.subtotal === "number"
+        ? booking.subtotal
+        : pricing.subtotal;
+    const responseTax =
+      typeof booking.tax === "number" ? booking.tax : pricing.tax;
+    const responseTotal =
+      Math.round((responseSubtotal + responseTax) * 100) / 100;
 
     return NextResponse.json(
       {

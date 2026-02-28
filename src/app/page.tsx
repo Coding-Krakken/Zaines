@@ -39,8 +39,7 @@ export default function Home() {
             </p>
             <p className="mb-6 text-sm text-muted-foreground md:text-base">
               Only 3 private suites, owner onsite, camera-monitored safety, no
-              harsh chemicals, and premium but fair pricing with no hidden
-              fees.
+              harsh chemicals, and premium but fair pricing with no hidden fees.
             </p>
             <p className="mb-4 text-sm text-muted-foreground md:text-base">
               No surprise add-ons are introduced after your pre-confirmation
@@ -261,7 +260,8 @@ export default function Home() {
             family members
           </p>
           <p className="mb-6 text-sm opacity-90 md:text-base">
-            Clear total before confirmation, no hidden fees, no surprise add-ons, and premium but fair pricing.
+            Clear total before confirmation, no hidden fees, no surprise
+            add-ons, and premium but fair pricing.
           </p>
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
             <Button size="lg" variant="secondary" asChild>

@@ -7,10 +7,7 @@ import {
   isStripeConfigured,
 } from "@/lib/stripe";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
-import {
-  getCorrelationId,
-  logServerFailure,
-} from "@/lib/api/issue26";
+import { getCorrelationId, logServerFailure } from "@/lib/api/issue26";
 
 type PaymentIntentPrisma = {
   booking: {

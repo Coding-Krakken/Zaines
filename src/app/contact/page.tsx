@@ -50,11 +50,11 @@ export default function ContactPage() {
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
               Only 3 private suites, owner onsite, camera-monitored safety, no
-              harsh chemicals, and premium but fair pricing with no hidden
-              fees.
+              harsh chemicals, and premium but fair pricing with no hidden fees.
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
-              You see a clear total before confirmation with no surprise add-ons and no hidden fees.
+              You see a clear total before confirmation with no surprise add-ons
+              and no hidden fees.
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               No surprise add-ons are introduced after your pre-confirmation

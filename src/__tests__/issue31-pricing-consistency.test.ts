@@ -23,13 +23,48 @@ const forbiddenClaimsForAllRoutes = [
 ];
 
 const routeAuditCases: RouteAuditCase[] = [
-  { route: "/", file: "src/app/page.tsx", requiredClaims: requiredClaimsForAllRoutes, forbiddenClaims: forbiddenClaimsForAllRoutes },
-  { route: "/pricing", file: "src/app/pricing/page.tsx", requiredClaims: requiredClaimsForAllRoutes, forbiddenClaims: forbiddenClaimsForAllRoutes },
-  { route: "/book", file: "src/app/book/page.tsx", requiredClaims: requiredClaimsForAllRoutes, forbiddenClaims: forbiddenClaimsForAllRoutes },
-  { route: "/contact", file: "src/app/contact/page.tsx", requiredClaims: requiredClaimsForAllRoutes, forbiddenClaims: forbiddenClaimsForAllRoutes },
-  { route: "/reviews", file: "src/app/reviews/page.tsx", requiredClaims: requiredClaimsForAllRoutes, forbiddenClaims: forbiddenClaimsForAllRoutes },
-  { route: "/faq", file: "src/app/faq/page.tsx", requiredClaims: requiredClaimsForAllRoutes, forbiddenClaims: forbiddenClaimsForAllRoutes },
-  { route: "/policies", file: "src/app/policies/page.tsx", requiredClaims: requiredClaimsForAllRoutes, forbiddenClaims: forbiddenClaimsForAllRoutes },
+  {
+    route: "/",
+    file: "src/app/page.tsx",
+    requiredClaims: requiredClaimsForAllRoutes,
+    forbiddenClaims: forbiddenClaimsForAllRoutes,
+  },
+  {
+    route: "/pricing",
+    file: "src/app/pricing/page.tsx",
+    requiredClaims: requiredClaimsForAllRoutes,
+    forbiddenClaims: forbiddenClaimsForAllRoutes,
+  },
+  {
+    route: "/book",
+    file: "src/app/book/page.tsx",
+    requiredClaims: requiredClaimsForAllRoutes,
+    forbiddenClaims: forbiddenClaimsForAllRoutes,
+  },
+  {
+    route: "/contact",
+    file: "src/app/contact/page.tsx",
+    requiredClaims: requiredClaimsForAllRoutes,
+    forbiddenClaims: forbiddenClaimsForAllRoutes,
+  },
+  {
+    route: "/reviews",
+    file: "src/app/reviews/page.tsx",
+    requiredClaims: requiredClaimsForAllRoutes,
+    forbiddenClaims: forbiddenClaimsForAllRoutes,
+  },
+  {
+    route: "/faq",
+    file: "src/app/faq/page.tsx",
+    requiredClaims: requiredClaimsForAllRoutes,
+    forbiddenClaims: forbiddenClaimsForAllRoutes,
+  },
+  {
+    route: "/policies",
+    file: "src/app/policies/page.tsx",
+    requiredClaims: requiredClaimsForAllRoutes,
+    forbiddenClaims: forbiddenClaimsForAllRoutes,
+  },
 ];
 
 function readRouteSource(relativePath: string) {

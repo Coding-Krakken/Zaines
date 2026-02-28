@@ -66,6 +66,7 @@
     "@types/pg": "^8.16.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "4.0.18",
     "axe-core": "^4.11.1",
     "cheerio": "^1.2.0",
     "eslint": "^9",

@@ -53,18 +53,18 @@ const { prismaMock } = vi.hoisted(() => {
     $transaction: vi.fn(
       async (callback: (tx: TransactionMock) => Promise<unknown>) => {
         const tx: TransactionMock = {
-        $executeRaw: vi.fn(async () => undefined),
-        booking: {
-          count: vi.fn(async () => 0),
-          create: vi.fn(async () => transactionBookingRecord),
-        },
-        suite: {
-          findFirst: vi.fn(async () => ({ id: "suite-001" })),
-        },
-        user: {
-          findUnique: vi.fn(async () => null),
-          upsert: vi.fn(async () => ({ id: "user-001" })),
-        },
+          $executeRaw: vi.fn(async () => undefined),
+          booking: {
+            count: vi.fn(async () => 0),
+            create: vi.fn(async () => transactionBookingRecord),
+          },
+          suite: {
+            findFirst: vi.fn(async () => ({ id: "suite-001" })),
+          },
+          user: {
+            findUnique: vi.fn(async () => null),
+            upsert: vi.fn(async () => ({ id: "user-001" })),
+          },
         };
 
         return callback(tx);
@@ -144,8 +144,14 @@ describe("Issue #31 CP2 booking pricing disclosure contract", () => {
       }),
     );
 
-    expect(payload.pricing.total).toBe(payload.pricing.subtotal + payload.pricing.tax);
-    expect(payload.pricing.disclosure.toLowerCase()).toContain("before confirmation");
-    expect(payload.pricing.disclosure.toLowerCase()).toContain("no hidden fees");
+    expect(payload.pricing.total).toBe(
+      payload.pricing.subtotal + payload.pricing.tax,
+    );
+    expect(payload.pricing.disclosure.toLowerCase()).toContain(
+      "before confirmation",
+    );
+    expect(payload.pricing.disclosure.toLowerCase()).toContain(
+      "no hidden fees",
+    );
   });
 });

@@ -82,8 +82,7 @@ export default function PricingPage() {
             </p>
             <p className="mb-6 text-sm text-muted-foreground md:text-base">
               Only 3 private suites, owner onsite, camera-monitored safety, no
-              harsh chemicals, and premium but fair pricing with no hidden
-              fees.
+              harsh chemicals, and premium but fair pricing with no hidden fees.
             </p>
             <div className="mb-4 md:hidden">
               <Button size="lg" className="w-full" asChild>
