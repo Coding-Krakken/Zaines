@@ -15,6 +15,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { CheckCircle2, ArrowLeft, Loader2 } from "lucide-react";
 import {
   stepPaymentSchema,
@@ -24,21 +26,35 @@ import { getStripe } from "@/lib/stripe-client";
 import { toast } from "sonner";
 
 interface StepPaymentProps {
-  data: Partial<StepPaymentData> & { clientSecret?: string };
+  data: Partial<StepPaymentData> & {
+    clientSecret?: string;
+    pricingDisclosureAccepted?: boolean;
+  };
   onUpdate: (
-    data: Partial<StepPaymentData> & { clientSecret?: string },
+    data: Partial<StepPaymentData> & {
+      clientSecret?: string;
+      pricingDisclosureAccepted?: boolean;
+    },
   ) => void;
   onNext: () => void;
   onBack: () => void;
   totalAmount: number; // From previous steps
 }
 
+const BOOKING_PRICING_MODEL_LABEL = "Pre-confirmation estimate";
+const BOOKING_PRICING_DISCLOSURE =
+  "Total price is shown before confirmation with no hidden fees or surprise add-ons.";
+
 function PaymentForm({
   onSuccess,
   onBack,
+  disclosureAccepted,
+  totalWithTax,
 }: {
   onSuccess: () => void;
   onBack: () => void;
+  disclosureAccepted: boolean;
+  totalWithTax: number;
 }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -85,7 +101,10 @@ function PaymentForm({
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
-        <Button type="submit" disabled={!stripe || isProcessing}>
+        <Button
+          type="submit"
+          disabled={!stripe || isProcessing || !disclosureAccepted}
+        >
           {isProcessing ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -93,7 +112,7 @@ function PaymentForm({
             </>
           ) : (
             <>
-              Pay Now
+              Confirm & Pay ${totalWithTax.toFixed(2)}
               <CheckCircle2 className="ml-2 h-4 w-4" />
             </>
           )}
@@ -111,12 +130,23 @@ export function StepPayment({
   totalAmount,
 }: StepPaymentProps) {
   const [clientSecret, setClientSecret] = useState(data.clientSecret || "");
+  const [pricingDisclosureAccepted, setPricingDisclosureAccepted] = useState(
+    Boolean(data.pricingDisclosureAccepted),
+  );
   const [isLoading, setIsLoading] = useState(false);
+  const subtotal = Math.round(totalAmount * 100) / 100;
+  const tax = Math.round(subtotal * 0.1 * 100) / 100;
+  const totalWithTax = Math.round((subtotal + tax) * 100) / 100;
 
   const handleNext = () => {
+    if (!pricingDisclosureAccepted) {
+      toast.error("Please acknowledge pricing disclosure before confirming.");
+      return;
+    }
+
     const validation = stepPaymentSchema.safeParse({
       paymentOption: "full",
-      amount: totalAmount,
+      amount: totalWithTax,
     });
 
     if (!validation.success) {
@@ -124,7 +154,11 @@ export function StepPayment({
       return;
     }
 
-    onUpdate({ paymentOption: "full", amount: totalAmount });
+    onUpdate({
+      paymentOption: "full",
+      amount: totalWithTax,
+      pricingDisclosureAccepted,
+    });
     onNext();
   };
 
@@ -135,7 +169,7 @@ export function StepPayment({
       const response = await fetch("/api/payments/create-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: totalAmount }),
+        body: JSON.stringify({ amount: totalWithTax }),
       });
 
       if (!response.ok) {
@@ -174,11 +208,48 @@ export function StepPayment({
           <CheckCircle2 className="h-5 w-5" />
           Payment Information
         </CardTitle>
-        <CardDescription>
-          Total Amount: ${totalAmount.toFixed(2)}
-        </CardDescription>
+        <CardDescription>{BOOKING_PRICING_MODEL_LABEL}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
+        <div className="rounded-lg border bg-muted/50 p-4">
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span>${subtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Tax</span>
+              <span>${tax.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between border-t pt-2 text-base font-semibold">
+              <span>Total before confirmation</span>
+              <span>${totalWithTax.toFixed(2)}</span>
+            </div>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {BOOKING_PRICING_DISCLOSURE}
+          </p>
+        </div>
+
+        <div className="flex items-start space-x-3 rounded-lg border p-4">
+          <Checkbox
+            id="pricing-disclosure"
+            checked={pricingDisclosureAccepted}
+            onCheckedChange={(checked) => {
+              const accepted = Boolean(checked);
+              setPricingDisclosureAccepted(accepted);
+              onUpdate({ pricingDisclosureAccepted: accepted });
+            }}
+          />
+          <Label
+            htmlFor="pricing-disclosure"
+            className="cursor-pointer text-sm leading-relaxed"
+          >
+            I reviewed this pre-confirmation estimate and understand there are
+            no hidden fees or surprise add-ons.
+          </Label>
+        </div>
+
         <Elements
           stripe={getStripe()}
           options={{
@@ -186,7 +257,12 @@ export function StepPayment({
             appearance: { theme: "stripe" },
           }}
         >
-          <PaymentForm onSuccess={handleNext} onBack={onBack} />
+          <PaymentForm
+            onSuccess={handleNext}
+            onBack={onBack}
+            disclosureAccepted={pricingDisclosureAccepted}
+            totalWithTax={totalWithTax}
+          />
         </Elements>
       </CardContent>
     </Card>

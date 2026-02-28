@@ -114,8 +114,8 @@ const faqCategories = {
       a: "Free cancellation up to 48 hours before check-in for full refund. Cancellations within 48 hours receive 50% refund. No-shows are not refunded.",
     },
     {
-      q: "Do you offer discounts?",
-      a: "Yes. We offer 10% off stays over 14 nights, 15% off for a second dog from the same family, and 20% off for third+ dogs sharing a suite.",
+      q: "How is pricing for multiple dogs handled?",
+      a: "Multi-dog pricing is itemized in your quote before confirmation so you can review a clear subtotal, tax, and total with no hidden fees.",
     },
     {
       q: "What if I pick up late?",
@@ -123,7 +123,7 @@ const faqCategories = {
     },
     {
       q: "Do you charge extra for holidays?",
-      a: "Yes, major holidays (Thanksgiving, Christmas, New Year's) have a 20% surcharge due to high demand. We recommend booking 2-3 months in advance for holidays.",
+      a: "Holiday pricing may differ for select dates and is always disclosed before confirmation. No hidden fees or surprise add-ons are introduced later.",
     },
   ],
 };
@@ -145,6 +145,10 @@ export default function FAQPage() {
             <p className="mb-8 text-xl text-muted-foreground">
               Find answers to common questions about our services, policies, and
               facility
+            </p>
+            <p className="mb-6 text-sm text-muted-foreground md:text-base">
+              We use premium but fair pricing with clear totals before
+              confirmation, no hidden fees, and no surprise add-ons.
             </p>
 
             {/* Search */}
@@ -304,6 +308,10 @@ export default function FAQPage() {
           <p className="mb-8 text-lg opacity-90">
             We&apos;re here to answer any remaining questions and get your pet
             scheduled
+          </p>
+          <p className="mb-6 text-sm opacity-90 md:text-base">
+            Premium but fair pricing is shown before confirmation with no hidden
+            fees and no surprise add-ons.
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" variant="secondary" asChild>

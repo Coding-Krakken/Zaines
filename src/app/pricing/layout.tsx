@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Pricing Private Dog Boarding Syracuse",
   description:
-    "Review planning ranges for private dog boarding Syracuse services, including small dog boarding Syracuse suite options and add-ons with transparent confirmation pricing.",
+    "Review premium but fair private boarding planning ranges with clear pricing before confirmation, no hidden fees, and no surprise add-ons.",
 };
 
 export default function PricingLayout({

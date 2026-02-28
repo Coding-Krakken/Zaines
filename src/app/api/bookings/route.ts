@@ -8,9 +8,28 @@ import {
   isStripeConfigured,
 } from "@/lib/stripe";
 import { sendBookingConfirmation } from "@/lib/notifications";
+import { getCorrelationId, logServerFailure } from "@/lib/api/issue26";
 
 let hasLoggedStripeUnavailableWarning = false;
 const shouldLogBookingDiagnostics = process.env.NODE_ENV !== "test";
+const BOOKING_PRICING_CURRENCY = "USD";
+const BOOKING_PRICING_MODEL_LABEL = "Pre-confirmation estimate";
+const BOOKING_PRICING_DISCLOSURE =
+  "Total price is shown before confirmation with no hidden fees or surprise add-ons.";
+
+function createBookingValidationDetails(validationError: z.ZodError): {
+  fields: string[];
+} {
+  const fields = validationError.issues
+    .map((issue) => issue.path.join("."))
+    .filter((field) => field.length > 0);
+
+  const uniqueSortedFields = [...new Set(fields)].sort((left, right) =>
+    left.localeCompare(right),
+  );
+
+  return { fields: uniqueSortedFields };
+}
 
 type BookingsApiPrisma = {
   $transaction: <T>(
@@ -42,6 +61,8 @@ type BookingsApiPrisma = {
 
 type BookingRecord = {
   id: string;
+  subtotal: number;
+  tax: number;
   total: number;
   bookingNumber: string;
   userId: string;
@@ -116,6 +137,8 @@ const bookingSchema = z.object({
 
 // POST /api/bookings - Create a new booking
 export async function POST(request: NextRequest) {
+  const correlationId = getCorrelationId(request);
+
   try {
     // Check if database is configured
     if (!isDatabaseConfigured()) {
@@ -137,7 +160,12 @@ export async function POST(request: NextRequest) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Invalid booking data", details: validation.error },
+        {
+          error: "Invalid booking data",
+          code: "BOOKING_VALIDATION_ERROR",
+          details: createBookingValidationDetails(validation.error),
+          correlationId,
+        },
         { status: 400 },
       );
     }
@@ -355,24 +383,15 @@ export async function POST(request: NextRequest) {
     try {
       await sendBookingConfirmation(booking);
     } catch (err) {
-      console.error("Notification send error:", err);
+      logServerFailure(
+        "/api/bookings",
+        "BOOKING_NOTIFICATION_FAILED",
+        correlationId,
+        err,
+      );
     }
 
-    // Check if Stripe is configured dynamically via request headers
-    const stripePublishableKey = request.headers.get(
-      "x-stripe-publishable-key",
-    );
-    const stripeSecretKey = request.headers.get("x-stripe-secret-key");
-
-    // Use a local variable for the dynamically configured Stripe instance
-    let stripeInstance = stripe;
-    if (stripePublishableKey && stripeSecretKey) {
-      const StripeConstructor = (await import("stripe")).default;
-      stripeInstance = new StripeConstructor(stripeSecretKey, {
-        apiVersion: "2026-02-25.clover",
-      });
-      console.log("Stripe dynamically configured via request headers.");
-    } else if (!isStripeConfigured()) {
+    if (!isStripeConfigured()) {
       if (
         process.env.NODE_ENV !== "test" &&
         !hasLoggedStripeUnavailableWarning
@@ -396,7 +415,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (!existingPayment) {
-          const paymentIntent = await stripeInstance.paymentIntents.create({
+          const paymentIntent = await stripe.paymentIntents.create({
             amount: formatAmountForStripe(booking.total),
             currency: "usd",
             automatic_payment_methods: { enabled: true },
@@ -423,12 +442,24 @@ export async function POST(request: NextRequest) {
           clientSecret = paymentIntent.client_secret || undefined;
         }
       } catch (error) {
-        if (shouldLogBookingDiagnostics) {
-          console.error("Failed to create payment intent:", error);
-        }
+        logServerFailure(
+          "/api/bookings",
+          "BOOKING_PAYMENT_INTENT_FAILED",
+          correlationId,
+          error,
+        );
         // Don't fail booking if payment creation fails
       }
     }
+
+    const responseSubtotal =
+      typeof booking.subtotal === "number"
+        ? booking.subtotal
+        : pricing.subtotal;
+    const responseTax =
+      typeof booking.tax === "number" ? booking.tax : pricing.tax;
+    const responseTotal =
+      Math.round((responseSubtotal + responseTax) * 100) / 100;
 
     return NextResponse.json(
       {
@@ -442,6 +473,14 @@ export async function POST(request: NextRequest) {
           total: booking.total,
           status: booking.status,
         },
+        pricing: {
+          subtotal: responseSubtotal,
+          tax: responseTax,
+          total: responseTotal,
+          currency: BOOKING_PRICING_CURRENCY,
+          pricingModelLabel: BOOKING_PRICING_MODEL_LABEL,
+          disclosure: BOOKING_PRICING_DISCLOSURE,
+        },
         payment: clientSecret ? { clientSecret } : undefined,
         message: clientSecret
           ? "Booking created. Please complete payment."
@@ -450,9 +489,12 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (error) {
-    if (shouldLogBookingDiagnostics) {
-      console.error("Booking creation error:", error);
-    }
+    logServerFailure(
+      "/api/bookings",
+      "BOOKING_CREATE_FAILED",
+      correlationId,
+      error,
+    );
 
     // Handle custom business logic errors
     if (error instanceof Error) {
@@ -567,7 +609,12 @@ export async function GET() {
 
     return NextResponse.json({ bookings });
   } catch (error) {
-    console.error("Fetch bookings error:", error);
+    logServerFailure(
+      "/api/bookings",
+      "BOOKINGS_FETCH_FAILED",
+      "booking-list",
+      error,
+    );
     return NextResponse.json(
       { error: "Failed to fetch bookings" },
       { status: 500 },
