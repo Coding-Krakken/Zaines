@@ -7,13 +7,17 @@ on:
       - '.ai-team/team.md'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
 permissions:
   issues: write
   contents: read
 
 jobs:
   sync-labels:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64, arch, runner2, light]
     steps:
       - uses: actions/checkout@v4
 
