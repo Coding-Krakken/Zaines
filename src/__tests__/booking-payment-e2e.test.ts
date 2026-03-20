@@ -256,6 +256,16 @@ describe("Booking → Payment E2E Flow", () => {
     expect(response.status).toBe(201);
     expect(data.success).toBe(true);
     expect(data.booking).toBeDefined();
+    expect(data.pricing).toBeDefined();
+    expect(data.pricing.subtotal).toBeTypeOf("number");
+    expect(data.pricing.tax).toBeTypeOf("number");
+    expect(data.pricing.total).toBe(data.pricing.subtotal + data.pricing.tax);
+    expect(data.pricing.currency).toBe("USD");
+    expect(data.pricing.pricingModelLabel).toBe("Pre-confirmation estimate");
+    expect(data.pricing.disclosure.toLowerCase()).toContain(
+      "before confirmation",
+    );
+    expect(data.pricing.disclosure.toLowerCase()).toContain("no hidden fees");
     expect(data.payment).toBeDefined();
     expect(data.payment?.clientSecret).toBe("pi_test_123_secret_456");
     expect(data.message).toContain("Please complete payment");
@@ -343,6 +353,12 @@ describe("Booking → Payment E2E Flow", () => {
     expect(response.status).toBe(201);
     expect(data.success).toBe(true);
     expect(data.booking).toBeDefined();
+    expect(data.pricing).toBeDefined();
+    expect(data.pricing.total).toBe(data.pricing.subtotal + data.pricing.tax);
+    expect(data.pricing.disclosure.toLowerCase()).toContain(
+      "before confirmation",
+    );
+    expect(data.pricing.disclosure.toLowerCase()).toContain("no hidden fees");
     expect(data.payment).toBeUndefined(); // No payment object when Stripe fails
   });
 

@@ -1,41 +1,22 @@
 # Accessibility scan summary
+- Base: http://localhost:3000
+- Scanned at: 2026-02-28T05:10:00.741Z
 
-- Base: http://127.0.0.1:3100
-- Scanned at: 2026-02-27T19:24:57.640Z
-
-- / — Violations: 2
-  - Example: heading-order — Heading levels should only increase by one (nodes: 1)
-- /about — Violations: 1
-  - Example: link-name — Links must have discernible text (nodes: 3)
-- /contact — Violations: 1
-  - Example: link-name — Links must have discernible text (nodes: 3)
-- /book — Violations: 2
-  - Example: heading-order — Heading levels should only increase by one (nodes: 1)
-- /dog — Violations: 2
-  - Example: aria-progressbar-name — ARIA progressbar nodes must have an accessible name (nodes: 1)
-- /dog/calm — Violations: 1
-  - Example: link-name — Links must have discernible text (nodes: 3)
-- /faq — Violations: 2
-  - Example: heading-order — Heading levels should only increase by one (nodes: 1)
-- /gallery — Violations: 3
-  - Example: aria-valid-attr-value — ARIA attributes must conform to valid values (nodes: 1)
-- /policies — Violations: 2
-  - Example: heading-order — Heading levels should only increase by one (nodes: 1)
-- /pricing — Violations: 1
-  - Example: link-name — Links must have discernible text (nodes: 3)
-- /privacy — Violations: 1
-  - Example: link-name — Links must have discernible text (nodes: 3)
-- /reviews — Violations: 1
-  - Example: link-name — Links must have discernible text (nodes: 3)
-- /services/boarding — Violations: 1
-  - Example: link-name — Links must have discernible text (nodes: 3)
-- /services/daycare — Violations: 1
-  - Example: link-name — Links must have discernible text (nodes: 3)
-- /services/grooming — Violations: 1
-  - Example: link-name — Links must have discernible text (nodes: 3)
-- /services/training — Violations: 1
-  - Example: link-name — Links must have discernible text (nodes: 3)
-- /suites — Violations: 1
-  - Example: link-name — Links must have discernible text (nodes: 3)
-- /auth/signin — Violations: 1
-  - Example: link-name — Links must have discernible text (nodes: 3)
+- / — Violations: 0
+- /about — Violations: 0
+- /contact — Violations: 0
+- /book — Violations: 0
+- /dog — Violations: 0
+- /dog/calm — Violations: 0
+- /faq — Violations: 0
+- /gallery — Violations: 0
+- /policies — Violations: 0
+- /pricing — Violations: 0
+- /privacy — Violations: 0
+- /reviews — Violations: 0
+- /services/boarding — Violations: 0
+- /services/daycare — Violations: 0
+- /services/grooming — Violations: 0
+- /services/training — Violations: 0
+- /suites — Violations: 0
+- /auth/signin — Violations: 0

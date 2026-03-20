@@ -7,6 +7,19 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./tests/setup/cleanupTmp.ts'],
     exclude: ['**/node_modules/**', '**/dist/**', 'tests/e2e/**', '.github/framework/**'],
+    coverage: {
+      provider: 'v8',
+      exclude: [
+        'src/components/ui/**',
+        'src/app/**/layout.tsx',
+        'src/app/about/**',
+        'src/app/contact/components/**',
+        'node_modules/**',
+        'tests/**',
+        '**/*.config.*',
+        '**/*.d.ts',
+      ],
+    },
   },
   resolve: {
     alias: {

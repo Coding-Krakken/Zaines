@@ -1,132 +1,222 @@
 {
-  "base": "http://127.0.0.1:3100",
-  "scannedAt": "2026-02-27T19:24:55.608Z",
+  "base": "http://localhost:3000",
+  "scannedAt": "2026-02-28T05:09:56.832Z",
   "results": [
     {
       "route": "/",
-      "url": "http://127.0.0.1:3100/",
+      "url": "http://localhost:3000/",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/about",
-      "url": "http://127.0.0.1:3100/about",
+      "url": "http://localhost:3000/about",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/contact",
-      "url": "http://127.0.0.1:3100/contact",
+      "url": "http://localhost:3000/contact",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/book",
-      "url": "http://127.0.0.1:3100/book",
+      "url": "http://localhost:3000/book",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/dog",
-      "url": "http://127.0.0.1:3100/dog",
+      "url": "http://localhost:3000/dog",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/dog/calm",
-      "url": "http://127.0.0.1:3100/dog/calm",
+      "url": "http://localhost:3000/dog/calm",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/faq",
-      "url": "http://127.0.0.1:3100/faq",
+      "url": "http://localhost:3000/faq",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/gallery",
-      "url": "http://127.0.0.1:3100/gallery",
+      "url": "http://localhost:3000/gallery",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/policies",
-      "url": "http://127.0.0.1:3100/policies",
+      "url": "http://localhost:3000/policies",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/pricing",
-      "url": "http://127.0.0.1:3100/pricing",
+      "url": "http://localhost:3000/pricing",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/privacy",
-      "url": "http://127.0.0.1:3100/privacy",
+      "url": "http://localhost:3000/privacy",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/reviews",
-      "url": "http://127.0.0.1:3100/reviews",
+      "url": "http://localhost:3000/reviews",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/services/boarding",
-      "url": "http://127.0.0.1:3100/services/boarding",
+      "url": "http://localhost:3000/services/boarding",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/services/daycare",
-      "url": "http://127.0.0.1:3100/services/daycare",
+      "url": "http://localhost:3000/services/daycare",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/services/grooming",
-      "url": "http://127.0.0.1:3100/services/grooming",
+      "url": "http://localhost:3000/services/grooming",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/services/training",
-      "url": "http://127.0.0.1:3100/services/training",
+      "url": "http://localhost:3000/services/training",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/suites",
-      "url": "http://127.0.0.1:3100/suites",
+      "url": "http://localhost:3000/suites",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     },
     {
       "route": "/auth/signin",
-      "url": "http://127.0.0.1:3100/auth/signin",
+      "url": "http://localhost:3000/auth/signin",
       "status": 200,
-      "issuesCount": 0,
-      "issues": []
+      "issuesCount": 1,
+      "issues": [
+        {
+          "type": "no-heading",
+          "detail": "no h1-h6 found"
+        }
+      ]
     }
   ]
 }

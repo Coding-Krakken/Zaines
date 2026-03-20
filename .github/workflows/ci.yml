@@ -39,6 +39,9 @@ jobs:
       - name: Run linter
         run: pnpm run lint
 
+      - name: Enforce agent autonomy policy
+        run: pnpm run lint:agents
+
       - name: Run tests
         run: pnpm test
 

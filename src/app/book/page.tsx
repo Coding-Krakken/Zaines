@@ -88,10 +88,12 @@ export default function BookPage() {
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
             Only 3 private suites, owner onsite, camera-monitored safety, no
-            harsh chemicals, and no hidden fees.
+            harsh chemicals, and premium but fair pricing with no hidden fees.
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
             You see a clear total before confirmation with no surprise add-ons.
+            Total price is shown before confirmation with no hidden fees or
+            surprise add-ons.
           </p>
         </div>
 

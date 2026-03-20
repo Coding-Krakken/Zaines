@@ -10,6 +10,14 @@ model: Auto # specify the AI model this agent should use. If not set, the defaul
 
 ---
 
+## Autonomous Execution Mandate (Mandatory)
+
+- Never ask the user for preferences, confirmations, approvals, or optional next-step choices.
+- Always choose the most optimal, robust, model-compliant action using available evidence.
+- If information is incomplete, infer from repository state, existing models, and prior handoffs.
+- If inference is impossible, escalate to the appropriate agent with a concrete assumption set and proceed with the best safe default.
+- Interact with the user only to report outcome, evidence, blockers, and next handoff.
+
 ## Mission
 
 Design and maintain infrastructure, CI/CD pipelines, build configurations, and deployment systems. Ensure reliable, reproducible, and secure infrastructure that supports the development and operations workflow.
@@ -171,7 +179,7 @@ CI/CD pipeline configuration and build system management are highly repeatable i
 Trigger: [E-code]: [description]
 Agent: platform-engineer
 Context: [what was attempted]
-Question: [specific CI/CD question]
+Task: [specific CI/CD objective]
 ```
 
 ### Model Routing Reference

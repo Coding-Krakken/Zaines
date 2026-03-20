@@ -1,0 +1,13 @@
+#!/bin/sh
+
+printf "[pre-commit] Enforcing agent autonomy policy...\n"
+pnpm run lint:agents
+RESULT=$?
+
+if [ $RESULT -ne 0 ]; then
+  printf "[pre-commit] Blocked: agent autonomy policy violations detected.\n"
+  exit $RESULT
+fi
+
+printf "[pre-commit] Passed.\n"
+exit 0

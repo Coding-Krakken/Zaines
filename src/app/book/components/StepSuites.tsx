@@ -250,9 +250,13 @@ export function StepSuites({
           </div>
         </div>
 
-        {/* Add-Ons Selection */}
+        {/* Optional Care Selection */}
         <div className="space-y-3">
-          <Label>Add-Ons (Optional)</Label>
+          <Label>Optional Care Selections</Label>
+          <p className="text-sm text-muted-foreground">
+            Select only what you want added to your quote. No surprise add-ons
+            are applied automatically.
+          </p>
           <div className="space-y-2 rounded-lg border p-4">
             {ADD_ONS.map((addOn) => {
               const isChecked = selectedAddOns.includes(addOn.id);
@@ -325,7 +329,8 @@ export function StepSuites({
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Tax and final total calculated at payment
+                  Subtotal is shown now. Tax and final total are shown before
+                  confirmation with no hidden fees or surprise add-ons.
                 </p>
               </div>
             </div>
