@@ -15,10 +15,6 @@ on:
   # Manual trigger
   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref || github.event.issue.number || github.event.pull_request.number || github.run_id }}
-  cancel-in-progress: true
-
 permissions:
   issues: write
   contents: read
@@ -26,7 +22,7 @@ permissions:
 
 jobs:
   heartbeat:
-    runs-on: [self-hosted, Linux, X64, arch, runner2, light]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 

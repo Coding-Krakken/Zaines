@@ -4,10 +4,6 @@ on:
   issues:
     types: [labeled]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref || github.event.issue.number || github.run_id }}
-  cancel-in-progress: true
-
 permissions:
   issues: write
   contents: read
@@ -16,7 +12,7 @@ jobs:
   assign-work:
     # Only trigger on squad:{member} labels (not the base "squad" label)
     if: startsWith(github.event.label.name, 'squad:')
-    runs-on: [self-hosted, Linux, X64, arch, runner2, light]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
