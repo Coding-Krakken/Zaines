@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default async function PetsPage() {
   const session = await auth();
@@ -25,9 +26,9 @@ export default async function PetsPage() {
     <div className="container mx-auto p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">My Pets</h1>
-        <Link href="/dashboard/pets/new" className="btn">
-          Add Pet
-        </Link>
+        <Button asChild>
+          <Link href="/dashboard/pets/new">Add Pet</Link>
+        </Button>
       </div>
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -40,12 +41,18 @@ export default async function PetsPage() {
             <div className="text-sm text-muted-foreground">
               {p.breed || "Unknown"}
             </div>
-            <div className="mt-3">
+            <div className="mt-3 flex gap-3">
               <Link
                 href={`/dashboard/pets/${p.id}`}
                 className="text-sm text-primary"
               >
                 View
+              </Link>
+              <Link
+                href={`/dashboard/pets/${p.id}/edit`}
+                className="text-sm text-primary"
+              >
+                Edit
               </Link>
             </div>
           </div>
