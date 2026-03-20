@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
 // ── hoisted mocks ──────────────────────────────────────────────────────────
@@ -54,7 +54,7 @@ import { headers as nextHeaders } from "next/headers";
 
 const headersMock = nextHeaders as unknown as ReturnType<typeof vi.fn>;
 
-function makeRequest(body = "{}", sig: string | null = "t=1,v1=abc") {
+function makeRequest(body = "{}") {
   const req = new NextRequest("http://localhost/api/payments/webhook", {
     method: "POST",
     body,

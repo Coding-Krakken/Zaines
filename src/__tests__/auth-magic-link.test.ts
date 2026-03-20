@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
 const { signInMock } = vi.hoisted(() => ({
-  signInMock: vi.fn(async () => ({ ok: true })),
+  signInMock: vi.fn(async (): Promise<{ ok?: boolean; error?: Error }> => ({ ok: true })),
 }));
 
 vi.mock("@/lib/auth", () => ({
