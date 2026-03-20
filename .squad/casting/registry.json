@@ -1,0 +1,46 @@
+{
+  "agents": {
+    "vincent": {
+      "created_at": "2026-03-20T02:40:05.072Z",
+      "persistent_name": "Vincent",
+      "universe": "Pulp Fiction",
+      "status": "active"
+    },
+    "jules": {
+      "created_at": "2026-03-20T02:40:05.072Z",
+      "persistent_name": "Jules",
+      "universe": "Pulp Fiction",
+      "status": "active"
+    },
+    "mia": {
+      "created_at": "2026-03-20T02:40:05.072Z",
+      "persistent_name": "Mia",
+      "universe": "Pulp Fiction",
+      "status": "active"
+    },
+    "butch": {
+      "created_at": "2026-03-20T02:40:05.072Z",
+      "persistent_name": "Butch",
+      "universe": "Pulp Fiction",
+      "status": "active"
+    },
+    "winston": {
+      "created_at": "2026-03-20T02:40:05.072Z",
+      "persistent_name": "Winston",
+      "universe": "Pulp Fiction",
+      "status": "active"
+    },
+    "scribe": {
+      "created_at": "2026-03-20T02:40:05.072Z",
+      "persistent_name": "Scribe",
+      "universe": "Pulp Fiction",
+      "status": "active"
+    },
+    "ralph": {
+      "created_at": "2026-03-20T02:40:05.072Z",
+      "persistent_name": "Ralph",
+      "universe": "Pulp Fiction",
+      "status": "active"
+    }
+  }
+}
