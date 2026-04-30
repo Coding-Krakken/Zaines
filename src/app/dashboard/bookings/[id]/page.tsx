@@ -1,37 +1,15 @@
-import { auth } from "@/lib/auth";
-import { prisma, isDatabaseConfigured } from "@/lib/prisma";
-import { redirect } from "next/navigation";
+import { auth } from '@/lib/auth';
+import { prisma, isDatabaseConfigured } from '@/lib/prisma';
+import { redirect } from 'next/navigation';
+import { CancelBookingButton } from './CancelBookingButton';
 
-type Props = { params: { id: string } };
+type Props = { params: Promise<{ id: string }> };
 
-type BookingDetailPrisma = {
-  booking: {
-    findUnique: (args: {
-      where: { id: string };
-      include: {
-        suite: boolean;
-        bookingPets: { include: { pet: boolean } };
-        payments: boolean;
-      };
-    }) => Promise<{
-      userId: string;
-      bookingNumber: string;
-      checkInDate: Date;
-      checkOutDate: Date;
-      total: number;
-      status: string;
-      suite?: { name?: string; tier?: string } | null;
-      bookingPets: Array<{ id: string; pet?: { name?: string } | null }>;
-      payments: Array<{ id: string; status: string; amount: number }>;
-    } | null>;
-  };
-};
-
-const bookingDetailPrisma = prisma as unknown as BookingDetailPrisma;
+const CANCELLABLE_STATUSES = ['pending', 'confirmed'];
 
 export default async function BookingDetail({ params }: Props) {
   const session = await auth();
-  if (!session?.user?.id) return redirect("/auth/signin");
+  if (!session?.user?.id) return redirect('/auth/signin');
 
   if (!isDatabaseConfigured()) {
     return (
@@ -42,8 +20,9 @@ export default async function BookingDetail({ params }: Props) {
     );
   }
 
-  const booking = await bookingDetailPrisma.booking.findUnique({
-    where: { id: params.id },
+  const { id } = await params;
+  const booking = await prisma.booking.findUnique({
+    where: { id },
     include: {
       suite: true,
       bookingPets: { include: { pet: true } },
@@ -75,16 +54,14 @@ export default async function BookingDetail({ params }: Props) {
           </p>
           <h3 className="mt-3 font-medium">Dates</h3>
           <p className="text-sm">
-            {new Date(booking.checkInDate).toLocaleString()} →{" "}
+            {new Date(booking.checkInDate).toLocaleString()} →{' '}
             {new Date(booking.checkOutDate).toLocaleString()}
           </p>
           <h3 className="mt-3 font-medium">Pets</h3>
           <ul className="text-sm list-disc pl-5">
-            {booking.bookingPets.map(
-              (bp: { id: string; pet?: { name?: string } | null }) => (
-                <li key={bp.id}>{bp.pet?.name || "Pet"}</li>
-              ),
-            )}
+            {booking.bookingPets.map((bp) => (
+              <li key={bp.id}>{bp.pet?.name || 'Pet'}</li>
+            ))}
           </ul>
         </div>
 
@@ -94,14 +71,15 @@ export default async function BookingDetail({ params }: Props) {
           <p className="text-sm">Status: {booking.status}</p>
           <h3 className="mt-3 font-medium">Payments</h3>
           <ul className="text-sm list-disc pl-5">
-            {booking.payments.map(
-              (pay: { id: string; status: string; amount: number }) => (
-                <li key={pay.id}>
-                  {pay.status} — ${pay.amount}
-                </li>
-              ),
-            )}
+            {booking.payments.map((pay) => (
+              <li key={pay.id}>
+                {pay.status} — ${pay.amount}
+              </li>
+            ))}
           </ul>
+          {CANCELLABLE_STATUSES.includes(booking.status) && (
+            <CancelBookingButton bookingId={booking.id} />
+          )}
         </div>
       </div>
     </div>
