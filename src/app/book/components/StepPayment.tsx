@@ -237,9 +237,6 @@ export function StepPayment({
     Boolean(data.pricingDisclosureAccepted),
   );
   const [bookingError, setBookingError] = useState<string>("");
-  const [hasAttemptedInit, setHasAttemptedInit] = useState(
-    Boolean(data.bookingId),
-  );
   const [isLoading, setIsLoading] = useState(false);
   const subtotal = Math.round((pricingQuote?.subtotal || 0) * 100) / 100;
   const tax = Math.round((pricingQuote?.tax || 0) * 100) / 100;
@@ -294,8 +291,8 @@ export function StepPayment({
       return;
     }
 
-    setIsLoading(true);
     setBookingError("");
+    setIsLoading(true);
 
     try {
       const response = await fetch("/api/bookings", {
@@ -376,13 +373,12 @@ export function StepPayment({
   }, [bookingPayload, onUpdate, pricingQuote]);
 
   useEffect(() => {
-    if (bookingId || isLoading || hasAttemptedInit) {
+    if (bookingId || isLoading) {
       return;
     }
 
-    setHasAttemptedInit(true);
     void initializeBookingAndPayment();
-  }, [bookingId, hasAttemptedInit, isLoading, initializeBookingAndPayment]);
+  }, [bookingId, isLoading, initializeBookingAndPayment]);
 
   if (!bookingId) {
     return (

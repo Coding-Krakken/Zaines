@@ -104,13 +104,6 @@ export function StepPets({
     temperament: "friendly",
   });
 
-  // Fetch existing pets if authenticated
-  useEffect(() => {
-    if (session?.user?.id) {
-      fetchPets();
-    }
-  }, [session]);
-
   const fetchPets = async () => {
     try {
       const response = await fetch("/api/pets");
@@ -122,6 +115,13 @@ export function StepPets({
       console.error("Failed to fetch pets:", error);
     }
   };
+
+  // Fetch existing pets if authenticated
+  useEffect(() => {
+    if (session?.user?.id) {
+      void fetchPets();
+    }
+  }, [session?.user?.id]);
 
   const toPersistedNewPet = (pet: DraftPet): NewPetData => {
     const { tempId, ...persistedPet } = pet;

@@ -110,8 +110,8 @@ export default function BookPage() {
     let isCancelled = false;
 
     const validatePricing = async () => {
-      setIsQuoteLoading(true);
       setQuoteError(null);
+      setIsQuoteLoading(true);
 
       try {
         const response = await fetch("/api/bookings/validate", {

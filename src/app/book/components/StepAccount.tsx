@@ -77,23 +77,32 @@ export function StepAccount({
       return;
     }
 
-    if (!email && session.user.email) {
-      setEmail(session.user.email);
-    }
+    // Only sync email and name from session on initial load
+    const userEmail = session.user.email || "";
+    const fullName = session.user.name?.trim() || "";
 
-    if (!firstName || !lastName) {
-      const fullName = session.user.name?.trim() || "";
+    setEmail((prevEmail) =>
+      !prevEmail && userEmail ? userEmail : prevEmail
+    );
+
+    setFirstName((prevFirst) => {
+      if (prevFirst) return prevFirst;
+      if (fullName) {
+        const [givenName] = fullName.split(/\s+/);
+        return givenName || "";
+      }
+      return prevFirst;
+    });
+
+    setLastName((prevLast) => {
+      if (prevLast) return prevLast;
       if (fullName) {
         const [givenName, ...rest] = fullName.split(/\s+/);
-        if (!firstName) {
-          setFirstName(givenName || "");
-        }
-        if (!lastName) {
-          setLastName(rest.join(" ") || givenName || "");
-        }
+        return rest.join(" ") || givenName || "";
       }
-    }
-  }, [session, email, firstName, lastName]);
+      return prevLast;
+    });
+  }, [session?.user]);
 
   const handleSendMagicLink = async () => {
     setMagicLinkError("");
