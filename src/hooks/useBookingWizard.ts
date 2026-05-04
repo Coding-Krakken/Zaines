@@ -9,6 +9,13 @@ import type {
   StepWaiverData,
   StepPaymentData,
 } from "@/lib/validations/booking-wizard";
+import {
+  stepAccountSchema,
+  stepDatesSchema,
+  stepPetsSchema,
+  stepSuitesSchema,
+  stepWaiverSchema,
+} from "@/lib/validations/booking-wizard";
 
 export type BookingStep =
   | "dates"
@@ -37,6 +44,50 @@ const STEPS: BookingStep[] = [
 ];
 const STORAGE_KEY = "booking-wizard-progress";
 
+const STEP_VALIDATORS = {
+  dates: stepDatesSchema,
+  suites: stepSuitesSchema,
+  account: stepAccountSchema,
+  pets: stepPetsSchema,
+  waiver: stepWaiverSchema,
+};
+
+function isBookingStep(value: unknown): value is BookingStep {
+  return typeof value === "string" && STEPS.includes(value as BookingStep);
+}
+
+function isStepDataComplete(
+  wizardData: BookingWizardData,
+  step: keyof typeof STEP_VALIDATORS,
+): boolean {
+  const stepData = wizardData[step];
+
+  return Boolean(stepData && STEP_VALIDATORS[step].safeParse(stepData).success);
+}
+
+export function getRestoredWizardStep(
+  wizardData: BookingWizardData,
+  requestedStep: BookingStep,
+): BookingStep {
+  const requestedIndex = STEPS.indexOf(requestedStep);
+
+  for (let index = 0; index < requestedIndex; index += 1) {
+    const prerequisiteStep = STEPS[index];
+
+    if (
+      prerequisiteStep !== "payment" &&
+      !isStepDataComplete(
+        wizardData,
+        prerequisiteStep as keyof typeof STEP_VALIDATORS,
+      )
+    ) {
+      return prerequisiteStep;
+    }
+  }
+
+  return requestedStep;
+}
+
 /**
  * Custom hook for managing booking wizard state
  * Handles step navigation, data persistence, and validation
@@ -53,12 +104,17 @@ export function useBookingWizard() {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
+          const requestedStep = isBookingStep(parsed.currentStep)
+            ? parsed.currentStep
+            : "dates";
           const progressData = {
             data: parsed.data || {},
-            step: parsed.currentStep || ("dates" as BookingStep),
+            step: requestedStep,
           };
           setWizardData(progressData.data);
-          setCurrentStep(progressData.step);
+          setCurrentStep(
+            getRestoredWizardStep(progressData.data, progressData.step),
+          );
         }
       } catch (error) {
         console.error("Failed to load saved progress:", error);

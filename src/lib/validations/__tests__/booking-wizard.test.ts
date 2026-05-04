@@ -48,7 +48,7 @@ describe("Validation Schemas", () => {
 
   it("validates stepPetsSchema", () => {
     const validData = {
-      selectedPetIds: ["pet1"],
+      selectedPetIds: [],
       newPets: [
         {
           name: "Max",
@@ -59,12 +59,6 @@ describe("Validation Schemas", () => {
         },
       ],
       vaccines: [
-        {
-          petId: "pet1",
-          fileUrl: "https://example.com/vaccine.pdf",
-          fileName: "vaccine.pdf",
-          fileSize: 1024,
-        },
         {
           petId: "newPet1",
           fileUrl: "https://example.com/vaccine2.pdf",
@@ -77,6 +71,16 @@ describe("Validation Schemas", () => {
 
     const invalidData = { ...validData, vaccines: [] };
     expect(() => stepPetsSchema.parse(invalidData)).toThrow();
+  });
+
+  it("requires at least one selected or newly added pet", () => {
+    expect(() =>
+      stepPetsSchema.parse({
+        selectedPetIds: [],
+        newPets: [],
+        vaccines: [],
+      }),
+    ).toThrow();
   });
 
   it("validates stepWaiverSchema", () => {

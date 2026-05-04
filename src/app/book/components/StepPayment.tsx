@@ -91,6 +91,59 @@ const BOOKING_PRICING_MODEL_LABEL = "Pre-confirmation estimate";
 const BOOKING_PRICING_DISCLOSURE =
   "Total price is shown before confirmation with no hidden fees or surprise add-ons.";
 
+function PricingDisclosureCard({
+  subtotal,
+  tax,
+  totalWithTax,
+  disclosure,
+  pricingDisclosureAccepted,
+  onPricingDisclosureChange,
+}: {
+  subtotal: number;
+  tax: number;
+  totalWithTax: number;
+  disclosure: string;
+  pricingDisclosureAccepted: boolean;
+  onPricingDisclosureChange: (accepted: boolean) => void;
+}) {
+  return (
+    <>
+      <div className="rounded-lg border bg-muted/50 p-4">
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span>Subtotal</span>
+            <span>${subtotal.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Tax</span>
+            <span>${tax.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between border-t pt-2 text-base font-semibold">
+            <span>Total before confirmation</span>
+            <span>${totalWithTax.toFixed(2)}</span>
+          </div>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">{disclosure}</p>
+      </div>
+
+      <div className="flex items-start space-x-3 rounded-lg border p-4">
+        <Checkbox
+          id="pricing-disclosure"
+          checked={pricingDisclosureAccepted}
+          onCheckedChange={(checked) => onPricingDisclosureChange(Boolean(checked))}
+        />
+        <Label
+          htmlFor="pricing-disclosure"
+          className="cursor-pointer text-sm leading-relaxed"
+        >
+          I reviewed this pre-confirmation estimate and understand there are
+          no hidden fees or surprise add-ons.
+        </Label>
+      </div>
+    </>
+  );
+}
+
 function PaymentForm({
   onSuccess,
   onBack,
@@ -191,6 +244,12 @@ export function StepPayment({
   const subtotal = Math.round((pricingQuote?.subtotal || 0) * 100) / 100;
   const tax = Math.round((pricingQuote?.tax || 0) * 100) / 100;
   const totalWithTax = Math.round((pricingQuote?.total || totalAmount) * 100) / 100;
+  const disclosure = pricingQuote?.disclosure || BOOKING_PRICING_DISCLOSURE;
+
+  const handleDisclosureChange = (accepted: boolean) => {
+    setPricingDisclosureAccepted(accepted);
+    onUpdate({ pricingDisclosureAccepted: accepted });
+  };
 
   const finalizeBooking = () => {
     if (!bookingId || !bookingPayload) {
@@ -336,7 +395,10 @@ export function StepPayment({
           {bookingError ? (
             <p className="text-sm text-destructive">{bookingError}</p>
           ) : null}
-          <Button onClick={initializeBookingAndPayment} disabled={isLoading}>
+          <Button
+            onClick={initializeBookingAndPayment}
+            disabled={isLoading && !bookingError}
+          >
             Retry
           </Button>
           <Button variant="outline" onClick={onBack} disabled={isLoading}>
@@ -359,6 +421,14 @@ export function StepPayment({
           <CardDescription>{BOOKING_PRICING_MODEL_LABEL}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <PricingDisclosureCard
+            subtotal={subtotal}
+            tax={tax}
+            totalWithTax={totalWithTax}
+            disclosure={disclosure}
+            pricingDisclosureAccepted={pricingDisclosureAccepted}
+            onPricingDisclosureChange={handleDisclosureChange}
+          />
           <p className="text-sm text-muted-foreground">
             Your booking has been created. Payment processing is currently
             unavailable, and your reservation remains pending confirmation.
@@ -390,44 +460,14 @@ export function StepPayment({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="rounded-lg border bg-muted/50 p-4">
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Tax</span>
-              <span>${tax.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between border-t pt-2 text-base font-semibold">
-              <span>Total before confirmation</span>
-              <span>${totalWithTax.toFixed(2)}</span>
-            </div>
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            {pricingQuote?.disclosure || BOOKING_PRICING_DISCLOSURE}
-          </p>
-        </div>
-
-        <div className="flex items-start space-x-3 rounded-lg border p-4">
-          <Checkbox
-            id="pricing-disclosure"
-            checked={pricingDisclosureAccepted}
-            onCheckedChange={(checked) => {
-              const accepted = Boolean(checked);
-              setPricingDisclosureAccepted(accepted);
-              onUpdate({ pricingDisclosureAccepted: accepted });
-            }}
-          />
-          <Label
-            htmlFor="pricing-disclosure"
-            className="cursor-pointer text-sm leading-relaxed"
-          >
-            I reviewed this pre-confirmation estimate and understand there are
-            no hidden fees or surprise add-ons.
-          </Label>
-        </div>
+        <PricingDisclosureCard
+          subtotal={subtotal}
+          tax={tax}
+          totalWithTax={totalWithTax}
+          disclosure={disclosure}
+          pricingDisclosureAccepted={pricingDisclosureAccepted}
+          onPricingDisclosureChange={handleDisclosureChange}
+        />
 
         <Elements
           stripe={getStripe()}

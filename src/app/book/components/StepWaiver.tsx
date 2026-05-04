@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SignaturePad from "signature_pad";
 import {
   Card,
@@ -41,26 +41,56 @@ export function StepWaiver({
     data.photoReleaseAccepted || false,
   );
   const signaturePadRef = useRef<HTMLCanvasElement>(null);
+  const signaturePadInstanceRef = useRef<SignaturePad | null>(null);
   const [signature, setSignature] = useState(data.signature || "");
 
-  const handleClearSignature = () => {
+  useEffect(() => {
     const canvas = signaturePadRef.current;
-    if (canvas) {
-      const pad = new SignaturePad(canvas);
-      pad.clear();
-      setSignature("");
+
+    if (!canvas) {
+      return;
     }
+
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    const width = canvas.offsetWidth || 400;
+    const height = 150;
+
+    canvas.width = width * ratio;
+    canvas.height = height * ratio;
+
+    const context = canvas.getContext("2d");
+    context?.scale(ratio, ratio);
+
+    const signaturePad = new SignaturePad(canvas);
+
+    if (data.signature) {
+      signaturePad.fromDataURL(data.signature);
+    }
+
+    signaturePadInstanceRef.current = signaturePad;
+
+    return () => {
+      signaturePadInstanceRef.current?.off();
+      signaturePadInstanceRef.current = null;
+    };
+  }, [data.signature]);
+
+  const handleClearSignature = () => {
+    signaturePadInstanceRef.current?.clear();
+    setSignature("");
+    onUpdate({ signature: "" });
   };
 
   const handleSaveSignature = () => {
-    const canvas = signaturePadRef.current;
-    if (canvas) {
-      const pad = new SignaturePad(canvas);
-      if (pad.isEmpty()) {
+    const signaturePad = signaturePadInstanceRef.current;
+
+    if (signaturePad) {
+      if (signaturePad.isEmpty()) {
         toast.error("Please provide a signature before proceeding");
         return;
       }
-      const dataUrl = pad.toDataURL();
+
+      const dataUrl = signaturePad.toDataURL();
       setSignature(dataUrl);
       onUpdate({ signature: dataUrl });
     }
@@ -154,6 +184,8 @@ export function StepWaiver({
               ref={signaturePadRef}
               width={400}
               height={150}
+              aria-label="Signature pad"
+              data-testid="booking-signature-pad"
               className="w-full border rounded-md"
             />
             <div className="mt-2 flex justify-between">

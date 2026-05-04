@@ -145,6 +145,12 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
   }, [data.checkIn, data.checkOut, data.serviceType, data.petCount]);
 
   useEffect(() => {
+    if (!data.petCount) {
+      onUpdate({ petCount: 1 });
+    }
+  }, [data.petCount, onUpdate]);
+
+  useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
     if (data.checkIn && data.checkOut && data.serviceType) {

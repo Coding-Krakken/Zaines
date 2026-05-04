@@ -34,6 +34,7 @@ export default function BookPage() {
     useState<BookingValidationPricing | null>(null);
   const [isQuoteLoading, setIsQuoteLoading] = useState(false);
   const [quoteError, setQuoteError] = useState<string | null>(null);
+  const [quoteRetryNonce, setQuoteRetryNonce] = useState(0);
 
   const nights = useMemo(() => {
     const checkIn = wizardData.dates?.checkIn;
@@ -167,6 +168,7 @@ export default function BookPage() {
     wizardData.dates?.checkOut,
     wizardData.dates?.petCount,
     wizardData.suites?.suiteType,
+    quoteRetryNonce,
   ]);
 
   const steps = [
@@ -272,7 +274,23 @@ export default function BookPage() {
 
               {quoteError ? (
                 <Alert variant="destructive" className="mb-4">
-                  <AlertDescription>{quoteError}</AlertDescription>
+                  <AlertDescription>
+                    <div className="flex flex-col gap-2">
+                      <span>{quoteError}</span>
+                      <div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            setQuoteRetryNonce((currentValue) => currentValue + 1)
+                          }
+                        >
+                          Retry pricing validation
+                        </Button>
+                      </div>
+                    </div>
+                  </AlertDescription>
                 </Alert>
               ) : null}
 
