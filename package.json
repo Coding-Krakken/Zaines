@@ -71,7 +71,11 @@
     "cheerio": "^1.2.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+<<<<<<< HEAD
     "happy-dom": "^20.9.0",
+=======
+    "happy-dom": "^20.8.4",
+>>>>>>> 8310748 (chore(deps-dev): bump jsdom from 29.0.1 to 29.1.1)
     "jsdom": "^29.1.1",
     "shadcn": "^3.8.4",
     "tailwindcss": "^4",
