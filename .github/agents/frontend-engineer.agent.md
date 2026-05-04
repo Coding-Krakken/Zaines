@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: UI implementation and client-side logic developer. Owns React/Next.js component delivery and user interactions.
 ---
 
 # Agent: Frontend Engineer

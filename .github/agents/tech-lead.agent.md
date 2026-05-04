@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Implementation strategist and code standards enforcer. Owns execution planning and technical leadership.
 ---
 
 # Agent: Tech Lead

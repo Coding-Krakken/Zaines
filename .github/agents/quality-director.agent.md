@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Final authority for quality gates and ship/no-ship decisions. Only agent authorized to end dispatch chain.
 ---
 
 # Agent: Quality Director

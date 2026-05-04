@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Coordination, timelines, and dependency management expert. Ensures on-time, coordinated delivery.
 ---
 
 # Agent: Program Manager

@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Performance budgets, profiling, and optimization expert. Ensures fast, efficient user experience.
 ---
 
 # Agent: Performance Engineer

@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Internationalization, localization, and translation specialist. Enables multi-language and multi-region support.
 ---
 
 # Agent: Localization Specialist

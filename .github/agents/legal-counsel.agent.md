@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Licensing, compliance, and terms of service expert. Ensures legal and regulatory adherence.
 ---
 
 # Agent: Legal Counsel

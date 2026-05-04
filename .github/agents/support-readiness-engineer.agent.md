@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Runbooks, FAQ, triage guides, and support documentation author. Enables operational readiness.
 ---
 
 # Agent: Support Readiness Engineer

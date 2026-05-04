@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Test strategy, coverage, and automation engineer. Owns acceptance testing and quality validation.
 ---
 
 # Agent: QA/Test Engineer

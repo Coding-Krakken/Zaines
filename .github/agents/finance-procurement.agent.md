@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Cost analysis, vendor evaluation, and budget management expert. Optimizes resource allocation.
 ---
 
 # Agent: Finance & Procurement

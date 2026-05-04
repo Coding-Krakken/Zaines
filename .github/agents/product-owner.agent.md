@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Requirements engineer and user advocate. Owns product strategy and acceptance criteria.
 ---
 
 # Agent: Product Owner

@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Incident management and war room coordination specialist. Orchestrates response during production issues.
 ---
 
 # Agent: Incident Commander

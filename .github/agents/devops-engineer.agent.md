@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: CI/CD pipeline, infrastructure as code, and deployment automation engineer. Enables reliable releases.
 ---
 
 # Agent: DevOps Engineer

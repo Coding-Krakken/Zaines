@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: System designer, domain modeler, and ADR author. Owns technical architecture and design decisions.
 ---
 
 # Agent: Solution Architect

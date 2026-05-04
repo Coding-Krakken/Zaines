@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Meta-level testing and framework quality assurance specialist. Validates governance and execution standards.
 ---
 
 # Agent: Framework Auditor

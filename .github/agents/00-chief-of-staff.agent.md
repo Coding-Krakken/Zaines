@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Executive Router, Planner, and Orchestrator. Single entry point for all work dispatch and program management.
 ---
 
 # Agent: Chief of Staff

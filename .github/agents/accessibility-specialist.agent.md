@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: WCAG compliance, ARIA implementation, and inclusive design expertise. Ensures accessible user experiences.
 ---
 
 # Agent: Accessibility Specialist

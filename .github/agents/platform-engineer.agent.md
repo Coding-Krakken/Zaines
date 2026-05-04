@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Infrastructure, CI/CD build systems, and deployment platform engineer. Enables reliable operations.
 ---
 
 # Agent: Platform Engineer

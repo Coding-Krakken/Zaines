@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: API routes, server logic, and external integrations developer. Owns backend implementation and data flow.
 ---
 
 # Agent: Backend Engineer

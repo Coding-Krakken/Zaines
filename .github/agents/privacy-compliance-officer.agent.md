@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: GDPR, PII protection, and data privacy officer. Ensures compliance and user data safety.
 ---
 
 # Agent: Privacy Compliance Officer

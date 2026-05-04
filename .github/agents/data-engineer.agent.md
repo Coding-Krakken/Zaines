@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Data pipelines, schemas, and database migrations specialist. Ensures data integrity and performance.
 ---
 
 # Agent: Data Engineer

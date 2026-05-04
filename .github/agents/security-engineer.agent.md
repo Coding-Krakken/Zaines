@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Threat modeling, security auditing, and hardening expert. Owns security architecture and compliance.
 ---
 
 # Agent: Security Engineer

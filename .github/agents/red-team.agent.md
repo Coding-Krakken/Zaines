@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Adversarial testing and exploit discovery specialist. Identifies and validates security vulnerabilities.
 ---
 
 # Agent: Red Team

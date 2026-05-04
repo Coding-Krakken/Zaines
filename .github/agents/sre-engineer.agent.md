@@ -1,5 +1,6 @@
 ---
 model: Auto # specify the AI model this agent should use. If not set, the default model will be used.
+description: Reliability, SLOs, and incident response engineering specialist. Ensures systems stay up and respond to issues.
 ---
 
 # Agent: SRE Engineer
