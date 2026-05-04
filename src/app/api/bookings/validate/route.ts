@@ -1,0 +1,122 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import {
+  createPublicErrorEnvelope,
+  getCorrelationId,
+  logServerFailure,
+  parseDate,
+} from "@/lib/api/issue26";
+import {
+  BOOKING_PRICING_CURRENCY,
+  BOOKING_PRICING_DISCLOSURE,
+  BOOKING_PRICING_MODEL_LABEL,
+  calculateBookingPrice,
+} from "@/lib/booking/pricing";
+
+const bookingValidationSchema = z.object({
+  checkIn: z.string().min(1),
+  checkOut: z.string().min(1),
+  suiteType: z.enum(["standard", "deluxe", "luxury"]),
+  petCount: z.number().int().min(1).max(5),
+});
+
+function createValidationDetails(validationError: z.ZodError): {
+  fields: string[];
+} {
+  const fields = validationError.issues
+    .map((issue) => issue.path.join("."))
+    .filter((field) => field.length > 0);
+
+  const uniqueSortedFields = [...new Set(fields)].sort((left, right) =>
+    left.localeCompare(right),
+  );
+
+  return { fields: uniqueSortedFields };
+}
+
+export async function POST(request: NextRequest) {
+  const correlationId = getCorrelationId(request);
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      createPublicErrorEnvelope({
+        errorCode: "BOOKING_VALIDATION_ERROR",
+        message: "Invalid booking data.",
+        retryable: false,
+        correlationId,
+      }),
+      { status: 400 },
+    );
+  }
+
+  const validation = bookingValidationSchema.safeParse(body);
+  if (!validation.success) {
+    return NextResponse.json(
+      {
+        ...createPublicErrorEnvelope({
+          errorCode: "BOOKING_VALIDATION_ERROR",
+          message: "Invalid booking data.",
+          retryable: false,
+          correlationId,
+        }),
+        details: createValidationDetails(validation.error),
+      },
+      { status: 400 },
+    );
+  }
+
+  const { checkIn, checkOut, suiteType, petCount } = validation.data;
+  const checkInDate = parseDate(checkIn);
+  const checkOutDate = parseDate(checkOut);
+
+  if (!checkInDate || !checkOutDate || checkOutDate <= checkInDate) {
+    return NextResponse.json(
+      createPublicErrorEnvelope({
+        errorCode: "INVALID_DATE_RANGE",
+        message: "Check-out must be after check-in.",
+        retryable: false,
+        correlationId,
+      }),
+      { status: 400 },
+    );
+  }
+
+  try {
+    const pricing = calculateBookingPrice(checkIn, checkOut, suiteType, petCount);
+
+    return NextResponse.json(
+      {
+        valid: true,
+        pricing: {
+          subtotal: pricing.subtotal,
+          tax: pricing.tax,
+          total: pricing.total,
+          currency: BOOKING_PRICING_CURRENCY,
+          pricingModelLabel: BOOKING_PRICING_MODEL_LABEL,
+          disclosure: BOOKING_PRICING_DISCLOSURE,
+        },
+      },
+      { status: 200 },
+    );
+  } catch (error) {
+    logServerFailure(
+      "/api/bookings/validate",
+      "BOOKING_VALIDATE_FAILED",
+      correlationId,
+      error,
+    );
+
+    return NextResponse.json(
+      createPublicErrorEnvelope({
+        errorCode: "BOOKING_VALIDATE_FAILED",
+        message: "Unable to validate booking pricing right now. Please retry.",
+        retryable: true,
+        correlationId,
+      }),
+      { status: 503 },
+    );
+  }
+}

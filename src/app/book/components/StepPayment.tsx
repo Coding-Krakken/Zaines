@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Elements,
   PaymentElement,
@@ -24,21 +24,67 @@ import {
 } from "@/lib/validations/booking-wizard";
 import { getStripe } from "@/lib/stripe-client";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface StepPaymentProps {
   data: Partial<StepPaymentData> & {
     clientSecret?: string;
     pricingDisclosureAccepted?: boolean;
+    bookingId?: string;
   };
   onUpdate: (
     data: Partial<StepPaymentData> & {
       clientSecret?: string;
       pricingDisclosureAccepted?: boolean;
+      bookingId?: string;
     },
   ) => void;
   onNext: () => void;
   onBack: () => void;
   totalAmount: number; // From previous steps
+  pricingQuote: {
+    subtotal: number;
+    tax: number;
+    total: number;
+    currency: string;
+    pricingModelLabel: string;
+    disclosure: string;
+  } | null;
+  bookingPayload: {
+    checkIn: string;
+    checkOut: string;
+    suiteType: "standard" | "deluxe" | "luxury";
+    petCount: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    petNames: string;
+    specialRequests?: string;
+    addOns?: Array<{ id: string; quantity: number }>;
+    newPets?: Array<{
+      name: string;
+      breed: string;
+      age: number;
+      weight: number;
+      gender: "male" | "female";
+      temperament?: "friendly" | "shy" | "energetic" | "calm" | "anxious";
+      specialNeeds?: string;
+      feedingInstructions?: string;
+    }>;
+    vaccines?: Array<{
+      petId: string;
+      fileUrl: string;
+      fileName: string;
+      fileSize: number;
+    }>;
+    waiver: {
+      liabilityAccepted: boolean;
+      medicalAuthorizationAccepted: boolean;
+      photoReleaseAccepted: boolean;
+      signature: string;
+    };
+  } | null;
 }
 
 const BOOKING_PRICING_MODEL_LABEL = "Pre-confirmation estimate";
@@ -128,17 +174,30 @@ export function StepPayment({
   onNext,
   onBack,
   totalAmount,
+  pricingQuote,
+  bookingPayload,
 }: StepPaymentProps) {
+  const router = useRouter();
   const [clientSecret, setClientSecret] = useState(data.clientSecret || "");
+  const [bookingId, setBookingId] = useState(data.bookingId || "");
   const [pricingDisclosureAccepted, setPricingDisclosureAccepted] = useState(
     Boolean(data.pricingDisclosureAccepted),
   );
+  const [bookingError, setBookingError] = useState<string>("");
+  const [hasAttemptedInit, setHasAttemptedInit] = useState(
+    Boolean(data.bookingId),
+  );
   const [isLoading, setIsLoading] = useState(false);
-  const subtotal = Math.round(totalAmount * 100) / 100;
-  const tax = Math.round(subtotal * 0.1 * 100) / 100;
-  const totalWithTax = Math.round((subtotal + tax) * 100) / 100;
+  const subtotal = Math.round((pricingQuote?.subtotal || 0) * 100) / 100;
+  const tax = Math.round((pricingQuote?.tax || 0) * 100) / 100;
+  const totalWithTax = Math.round((pricingQuote?.total || totalAmount) * 100) / 100;
 
-  const handleNext = () => {
+  const finalizeBooking = () => {
+    if (!bookingId || !bookingPayload) {
+      toast.error("Booking details are incomplete. Please retry.");
+      return;
+    }
+
     if (!pricingDisclosureAccepted) {
       toast.error("Please acknowledge pricing disclosure before confirming.");
       return;
@@ -158,44 +217,162 @@ export function StepPayment({
       paymentOption: "full",
       amount: totalWithTax,
       pricingDisclosureAccepted,
+      bookingId,
     });
+
     onNext();
+    router.push(`/book/confirmation?bookingId=${bookingId}`);
   };
 
-  const initializePayment = async () => {
+  const initializeBookingAndPayment = useCallback(async () => {
+    if (!bookingPayload) {
+      setBookingError("Complete all previous steps before submitting payment.");
+      return;
+    }
+
+    if (!pricingQuote) {
+      setBookingError("Pricing validation is required before payment.");
+      return;
+    }
+
     setIsLoading(true);
+    setBookingError("");
 
     try {
-      const response = await fetch("/api/payments/create-intent", {
+      const response = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: totalWithTax }),
+        body: JSON.stringify(bookingPayload),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to initialize payment");
+        const errorBody = (await response.json().catch(() => ({}))) as {
+          error?: string;
+          message?: string;
+        };
+        throw new Error(
+          errorBody.error ||
+            errorBody.message ||
+            "Failed to initialize booking payment",
+        );
       }
 
-      const { clientSecret } = await response.json();
-      setClientSecret(clientSecret);
-      onUpdate({ clientSecret });
-    } catch (error) {
-      console.error("Payment initialization error:", error);
-      toast.error("Failed to initialize payment. Please try again.");
+      const payload = (await response.json()) as {
+        booking: { id: string; bookingNumber?: string };
+        pricing: {
+          subtotal: number;
+          tax: number;
+          total: number;
+          currency: string;
+        };
+        payment?: { clientSecret?: string };
+      };
+
+      if (Math.abs(payload.pricing.total - pricingQuote.total) > 0.01) {
+        throw new Error("Pricing changed during booking. Please review and retry.");
+      }
+
+      const nextBookingId = payload.booking.id;
+      const nextClientSecret = payload.payment?.clientSecret || "";
+
+      sessionStorage.setItem(
+        `booking-${nextBookingId}`,
+        JSON.stringify({
+          id: nextBookingId,
+          bookingNumber: payload.booking.bookingNumber || nextBookingId,
+          checkIn: bookingPayload.checkIn,
+          checkOut: bookingPayload.checkOut,
+          suite: bookingPayload.suiteType,
+          pricing: {
+            subtotal: payload.pricing.subtotal,
+            tax: payload.pricing.tax,
+            total: payload.pricing.total,
+            currency: payload.pricing.currency || "USD",
+          },
+          total: payload.pricing.total,
+          petNames: bookingPayload.petNames
+            .split(",")
+            .map((name) => name.trim())
+            .filter((name) => name.length > 0),
+          email: bookingPayload.email,
+        }),
+      );
+
+      setBookingId(nextBookingId);
+      setClientSecret(nextClientSecret);
+      onUpdate({
+        bookingId: nextBookingId,
+        clientSecret: nextClientSecret,
+      });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to initialize payment. Please try again.";
+      setBookingError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [bookingPayload, onUpdate, pricingQuote]);
 
-  if (!clientSecret) {
+  useEffect(() => {
+    if (bookingId || isLoading || hasAttemptedInit) {
+      return;
+    }
+
+    setHasAttemptedInit(true);
+    void initializeBookingAndPayment();
+  }, [bookingId, hasAttemptedInit, isLoading, initializeBookingAndPayment]);
+
+  if (!bookingId) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center space-y-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p>Initializing payment...</p>
-          <Button onClick={initializePayment} disabled={isLoading}>
+          <p>
+            {isLoading ? "Preparing your booking..." : "Preparing secure checkout..."}
+          </p>
+          {bookingError ? (
+            <p className="text-sm text-destructive">{bookingError}</p>
+          ) : null}
+          <Button onClick={initializeBookingAndPayment} disabled={isLoading}>
             Retry
           </Button>
+          <Button variant="outline" onClick={onBack} disabled={isLoading}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!clientSecret) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5" />
+            Booking Ready
+          </CardTitle>
+          <CardDescription>{BOOKING_PRICING_MODEL_LABEL}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Your booking has been created. Payment processing is currently
+            unavailable, and your reservation remains pending confirmation.
+          </p>
+          <div className="flex justify-between pt-4">
+            <Button type="button" variant="outline" onClick={onBack}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+            <Button onClick={finalizeBooking} disabled={!pricingDisclosureAccepted}>
+              Complete Booking
+              <CheckCircle2 className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -208,7 +385,9 @@ export function StepPayment({
           <CheckCircle2 className="h-5 w-5" />
           Payment Information
         </CardTitle>
-        <CardDescription>{BOOKING_PRICING_MODEL_LABEL}</CardDescription>
+        <CardDescription>
+          {pricingQuote?.pricingModelLabel || BOOKING_PRICING_MODEL_LABEL}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="rounded-lg border bg-muted/50 p-4">
@@ -227,7 +406,7 @@ export function StepPayment({
             </div>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            {BOOKING_PRICING_DISCLOSURE}
+            {pricingQuote?.disclosure || BOOKING_PRICING_DISCLOSURE}
           </p>
         </div>
 
@@ -258,7 +437,7 @@ export function StepPayment({
           }}
         >
           <PaymentForm
-            onSuccess={handleNext}
+            onSuccess={finalizeBooking}
             onBack={onBack}
             disclosureAccepted={pricingDisclosureAccepted}
             totalWithTax={totalWithTax}

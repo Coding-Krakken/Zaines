@@ -9,13 +9,15 @@ import {
 } from "@/lib/stripe";
 import { sendBookingConfirmation } from "@/lib/notifications";
 import { getCorrelationId, logServerFailure } from "@/lib/api/issue26";
+import {
+  BOOKING_PRICING_CURRENCY,
+  BOOKING_PRICING_DISCLOSURE,
+  BOOKING_PRICING_MODEL_LABEL,
+  calculateBookingPrice,
+} from "@/lib/booking/pricing";
 
 let hasLoggedStripeUnavailableWarning = false;
 const shouldLogBookingDiagnostics = process.env.NODE_ENV !== "test";
-const BOOKING_PRICING_CURRENCY = "USD";
-const BOOKING_PRICING_MODEL_LABEL = "Pre-confirmation estimate";
-const BOOKING_PRICING_DISCLOSURE =
-  "Total price is shown before confirmation with no hidden fees or surprise add-ons.";
 
 function createBookingValidationDetails(validationError: z.ZodError): {
   fields: string[];
@@ -288,7 +290,12 @@ export async function POST(request: NextRequest) {
         // 3. Enforce capacity limit
         if (overlappingBookings >= capacity[data.suiteType]) {
           if (shouldLogBookingDiagnostics) {
-            console.error("Capacity exceeded for suite type:", data.suiteType);
+            logServerFailure(
+              "/api/bookings",
+              "BOOKING_CAPACITY_EXCEEDED",
+              correlationId,
+              new Error(`Capacity exceeded for suite type ${data.suiteType}`),
+            );
           }
           throw new Error("CAPACITY_EXCEEDED");
         }
@@ -306,9 +313,11 @@ export async function POST(request: NextRequest) {
 
         if (!availableSuite) {
           if (shouldLogBookingDiagnostics) {
-            console.error(
-              "No available suite found for suite type:",
-              data.suiteType,
+            logServerFailure(
+              "/api/bookings",
+              "BOOKING_NO_SUITE_AVAILABLE",
+              correlationId,
+              new Error(`No available suite for ${data.suiteType}`),
             );
           }
           throw new Error("NO_SUITE_AVAILABLE");
@@ -620,46 +629,4 @@ export async function GET() {
       { status: 500 },
     );
   }
-}
-
-// Helper function to calculate pricing
-function calculateBookingPrice(
-  checkIn: string,
-  checkOut: string,
-  suiteType: string,
-  petCount: number,
-): { subtotal: number; tax: number; total: number } {
-  const checkInDate = new Date(checkIn);
-  const checkOutDate = new Date(checkOut);
-  const nights = Math.ceil(
-    (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24),
-  );
-
-  const prices: Record<string, number> = {
-    standard: 65,
-    deluxe: 85,
-    luxury: 120,
-  };
-
-  const nightlyRate = prices[suiteType] || 65;
-
-  // Calculate base price
-  let subtotal = nightlyRate * Math.max(1, nights);
-
-  // Additional pet discount (15% off for 2nd pet, 20% off for 3rd+)
-  if (petCount > 1) {
-    const additionalPets = petCount - 1;
-    const discount = petCount === 2 ? 0.15 : 0.2;
-    subtotal += nightlyRate * nights * additionalPets * (1 - discount);
-  }
-
-  // Tax (10%)
-  const tax = subtotal * 0.1;
-  const total = subtotal + tax;
-
-  return {
-    subtotal: Math.round(subtotal * 100) / 100,
-    tax: Math.round(tax * 100) / 100,
-    total: Math.round(total * 100) / 100,
-  };
 }

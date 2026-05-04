@@ -34,10 +34,15 @@ describe("Validation Schemas", () => {
   });
 
   it("validates stepAccountSchema", () => {
-    const validData = { email: "test@example.com" };
+    const validData = {
+      firstName: "Taylor",
+      lastName: "Jordan",
+      email: "test@example.com",
+      phone: "3155551234",
+    };
     expect(stepAccountSchema.parse(validData)).toEqual(validData);
 
-    const invalidData = { email: "invalid-email" };
+    const invalidData = { ...validData, email: "invalid-email" };
     expect(() => stepAccountSchema.parse(invalidData)).toThrow();
   });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import {
   Card,
@@ -58,6 +58,9 @@ export function StepAccount({
   onBack,
 }: StepAccountProps) {
   const { data: session, status } = useSession();
+  const [firstName, setFirstName] = useState(data.firstName || "");
+  const [lastName, setLastName] = useState(data.lastName || "");
+  const [phone, setPhone] = useState(data.phone || "");
   const [email, setEmail] = useState(data.email || session?.user?.email || "");
   const [isSendingMagicLink, setIsSendingMagicLink] = useState(false);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
@@ -69,12 +72,35 @@ export function StepAccount({
   const isAuthenticated = status === "authenticated";
   const isLoading = status === "loading";
 
+  useEffect(() => {
+    if (!session?.user) {
+      return;
+    }
+
+    if (!email && session.user.email) {
+      setEmail(session.user.email);
+    }
+
+    if (!firstName || !lastName) {
+      const fullName = session.user.name?.trim() || "";
+      if (fullName) {
+        const [givenName, ...rest] = fullName.split(/\s+/);
+        if (!firstName) {
+          setFirstName(givenName || "");
+        }
+        if (!lastName) {
+          setLastName(rest.join(" ") || givenName || "");
+        }
+      }
+    }
+  }, [session, email, firstName, lastName]);
+
   const handleSendMagicLink = async () => {
     setMagicLinkError("");
     setMagicLinkCorrelationId(null);
 
     // Validate email
-    const validation = stepAccountSchema.safeParse({ email });
+    const validation = stepAccountSchema.shape.email.safeParse(email.trim());
 
     if (!validation.success) {
       toast.error(validation.error.issues[0].message);
@@ -100,7 +126,12 @@ export function StepAccount({
           .json()
           .catch(() => ({}))) as MagicLinkSuccessResponse;
         setMagicLinkSent(true);
-        onUpdate({ email: email.trim() });
+        onUpdate({
+          firstName,
+          lastName,
+          email: email.trim(),
+          phone,
+        });
         toast.success(
           body.message || "Check your email for your secure sign-in link.",
         );
@@ -150,16 +181,23 @@ export function StepAccount({
   };
 
   const handleNext = () => {
+    const accountData = {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+    };
+
+    const validation = stepAccountSchema.safeParse(accountData);
+
+    if (!validation.success) {
+      toast.error(validation.error.issues[0].message);
+      return;
+    }
+
+    onUpdate(accountData);
+
     if (!isAuthenticated) {
-      // For guest checkout - just validate email and proceed
-      const validation = stepAccountSchema.safeParse({ email });
-
-      if (!validation.success) {
-        toast.error("Please enter a valid email address");
-        return;
-      }
-
-      onUpdate({ email });
       toast.success(
         "Proceeding as guest. You can sign in later to manage your booking.",
       );
@@ -169,14 +207,21 @@ export function StepAccount({
   };
 
   const handleContinueAsGuest = () => {
-    const validation = stepAccountSchema.safeParse({ email });
+    const accountData = {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+    };
+
+    const validation = stepAccountSchema.safeParse(accountData);
 
     if (!validation.success) {
-      toast.error("Please enter a valid email address to continue as guest");
+      toast.error(validation.error.issues[0].message);
       return;
     }
 
-    onUpdate({ email });
+    onUpdate(accountData);
     onNext();
   };
 
@@ -204,6 +249,38 @@ export function StepAccount({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="firstName">First Name *</Label>
+            <Input
+              id="firstName"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="lastName">Last Name *</Label>
+            <Input
+              id="lastName"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2 sm:col-span-2">
+            <Label htmlFor="phone">Phone Number *</Label>
+            <Input
+              id="phone"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="3155551234"
+              required
+            />
+          </div>
+        </div>
+
         {isAuthenticated ? (
           <>
             {/* Authenticated User View */}
@@ -334,7 +411,7 @@ export function StepAccount({
                 </p>
                 <Button
                   onClick={handleContinueAsGuest}
-                  disabled={!email}
+                  disabled={!email || !firstName || !lastName || !phone}
                   variant="secondary"
                   className="w-full"
                 >
@@ -352,7 +429,10 @@ export function StepAccount({
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
-          <Button onClick={handleNext} disabled={!isAuthenticated && !email}>
+          <Button
+            onClick={handleNext}
+            disabled={!email || !firstName || !lastName || !phone}
+          >
             Continue to Pet Profiles
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>

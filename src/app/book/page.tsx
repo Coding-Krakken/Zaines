@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { StepDates } from "@/app/book/components/StepDates";
 import { StepSuites } from "@/app/book/components/StepSuites";
 import { StepAccount } from "@/app/book/components/StepAccount";
@@ -9,59 +10,164 @@ import { StepPayment } from "@/app/book/components/StepPayment";
 import { useBookingWizard } from "@/hooks/useBookingWizard";
 import { Stepper } from "@/components/Stepper";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2 } from "lucide-react";
 
-// Helper function to calculate total booking amount
-function calculateTotal(wizardData: {
-  dates?: { checkIn?: string; checkOut?: string; petCount?: number };
-  suites?: {
-    suiteType?: string;
-    addOns?: Array<{ id: string; quantity: number }>;
-  };
-}): number {
-  const { dates, suites } = wizardData;
+type BookingValidationPricing = {
+  subtotal: number;
+  tax: number;
+  total: number;
+  currency: string;
+  pricingModelLabel: string;
+  disclosure: string;
+};
 
-  if (!dates?.checkIn || !dates?.checkOut || !suites?.suiteType) {
-    return 0;
-  }
-
-  // Calculate number of nights
-  const checkIn = new Date(dates.checkIn);
-  const checkOut = new Date(dates.checkOut);
-  const nights = Math.ceil(
-    (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24),
-  );
-
-  // Base prices per night per suite type
-  const suitePrices: Record<string, number> = {
-    standard: 45,
-    deluxe: 75,
-    luxury: 120,
-  };
-
-  const basePrice = suitePrices[suites.suiteType] || 45;
-  const petCount = dates.petCount || 1;
-
-  // Calculate add-ons cost
-  const addOnsTotal = (suites.addOns || []).reduce(
-    (total: number, addon: { id: string; quantity: number }) => {
-      const addonPrices: Record<string, number> = {
-        "extra-walk": 10,
-        playtime: 15,
-        "nail-trim": 15,
-        medication: 5,
-        "comfort-care": 25,
-      };
-      return total + (addonPrices[addon.id] || 0) * addon.quantity;
-    },
-    0,
-  );
-
-  return basePrice * nights * petCount + addOnsTotal;
-}
+type BookingValidationResponse = {
+  valid: boolean;
+  pricing: BookingValidationPricing;
+};
 
 export default function BookPage() {
   const { currentStep, wizardData, nextStep, prevStep, updateStepData } =
     useBookingWizard();
+  const [pricingQuote, setPricingQuote] =
+    useState<BookingValidationPricing | null>(null);
+  const [isQuoteLoading, setIsQuoteLoading] = useState(false);
+  const [quoteError, setQuoteError] = useState<string | null>(null);
+
+  const nights = useMemo(() => {
+    const checkIn = wizardData.dates?.checkIn;
+    const checkOut = wizardData.dates?.checkOut;
+
+    if (!checkIn || !checkOut) {
+      return 1;
+    }
+
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    const diffDays = Math.ceil(
+      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
+    return Math.max(1, diffDays);
+  }, [wizardData.dates?.checkIn, wizardData.dates?.checkOut]);
+
+  const bookingPayload = useMemo(() => {
+    const checkIn = wizardData.dates?.checkIn;
+    const checkOut = wizardData.dates?.checkOut;
+    const petCount = wizardData.dates?.petCount;
+    const suiteType = wizardData.suites?.suiteType;
+
+    if (!checkIn || !checkOut || !petCount || !suiteType) {
+      return null;
+    }
+
+    const selectedPetCount =
+      (wizardData.pets?.selectedPetIds?.length || 0) +
+      (wizardData.pets?.newPets?.length || 0);
+    const petNames =
+      wizardData.pets?.newPets?.map((pet) => pet.name).join(", ") ||
+      `${Math.max(selectedPetCount, petCount)} pet(s)`;
+
+    return {
+      checkIn,
+      checkOut,
+      suiteType,
+      petCount,
+      firstName: wizardData.account?.firstName || "Guest",
+      lastName: wizardData.account?.lastName || "Customer",
+      email: wizardData.account?.email || "guest@example.com",
+      phone: wizardData.account?.phone || "0000000000",
+      petNames,
+      specialRequests: "",
+      addOns: wizardData.suites?.addOns || [],
+      newPets: wizardData.pets?.newPets || [],
+      vaccines: wizardData.pets?.vaccines || [],
+      waiver: {
+        liabilityAccepted: Boolean(wizardData.waiver?.liabilityAccepted),
+        medicalAuthorizationAccepted: Boolean(
+          wizardData.waiver?.medicalAuthorizationAccepted,
+        ),
+        photoReleaseAccepted: Boolean(wizardData.waiver?.photoReleaseAccepted),
+        signature: wizardData.waiver?.signature || "pending-signature",
+      },
+    };
+  }, [wizardData]);
+
+  useEffect(() => {
+    const checkIn = wizardData.dates?.checkIn;
+    const checkOut = wizardData.dates?.checkOut;
+    const suiteType = wizardData.suites?.suiteType;
+    const petCount = wizardData.dates?.petCount;
+
+    if (!checkIn || !checkOut || !suiteType || !petCount) {
+      setPricingQuote(null);
+      setQuoteError(null);
+      return;
+    }
+
+    let isCancelled = false;
+
+    const validatePricing = async () => {
+      setIsQuoteLoading(true);
+      setQuoteError(null);
+
+      try {
+        const response = await fetch("/api/bookings/validate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            checkIn,
+            checkOut,
+            suiteType,
+            petCount,
+          }),
+        });
+
+        const payload = (await response.json()) as
+          | BookingValidationResponse
+          | { message?: string };
+
+        if (!response.ok || !("pricing" in payload)) {
+          throw new Error(
+            "message" in payload && payload.message
+              ? payload.message
+              : "Unable to validate pricing right now.",
+          );
+        }
+
+        if (!isCancelled) {
+          setPricingQuote(payload.pricing);
+        }
+      } catch (error) {
+        if (!isCancelled) {
+          setPricingQuote(null);
+          setQuoteError(
+            error instanceof Error
+              ? error.message
+              : "Unable to validate pricing right now.",
+          );
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsQuoteLoading(false);
+        }
+      }
+    };
+
+    void validatePricing();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    wizardData.dates?.checkIn,
+    wizardData.dates?.checkOut,
+    wizardData.dates?.petCount,
+    wizardData.suites?.suiteType,
+  ]);
 
   const steps = [
     { id: "dates", label: "Dates" },
@@ -121,6 +227,7 @@ export default function BookPage() {
               onUpdate={(data) => updateStepData("suites", data)}
               onNext={nextStep}
               onBack={prevStep}
+              nights={nights}
             />
           )}
 
@@ -139,6 +246,7 @@ export default function BookPage() {
               onUpdate={(data) => updateStepData("pets", data)}
               onNext={nextStep}
               onBack={prevStep}
+              petCount={wizardData.dates?.petCount || 1}
             />
           )}
 
@@ -152,13 +260,32 @@ export default function BookPage() {
           )}
 
           {currentStep === "payment" && (
-            <StepPayment
-              data={wizardData.payment || {}}
-              onUpdate={(data) => updateStepData("payment", data)}
-              onNext={nextStep}
-              onBack={prevStep}
-              totalAmount={calculateTotal(wizardData)}
-            />
+            <>
+              {isQuoteLoading ? (
+                <Alert>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <AlertDescription>
+                    Validating your final pricing before payment...
+                  </AlertDescription>
+                </Alert>
+              ) : null}
+
+              {quoteError ? (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertDescription>{quoteError}</AlertDescription>
+                </Alert>
+              ) : null}
+
+              <StepPayment
+                data={wizardData.payment || {}}
+                onUpdate={(data) => updateStepData("payment", data)}
+                onNext={nextStep}
+                onBack={prevStep}
+                totalAmount={pricingQuote?.total || 0}
+                pricingQuote={pricingQuote}
+                bookingPayload={bookingPayload}
+              />
+            </>
           )}
         </div>
       </div>
