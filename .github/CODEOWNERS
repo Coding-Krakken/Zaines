@@ -7,27 +7,27 @@
 
 # === Global Default ===
 # Chief of Staff reviews everything by default
-* @Coding-Krakken
+* @Custom-Coding-Creations
 
 # === Framework & Infrastructure ===
-.github/framework/**                    @Coding-Krakken
-.github/workflows/**                    @Coding-Krakken
-.github/scripts/**                      @Coding-Krakken
+.github/framework/**                    @Custom-Coding-Creations
+.github/workflows/**                    @Custom-Coding-Creations
+.github/scripts/**                      @Custom-Coding-Creations
 
 # === Comment Templates (Handoff System) ===
-.github/comment_templates/**            @Coding-Krakken
+.github/comment_templates/**            @Custom-Coding-Creations
 
 # === Issue & PR Templates ===
-.github/ISSUE_TEMPLATE/**               @Coding-Krakken
-.github/PULL_REQUEST_TEMPLATE.md        @Coding-Krakken
-.github/pull_request_template.md        @Coding-Krakken
+.github/ISSUE_TEMPLATE/**               @Custom-Coding-Creations
+.github/PULL_REQUEST_TEMPLATE.md        @Custom-Coding-Creations
+.github/pull_request_template.md        @Custom-Coding-Creations
 
 # === Documentation ===
-.github/docs/**                         @Coding-Krakken
-.github/*.md                            @Coding-Krakken
+.github/docs/**                         @Custom-Coding-Creations
+.github/*.md                            @Custom-Coding-Creations
 
 # === Agent Definitions ===
-.github/agents/**                       @Coding-Krakken
+.github/agents/**                       @Custom-Coding-Creations
 
 # === Prompts ===
 .github/prompts/**                      @Coding-Krakken
