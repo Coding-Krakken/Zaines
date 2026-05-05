@@ -64,7 +64,13 @@ export async function GET(request: Request) {
   const ninetyDaysFromNow = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
 
   // Add vaccines with expiry alerts
-  vaccines.forEach((vaccine) => {
+  vaccines.forEach((vaccine: {
+    id: string;
+    name: string;
+    expiryDate: Date;
+    veterinarian: string | null;
+    pet: { id: string; name: string };
+  }) => {
     const expiryDate = new Date(vaccine.expiryDate);
     let alert: 'critical' | 'warning' | 'info' | undefined;
 
@@ -91,7 +97,15 @@ export async function GET(request: Request) {
   });
 
   // Add medications
-  medications.forEach((medication) => {
+  medications.forEach((medication: {
+    id: string;
+    name: string;
+    dosage: string;
+    frequency: string;
+    startDate: Date;
+    endDate: Date | null;
+    pet: { id: string; name: string };
+  }) => {
     const isActive = !medication.endDate || new Date(medication.endDate) > now;
     timeline.push({
       id: medication.id,
@@ -106,7 +120,13 @@ export async function GET(request: Request) {
   });
 
   // Add weight logs
-  weightLogs.forEach((log) => {
+  weightLogs.forEach((log: {
+    id: string;
+    weight: number;
+    date: Date;
+    notes: string | null;
+    pet: { id: string; name: string };
+  }) => {
     timeline.push({
       id: log.id,
       type: 'weight',
@@ -120,7 +140,13 @@ export async function GET(request: Request) {
   });
 
   // Add activities
-  activities.forEach((activity) => {
+  activities.forEach((activity: {
+    id: string;
+    activityType: string;
+    timestamp: Date;
+    notes: string | null;
+    pet: { id: string; name: string };
+  }) => {
     timeline.push({
       id: activity.id,
       type: 'activity',
