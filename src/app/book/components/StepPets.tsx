@@ -118,9 +118,17 @@ export function StepPets({
 
   // Fetch existing pets if authenticated
   useEffect(() => {
-    if (session?.user?.id) {
-      void fetchPets();
+    if (!session?.user?.id) {
+      return;
     }
+
+    // Schedule async fetch outside the immediate effect body to satisfy
+    // strict hooks linting around synchronous state updates in effects.
+    const timer = setTimeout(() => {
+      void fetchPets();
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [session?.user?.id]);
 
   const toPersistedNewPet = (pet: DraftPet): NewPetData => {

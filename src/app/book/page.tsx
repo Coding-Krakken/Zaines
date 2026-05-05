@@ -36,6 +36,23 @@ export default function BookPage() {
   const [quoteError, setQuoteError] = useState<string | null>(null);
   const [quoteRetryNonce, setQuoteRetryNonce] = useState(0);
 
+  const hasQuoteInputs = useMemo(() => {
+    return Boolean(
+      wizardData.dates?.checkIn &&
+        wizardData.dates?.checkOut &&
+        wizardData.suites?.suiteType &&
+        wizardData.dates?.petCount,
+    );
+  }, [
+    wizardData.dates?.checkIn,
+    wizardData.dates?.checkOut,
+    wizardData.suites?.suiteType,
+    wizardData.dates?.petCount,
+  ]);
+
+  const visiblePricingQuote = hasQuoteInputs ? pricingQuote : null;
+  const visibleQuoteError = hasQuoteInputs ? quoteError : null;
+
   const nights = useMemo(() => {
     const checkIn = wizardData.dates?.checkIn;
     const checkOut = wizardData.dates?.checkOut;
@@ -102,8 +119,6 @@ export default function BookPage() {
     const petCount = wizardData.dates?.petCount;
 
     if (!checkIn || !checkOut || !suiteType || !petCount) {
-      setPricingQuote(null);
-      setQuoteError(null);
       return;
     }
 
@@ -272,11 +287,11 @@ export default function BookPage() {
                 </Alert>
               ) : null}
 
-              {quoteError ? (
+              {visibleQuoteError ? (
                 <Alert variant="destructive" className="mb-4">
                   <AlertDescription>
                     <div className="flex flex-col gap-2">
-                      <span>{quoteError}</span>
+                      <span>{visibleQuoteError}</span>
                       <div>
                         <Button
                           type="button"
@@ -299,8 +314,8 @@ export default function BookPage() {
                 onUpdate={(data) => updateStepData("payment", data)}
                 onNext={nextStep}
                 onBack={prevStep}
-                totalAmount={pricingQuote?.total || 0}
-                pricingQuote={pricingQuote}
+                totalAmount={visiblePricingQuote?.total || 0}
+                pricingQuote={visiblePricingQuote}
                 bookingPayload={bookingPayload}
               />
             </>
