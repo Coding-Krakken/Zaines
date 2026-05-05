@@ -51,7 +51,7 @@ export async function GET(request: Request) {
     prisma.activity.findMany({
       where: whereClause,
       include: { pet: { select: { id: true, name: true } } },
-      orderBy: { timestamp: 'desc' },
+      orderBy: { performedAt: 'desc' },
       take: 50,
     }),
   ]);
@@ -142,18 +142,18 @@ export async function GET(request: Request) {
   // Add activities
   activities.forEach((activity: {
     id: string;
-    activityType: string;
-    timestamp: Date;
+    type: string;
+    performedAt: Date;
     notes: string | null;
     pet: { id: string; name: string };
   }) => {
     timeline.push({
       id: activity.id,
       type: 'activity',
-      date: new Date(activity.timestamp),
+      date: new Date(activity.performedAt),
       petId: activity.pet.id,
       petName: activity.pet.name,
-      title: activity.activityType,
+      title: activity.type,
       details: activity.notes || undefined,
       alert: undefined,
     });
