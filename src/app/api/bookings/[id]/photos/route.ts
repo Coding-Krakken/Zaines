@@ -31,7 +31,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const { searchParams } = new URL(request.url);
     const cursor = searchParams.get("cursor") || undefined;
-    const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 100);
+    const rawLimit = Number.parseInt(searchParams.get("limit") || "20", 10);
+    const limit = Number.isFinite(rawLimit)
+      ? Math.min(Math.max(rawLimit, 1), 100)
+      : 20;
     const petId = searchParams.get("petId") || undefined;
     const bookingId = id;
 
@@ -153,7 +156,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     // Trigger notification (in real implementation, this would queue an event)
     // For now, just track that notification should be sent
-    console.log(`[NOTIFICATION] New photo for booking ${bookingId}:`, photo);
+    console.log(`[NOTIFICATION] New photo created for booking ${bookingId}`);
 
     return NextResponse.json(photo, { status: 201 });
   } catch (error) {

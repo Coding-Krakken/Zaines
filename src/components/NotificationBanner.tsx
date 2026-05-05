@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useNotifications } from "@/hooks/useNotifications";
 
 interface NotificationBannerProps {
@@ -7,19 +8,36 @@ interface NotificationBannerProps {
 }
 
 export function NotificationBanner({ bookingId }: NotificationBannerProps) {
+  const dismissTimersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>(
+    {}
+  );
+
   const { pendingNotifications, clearNotifications, markNotificationRead, newEventCount } =
     useNotifications({
       bookingId,
       pollIntervalMs: 30000,
       onNotification: (event) => {
-        // Automatically hide notification after 5 seconds
-        const timeoutId = setTimeout(() => {
-          markNotificationRead(event.id);
-        }, 5000);
+        const existingTimer = dismissTimersRef.current[event.id];
+        if (existingTimer) {
+          clearTimeout(existingTimer);
+        }
 
-        return () => clearTimeout(timeoutId);
+        // Automatically hide notification after 5 seconds
+        dismissTimersRef.current[event.id] = setTimeout(() => {
+          markNotificationRead(event.id);
+          delete dismissTimersRef.current[event.id];
+        }, 5000);
       },
     });
+
+  useEffect(() => {
+    return () => {
+      Object.values(dismissTimersRef.current).forEach((timeoutId) => {
+        clearTimeout(timeoutId);
+      });
+      dismissTimersRef.current = {};
+    };
+  }, []);
 
   if (pendingNotifications.length === 0) {
     return null;

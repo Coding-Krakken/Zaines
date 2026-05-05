@@ -50,7 +50,6 @@ export function usePhotoGallery({
   const [error, setError] = useState<Error | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
-  const [totalPhotos, setTotalPhotos] = useState(0);
 
   const pollTimeoutRef = useRef<NodeJS.Timeout>(null);
   const abortControllerRef = useRef<AbortController>(null);
@@ -96,7 +95,6 @@ export function usePhotoGallery({
 
         setHasMore(data.hasMore);
         setNextCursor(data.nextCursor);
-        setTotalPhotos(newPhotos.length);
       } catch (err) {
         if (err instanceof Error && err.name !== "AbortError") {
           setIsError(true);
@@ -153,6 +151,6 @@ export function usePhotoGallery({
     nextCursor,
     loadMore,
     refresh,
-    totalPhotos,
+    totalPhotos: photos.length,
   };
 }

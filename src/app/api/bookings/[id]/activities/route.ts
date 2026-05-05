@@ -32,9 +32,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const { searchParams } = new URL(request.url);
     const cursor = searchParams.get("cursor") || undefined;
-    const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 100);
+    const rawLimit = Number.parseInt(searchParams.get("limit") || "20", 10);
+    const limit = Number.isFinite(rawLimit)
+      ? Math.min(Math.max(rawLimit, 1), 100)
+      : 20;
     const type = searchParams.get("type") || undefined;
-    const sort = (searchParams.get("sort") || "desc") as "asc" | "desc";
+    const rawSort = searchParams.get("sort");
+    const sort: "asc" | "desc" = rawSort === "asc" ? "asc" : "desc";
     const bookingId = id;
 
     // Verify booking exists and user has access

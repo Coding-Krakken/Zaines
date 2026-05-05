@@ -31,8 +31,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const { searchParams } = new URL(request.url);
     const cursor = searchParams.get("cursor") || undefined;
-    const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
-    const sort = (searchParams.get("sort") || "asc") as "asc" | "desc";
+    const rawLimit = Number.parseInt(searchParams.get("limit") || "50", 10);
+    const limit = Number.isFinite(rawLimit)
+      ? Math.min(Math.max(rawLimit, 1), 100)
+      : 50;
+    const rawSort = searchParams.get("sort");
+    const sort: "asc" | "desc" = rawSort === "desc" ? "desc" : "asc";
     const bookingId = id;
 
     // Verify booking exists and user has access
@@ -181,7 +185,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    console.log(`[MESSAGE] New message for booking ${bookingId}:`, message);
+    console.log(`[MESSAGE] New message created for booking ${bookingId}`);
 
     return NextResponse.json(message, { status: 201 });
   } catch (error) {
