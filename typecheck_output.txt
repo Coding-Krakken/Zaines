@@ -1,0 +1,48 @@
+
+> zaines-stay-and-play@0.1.0 typecheck /home/obsidian/Projects/Zaines
+> tsc --noEmit --noEmit --pretty false
+
+.next/dev/types/validator.ts(477,31): error TS2344: Type 'typeof import("/home/obsidian/Projects/Zaines/src/app/api/bookings/[id]/activities/route")' does not satisfy the constraint 'RouteHandlerConfig<"/api/bookings/[id]/activities">'.
+  Types of property 'GET' are incompatible.
+    Type '(request: NextRequest, { params }: RouteParams) => Promise<NextResponse<{ error: string; }> | NextResponse<{ items: { id: string; type: string; pet: { name: string; id: string; }; description: string | null; notes: string | null; performedBy: string | null; performedAt: Date; }[]; nextCursor: string | null; hasMore:...' is not assignable to type '(request: NextRequest, context: { params: Promise<{ id: string; }>; }) => void | Response | Promise<void | Response>'.
+      Types of parameters '__1' and 'context' are incompatible.
+        Type '{ params: Promise<{ id: string; }>; }' is not assignable to type 'RouteParams'.
+          Types of property 'params' are incompatible.
+            Property 'id' is missing in type 'Promise<{ id: string; }>' but required in type '{ id: string; }'.
+.next/dev/types/validator.ts(495,31): error TS2344: Type 'typeof import("/home/obsidian/Projects/Zaines/src/app/api/bookings/[id]/messages/route")' does not satisfy the constraint 'RouteHandlerConfig<"/api/bookings/[id]/messages">'.
+  Types of property 'GET' are incompatible.
+    Type '(request: NextRequest, { params }: RouteParams) => Promise<NextResponse<{ error: string; }> | NextResponse<{ items: { id: string; content: string; senderType: string; senderName: string; isRead: boolean; sentAt: Date; }[]; nextCursor: string | null; hasMore: boolean; timestamp: string; }>>' is not assignable to type '(request: NextRequest, context: { params: Promise<{ id: string; }>; }) => void | Response | Promise<void | Response>'.
+      Types of parameters '__1' and 'context' are incompatible.
+        Type '{ params: Promise<{ id: string; }>; }' is not assignable to type 'RouteParams'.
+          Types of property 'params' are incompatible.
+            Property 'id' is missing in type 'Promise<{ id: string; }>' but required in type '{ id: string; }'.
+.next/dev/types/validator.ts(504,31): error TS2344: Type 'typeof import("/home/obsidian/Projects/Zaines/src/app/api/bookings/[id]/notifications/route")' does not satisfy the constraint 'RouteHandlerConfig<"/api/bookings/[id]/notifications">'.
+  Types of property 'GET' are incompatible.
+    Type '(request: NextRequest, { params }: RouteParams) => Promise<NextResponse<{ error: string; }> | NextResponse<{ events: { activities: { id: string; type: string; pet: { name: string; id: string; }; description: string | null; notes: string | null; performedBy: string | null; performedAt: Date; }[]; photos: { ...; }[]; ...' is not assignable to type '(request: NextRequest, context: { params: Promise<{ id: string; }>; }) => void | Response | Promise<void | Response>'.
+      Types of parameters '__1' and 'context' are incompatible.
+        Type '{ params: Promise<{ id: string; }>; }' is not assignable to type 'RouteParams'.
+          Types of property 'params' are incompatible.
+            Property 'id' is missing in type 'Promise<{ id: string; }>' but required in type '{ id: string; }'.
+.next/dev/types/validator.ts(513,31): error TS2344: Type 'typeof import("/home/obsidian/Projects/Zaines/src/app/api/bookings/[id]/photos/route")' does not satisfy the constraint 'RouteHandlerConfig<"/api/bookings/[id]/photos">'.
+  Types of property 'GET' are incompatible.
+    Type '(request: NextRequest, { params }: RouteParams) => Promise<NextResponse<{ error: string; }> | NextResponse<{ items: { id: string; pet: { name: string; id: string; }; imageUrl: string; caption: string | null; uploadedBy: string | null; uploadedAt: Date; }[]; nextCursor: string | null; hasMore: boolean; timestamp: str...' is not assignable to type '(request: NextRequest, context: { params: Promise<{ id: string; }>; }) => void | Response | Promise<void | Response>'.
+      Types of parameters '__1' and 'context' are incompatible.
+        Type '{ params: Promise<{ id: string; }>; }' is not assignable to type 'RouteParams'.
+          Types of property 'params' are incompatible.
+            Property 'id' is missing in type 'Promise<{ id: string; }>' but required in type '{ id: string; }'.
+src/app/api/bookings/[id]/__tests__/activities.test.ts(58,34): error TS2872: This kind of expression is always truthy.
+src/app/api/bookings/[id]/__tests__/messages.test.ts(56,34): error TS2872: This kind of expression is always truthy.
+src/app/api/bookings/[id]/__tests__/photos.test.ts(59,34): error TS2872: This kind of expression is always truthy.
+src/hooks/__tests__/useActivityPolling.test.ts(2,37): error TS2307: Cannot find module '@testing-library/react' or its corresponding type declarations.
+src/hooks/__tests__/useMessages.test.ts(2,37): error TS2307: Cannot find module '@testing-library/react' or its corresponding type declarations.
+src/hooks/__tests__/useNotifications.test.ts(2,37): error TS2307: Cannot find module '@testing-library/react' or its corresponding type declarations.
+src/hooks/__tests__/usePhotoGallery.test.ts(2,37): error TS2307: Cannot find module '@testing-library/react' or its corresponding type declarations.
+src/hooks/useActivityPolling.ts(52,26): error TS2554: Expected 1 arguments, but got 0.
+src/hooks/useActivityPolling.ts(53,30): error TS2554: Expected 1 arguments, but got 0.
+src/hooks/useMessages.ts(49,26): error TS2554: Expected 1 arguments, but got 0.
+src/hooks/useMessages.ts(50,30): error TS2554: Expected 1 arguments, but got 0.
+src/hooks/useNotifications.ts(68,26): error TS2554: Expected 1 arguments, but got 0.
+src/hooks/useNotifications.ts(69,30): error TS2554: Expected 1 arguments, but got 0.
+src/hooks/usePhotoGallery.ts(49,26): error TS2554: Expected 1 arguments, but got 0.
+src/hooks/usePhotoGallery.ts(50,30): error TS2554: Expected 1 arguments, but got 0.
+ ELIFECYCLE  Command failed with exit code 1.
