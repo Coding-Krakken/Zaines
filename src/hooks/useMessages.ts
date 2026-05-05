@@ -1,0 +1,201 @@
+import { useEffect, useState, useRef, useCallback } from "react";
+
+interface Message {
+  id: string;
+  content: string;
+  senderType: "customer" | "staff";
+  senderName: string;
+  sentAt: Date | string;
+  isRead: boolean;
+}
+
+interface UseMessagesOptions {
+  bookingId: string;
+  enabled?: boolean;
+  pollIntervalMs?: number;
+}
+
+interface UseMessagesResult {
+  messages: Message[];
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  hasMore: boolean;
+  nextCursor: string | null;
+  loadMore: () => Promise<void>;
+  refresh: () => Promise<void>;
+  sendMessage: (content: string) => Promise<Message | null>;
+  isSending: boolean;
+  unreadCount: number;
+}
+
+/**
+ * Hook for managing messages between customer and staff
+ * Handles polling for new messages, pagination, and sending
+ */
+export function useMessages({
+  bookingId,
+  enabled = true,
+  pollIntervalMs = 30000,
+}: UseMessagesOptions): UseMessagesResult {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [isSending, setIsSending] = useState(false);
+
+  const pollTimeoutRef = useRef<NodeJS.Timeout>();
+  const abortControllerRef = useRef<AbortController>();
+
+  // Calculate unread count
+  const unreadCount = messages.filter((m) => !m.isRead).length;
+
+  // Fetch messages
+  const fetchMessages = useCallback(
+    async (cursor?: string, append = false) => {
+      try {
+        setIsLoading(true);
+        setIsError(false);
+        setError(null);
+
+        abortControllerRef.current = new AbortController();
+
+        const params = new URLSearchParams({
+          limit: "50",
+          sort: "asc", // Chronological order
+          ...(cursor && { cursor }),
+        });
+
+        const response = await fetch(
+          `/api/bookings/${bookingId}/messages?${params}`,
+          {
+            signal: abortControllerRef.current.signal,
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch messages: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const newMessages = data.items.map((item: any) => ({
+          ...item,
+          sentAt: new Date(item.sentAt),
+        }));
+
+        if (append) {
+          setMessages((prev) => [...prev, ...newMessages]);
+        } else {
+          setMessages(newMessages);
+        }
+
+        setHasMore(data.hasMore);
+        setNextCursor(data.nextCursor);
+      } catch (err) {
+        if (err instanceof Error && err.name !== "AbortError") {
+          setIsError(true);
+          setError(err);
+          console.error("Messages polling error:", err);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [bookingId]
+  );
+
+  // Load more handler
+  const loadMore = useCallback(async () => {
+    if (!hasMore || isLoading) return;
+    await fetchMessages(nextCursor, true);
+  }, [hasMore, isLoading, nextCursor, fetchMessages]);
+
+  // Refresh handler
+  const refresh = useCallback(async () => {
+    await fetchMessages();
+  }, [fetchMessages]);
+
+  // Send message handler
+  const sendMessage = useCallback(
+    async (content: string): Promise<Message | null> => {
+      if (!content.trim()) {
+        console.warn("Cannot send empty message");
+        return null;
+      }
+
+      try {
+        setIsSending(true);
+        setIsError(false);
+        setError(null);
+
+        const response = await fetch(`/api/bookings/${bookingId}/messages`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ content }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to send message: ${response.status}`);
+        }
+
+        const newMessage = await response.json();
+        const message: Message = {
+          ...newMessage,
+          sentAt: new Date(newMessage.sentAt),
+        };
+
+        // Add to local state optimistically
+        setMessages((prev) => [...prev, message]);
+
+        return message;
+      } catch (err) {
+        const sendError = err instanceof Error ? err : new Error("Unknown error");
+        setIsError(true);
+        setError(sendError);
+        console.error("Error sending message:", err);
+        return null;
+      } finally {
+        setIsSending(false);
+      }
+    },
+    [bookingId]
+  );
+
+  // Initial load and polling setup
+  useEffect(() => {
+    if (!enabled || !bookingId) return;
+
+    // Initial fetch
+    fetchMessages();
+
+    // Set up polling interval
+    pollTimeoutRef.current = setInterval(() => {
+      fetchMessages();
+    }, pollIntervalMs);
+
+    return () => {
+      if (pollTimeoutRef.current) {
+        clearInterval(pollTimeoutRef.current);
+      }
+      abortControllerRef.current?.abort();
+    };
+  }, [enabled, bookingId, pollIntervalMs, fetchMessages]);
+
+  return {
+    messages,
+    isLoading,
+    isError,
+    error,
+    hasMore,
+    nextCursor,
+    loadMore,
+    refresh,
+    sendMessage,
+    isSending,
+    unreadCount,
+  };
+}
