@@ -3,8 +3,9 @@ import { ActivityLogPanel } from '@/components/admin/ActivityLogPanel';
 export default async function AdminActivitiesPage({
   searchParams,
 }: {
-  searchParams?: { bookingId?: string };
+  searchParams?: Promise<{ bookingId?: string }>;
 }) {
+  const resolvedSearchParams = searchParams ? await searchParams : {};
   return (
     <div className="space-y-6">
       <div>
@@ -13,7 +14,7 @@ export default async function AdminActivitiesPage({
           Capture care events quickly while pets are checked in.
         </p>
       </div>
-      <ActivityLogPanel initialBookingId={searchParams?.bookingId} />
+      <ActivityLogPanel initialBookingId={resolvedSearchParams?.bookingId} />
     </div>
   );
 }

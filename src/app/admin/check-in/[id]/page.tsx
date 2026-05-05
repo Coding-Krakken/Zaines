@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -9,8 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 export default function CheckInPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const router = useRouter();
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
@@ -23,7 +24,7 @@ export default function CheckInPage({
       const res = await fetch('/api/admin/check-in', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId: params.id }),
+        body: JSON.stringify({ bookingId: id }),
       });
 
       const data = (await res.json()) as { error?: string };
@@ -50,7 +51,7 @@ export default function CheckInPage({
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Booking ID: <span className="font-mono text-foreground">{params.id}</span>
+            Booking ID: <span className="font-mono text-foreground">{id}</span>
           </p>
 
           {status === 'success' && (
