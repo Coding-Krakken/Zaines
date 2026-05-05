@@ -3,7 +3,7 @@ import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 /**
@@ -16,6 +16,7 @@ interface RouteParams {
  *   - sort: 'asc' or 'desc' (default 'desc')
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
+  const { id } = await params;
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 100);
     const type = searchParams.get("type") || undefined;
     const sort = (searchParams.get("sort") || "desc") as "asc" | "desc";
-    const bookingId = params.id;
+    const bookingId = id;
 
     // Verify booking exists and user has access
     const booking = await prisma.booking.findUnique({
@@ -50,6 +51,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Build query
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = { bookingId };
     if (type) {
       where.type = type;
@@ -102,9 +104,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  * Create a new activity (admin/staff only)
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
+  const { id } = await params;
   try {
     const session = await auth();
-    if (!session?.user?.id || session.user.role !== "staff") {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userRole = (session?.user as any)?.role;
+    if (!session?.user?.id || userRole !== "staff") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -115,7 +120,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const bookingId = params.id;
+    const bookingId = id;
     const { petId, type, description, notes } = await request.json();
 
     if (!petId || !type) {

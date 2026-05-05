@@ -46,8 +46,8 @@ export function useMessages({
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
 
-  const pollTimeoutRef = useRef<NodeJS.Timeout>();
-  const abortControllerRef = useRef<AbortController>();
+  const pollTimeoutRef = useRef<NodeJS.Timeout>(null);
+  const abortControllerRef = useRef<AbortController>(null);
 
   // Calculate unread count
   const unreadCount = messages.filter((m) => !m.isRead).length;
@@ -109,7 +109,7 @@ export function useMessages({
   // Load more handler
   const loadMore = useCallback(async () => {
     if (!hasMore || isLoading) return;
-    await fetchMessages(nextCursor, true);
+    await fetchMessages(nextCursor ?? undefined, true);
   }, [hasMore, isLoading, nextCursor, fetchMessages]);
 
   // Refresh handler

@@ -49,8 +49,8 @@ export function useActivityPolling({
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [filter, setFilter] = useState<string[]>(activityTypes);
 
-  const pollTimeoutRef = useRef<NodeJS.Timeout>();
-  const abortControllerRef = useRef<AbortController>();
+  const pollTimeoutRef = useRef<NodeJS.Timeout>(null);
+  const abortControllerRef = useRef<AbortController>(null);
 
   // Fetch activities
   const fetchActivities = useCallback(
@@ -80,6 +80,7 @@ export function useActivityPolling({
         }
 
         const data = await response.json();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const newActivities = data.items.map((item: any) => ({
           ...item,
           performedAt: new Date(item.performedAt),
@@ -109,7 +110,7 @@ export function useActivityPolling({
   // Load more handler
   const loadMore = useCallback(async () => {
     if (!hasMore || isLoading) return;
-    await fetchActivities(nextCursor, true);
+    await fetchActivities(nextCursor ?? undefined, true);
   }, [hasMore, isLoading, nextCursor, fetchActivities]);
 
   // Refresh handler

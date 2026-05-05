@@ -65,8 +65,8 @@ export function useNotifications({
   const [pollError, setPollError] = useState<Error | null>(null);
   const [seenEventIds, setSeenEventIds] = useState<Set<string>>(new Set());
 
-  const pollTimeoutRef = useRef<NodeJS.Timeout>();
-  const abortControllerRef = useRef<AbortController>();
+  const pollTimeoutRef = useRef<NodeJS.Timeout>(null);
+  const abortControllerRef = useRef<AbortController>(null);
 
   // Poll for new notifications
   const poll = useCallback(async () => {

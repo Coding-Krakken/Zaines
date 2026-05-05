@@ -3,7 +3,7 @@ import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 /**
@@ -16,6 +16,7 @@ interface RouteParams {
  * Returns: { activities: [], photos: [], messages: [], timestamp }
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
+  const { id } = await params;
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     const { searchParams } = new URL(request.url);
-    const bookingId = params.id;
+    const bookingId = id;
     
     // Parse since parameter - default to 30 seconds ago for SLA compliance
     let sinceDate: Date;
@@ -104,6 +105,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     // Fetch recent messages (excluding old unread, unless requested)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const messageWhere: any = {
       bookingId,
       sentAt: { gte: sinceDate },

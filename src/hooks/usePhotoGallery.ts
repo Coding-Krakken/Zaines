@@ -46,8 +46,8 @@ export function usePhotoGallery({
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [totalPhotos, setTotalPhotos] = useState(0);
 
-  const pollTimeoutRef = useRef<NodeJS.Timeout>();
-  const abortControllerRef = useRef<AbortController>();
+  const pollTimeoutRef = useRef<NodeJS.Timeout>(null);
+  const abortControllerRef = useRef<AbortController>(null);
 
   // Fetch photos
   const fetchPhotos = useCallback(
@@ -107,7 +107,7 @@ export function usePhotoGallery({
   // Load more handler
   const loadMore = useCallback(async () => {
     if (!hasMore || isLoading) return;
-    await fetchPhotos(nextCursor, true);
+    await fetchPhotos(nextCursor ?? undefined, true);
   }, [hasMore, isLoading, nextCursor, fetchPhotos]);
 
   // Refresh handler

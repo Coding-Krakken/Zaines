@@ -3,7 +3,7 @@ import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 /**
@@ -15,6 +15,7 @@ interface RouteParams {
  *   - sort: 'asc' or 'desc' (default 'asc' for chronological)
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
+  const { id } = await params;
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const cursor = searchParams.get("cursor") || undefined;
     const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
     const sort = (searchParams.get("sort") || "asc") as "asc" | "desc";
-    const bookingId = params.id;
+    const bookingId = id;
 
     // Verify booking exists and user has access
     const booking = await prisma.booking.findUnique({
@@ -104,6 +105,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  *   - senderType: 'customer' | 'staff' (determined from session)
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
+  const { id } = await params;
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -117,7 +119,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const bookingId = params.id;
+    const bookingId = id;
     const { content } = await request.json();
 
     if (!content || content.trim().length === 0) {
@@ -145,8 +147,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Determine sender type and validate access
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userRole = (session.user as any)?.role;
     let senderType = "customer";
-    if (session.user.role === "staff" || session.user.role === "admin") {
+    if (userRole === "staff" || userRole === "admin") {
       senderType = "staff";
     } else if (booking.userId !== session.user.id) {
       // Customer can only message their own bookings
