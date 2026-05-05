@@ -615,18 +615,14 @@ unset STRIPE_SECRET_KEY
 
 ### Automated Tests
 
-<<<<<<< HEAD
-Run the test suite covering booking and payment functionality:
-
-````bash
-npm test
-=======
 Run the E2E test suite covering the full booking → payment → webhook flow:
 
 ```bash
 npm test src/__tests__/booking-payment-e2e.test.ts
->>>>>>> origin/main
-````
+
+# Optional: run the full local suite
+npm test
+```
 
 **Test Coverage:**
 
@@ -644,8 +640,6 @@ npm test src/__tests__/booking-payment-e2e.test.ts
 - ✅ **No Client Secret Logging**: Secrets only returned in intended API responses
 - ✅ **Graceful Degradation**: Payment failures don't block booking creation
 - ✅ **Idempotency**: Duplicate payment records prevented via booking ID check
-
-<<<<<<< HEAD
 
 ## 🔒 Concurrency & Data Safety
 
