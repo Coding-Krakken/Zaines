@@ -89,6 +89,21 @@ export default async function AdminDashboardPage() {
         })}
       </h1>
 
+      <div className="mb-6 flex flex-wrap gap-3">
+        <Link href="/admin/occupancy" className="text-sm font-medium text-primary hover:underline">
+          View Occupancy
+        </Link>
+        <Link href="/admin/activities" className="text-sm font-medium text-primary hover:underline">
+          Log Activity
+        </Link>
+        <Link href="/admin/photos" className="text-sm font-medium text-primary hover:underline">
+          Upload Photo
+        </Link>
+        <Link href="/admin/contacts" className="text-sm font-medium text-primary hover:underline">
+          Emergency Contacts
+        </Link>
+      </div>
+
       {bookings.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
@@ -147,12 +162,26 @@ export default async function AdminDashboardPage() {
                       </Link>
                     )}
                     {booking.status === 'checked_in' && (
-                      <Link
-                        href={`/admin/check-out/${booking.id}`}
-                        className="text-sm font-medium text-primary hover:underline"
-                      >
-                        Check Out →
-                      </Link>
+                      <>
+                        <Link
+                          href={`/admin/activities?bookingId=${booking.id}`}
+                          className="text-sm font-medium text-primary hover:underline"
+                        >
+                          Log Activity →
+                        </Link>
+                        <Link
+                          href={`/admin/photos?bookingId=${booking.id}`}
+                          className="text-sm font-medium text-primary hover:underline"
+                        >
+                          Upload Photo →
+                        </Link>
+                        <Link
+                          href={`/admin/check-out/${booking.id}`}
+                          className="text-sm font-medium text-primary hover:underline"
+                        >
+                          Check Out →
+                        </Link>
+                      </>
                     )}
                   </div>
                 </CardContent>
