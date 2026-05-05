@@ -178,11 +178,6 @@
               - /url: /terms
   - region "Notifications alt+T"
   - button "Open Next.js Dev Tools" [ref=e179] [cursor=pointer]:
-    - generic [ref=e182]:
-      - text: Compiling
-      - generic [ref=e183]:
-        - generic [ref=e184]: .
-        - generic [ref=e185]: .
-        - generic [ref=e186]: .
-  - alert [ref=e187]
+    - img [ref=e180]
+  - alert [ref=e183]
 ```
