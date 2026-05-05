@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Elements,
   PaymentElement,
@@ -238,6 +238,7 @@ export function StepPayment({
   );
   const [bookingError, setBookingError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const hasAutoInitAttempted = useRef(Boolean(data.bookingId));
   const subtotal = Math.round((pricingQuote?.subtotal || 0) * 100) / 100;
   const tax = Math.round((pricingQuote?.tax || 0) * 100) / 100;
   const totalWithTax = Math.round((pricingQuote?.total || totalAmount) * 100) / 100;
@@ -373,10 +374,11 @@ export function StepPayment({
   }, [bookingPayload, onUpdate, pricingQuote]);
 
   useEffect(() => {
-    if (bookingId || isLoading) {
+    if (bookingId || isLoading || hasAutoInitAttempted.current) {
       return;
     }
 
+    hasAutoInitAttempted.current = true;
     void initializeBookingAndPayment();
   }, [bookingId, isLoading, initializeBookingAndPayment]);
 

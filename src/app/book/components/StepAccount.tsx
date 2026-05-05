@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import {
   Card,
@@ -72,44 +72,29 @@ export function StepAccount({
   const isAuthenticated = status === "authenticated";
   const isLoading = status === "loading";
 
-  useEffect(() => {
-    if (!session?.user) {
-      return;
-    }
+  const sessionDefaults = useMemo(() => {
+    const fullName = session?.user?.name?.trim() || "";
+    const [givenName, ...rest] = fullName ? fullName.split(/\s+/) : [""];
 
-    // Only sync email and name from session on initial load
-    const userEmail = session.user.email || "";
-    const fullName = session.user.name?.trim() || "";
+    return {
+      email: session?.user?.email || "",
+      firstName: givenName || "",
+      lastName: rest.join(" ") || givenName || "",
+    };
+  }, [session?.user?.email, session?.user?.name]);
 
-    setEmail((prevEmail) =>
-      !prevEmail && userEmail ? userEmail : prevEmail
-    );
-
-    setFirstName((prevFirst) => {
-      if (prevFirst) return prevFirst;
-      if (fullName) {
-        const [givenName] = fullName.split(/\s+/);
-        return givenName || "";
-      }
-      return prevFirst;
-    });
-
-    setLastName((prevLast) => {
-      if (prevLast) return prevLast;
-      if (fullName) {
-        const [givenName, ...rest] = fullName.split(/\s+/);
-        return rest.join(" ") || givenName || "";
-      }
-      return prevLast;
-    });
-  }, [session?.user]);
+  const resolvedFirstName = firstName || sessionDefaults.firstName;
+  const resolvedLastName = lastName || sessionDefaults.lastName;
+  const resolvedEmail = email || sessionDefaults.email;
 
   const handleSendMagicLink = async () => {
     setMagicLinkError("");
     setMagicLinkCorrelationId(null);
 
     // Validate email
-    const validation = stepAccountSchema.shape.email.safeParse(email.trim());
+    const validation = stepAccountSchema.shape.email.safeParse(
+      resolvedEmail.trim(),
+    );
 
     if (!validation.success) {
       toast.error(validation.error.issues[0].message);
@@ -125,7 +110,7 @@ export function StepAccount({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: email.trim(),
+          email: resolvedEmail.trim(),
           intent: "manage_booking",
         }),
       });
@@ -136,9 +121,9 @@ export function StepAccount({
           .catch(() => ({}))) as MagicLinkSuccessResponse;
         setMagicLinkSent(true);
         onUpdate({
-          firstName,
-          lastName,
-          email: email.trim(),
+          firstName: resolvedFirstName,
+          lastName: resolvedLastName,
+          email: resolvedEmail.trim(),
           phone,
         });
         toast.success(
@@ -191,9 +176,9 @@ export function StepAccount({
 
   const handleNext = () => {
     const accountData = {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      email: email.trim(),
+      firstName: resolvedFirstName.trim(),
+      lastName: resolvedLastName.trim(),
+      email: resolvedEmail.trim(),
       phone: phone.trim(),
     };
 
@@ -217,9 +202,9 @@ export function StepAccount({
 
   const handleContinueAsGuest = () => {
     const accountData = {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      email: email.trim(),
+      firstName: resolvedFirstName.trim(),
+      lastName: resolvedLastName.trim(),
+      email: resolvedEmail.trim(),
       phone: phone.trim(),
     };
 
@@ -263,7 +248,7 @@ export function StepAccount({
             <Label htmlFor="firstName">First Name *</Label>
             <Input
               id="firstName"
-              value={firstName}
+              value={resolvedFirstName}
               onChange={(e) => setFirstName(e.target.value)}
               required
             />
@@ -272,7 +257,7 @@ export function StepAccount({
             <Label htmlFor="lastName">Last Name *</Label>
             <Input
               id="lastName"
-              value={lastName}
+              value={resolvedLastName}
               onChange={(e) => setLastName(e.target.value)}
               required
             />
@@ -337,7 +322,7 @@ export function StepAccount({
                   id="email"
                   type="email"
                   placeholder="you@example.com"
-                  value={email}
+                  value={resolvedEmail}
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
@@ -354,7 +339,7 @@ export function StepAccount({
                   <AlertDescription className="text-blue-800 dark:text-blue-200">
                     <div className="space-y-2">
                       <p className="font-semibold">
-                        Magic link sent to {email}
+                        Magic link sent to {resolvedEmail}
                       </p>
                       <p className="text-sm">
                         Check your email and click the link to sign in. You can
@@ -381,7 +366,7 @@ export function StepAccount({
 
                   <Button
                     onClick={handleSendMagicLink}
-                    disabled={!email || isSendingMagicLink}
+                    disabled={!resolvedEmail || isSendingMagicLink}
                     className="w-full"
                     variant="outline"
                   >
@@ -420,7 +405,12 @@ export function StepAccount({
                 </p>
                 <Button
                   onClick={handleContinueAsGuest}
-                  disabled={!email || !firstName || !lastName || !phone}
+                  disabled={
+                    !resolvedEmail ||
+                    !resolvedFirstName ||
+                    !resolvedLastName ||
+                    !phone
+                  }
                   variant="secondary"
                   className="w-full"
                 >
@@ -440,7 +430,9 @@ export function StepAccount({
           </Button>
           <Button
             onClick={handleNext}
-            disabled={!email || !firstName || !lastName || !phone}
+            disabled={
+              !resolvedEmail || !resolvedFirstName || !resolvedLastName || !phone
+            }
           >
             Continue to Pet Profiles
             <ArrowRight className="ml-2 h-4 w-4" />
