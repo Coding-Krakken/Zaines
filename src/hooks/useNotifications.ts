@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { computeAdaptivePollDelay } from "@/hooks/pollingScheduler";
 
 interface Activity {
   id: string;
@@ -65,11 +66,12 @@ export function useNotifications({
   const [pollError, setPollError] = useState<Error | null>(null);
   const [seenEventIds, setSeenEventIds] = useState<Set<string>>(new Set());
 
-  const pollTimeoutRef = useRef<NodeJS.Timeout>(null);
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortControllerRef = useRef<AbortController>(null);
+  const consecutiveFailuresRef = useRef(0);
 
   // Poll for new notifications
-  const poll = useCallback(async () => {
+  const poll = useCallback(async (): Promise<boolean> => {
     try {
       setPollError(null);
 
@@ -148,11 +150,13 @@ export function useNotifications({
       }
 
       setLastPollTime(now);
+      return true;
     } catch (err) {
       if (err instanceof Error && err.name !== "AbortError") {
         setPollError(err instanceof Error ? err : new Error("Unknown error"));
         console.error("Notification polling error:", err);
       }
+      return false;
     }
   }, [bookingId, lastPollTime, seenEventIds, onNotification]);
 
@@ -170,20 +174,32 @@ export function useNotifications({
   useEffect(() => {
     if (!enabled || !bookingId) return;
 
-    // Defer initial poll to avoid synchronous state updates during effect execution.
-    const initialPollTimer = setTimeout(() => {
-      void poll();
-    }, 0);
+    let cancelled = false;
 
-    // Set up polling interval
-    pollTimeoutRef.current = setInterval(() => {
-      poll();
-    }, pollIntervalMs);
+    const runPollCycle = async () => {
+      const wasSuccessful = await poll();
+      if (cancelled) return;
+
+      consecutiveFailuresRef.current = wasSuccessful
+        ? 0
+        : consecutiveFailuresRef.current + 1;
+
+      const nextDelayMs = computeAdaptivePollDelay({
+        baseIntervalMs: pollIntervalMs,
+        consecutiveFailures: consecutiveFailuresRef.current,
+      });
+
+      pollTimeoutRef.current = setTimeout(() => {
+        void runPollCycle();
+      }, nextDelayMs);
+    };
+
+    void runPollCycle();
 
     return () => {
-      clearTimeout(initialPollTimer);
+      cancelled = true;
       if (pollTimeoutRef.current) {
-        clearInterval(pollTimeoutRef.current);
+        clearTimeout(pollTimeoutRef.current);
       }
       abortControllerRef.current?.abort();
     };

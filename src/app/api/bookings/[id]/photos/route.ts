@@ -110,7 +110,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
   try {
     const session = await auth();
-    const userRole = (session?.user as { role?: string } | undefined)?.role;
+    const userRole = session?.user?.role;
     if (!session?.user?.id || (userRole !== "staff" && userRole !== "admin")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

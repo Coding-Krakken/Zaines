@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { computeAdaptivePollDelay } from "@/hooks/pollingScheduler";
 
 interface Message {
   id: string;
@@ -52,15 +53,16 @@ export function useMessages({
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
 
-  const pollTimeoutRef = useRef<NodeJS.Timeout>(null);
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortControllerRef = useRef<AbortController>(null);
+  const consecutiveFailuresRef = useRef(0);
 
   // Calculate unread count
   const unreadCount = messages.filter((m) => !m.isRead).length;
 
   // Fetch messages
   const fetchMessages = useCallback(
-    async (cursor?: string, append = false) => {
+    async (cursor?: string, append = false): Promise<boolean> => {
       try {
         setIsLoading(true);
         setIsError(false);
@@ -99,12 +101,14 @@ export function useMessages({
 
         setHasMore(data.hasMore);
         setNextCursor(data.nextCursor);
+        return true;
       } catch (err) {
         if (err instanceof Error && err.name !== "AbortError") {
           setIsError(true);
           setError(err);
           console.error("Messages polling error:", err);
         }
+        return false;
       } finally {
         setIsLoading(false);
       }
@@ -175,20 +179,32 @@ export function useMessages({
   useEffect(() => {
     if (!enabled || !bookingId) return;
 
-    // Defer initial fetch to avoid synchronous state updates during effect execution.
-    const initialFetchTimer = setTimeout(() => {
-      void fetchMessages();
-    }, 0);
+    let cancelled = false;
 
-    // Set up polling interval
-    pollTimeoutRef.current = setInterval(() => {
-      fetchMessages();
-    }, pollIntervalMs);
+    const runPollCycle = async () => {
+      const wasSuccessful = await fetchMessages();
+      if (cancelled) return;
+
+      consecutiveFailuresRef.current = wasSuccessful
+        ? 0
+        : consecutiveFailuresRef.current + 1;
+
+      const nextDelayMs = computeAdaptivePollDelay({
+        baseIntervalMs: pollIntervalMs,
+        consecutiveFailures: consecutiveFailuresRef.current,
+      });
+
+      pollTimeoutRef.current = setTimeout(() => {
+        void runPollCycle();
+      }, nextDelayMs);
+    };
+
+    void runPollCycle();
 
     return () => {
-      clearTimeout(initialFetchTimer);
+      cancelled = true;
       if (pollTimeoutRef.current) {
-        clearInterval(pollTimeoutRef.current);
+        clearTimeout(pollTimeoutRef.current);
       }
       abortControllerRef.current?.abort();
     };

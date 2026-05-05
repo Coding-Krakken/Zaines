@@ -151,8 +151,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Determine sender type and validate access
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const userRole = (session.user as any)?.role;
+    const userRole = session.user.role;
     let senderType = "customer";
     if (userRole === "staff" || userRole === "admin") {
       senderType = "staff";
