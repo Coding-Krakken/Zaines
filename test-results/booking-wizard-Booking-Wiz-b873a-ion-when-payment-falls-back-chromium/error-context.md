@@ -1,7 +1,7 @@
 # Page snapshot
 
 ```yaml
-- generic [active] [ref=e1]:
+- generic [ref=e1]:
   - generic [ref=e2]:
     - banner [ref=e3]:
       - generic [ref=e4]:
@@ -47,137 +47,138 @@
           - list [ref=e39]:
             - listitem [ref=e40]:
               - generic [ref=e42]:
-                - img [ref=e44]
-                - generic [ref=e46]: Dates
-            - listitem [ref=e47]:
-              - generic [ref=e49]:
-                - img [ref=e51]
-                - generic [ref=e53]: Suites
-            - listitem [ref=e54]:
-              - generic [ref=e56]:
-                - img [ref=e58]
-                - generic [ref=e60]: Account
-            - listitem [ref=e61]:
-              - generic [ref=e63]:
-                - generic [ref=e65]: "4"
-                - generic [ref=e66]: Pets
-            - listitem [ref=e67]:
-              - generic [ref=e69]:
-                - generic [ref=e71]: "5"
-                - generic [ref=e72]: Waiver
-            - listitem [ref=e73]:
-              - generic [ref=e74]:
-                - generic [ref=e76]: "6"
-                - generic [ref=e77]: Payment
-        - generic [ref=e79]:
-          - generic [ref=e80]:
-            - generic [ref=e81]:
-              - img [ref=e82]
-              - text: Pet Profiles & Vaccination
-            - generic [ref=e87]: Select existing pets or add new profiles (1 of 1 selected)
-          - generic [ref=e88]:
-            - generic [ref=e89]:
-              - generic [ref=e90]: New Pets Being Added
-              - generic [ref=e92]:
-                - generic [ref=e93]:
-                  - generic [ref=e94]: Scout
-                  - generic [ref=e95]: Beagle • 4 years • 28 lbs
-                - button [ref=e96]:
-                  - img
-            - button "Add New Pet Profile" [ref=e97]:
-              - img
-              - text: Add New Pet Profile
-            - alert [ref=e98]:
-              - img [ref=e99]
-              - generic [ref=e101]:
-                - strong [ref=e102]: "Vaccination Required:"
-                - text: All pets must have current vaccination records (Rabies, DHPP, Bordetella). Please upload PDF documents.
-            - generic [ref=e103]:
-              - button "Back" [ref=e104]:
+                - generic [ref=e44]: "1"
+                - generic [ref=e45]: Dates
+            - listitem [ref=e46]:
+              - generic [ref=e48]:
+                - generic [ref=e50]: "2"
+                - generic [ref=e51]: Suites
+            - listitem [ref=e52]:
+              - generic [ref=e54]:
+                - generic [ref=e56]: "3"
+                - generic [ref=e57]: Account
+            - listitem [ref=e58]:
+              - generic [ref=e60]:
+                - generic [ref=e62]: "4"
+                - generic [ref=e63]: Pets
+            - listitem [ref=e64]:
+              - generic [ref=e66]:
+                - generic [ref=e68]: "5"
+                - generic [ref=e69]: Waiver
+            - listitem [ref=e70]:
+              - generic [ref=e71]:
+                - generic [ref=e73]: "6"
+                - generic [ref=e74]: Payment
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - img [ref=e79]
+              - text: Select Your Dates & Service
+            - generic [ref=e81]: Choose your check-in/check-out dates and number of pets for private boarding
+          - generic [ref=e82]:
+            - generic [ref=e83]:
+              - generic [ref=e84]:
+                - generic [ref=e85]: Check-in Date *
+                - textbox "Check-in Date *" [ref=e86]
+              - generic [ref=e87]:
+                - generic [ref=e88]: Check-out Date *
+                - textbox "Check-out Date *" [ref=e89]: 2026-06-13
+            - generic [ref=e90]:
+              - generic [ref=e91]: Service Type *
+              - combobox "Service Type *" [active] [ref=e92]:
+                - generic:
+                  - generic:
+                    - generic: Overnight Boarding
+                    - generic: $65-120/night
                 - img
-                - text: Back
-              - button "Continue to Waivers" [ref=e105]:
-                - text: Continue to Waivers
+            - generic [ref=e93]:
+              - generic [ref=e94]: Number of Pets *
+              - combobox "Number of Pets *" [ref=e95]:
+                - generic: 1 Pet
                 - img
-    - contentinfo [ref=e106]:
-      - generic [ref=e107]:
-        - generic [ref=e108]:
-          - generic [ref=e109]:
-            - link "🐾 Zaine's Stay & Play" [ref=e110] [cursor=pointer]:
+            - generic [ref=e96]:
+              - button "Continue to Suite Selection" [disabled]:
+                - text: Continue to Suite Selection
+                - img
+    - contentinfo [ref=e97]:
+      - generic [ref=e98]:
+        - generic [ref=e99]:
+          - generic [ref=e100]:
+            - link "🐾 Zaine's Stay & Play" [ref=e101] [cursor=pointer]:
               - /url: /
-              - generic [ref=e111]: 🐾
-              - generic [ref=e112]: Zaine's Stay & Play
-            - paragraph [ref=e113]: Private, safety-first dog boarding in Syracuse with three suite options and owner-led care.
-            - generic [ref=e114]:
-              - link [ref=e115] [cursor=pointer]:
+              - generic [ref=e102]: 🐾
+              - generic [ref=e103]: Zaine's Stay & Play
+            - paragraph [ref=e104]: Private, safety-first dog boarding in Syracuse with three suite options and owner-led care.
+            - generic [ref=e105]:
+              - link [ref=e106] [cursor=pointer]:
                 - /url: https://www.facebook.com/people/Zaines-Stay-Play/61550036005682/
-                - img [ref=e116]
-              - link [ref=e118] [cursor=pointer]:
+                - img [ref=e107]
+              - link [ref=e109] [cursor=pointer]:
                 - /url: https://instagram.com/zainesstayandplay
-                - img [ref=e119]
-              - link [ref=e122] [cursor=pointer]:
+                - img [ref=e110]
+              - link [ref=e113] [cursor=pointer]:
                 - /url: https://twitter.com/zainesstayandplay
-                - img [ref=e123]
+                - img [ref=e114]
+          - generic [ref=e116]:
+            - heading "Boarding" [level=3] [ref=e117]
+            - list [ref=e118]:
+              - listitem [ref=e119]:
+                - link "Suite Options" [ref=e120] [cursor=pointer]:
+                  - /url: /suites
+              - listitem [ref=e121]:
+                - link "Pricing" [ref=e122] [cursor=pointer]:
+                  - /url: /pricing
+              - listitem [ref=e123]:
+                - link "Book Now" [ref=e124] [cursor=pointer]:
+                  - /url: /book
           - generic [ref=e125]:
-            - heading "Boarding" [level=3] [ref=e126]
+            - heading "Company" [level=3] [ref=e126]
             - list [ref=e127]:
               - listitem [ref=e128]:
-                - link "Suite Options" [ref=e129] [cursor=pointer]:
-                  - /url: /suites
-              - listitem [ref=e130]:
-                - link "Pricing" [ref=e131] [cursor=pointer]:
-                  - /url: /pricing
-              - listitem [ref=e132]:
-                - link "Book Now" [ref=e133] [cursor=pointer]:
-                  - /url: /book
-          - generic [ref=e134]:
-            - heading "Company" [level=3] [ref=e135]
-            - list [ref=e136]:
-              - listitem [ref=e137]:
-                - link "About Us" [ref=e138] [cursor=pointer]:
+                - link "About Us" [ref=e129] [cursor=pointer]:
                   - /url: /about
-              - listitem [ref=e139]:
-                - link "Reviews" [ref=e140] [cursor=pointer]:
+              - listitem [ref=e130]:
+                - link "Reviews" [ref=e131] [cursor=pointer]:
                   - /url: /reviews
-              - listitem [ref=e141]:
-                - link "FAQ" [ref=e142] [cursor=pointer]:
+              - listitem [ref=e132]:
+                - link "FAQ" [ref=e133] [cursor=pointer]:
                   - /url: /faq
-              - listitem [ref=e143]:
-                - link "Contact" [ref=e144] [cursor=pointer]:
+              - listitem [ref=e134]:
+                - link "Contact" [ref=e135] [cursor=pointer]:
                   - /url: /contact
-              - listitem [ref=e145]:
-                - link "Policies" [ref=e146] [cursor=pointer]:
+              - listitem [ref=e136]:
+                - link "Policies" [ref=e137] [cursor=pointer]:
                   - /url: /policies
-          - generic [ref=e147]:
-            - heading "Contact" [level=3] [ref=e148]
-            - list [ref=e149]:
-              - listitem [ref=e150]:
-                - img [ref=e151]
-                - generic [ref=e154]:
+          - generic [ref=e138]:
+            - heading "Contact" [level=3] [ref=e139]
+            - list [ref=e140]:
+              - listitem [ref=e141]:
+                - img [ref=e142]
+                - generic [ref=e145]:
                   - text: 123 Pet Paradise Lane
                   - text: Syracuse, NY 13202
+              - listitem [ref=e146]:
+                - img [ref=e147]
+                - link "(315) 657-1332" [ref=e149] [cursor=pointer]:
+                  - /url: tel:(315) 657-1332
+              - listitem [ref=e150]:
+                - img [ref=e151]
+                - link "hello@zainesstayandplay.com" [ref=e154] [cursor=pointer]:
+                  - /url: mailto:hello@zainesstayandplay.com
               - listitem [ref=e155]:
                 - img [ref=e156]
-                - link "(315) 657-1332" [ref=e158] [cursor=pointer]:
-                  - /url: tel:(315) 657-1332
-              - listitem [ref=e159]:
-                - img [ref=e160]
-                - link "hello@zainesstayandplay.com" [ref=e163] [cursor=pointer]:
-                  - /url: mailto:hello@zainesstayandplay.com
-              - listitem [ref=e164]:
-                - img [ref=e165]
-                - generic [ref=e168]:
+                - generic [ref=e159]:
                   - text: 6:00 AM - 8:00 PM
                   - text: 24/7 Supervision
-        - generic [ref=e169]:
-          - paragraph [ref=e170]: © 2026 Zaine's Stay & Play. All rights reserved.
-          - generic [ref=e171]:
-            - link "Privacy Policy" [ref=e172] [cursor=pointer]:
+        - generic [ref=e160]:
+          - paragraph [ref=e161]: © 2026 Zaine's Stay & Play. All rights reserved.
+          - generic [ref=e162]:
+            - link "Privacy Policy" [ref=e163] [cursor=pointer]:
               - /url: /privacy
-            - link "Terms of Service" [ref=e173] [cursor=pointer]:
+            - link "Terms of Service" [ref=e164] [cursor=pointer]:
               - /url: /terms
   - region "Notifications alt+T"
-  - button "Open Next.js Dev Tools" [ref=e179] [cursor=pointer]:
-    - img [ref=e180]
-  - alert [ref=e183]
+  - button "Open Next.js Dev Tools" [ref=e170] [cursor=pointer]:
+    - img [ref=e171]
+  - alert [ref=e174]
 ```
