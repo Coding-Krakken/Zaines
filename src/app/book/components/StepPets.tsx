@@ -60,17 +60,6 @@ interface Pet {
   weight: number;
 }
 
-type DraftPet = NewPetData & {
-  tempId: string;
-};
-
-type VaccineUpload = {
-  petId: string;
-  fileName: string;
-  fileSize: number;
-  fileUrl?: string;
-};
-
 export function StepPets({
   data,
   onUpdate,
@@ -83,20 +72,10 @@ export function StepPets({
   const [selectedPetIds, setSelectedPetIds] = useState<string[]>(
     data.selectedPetIds || [],
   );
-  const [newPets, setNewPets] = useState<DraftPet[]>(
-    (data.newPets || []).map((pet, index) => ({
-      ...pet,
-      tempId: `restored-${index + 1}`,
-    })),
-  );
-  const [vaccines, setVaccines] = useState<VaccineUpload[]>(
-    (data.vaccines || []).map((vaccine) => ({
-      petId: vaccine.petId,
-      fileName: vaccine.fileName,
-      fileSize: vaccine.fileSize,
-      fileUrl: vaccine.fileUrl,
-    })),
-  );
+  const [newPets, setNewPets] = useState<NewPetData[]>(data.newPets || []);
+  const [vaccines, setVaccines] = useState<
+    Array<{ petId: string; file: File; fileUrl?: string }>
+  >([]);
   const [uploadingVaccine, setUploadingVaccine] = useState<string | null>(null);
   const [showNewPetForm, setShowNewPetForm] = useState(false);
   const [newPetForm, setNewPetForm] = useState<Partial<NewPetData>>({
@@ -104,6 +83,7 @@ export function StepPets({
     temperament: "friendly",
   });
 
+  // Fetch existing pets if authenticated
   const fetchPets = async () => {
     try {
       const response = await fetch("/api/pets");
@@ -116,45 +96,15 @@ export function StepPets({
     }
   };
 
-  // Fetch existing pets if authenticated
   useEffect(() => {
-    if (!session?.user?.id) {
-      return;
+    if (session?.user?.id) {
+      (async () => {
+        await fetchPets();
+      })();
     }
+  }, [session]);
 
-    // Schedule async fetch outside the immediate effect body to satisfy
-    // strict hooks linting around synchronous state updates in effects.
-    const timer = setTimeout(() => {
-      void fetchPets();
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, [session?.user?.id]);
-
-  const toPersistedNewPet = (pet: DraftPet): NewPetData => {
-    const { tempId, ...persistedPet } = pet;
-    void tempId;
-    return persistedPet;
-  };
-
-  const syncNewPets = (updatedPets: DraftPet[]) => {
-    setNewPets(updatedPets);
-    onUpdate({
-      newPets: updatedPets.map(toPersistedNewPet),
-    });
-  };
-
-  const syncVaccines = (updatedVaccines: VaccineUpload[]) => {
-    setVaccines(updatedVaccines);
-    onUpdate({
-      vaccines: updatedVaccines.map((vaccine) => ({
-        petId: vaccine.petId,
-        fileUrl: vaccine.fileUrl || "",
-        fileName: vaccine.fileName,
-        fileSize: vaccine.fileSize,
-      })),
-    });
-  };
+  
 
   const handlePetSelection = (petId: string, checked: boolean) => {
     let updated: string[];
@@ -180,20 +130,18 @@ export function StepPets({
       tempId: `new-${Date.now()}`,
     };
 
-    const updated = [...newPets, petWithId as DraftPet];
-    syncNewPets(updated);
+    const updated = [...newPets, petWithId as NewPetData];
+    setNewPets(updated);
+    onUpdate({ newPets: updated });
     setNewPetForm({ gender: "male", temperament: "friendly" });
     setShowNewPetForm(false);
     toast.success(`${validation.data.name} added!`);
   };
 
   const handleRemoveNewPet = (index: number) => {
-    const removedPetId = newPets[index]?.tempId;
     const updated = newPets.filter((_, i) => i !== index);
-    syncNewPets(updated);
-    if (removedPetId) {
-      syncVaccines(vaccines.filter((vaccine) => vaccine.petId !== removedPetId));
-    }
+    setNewPets(updated);
+    onUpdate({ newPets: updated });
   };
 
   const handleVaccineUpload = async (petId: string, file: File) => {
@@ -228,13 +176,24 @@ export function StepPets({
         ...vaccines.filter((v) => v.petId !== petId),
         {
           petId,
+          file,
           fileUrl: result.url,
           fileName: file.name,
           fileSize: file.size,
         },
       ];
 
-      syncVaccines(updatedVaccines);
+      setVaccines(updatedVaccines);
+
+      // Update wizard data
+      const vaccineData = updatedVaccines.map((v) => ({
+        petId: v.petId,
+        fileUrl: v.fileUrl || "",
+        fileName: v.file.name,
+        fileSize: v.file.size,
+      }));
+
+      onUpdate({ vaccines: vaccineData });
 
       toast.success("Vaccine record uploaded");
     } catch (error) {
@@ -263,12 +222,12 @@ export function StepPets({
     // Validate with schema
     const validation = stepPetsSchema.safeParse({
       selectedPetIds,
-      newPets: newPets.map(toPersistedNewPet),
+      newPets,
       vaccines: vaccines.map((v) => ({
         petId: v.petId,
         fileUrl: v.fileUrl || "",
-        fileName: v.fileName,
-        fileSize: v.fileSize,
+        fileName: v.file.name,
+        fileSize: v.file.size,
       })),
     });
 
@@ -385,58 +344,23 @@ export function StepPets({
             <div className="space-y-2">
               {newPets.map((pet, index) => (
                 <div
-                  key={pet.tempId}
-                  className="rounded-lg border bg-blue-50 p-3 dark:bg-blue-950"
+                  key={index}
+                  className="flex items-center gap-2 rounded-lg border bg-blue-50 p-3 dark:bg-blue-950"
                 >
-                  <div className="flex items-start gap-2">
-                    <div className="flex-1">
-                      <div className="font-medium">{pet.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {pet.breed} • {pet.age} {pet.age === 1 ? "year" : "years"}{" "}
-                        • {pet.weight} lbs
-                      </div>
-                      <div className="mt-2">
-                        <label
-                          htmlFor={`vaccine-${pet.tempId}`}
-                          className="inline-flex cursor-pointer items-center gap-2 text-sm text-primary hover:underline"
-                        >
-                          {uploadingVaccine === pet.tempId ? (
-                            <>
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              Uploading...
-                            </>
-                          ) : vaccines.some((v) => v.petId === pet.tempId) ? (
-                            <>
-                              <FileText className="h-4 w-4" />
-                              Vaccine uploaded • Click to replace
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="h-4 w-4" />
-                              Upload vaccine record (PDF)
-                            </>
-                          )}
-                        </label>
-                        <input
-                          id={`vaccine-${pet.tempId}`}
-                          type="file"
-                          accept="application/pdf"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleVaccineUpload(pet.tempId, file);
-                          }}
-                        />
-                      </div>
+                  <div className="flex-1">
+                    <div className="font-medium">{pet.name}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {pet.breed} • {pet.age} {pet.age === 1 ? "year" : "years"}{" "}
+                      • {pet.weight} lbs
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemoveNewPet(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveNewPet(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
               ))}
             </div>
