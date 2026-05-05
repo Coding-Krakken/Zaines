@@ -24,7 +24,6 @@ import { isDatabaseConfigured } from '@/lib/prisma';
 const isDatabaseConfiguredMock = isDatabaseConfigured as ReturnType<typeof vi.fn>;
 
 const userSession = { user: { id: 'user-1', email: 'user@example.com' } };
-const otherSession = { user: { id: 'user-2', email: 'other@example.com' } };
 
 const storedUser = {
   id: 'user-1',
@@ -46,10 +45,6 @@ const validProfileUpdate = {
   state: 'NY',
   zip: '11201',
 };
-
-function makeGetRequest(url = 'http://localhost/api/profile') {
-  return new NextRequest(url, { method: 'GET' });
-}
 
 function makePutRequest(body: Record<string, unknown>, url = 'http://localhost/api/profile') {
   return new NextRequest(url, {

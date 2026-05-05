@@ -24,10 +24,8 @@ vi.mock('@/lib/prisma', () => ({
   isDatabaseConfigured: vi.fn(() => true),
 }));
 
-import { GET as getMedications, POST as postMedication } from '@/app/api/medications/route';
+import { POST as postMedication } from '@/app/api/medications/route';
 import {
-  GET as getMedication,
-  PUT as putMedication,
   DELETE as deleteMedication,
 } from '@/app/api/medications/[id]/route';
 

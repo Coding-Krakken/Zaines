@@ -30,12 +30,8 @@ import {
   PUT as putVaccine,
   DELETE as deleteVaccine,
 } from '@/app/api/vaccines/[id]/route';
-import { isDatabaseConfigured } from '@/lib/prisma';
-
-const isDatabaseConfiguredMock = isDatabaseConfigured as ReturnType<typeof vi.fn>;
 
 const userSession = { user: { id: 'user-1' } };
-const otherSession = { user: { id: 'user-2' } };
 
 const userPet = { id: 'pet-1', userId: 'user-1', name: 'Buddy' };
 const otherPet = { id: 'pet-2', userId: 'user-2', name: 'Max' };
