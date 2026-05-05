@@ -122,8 +122,9 @@ test.describe('Staff operations flow', () => {
     })
 
     await page.goto(`${BASE}/admin/check-in/book-1`)
+    await page.waitForLoadState('networkidle')
     await page.getByRole('button', { name: 'Confirm Check-In' }).click()
-    await expect(page.getByText('Guest successfully checked in.')).toBeVisible()
+    await expect(page.getByText('Guest successfully checked in.')).toBeVisible({ timeout: 5000 })
 
     {
       const bookingsReady = page.waitForResponse('**/api/admin/bookings')

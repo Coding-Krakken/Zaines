@@ -218,15 +218,18 @@ test.describe("Parent Experience Live Feed - Issue #62", () => {
       const activityTab = page.locator('[role="tab"]:has-text("Activity")');
       await activityTab.click();
 
+      // Wait for at least one activity to appear (from mock data)
+      await expect(page.locator('[role="article"]').first()).toBeVisible({ timeout: 5000 });
+
       const loadMoreBtn = page.locator("button:has-text('Load More')");
-      if (await loadMoreBtn.isVisible().catch(() => false)) {
+      const loadMoreExists = await loadMoreBtn.isVisible({ timeout: 1000 }).catch(() => false);
+      
+      if (loadMoreExists) {
         const initialCount = await page.locator('[role="article"]').count();
         await loadMoreBtn.click();
         await page.waitForTimeout(500);
         const newCount = await page.locator('[role="article"]').count();
         expect(newCount).toBeGreaterThan(initialCount);
-      } else {
-        await expect(page.getByText("No activities recorded yet.")).toBeVisible();
       }
     });
 
@@ -275,17 +278,15 @@ test.describe("Parent Experience Live Feed - Issue #62", () => {
       const galleryTab = page.locator('[role="tab"]:has-text("Photos")');
       await galleryTab.click();
 
+      // Wait for photo button to appear (from mock data)
       const firstPhoto = page.locator("button[aria-label*='Open photo']").first();
-      if (!(await firstPhoto.isVisible().catch(() => false))) {
-        await expect(page.getByText("No photos shared yet.")).toBeVisible();
-        return;
-      }
+      await expect(firstPhoto).toBeVisible({ timeout: 5000 });
 
       await firstPhoto.click();
 
       // Verify lightbox appears
       const lightbox = page.locator('[role="dialog"][aria-label="Photo lightbox"]');
-      await expect(lightbox).toBeVisible();
+      await expect(lightbox).toBeVisible({ timeout: 3000 });
     });
 
     test("lightbox navigation with arrows", async ({ page }) => {
@@ -294,21 +295,19 @@ test.describe("Parent Experience Live Feed - Issue #62", () => {
       const galleryTab = page.locator('[role="tab"]:has-text("Photos")');
       await galleryTab.click();
 
+      // Wait for photo button to appear (from mock data)
       const firstPhoto = page.locator("button[aria-label*='Open photo']").first();
-      if (!(await firstPhoto.isVisible().catch(() => false))) {
-        await expect(page.getByText("No photos shared yet.")).toBeVisible();
-        return;
-      }
+      await expect(firstPhoto).toBeVisible({ timeout: 5000 });
 
       await firstPhoto.click();
 
       // Verify lightbox is open
       const lightbox = page.locator('[role="dialog"]');
-      await expect(lightbox).toBeVisible();
+      await expect(lightbox).toBeVisible({ timeout: 3000 });
 
       // Click next button if available
       const nextBtn = page.locator('button[aria-label="Next photo"]');
-      const nextVisible = await nextBtn.isVisible();
+      const nextVisible = await nextBtn.isVisible({ timeout: 1000 }).catch(() => false);
 
       if (nextVisible) {
         await nextBtn.click();
@@ -323,20 +322,24 @@ test.describe("Parent Experience Live Feed - Issue #62", () => {
       const galleryTab = page.locator('[role="tab"]:has-text("Photos")');
       await galleryTab.click();
 
+      // Wait for photo button to appear (from mock data)
       const firstPhoto = page.locator("button[aria-label*='Open photo']").first();
-      if (!(await firstPhoto.isVisible().catch(() => false))) {
-        await expect(page.getByText("No photos shared yet.")).toBeVisible();
-        return;
-      }
+      await expect(firstPhoto).toBeVisible({ timeout: 5000 });
 
       // Open photo
       await firstPhoto.click();
+      await page.waitForTimeout(300);
+
+      // Verify lightbox is open
+      const lightbox = page.locator('[role="dialog"]');
+      await expect(lightbox).toBeVisible({ timeout: 3000 });
 
       // Press Escape to close
       await page.keyboard.press("Escape");
+      await page.waitForTimeout(300);
 
-      const lightbox = page.locator('[role="dialog"]');
-      await expect(lightbox).not.toBeVisible();
+      // Verify lightbox closed
+      await expect(lightbox).not.toBeVisible({ timeout: 2000 });
     });
 
     test("photo gallery is accessible", async ({ page }) => {

@@ -173,8 +173,11 @@ async function completeBookingWizard(
   await page.getByLabel("Age (years) *").fill("4");
   await page.getByLabel("Weight (lbs) *").fill("28");
   await page.getByRole("button", { name: "Add Pet" }).click();
+  await page.waitForLoadState('networkidle');
 
-  await page.locator("input[id^='vaccine-new-']").first().setInputFiles({
+  const vaccineInput = page.locator("input[id^='vaccine-new-']").first();
+  await vaccineInput.waitFor({ state: 'visible', timeout: 5000 });
+  await vaccineInput.setInputFiles({
     name: "scout-vaccine.pdf",
     mimeType: "application/pdf",
     buffer: Buffer.from("vaccine-pdf"),
@@ -262,9 +265,14 @@ test.describe("Booking Wizard Flow", () => {
     await installBookingFunnelMocks(page, { validationRouteMode: "fail-once" });
     await completeBookingWizard(page, { stopBeforePayment: true });
 
-    await expect(page.getByText("Unable to validate booking pricing right now. Please retry.")).toBeVisible();
+    // Wait for error message to appear
+    await expect(page.getByText("Unable to validate booking pricing right now. Please retry.")).toBeVisible({ timeout: 5000 });
+    
+    // Click retry button
     await page.getByRole("button", { name: "Retry pricing validation" }).click();
-    await expect(page.getByText("Total before confirmation")).toBeVisible();
+    
+    // Verify retry succeeds
+    await expect(page.getByText("Total before confirmation")).toBeVisible({ timeout: 5000 });
   });
 
 });

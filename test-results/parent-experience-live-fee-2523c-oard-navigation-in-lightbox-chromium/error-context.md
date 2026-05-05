@@ -1,7 +1,7 @@
 # Page snapshot
 
 ```yaml
-- generic [ref=e1]:
+- generic [active] [ref=e1]:
   - generic [ref=e2]:
     - banner [ref=e3]:
       - generic [ref=e4]:
@@ -40,98 +40,123 @@
           - heading "Booking E2E-BOOK-001" [level=1] [ref=e30]
           - paragraph [ref=e31]: 5/5/2026 → 5/7/2026
         - tablist "Booking details navigation" [ref=e32]:
-          - tab "📋Overview" [ref=e33]
+          - tab "📋Overview" [selected] [ref=e33]
           - tab "📝Activity" [ref=e34]
-          - tab "📸Photos" [active] [selected] [ref=e35]
+          - tab "📸Photos" [ref=e35]
           - tab "💬Messages" [ref=e36]
         - tabpanel [ref=e37]:
-          - region "Photo Gallery" [ref=e39]:
-            - generic [ref=e40]:
-              - heading "Photo Gallery (1 photo)" [level=3] [ref=e42]
-              - grid [ref=e43]:
-                - 'button "Open photo 1: Nap time" [ref=e44]':
-                  - img "Nap time" [ref=e45]
-                  - generic [ref=e47]: Nap time
-            - paragraph [ref=e49]: "Photos shown: 1"
-    - contentinfo [ref=e50]:
-      - generic [ref=e51]:
-        - generic [ref=e52]:
-          - generic [ref=e53]:
-            - link "🐾 Zaine's Stay & Play" [ref=e54] [cursor=pointer]:
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - heading "Suite Information" [level=2] [ref=e40]
+              - generic [ref=e41]:
+                - generic [ref=e42]:
+                  - paragraph [ref=e43]: Suite
+                  - paragraph [ref=e44]: E2E Suite (Deluxe)
+                - generic [ref=e45]:
+                  - paragraph [ref=e46]: Check-in
+                  - paragraph [ref=e47]: 5/5/2026, 3:13:31 PM
+                - generic [ref=e48]:
+                  - paragraph [ref=e49]: Check-out
+                  - paragraph [ref=e50]: 5/7/2026, 3:13:31 PM
+                - generic [ref=e51]:
+                  - paragraph [ref=e52]: Status
+                  - paragraph [ref=e53]: confirmed
+            - generic [ref=e54]:
+              - heading "Pets" [level=2] [ref=e55]
+              - paragraph [ref=e58]: E2E Pet
+            - generic [ref=e59]:
+              - heading "Payment" [level=2] [ref=e60]
+              - generic [ref=e61]:
+                - generic [ref=e62]:
+                  - paragraph [ref=e63]: "Total Amount:"
+                  - paragraph [ref=e64]: $199
+                - generic [ref=e65]:
+                  - paragraph [ref=e66]: "Payment History:"
+                  - generic [ref=e68]:
+                    - generic [ref=e69]: succeeded - $199
+                    - generic [ref=e70]: ✓
+                - generic [ref=e71]:
+                  - paragraph [ref=e72]: "Cancellation policy: 48+ hours full refund, 24-48 hours 50% refund, under 24 hours no refund."
+                  - button "Cancel Booking" [ref=e73]
+    - contentinfo [ref=e74]:
+      - generic [ref=e75]:
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - link "🐾 Zaine's Stay & Play" [ref=e78] [cursor=pointer]:
               - /url: /
-              - generic [ref=e55]: 🐾
-              - generic [ref=e56]: Zaine's Stay & Play
-            - paragraph [ref=e57]: Private, safety-first dog boarding in Syracuse with three suite options and owner-led care.
-            - generic [ref=e58]:
-              - link [ref=e59] [cursor=pointer]:
+              - generic [ref=e79]: 🐾
+              - generic [ref=e80]: Zaine's Stay & Play
+            - paragraph [ref=e81]: Private, safety-first dog boarding in Syracuse with three suite options and owner-led care.
+            - generic [ref=e82]:
+              - link [ref=e83] [cursor=pointer]:
                 - /url: https://www.facebook.com/people/Zaines-Stay-Play/61550036005682/
-                - img [ref=e60]
-              - link [ref=e62] [cursor=pointer]:
+                - img [ref=e84]
+              - link [ref=e86] [cursor=pointer]:
                 - /url: https://instagram.com/zainesstayandplay
-                - img [ref=e63]
-              - link [ref=e66] [cursor=pointer]:
+                - img [ref=e87]
+              - link [ref=e90] [cursor=pointer]:
                 - /url: https://twitter.com/zainesstayandplay
-                - img [ref=e67]
-          - generic [ref=e69]:
-            - heading "Boarding" [level=3] [ref=e70]
-            - list [ref=e71]:
-              - listitem [ref=e72]:
-                - link "Suite Options" [ref=e73] [cursor=pointer]:
+                - img [ref=e91]
+          - generic [ref=e93]:
+            - heading "Boarding" [level=3] [ref=e94]
+            - list [ref=e95]:
+              - listitem [ref=e96]:
+                - link "Suite Options" [ref=e97] [cursor=pointer]:
                   - /url: /suites
-              - listitem [ref=e74]:
-                - link "Pricing" [ref=e75] [cursor=pointer]:
+              - listitem [ref=e98]:
+                - link "Pricing" [ref=e99] [cursor=pointer]:
                   - /url: /pricing
-              - listitem [ref=e76]:
-                - link "Book Now" [ref=e77] [cursor=pointer]:
+              - listitem [ref=e100]:
+                - link "Book Now" [ref=e101] [cursor=pointer]:
                   - /url: /book
-          - generic [ref=e78]:
-            - heading "Company" [level=3] [ref=e79]
-            - list [ref=e80]:
-              - listitem [ref=e81]:
-                - link "About Us" [ref=e82] [cursor=pointer]:
+          - generic [ref=e102]:
+            - heading "Company" [level=3] [ref=e103]
+            - list [ref=e104]:
+              - listitem [ref=e105]:
+                - link "About Us" [ref=e106] [cursor=pointer]:
                   - /url: /about
-              - listitem [ref=e83]:
-                - link "Reviews" [ref=e84] [cursor=pointer]:
+              - listitem [ref=e107]:
+                - link "Reviews" [ref=e108] [cursor=pointer]:
                   - /url: /reviews
-              - listitem [ref=e85]:
-                - link "FAQ" [ref=e86] [cursor=pointer]:
+              - listitem [ref=e109]:
+                - link "FAQ" [ref=e110] [cursor=pointer]:
                   - /url: /faq
-              - listitem [ref=e87]:
-                - link "Contact" [ref=e88] [cursor=pointer]:
+              - listitem [ref=e111]:
+                - link "Contact" [ref=e112] [cursor=pointer]:
                   - /url: /contact
-              - listitem [ref=e89]:
-                - link "Policies" [ref=e90] [cursor=pointer]:
+              - listitem [ref=e113]:
+                - link "Policies" [ref=e114] [cursor=pointer]:
                   - /url: /policies
-          - generic [ref=e91]:
-            - heading "Contact" [level=3] [ref=e92]
-            - list [ref=e93]:
-              - listitem [ref=e94]:
-                - img [ref=e95]
-                - generic [ref=e98]:
+          - generic [ref=e115]:
+            - heading "Contact" [level=3] [ref=e116]
+            - list [ref=e117]:
+              - listitem [ref=e118]:
+                - img [ref=e119]
+                - generic [ref=e122]:
                   - text: 123 Pet Paradise Lane
                   - text: Syracuse, NY 13202
-              - listitem [ref=e99]:
-                - img [ref=e100]
-                - link "(315) 657-1332" [ref=e102] [cursor=pointer]:
+              - listitem [ref=e123]:
+                - img [ref=e124]
+                - link "(315) 657-1332" [ref=e126] [cursor=pointer]:
                   - /url: tel:(315) 657-1332
-              - listitem [ref=e103]:
-                - img [ref=e104]
-                - link "hello@zainesstayandplay.com" [ref=e107] [cursor=pointer]:
+              - listitem [ref=e127]:
+                - img [ref=e128]
+                - link "hello@zainesstayandplay.com" [ref=e131] [cursor=pointer]:
                   - /url: mailto:hello@zainesstayandplay.com
-              - listitem [ref=e108]:
-                - img [ref=e109]
-                - generic [ref=e112]:
+              - listitem [ref=e132]:
+                - img [ref=e133]
+                - generic [ref=e136]:
                   - text: 6:00 AM - 8:00 PM
                   - text: 24/7 Supervision
-        - generic [ref=e113]:
-          - paragraph [ref=e114]: © 2026 Zaine's Stay & Play. All rights reserved.
-          - generic [ref=e115]:
-            - link "Privacy Policy" [ref=e116] [cursor=pointer]:
+        - generic [ref=e137]:
+          - paragraph [ref=e138]: © 2026 Zaine's Stay & Play. All rights reserved.
+          - generic [ref=e139]:
+            - link "Privacy Policy" [ref=e140] [cursor=pointer]:
               - /url: /privacy
-            - link "Terms of Service" [ref=e117] [cursor=pointer]:
+            - link "Terms of Service" [ref=e141] [cursor=pointer]:
               - /url: /terms
   - region "Notifications alt+T"
-  - button "Open Next.js Dev Tools" [ref=e123] [cursor=pointer]:
-    - img [ref=e124]
-  - alert [ref=e127]
+  - button "Open Next.js Dev Tools" [ref=e147] [cursor=pointer]:
+    - img [ref=e148]
+  - alert [ref=e151]
 ```

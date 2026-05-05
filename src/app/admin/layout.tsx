@@ -10,7 +10,7 @@ export default async function AdminLayout({
 }) {
   const cookieStore = await cookies();
   const e2eBypassEnabled =
-    process.env.NODE_ENV !== 'production' && cookieStore.get('e2e-staff')?.value === '1';
+    process.env.PLAYWRIGHT_TEST === '1' && cookieStore.get('e2e-staff')?.value === '1';
 
   if (e2eBypassEnabled) {
     return (
