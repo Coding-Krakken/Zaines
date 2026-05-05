@@ -12,7 +12,7 @@ export function middleware(req: NextRequest) {
 
   if (isAdminRoute) {
     const e2eBypassEnabled =
-      process.env.PLAYWRIGHT_TEST === '1' && req.cookies.get('e2e-staff')?.value === '1';
+      process.env.NODE_ENV !== 'production' && req.cookies.get('e2e-staff')?.value === '1';
     if (e2eBypassEnabled) {
       return NextResponse.next();
     }

@@ -125,7 +125,13 @@ test.describe('Staff operations flow', () => {
     await page.getByRole('button', { name: 'Confirm Check-In' }).click()
     await expect(page.getByText('Guest successfully checked in.')).toBeVisible()
 
-    await page.goto(`${BASE}/admin/activities?bookingId=book-1`)
+    {
+      const bookingsReady = page.waitForResponse('**/api/admin/bookings')
+      const activitiesReady = page.waitForResponse('**/api/admin/activities**')
+      await page.goto(`${BASE}/admin/activities?bookingId=book-1`)
+      await bookingsReady
+      await activitiesReady
+    }
     await page.getByRole('combobox').nth(0).click()
     await page.getByRole('option', { name: /PB-001/ }).click()
     await page.getByRole('combobox').nth(1).click()
@@ -135,7 +141,13 @@ test.describe('Staff operations flow', () => {
     await page.getByRole('button', { name: 'Log Activity' }).click()
     await expect(page.getByText('Activity logged.')).toBeVisible()
 
-    await page.goto(`${BASE}/admin/photos?bookingId=book-1`)
+    {
+      const bookingsReady = page.waitForResponse('**/api/admin/bookings')
+      const photosReady = page.waitForResponse('**/api/admin/photos**')
+      await page.goto(`${BASE}/admin/photos?bookingId=book-1`)
+      await bookingsReady
+      await photosReady
+    }
     await page.getByRole('combobox').nth(0).click()
     await page.getByRole('option', { name: /PB-001/ }).click()
     await page.getByRole('combobox').nth(1).click()

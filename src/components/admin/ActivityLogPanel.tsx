@@ -228,7 +228,7 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
             {error && <p className="text-sm text-red-700">{error}</p>}
             {success && <p className="text-sm text-green-700">{success}</p>}
 
-            <Button type="submit" className="w-full" disabled={saving || !bookingId || !petId || loading}>
+            <Button type="submit" className="w-full" disabled={saving || !bookingId || !activePetId || loading}>
               {saving ? 'Saving…' : 'Log Activity'}
             </Button>
           </form>
