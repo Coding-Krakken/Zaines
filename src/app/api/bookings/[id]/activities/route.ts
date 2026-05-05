@@ -111,9 +111,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
   try {
     const session = await auth();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const userRole = (session?.user as any)?.role;
-    if (!session?.user?.id || userRole !== "staff") {
+    const userRole = session?.user?.role;
+    if (!session?.user?.id || (userRole !== "staff" && userRole !== "admin")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -130,6 +129,23 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     if (!petId || !type) {
       return NextResponse.json(
         { error: "petId and type are required" },
+        { status: 400 }
+      );
+    }
+
+    const bookingPet = await prisma.bookingPet.findUnique({
+      where: {
+        bookingId_petId: {
+          bookingId,
+          petId,
+        },
+      },
+      select: { bookingId: true },
+    });
+
+    if (!bookingPet) {
+      return NextResponse.json(
+        { error: "petId must belong to the booking" },
         { status: 400 }
       );
     }

@@ -111,7 +111,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const session = await auth();
     const userRole = (session?.user as { role?: string } | undefined)?.role;
-    if (!session?.user?.id || userRole !== "staff") {
+    if (!session?.user?.id || (userRole !== "staff" && userRole !== "admin")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -128,6 +128,23 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     if (!petId || !imageUrl) {
       return NextResponse.json(
         { error: "petId and imageUrl are required" },
+        { status: 400 }
+      );
+    }
+
+    const bookingPet = await prisma.bookingPet.findUnique({
+      where: {
+        bookingId_petId: {
+          bookingId,
+          petId,
+        },
+      },
+      select: { bookingId: true },
+    });
+
+    if (!bookingPet) {
+      return NextResponse.json(
+        { error: "petId must belong to the booking" },
         { status: 400 }
       );
     }
