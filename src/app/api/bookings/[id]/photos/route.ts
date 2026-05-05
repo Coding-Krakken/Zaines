@@ -49,7 +49,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Build query
-    const where: any = { bookingId };
+    const where: { bookingId: string; petId?: string } = { bookingId };
     if (petId) {
       where.petId = petId;
     }
@@ -107,8 +107,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
   try {
     const session = await auth();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const userRole = (session?.user as any)?.role;
+    const userRole = (session?.user as { role?: string } | undefined)?.role;
     if (!session?.user?.id || userRole !== "staff") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

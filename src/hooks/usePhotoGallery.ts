@@ -9,6 +9,12 @@ interface Photo {
   pet?: { id: string; name: string };
 }
 
+interface PhotosApiResponse {
+  items: Array<Omit<Photo, "uploadedAt"> & { uploadedAt: string }>;
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
 interface UsePhotoGalleryOptions {
   bookingId: string;
   enabled?: boolean;
@@ -76,8 +82,8 @@ export function usePhotoGallery({
           throw new Error(`Failed to fetch photos: ${response.status}`);
         }
 
-        const data = await response.json();
-        const newPhotos = data.items.map((item: any) => ({
+        const data = (await response.json()) as PhotosApiResponse;
+        const newPhotos = data.items.map((item) => ({
           ...item,
           uploadedAt: new Date(item.uploadedAt),
         }));
@@ -119,8 +125,10 @@ export function usePhotoGallery({
   useEffect(() => {
     if (!enabled || !bookingId) return;
 
-    // Initial fetch
-    fetchPhotos();
+    // Defer initial fetch to avoid synchronous state updates during effect execution.
+    const initialFetchTimer = setTimeout(() => {
+      void fetchPhotos();
+    }, 0);
 
     // Set up polling interval
     pollTimeoutRef.current = setInterval(() => {
@@ -128,6 +136,7 @@ export function usePhotoGallery({
     }, pollIntervalMs);
 
     return () => {
+      clearTimeout(initialFetchTimer);
       if (pollTimeoutRef.current) {
         clearInterval(pollTimeoutRef.current);
       }

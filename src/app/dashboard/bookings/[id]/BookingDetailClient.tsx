@@ -1,5 +1,6 @@
 "use client";
 
+import type { ComponentType } from "react";
 import { useState } from "react";
 import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { PhotoGallery } from "@/components/PhotoGallery";
@@ -19,7 +20,11 @@ interface BookingDetailClientProps {
     payments: Array<{ id: string; status: string; amount: number }>;
   };
   canCancel: boolean;
-  CancelButton: any;
+  CancelButton: ComponentType<{
+    bookingId: string;
+    bookingStatus: string;
+    canCancel: boolean;
+  }>;
 }
 
 type TabType = "overview" | "timeline" | "gallery" | "messages";
@@ -132,7 +137,7 @@ export default function BookingDetailClient({
                 {booking.bookingPets.length === 0 ? (
                   <p className="text-gray-600">No pets for this booking.</p>
                 ) : (
-                  booking.bookingPets.map((bp: any) => (
+                  booking.bookingPets.map((bp) => (
                     <div
                       key={bp.id}
                       className="p-3 bg-gray-50 rounded-lg border border-gray-200"
@@ -159,7 +164,7 @@ export default function BookingDetailClient({
                   <div>
                     <p className="text-sm text-gray-600 mb-2">Payment History:</p>
                     <div className="space-y-2">
-                      {booking.payments.map((pay: any) => (
+                      {booking.payments.map((pay) => (
                         <div
                           key={pay.id}
                           className="flex justify-between text-sm p-2 bg-gray-50 rounded"
@@ -226,7 +231,7 @@ export default function BookingDetailClient({
             <div className="p-6 border rounded-lg bg-blue-50">
               <h3 className="font-semibold mb-3">Quick Tips</h3>
               <ul className="space-y-2 text-sm text-gray-700">
-                <li>✓ Get real-time updates on your pet's activities</li>
+                <li>✓ Get real-time updates on your pet&apos;s activities</li>
                 <li>✓ Receive notifications of new photos</li>
                 <li>✓ Direct messaging with staff</li>
                 <li>✓ Messages update every 30 seconds</li>

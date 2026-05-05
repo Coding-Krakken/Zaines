@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useNotifications } from "@/hooks/useNotifications";
 
 interface NotificationBannerProps {
@@ -8,8 +7,6 @@ interface NotificationBannerProps {
 }
 
 export function NotificationBanner({ bookingId }: NotificationBannerProps) {
-  const [displayedNotifications, setDisplayedNotifications] = useState<string[]>([]);
-
   const { pendingNotifications, clearNotifications, markNotificationRead, newEventCount } =
     useNotifications({
       bookingId,
@@ -24,18 +21,7 @@ export function NotificationBanner({ bookingId }: NotificationBannerProps) {
       },
     });
 
-  // Track which notifications are currently displayed
-  useEffect(() => {
-    const newNotificationIds = pendingNotifications
-      .map((n) => n.id)
-      .filter((id) => !displayedNotifications.includes(id));
-
-    if (newNotificationIds.length > 0) {
-      setDisplayedNotifications((prev) => [...prev, ...newNotificationIds]);
-    }
-  }, [pendingNotifications, displayedNotifications]);
-
-  if (displayedNotifications.length === 0) {
+  if (pendingNotifications.length === 0) {
     return null;
   }
 

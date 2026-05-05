@@ -170,8 +170,10 @@ export function useNotifications({
   useEffect(() => {
     if (!enabled || !bookingId) return;
 
-    // Initial poll
-    poll();
+    // Defer initial poll to avoid synchronous state updates during effect execution.
+    const initialPollTimer = setTimeout(() => {
+      void poll();
+    }, 0);
 
     // Set up polling interval
     pollTimeoutRef.current = setInterval(() => {
@@ -179,6 +181,7 @@ export function useNotifications({
     }, pollIntervalMs);
 
     return () => {
+      clearTimeout(initialPollTimer);
       if (pollTimeoutRef.current) {
         clearInterval(pollTimeoutRef.current);
       }

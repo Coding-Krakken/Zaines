@@ -17,7 +17,6 @@ export function MessageThread({ bookingId, bookingNumber }: MessageThreadProps) 
     hasMore,
     sendMessage,
     isSending,
-    unreadCount,
     loadMore,
   } = useMessages({
     bookingId,

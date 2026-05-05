@@ -10,6 +10,12 @@ interface Activity {
   pet?: { id: string; name: string };
 }
 
+interface ActivitiesApiResponse {
+  items: Array<Omit<Activity, "performedAt"> & { performedAt: string }>;
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
 interface UseActivityPollingOptions {
   bookingId: string;
   enabled?: boolean;
@@ -79,9 +85,8 @@ export function useActivityPolling({
           throw new Error(`Failed to fetch activities: ${response.status}`);
         }
 
-        const data = await response.json();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const newActivities = data.items.map((item: any) => ({
+        const data = (await response.json()) as ActivitiesApiResponse;
+        const newActivities = data.items.map((item) => ({
           ...item,
           performedAt: new Date(item.performedAt),
         }));
@@ -128,8 +133,10 @@ export function useActivityPolling({
   useEffect(() => {
     if (!enabled || !bookingId) return;
 
-    // Initial fetch
-    fetchActivities();
+    // Defer initial fetch to avoid synchronous state updates during effect execution.
+    const initialFetchTimer = setTimeout(() => {
+      void fetchActivities();
+    }, 0);
 
     // Set up polling interval
     pollTimeoutRef.current = setInterval(() => {
@@ -137,6 +144,7 @@ export function useActivityPolling({
     }, pollIntervalMs);
 
     return () => {
+      clearTimeout(initialFetchTimer);
       if (pollTimeoutRef.current) {
         clearInterval(pollTimeoutRef.current);
       }

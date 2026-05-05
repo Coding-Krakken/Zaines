@@ -9,6 +9,12 @@ interface Message {
   isRead: boolean;
 }
 
+interface MessagesApiResponse {
+  items: Array<Omit<Message, "sentAt"> & { sentAt: string }>;
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
 interface UseMessagesOptions {
   bookingId: string;
   enabled?: boolean;
@@ -79,8 +85,8 @@ export function useMessages({
           throw new Error(`Failed to fetch messages: ${response.status}`);
         }
 
-        const data = await response.json();
-        const newMessages = data.items.map((item: any) => ({
+        const data = (await response.json()) as MessagesApiResponse;
+        const newMessages = data.items.map((item) => ({
           ...item,
           sentAt: new Date(item.sentAt),
         }));
@@ -169,8 +175,10 @@ export function useMessages({
   useEffect(() => {
     if (!enabled || !bookingId) return;
 
-    // Initial fetch
-    fetchMessages();
+    // Defer initial fetch to avoid synchronous state updates during effect execution.
+    const initialFetchTimer = setTimeout(() => {
+      void fetchMessages();
+    }, 0);
 
     // Set up polling interval
     pollTimeoutRef.current = setInterval(() => {
@@ -178,6 +186,7 @@ export function useMessages({
     }, pollIntervalMs);
 
     return () => {
+      clearTimeout(initialFetchTimer);
       if (pollTimeoutRef.current) {
         clearInterval(pollTimeoutRef.current);
       }

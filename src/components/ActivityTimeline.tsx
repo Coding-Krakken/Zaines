@@ -20,7 +20,6 @@ export function ActivityTimeline({ bookingId }: ActivityTimelineProps) {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
 
   const {
-    activities,
     isLoading,
     isError,
     error,
