@@ -243,13 +243,14 @@ test.describe("Parent Experience Live Feed - Issue #62", () => {
       const timeline = page.locator('[role="region"][aria-label="Activity Timeline"]');
       await expect(timeline).toHaveAttribute("role", "region");
 
-      // Verify articles have proper role
+      // Verify articles render with fixture data.
+      await expect(
+        timeline.locator("[role='article']").filter({ hasText: "Breakfast served" }).first()
+      ).toBeVisible({ timeout: 7000 });
       const articles = page.locator('[role="article"]');
+      await expect(articles.first()).toBeVisible();
       const count = await articles.count();
-      if (count === 0) {
-        await expect(page.getByText("No activities recorded yet.")).toBeVisible();
-      }
-      expect(count).toBeGreaterThanOrEqual(0);
+      expect(count).toBeGreaterThan(0);
     });
   });
 
@@ -265,11 +266,8 @@ test.describe("Parent Experience Live Feed - Issue #62", () => {
 
       const photos = page.locator('button[aria-label*="Open photo"]');
       const photoCount = await photos.count();
-
-      if (photoCount === 0) {
-        await expect(page.getByText("No photos shared yet.")).toBeVisible();
-      }
-      expect(photoCount).toBeGreaterThanOrEqual(0);
+      expect(photoCount).toBeGreaterThan(0);
+      await expect(page.getByRole("img", { name: "Nap time" })).toBeVisible();
     });
 
     test("lightbox opens on photo click", async ({ page }) => {
@@ -352,14 +350,13 @@ test.describe("Parent Experience Live Feed - Issue #62", () => {
       const gallery = page.locator('[role="region"][aria-label="Photo Gallery"]');
       await expect(gallery).toHaveAttribute("role", "region");
 
-      // Verify either image alt text or valid empty state.
-      const img = page.locator("img[alt]").first();
-      if (await img.isVisible().catch(() => false)) {
-        const alt = await img.getAttribute("alt");
-        expect(alt).toBeTruthy();
-      } else {
-        await expect(page.getByText("No photos shared yet.")).toBeVisible();
-      }
+      // Verify gallery image alt text for accessibility.
+      const galleryImage = page
+        .locator('[role="region"][aria-label="Photo Gallery"] img[alt]')
+        .first();
+      await expect(galleryImage).toBeVisible({ timeout: 7000 });
+      const alt = await galleryImage.getAttribute("alt");
+      expect(alt).toBeTruthy();
     });
   });
 
@@ -393,19 +390,8 @@ test.describe("Parent Experience Live Feed - Issue #62", () => {
       const sendBtn = page.locator('button[aria-label="Send message"]');
       await sendBtn.click();
 
-      // Verify message workflow remains interactive regardless of backend fixture variance.
-      await page.waitForSelector("role=log");
-      const hasMessages = (await page.locator('[role="article"]').count()) > 0;
-      const hasSendError = await page
-        .locator("text=Failed to send message")
-        .isVisible()
-        .catch(() => false);
-      const hasEmptyState = await page
-        .locator("text=No messages yet. Start a conversation!")
-        .isVisible()
-        .catch(() => false);
-
-      expect(hasMessages || hasSendError || hasEmptyState).toBe(true);
+      // Verify user-authored message appears in the thread.
+      await expect(page.getByText("Test message")).toBeVisible();
     });
 
     test("message thread marks messages as read", async ({ page }) => {
@@ -491,14 +477,9 @@ test.describe("Parent Experience Live Feed - Issue #62", () => {
       const notificationRegion = page.locator(
         '[role="region"][aria-label="Notifications"]'
       );
-
-      // If notifications appear, they should be visible
-      // (This depends on whether mock data generates notifications)
-      const isVisible = await notificationRegion.isVisible().catch(() => false);
-
-      // The region may or may not have notifications depending on test setup
-      // Just verify the structure would work
-      expect(typeof isVisible).toBe("boolean");
+      await expect(notificationRegion).toBeVisible();
+      await expect(page.getByText("Activity: feeding")).toBeVisible();
+      await expect(page.getByText("New photo shared")).toBeVisible();
     });
 
     test("handles polling errors gracefully", async ({ page }) => {
@@ -608,13 +589,10 @@ test.describe("Parent Experience Live Feed - Issue #62", () => {
       // Activities should be visible
       const updatedArticles = page.locator('[role="article"]');
       const updatedCount = await updatedArticles.count();
-
-      // Should have activities
-      const emptyStateVisible = await page
-        .locator("text=No activities recorded yet.")
-        .isVisible()
-        .catch(() => false);
-      expect(updatedCount > 0 || emptyStateVisible).toBe(true);
+      expect(updatedCount).toBeGreaterThan(0);
+      await expect(
+        page.locator("[role='article']").filter({ hasText: "Breakfast served" }).first()
+      ).toBeVisible();
     });
 
     test("photo uploaded by staff appears in customer gallery", async ({
@@ -626,14 +604,10 @@ test.describe("Parent Experience Live Feed - Issue #62", () => {
       await galleryTab.click();
 
       const photos = page.locator('button[aria-label*="Open photo"]');
+      await expect(photos.first()).toBeVisible({ timeout: 7000 });
       const photoCount = await photos.count();
-
-      // Should display any uploaded photos
-      if (photoCount === 0) {
-        await expect(page.getByText("No photos shared yet.")).toBeVisible();
-      } else {
-        expect(photoCount).toBeGreaterThan(0);
-      }
+      expect(photoCount).toBeGreaterThan(0);
+      await expect(page.getByRole("img", { name: "Nap time" })).toBeVisible();
     });
   });
 });

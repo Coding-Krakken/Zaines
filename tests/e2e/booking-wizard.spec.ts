@@ -173,13 +173,10 @@ async function completeBookingWizard(
   await page.getByLabel("Age (years) *").fill("4");
   await page.getByLabel("Weight (lbs) *").fill("28");
   await page.getByRole("button", { name: "Add Pet" }).click();
-  await page.waitForLoadState('networkidle');
+  await expect(page.getByText("Scout", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Vaccination Required:/i)).toBeVisible();
 
-  // Wait for pet to be added and vaccine form to appear
-  const vaccineInput = page.locator("input[id^='vaccine-new-']").first();
-  await vaccineInput.waitFor({ state: 'attached', timeout: 10000 });
-  await vaccineInput.waitFor({ state: 'visible', timeout: 5000 });
-  
+  const vaccineInput = page.locator("input[id='vaccine-new-0']");
   await vaccineInput.setInputFiles({
     name: "scout-vaccine.pdf",
     mimeType: "application/pdf",

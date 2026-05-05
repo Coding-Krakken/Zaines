@@ -141,7 +141,25 @@ export function StepPets({
   const handleRemoveNewPet = (index: number) => {
     const updated = newPets.filter((_, i) => i !== index);
     setNewPets(updated);
-    onUpdate({ newPets: updated });
+
+    // New-pet vaccine keys are index-based (new-0, new-1, ...). Clear and rebuild
+    // these entries after a removal so validation state stays consistent.
+    setVaccines((prev) => {
+      const existingPetVaccines = prev.filter((v) => !v.petId.startsWith("new-"));
+      const nextVaccines = [...existingPetVaccines];
+
+      onUpdate({
+        newPets: updated,
+        vaccines: nextVaccines.map((v) => ({
+          petId: v.petId,
+          fileUrl: v.fileUrl || "",
+          fileName: v.file.name,
+          fileSize: v.file.size,
+        })),
+      });
+
+      return nextVaccines;
+    });
   };
 
   const handleVaccineUpload = async (petId: string, file: File) => {
@@ -342,27 +360,69 @@ export function StepPets({
           <div className="space-y-3">
             <Label>New Pets Being Added</Label>
             <div className="space-y-2">
-              {newPets.map((pet, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-2 rounded-lg border bg-blue-50 p-3 dark:bg-blue-950"
-                >
-                  <div className="flex-1">
-                    <div className="font-medium">{pet.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {pet.breed} • {pet.age} {pet.age === 1 ? "year" : "years"}{" "}
-                      • {pet.weight} lbs
+              {newPets.map((pet, index) => {
+                const newPetVaccineId = `new-${index}`;
+                const vaccineInputId = `vaccine-new-${index}`;
+                const hasVaccine = vaccines.some((v) => v.petId === newPetVaccineId);
+
+                return (
+                  <div
+                    key={index}
+                    className="space-y-3 rounded-lg border bg-blue-50 p-3 dark:bg-blue-950"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <div className="font-medium">{pet.name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {pet.breed} • {pet.age} {pet.age === 1 ? "year" : "years"}{" "}
+                          • {pet.weight} lbs
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveNewPet(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor={vaccineInputId}
+                        className="inline-flex cursor-pointer items-center gap-2 text-sm text-primary hover:underline"
+                      >
+                        {uploadingVaccine === newPetVaccineId ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Uploading...
+                          </>
+                        ) : hasVaccine ? (
+                          <>
+                            <FileText className="h-4 w-4" />
+                            Vaccine uploaded • Click to replace
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="h-4 w-4" />
+                            Upload vaccine record (PDF)
+                          </>
+                        )}
+                      </label>
+                      <input
+                        id={vaccineInputId}
+                        type="file"
+                        accept="application/pdf"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleVaccineUpload(newPetVaccineId, file);
+                        }}
+                      />
                     </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveNewPet(index)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
