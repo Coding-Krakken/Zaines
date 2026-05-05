@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { HealthTimeline } from "@/components/HealthTimeline";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -119,6 +120,11 @@ export default async function DashboardPage() {
             </Link>
           </div>
         </div>
+      </section>
+
+      {/* Health Timeline */}
+      <section className="mt-6">
+        <HealthTimeline />
       </section>
     </div>
   );
