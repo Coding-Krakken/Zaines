@@ -34,16 +34,21 @@ describe("Validation Schemas", () => {
   });
 
   it("validates stepAccountSchema", () => {
-    const validData = { email: "test@example.com" };
+    const validData = {
+      firstName: "Taylor",
+      lastName: "Jordan",
+      email: "test@example.com",
+      phone: "3155551234",
+    };
     expect(stepAccountSchema.parse(validData)).toEqual(validData);
 
-    const invalidData = { email: "invalid-email" };
+    const invalidData = { ...validData, email: "invalid-email" };
     expect(() => stepAccountSchema.parse(invalidData)).toThrow();
   });
 
   it("validates stepPetsSchema", () => {
     const validData = {
-      selectedPetIds: ["pet1"],
+      selectedPetIds: [],
       newPets: [
         {
           name: "Max",
@@ -54,12 +59,6 @@ describe("Validation Schemas", () => {
         },
       ],
       vaccines: [
-        {
-          petId: "pet1",
-          fileUrl: "https://example.com/vaccine.pdf",
-          fileName: "vaccine.pdf",
-          fileSize: 1024,
-        },
         {
           petId: "newPet1",
           fileUrl: "https://example.com/vaccine2.pdf",
@@ -72,6 +71,16 @@ describe("Validation Schemas", () => {
 
     const invalidData = { ...validData, vaccines: [] };
     expect(() => stepPetsSchema.parse(invalidData)).toThrow();
+  });
+
+  it("requires at least one selected or newly added pet", () => {
+    expect(() =>
+      stepPetsSchema.parse({
+        selectedPetIds: [],
+        newPets: [],
+        vaccines: [],
+      }),
+    ).toThrow();
   });
 
   it("validates stepWaiverSchema", () => {

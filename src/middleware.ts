@@ -1,17 +1,29 @@
-import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-export default auth((req) => {
+// Lightweight edge-compatible guard. The next-auth database session strategy
+// cannot be verified in the Edge runtime (no Prisma). We gate on the presence
+// of the session cookie; the actual admin routes re-verify with auth() on the
+// server side, so this is defence-in-depth only.
+export function middleware(req: NextRequest) {
   const isAdminRoute =
     req.nextUrl.pathname.startsWith('/admin') ||
     req.nextUrl.pathname.startsWith('/api/admin');
 
-  if (isAdminRoute && !req.auth) {
-    const signInUrl = new URL('/auth/signin', req.nextUrl.origin);
-    signInUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
-    return NextResponse.redirect(signInUrl);
+  if (isAdminRoute) {
+    const sessionCookie =
+      req.cookies.get('authjs.session-token') ??
+      req.cookies.get('__Secure-authjs.session-token');
+
+    if (!sessionCookie) {
+      const signInUrl = new URL('/auth/signin', req.nextUrl.origin);
+      signInUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
+      return NextResponse.redirect(signInUrl);
+    }
   }
-});
+
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: ['/admin/:path*', '/api/admin/:path*'],

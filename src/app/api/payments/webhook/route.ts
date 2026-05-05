@@ -4,9 +4,12 @@ import Stripe from "stripe";
 import { stripe, isStripeConfigured } from "@/lib/stripe";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { sendPaymentNotification } from "@/lib/notifications";
+import { getCorrelationId, logServerFailure } from "@/lib/api/issue26";
 
 // POST /api/payments/webhook - Handle Stripe webhook events
 export async function POST(request: NextRequest) {
+  const correlationId = getCorrelationId(request);
+
   try {
     // Check if Stripe is configured
     if (!isStripeConfigured()) {
@@ -61,7 +64,12 @@ export async function POST(request: NextRequest) {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
-      console.error("Webhook signature verification failed:", errorMessage);
+      logServerFailure(
+        "/api/payments/webhook",
+        "WEBHOOK_SIGNATURE_VERIFICATION_FAILED",
+        correlationId,
+        err,
+      );
       return NextResponse.json(
         { error: `Webhook Error: ${errorMessage}` },
         { status: 400 },
@@ -72,25 +80,25 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case "payment_intent.succeeded": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        await handlePaymentSuccess(paymentIntent);
+        await handlePaymentSuccess(paymentIntent, correlationId);
         break;
       }
 
       case "payment_intent.payment_failed": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        await handlePaymentFailure(paymentIntent);
+        await handlePaymentFailure(paymentIntent, correlationId);
         break;
       }
 
       case "payment_intent.canceled": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        await handlePaymentCanceled(paymentIntent);
+        await handlePaymentCanceled(paymentIntent, correlationId);
         break;
       }
 
       case "charge.refunded": {
         const charge = event.data.object as Stripe.Charge;
-        await handleRefund(charge);
+        await handleRefund(charge, correlationId);
         break;
       }
 
@@ -100,7 +108,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error("Webhook handler error:", error);
+    logServerFailure(
+      "/api/payments/webhook",
+      "WEBHOOK_HANDLER_FAILED",
+      correlationId,
+      error,
+    );
     return NextResponse.json(
       { error: "Webhook handler failed" },
       { status: 500 },
@@ -108,15 +121,33 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
+async function handlePaymentSuccess(
+  paymentIntent: Stripe.PaymentIntent,
+  correlationId: string,
+) {
   const bookingId = paymentIntent.metadata.bookingId;
 
   if (!bookingId) {
-    console.error("No bookingId in payment intent metadata");
+    logServerFailure(
+      "/api/payments/webhook",
+      "PAYMENT_INTENT_BOOKING_ID_MISSING",
+      correlationId,
+      new Error("No bookingId in payment intent metadata"),
+    );
     return;
   }
 
   try {
+    const existingPayment = await prisma.payment.findFirst({
+      where: {
+        stripePaymentId: paymentIntent.id,
+      },
+    });
+
+    if (existingPayment?.status === "succeeded") {
+      return;
+    }
+
     // Update payment record
     await prisma.payment.updateMany({
       where: {
@@ -144,19 +175,37 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
       });
       await sendPaymentNotification(bookingId, "success", booking ?? undefined);
     } catch (err) {
-      console.error("Notification send error:", err);
+      logServerFailure(
+        "/api/payments/webhook",
+        "PAYMENT_SUCCESS_NOTIFICATION_FAILED",
+        correlationId,
+        err,
+      );
     }
     console.log(`Payment succeeded for booking ${bookingId}`);
   } catch (error) {
-    console.error("Error handling payment success:", error);
+    logServerFailure(
+      "/api/payments/webhook",
+      "PAYMENT_SUCCESS_HANDLER_FAILED",
+      correlationId,
+      error,
+    );
   }
 }
 
-async function handlePaymentFailure(paymentIntent: Stripe.PaymentIntent) {
+async function handlePaymentFailure(
+  paymentIntent: Stripe.PaymentIntent,
+  correlationId: string,
+) {
   const bookingId = paymentIntent.metadata.bookingId;
 
   if (!bookingId) {
-    console.error("No bookingId in payment intent metadata");
+    logServerFailure(
+      "/api/payments/webhook",
+      "PAYMENT_INTENT_BOOKING_ID_MISSING",
+      correlationId,
+      new Error("No bookingId in payment intent metadata"),
+    );
     return;
   }
 
@@ -187,19 +236,37 @@ async function handlePaymentFailure(paymentIntent: Stripe.PaymentIntent) {
       });
       await sendPaymentNotification(bookingId, "failure", booking ?? undefined);
     } catch (err) {
-      console.error("Notification send error:", err);
+      logServerFailure(
+        "/api/payments/webhook",
+        "PAYMENT_FAILURE_NOTIFICATION_FAILED",
+        correlationId,
+        err,
+      );
     }
     console.log(`Payment failed for booking ${bookingId}`);
   } catch (error) {
-    console.error("Error handling payment failure:", error);
+    logServerFailure(
+      "/api/payments/webhook",
+      "PAYMENT_FAILURE_HANDLER_FAILED",
+      correlationId,
+      error,
+    );
   }
 }
 
-async function handlePaymentCanceled(paymentIntent: Stripe.PaymentIntent) {
+async function handlePaymentCanceled(
+  paymentIntent: Stripe.PaymentIntent,
+  correlationId: string,
+) {
   const bookingId = paymentIntent.metadata.bookingId;
 
   if (!bookingId) {
-    console.error("No bookingId in payment intent metadata");
+    logServerFailure(
+      "/api/payments/webhook",
+      "PAYMENT_INTENT_BOOKING_ID_MISSING",
+      correlationId,
+      new Error("No bookingId in payment intent metadata"),
+    );
     return;
   }
 
@@ -224,11 +291,16 @@ async function handlePaymentCanceled(paymentIntent: Stripe.PaymentIntent) {
 
     console.log(`Payment canceled for booking ${bookingId}`);
   } catch (error) {
-    console.error("Error handling payment cancellation:", error);
+    logServerFailure(
+      "/api/payments/webhook",
+      "PAYMENT_CANCELED_HANDLER_FAILED",
+      correlationId,
+      error,
+    );
   }
 }
 
-async function handleRefund(charge: Stripe.Charge) {
+async function handleRefund(charge: Stripe.Charge, correlationId: string) {
   try {
     const paymentIntentId =
       typeof charge.payment_intent === "string"
@@ -236,7 +308,12 @@ async function handleRefund(charge: Stripe.Charge) {
         : charge.payment_intent?.id;
 
     if (!paymentIntentId) {
-      console.error("No payment intent ID in charge");
+      logServerFailure(
+        "/api/payments/webhook",
+        "REFUND_PAYMENT_INTENT_ID_MISSING",
+        correlationId,
+        new Error("No payment intent ID in charge"),
+      );
       return;
     }
 
@@ -268,6 +345,11 @@ async function handleRefund(charge: Stripe.Charge) {
 
     console.log(`Refund processed for payment intent ${paymentIntentId}`);
   } catch (error) {
-    console.error("Error handling refund:", error);
+    logServerFailure(
+      "/api/payments/webhook",
+      "REFUND_HANDLER_FAILED",
+      correlationId,
+      error,
+    );
   }
 }

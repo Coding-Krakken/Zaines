@@ -35,7 +35,10 @@ export const stepSuitesSchema = z.object({
 
 // Step 3: Account (handled by NextAuth)
 export const stepAccountSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Please enter a valid email address"),
+  phone: z.string().min(10, "Please enter a valid phone number"),
 });
 
 // Step 4: Pet Profiles
@@ -66,9 +69,7 @@ export const newPetSchema = z.object({
 
 export const stepPetsSchema = z
   .object({
-    selectedPetIds: z
-      .array(z.string())
-      .min(1, "Please select at least one pet"),
+    selectedPetIds: z.array(z.string()).default([]),
     newPets: z.array(newPetSchema).default([]),
     vaccines: z
       .array(
@@ -81,6 +82,13 @@ export const stepPetsSchema = z
       )
       .default([]),
   })
+  .refine(
+    (data) => data.selectedPetIds.length + data.newPets.length > 0,
+    {
+      message: "Please select or add at least one pet",
+      path: ["selectedPetIds"],
+    },
+  )
   .refine(
     (data) => {
       // Ensure all selected pets (existing + new) have vaccines uploaded

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Elements,
   PaymentElement,
@@ -24,26 +24,125 @@ import {
 } from "@/lib/validations/booking-wizard";
 import { getStripe } from "@/lib/stripe-client";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface StepPaymentProps {
   data: Partial<StepPaymentData> & {
     clientSecret?: string;
     pricingDisclosureAccepted?: boolean;
+    bookingId?: string;
   };
   onUpdate: (
     data: Partial<StepPaymentData> & {
       clientSecret?: string;
       pricingDisclosureAccepted?: boolean;
+      bookingId?: string;
     },
   ) => void;
   onNext: () => void;
   onBack: () => void;
   totalAmount: number; // From previous steps
+  pricingQuote: {
+    subtotal: number;
+    tax: number;
+    total: number;
+    currency: string;
+    pricingModelLabel: string;
+    disclosure: string;
+  } | null;
+  bookingPayload: {
+    checkIn: string;
+    checkOut: string;
+    suiteType: "standard" | "deluxe" | "luxury";
+    petCount: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    petNames: string;
+    specialRequests?: string;
+    addOns?: Array<{ id: string; quantity: number }>;
+    newPets?: Array<{
+      name: string;
+      breed: string;
+      age: number;
+      weight: number;
+      gender: "male" | "female";
+      temperament?: "friendly" | "shy" | "energetic" | "calm" | "anxious";
+      specialNeeds?: string;
+      feedingInstructions?: string;
+    }>;
+    vaccines?: Array<{
+      petId: string;
+      fileUrl: string;
+      fileName: string;
+      fileSize: number;
+    }>;
+    waiver: {
+      liabilityAccepted: boolean;
+      medicalAuthorizationAccepted: boolean;
+      photoReleaseAccepted: boolean;
+      signature: string;
+    };
+  } | null;
 }
 
 const BOOKING_PRICING_MODEL_LABEL = "Pre-confirmation estimate";
 const BOOKING_PRICING_DISCLOSURE =
   "Total price is shown before confirmation with no hidden fees or surprise add-ons.";
+
+function PricingDisclosureCard({
+  subtotal,
+  tax,
+  totalWithTax,
+  disclosure,
+  pricingDisclosureAccepted,
+  onPricingDisclosureChange,
+}: {
+  subtotal: number;
+  tax: number;
+  totalWithTax: number;
+  disclosure: string;
+  pricingDisclosureAccepted: boolean;
+  onPricingDisclosureChange: (accepted: boolean) => void;
+}) {
+  return (
+    <>
+      <div className="rounded-lg border bg-muted/50 p-4">
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span>Subtotal</span>
+            <span>${subtotal.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Tax</span>
+            <span>${tax.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between border-t pt-2 text-base font-semibold">
+            <span>Total before confirmation</span>
+            <span>${totalWithTax.toFixed(2)}</span>
+          </div>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">{disclosure}</p>
+      </div>
+
+      <div className="flex items-start space-x-3 rounded-lg border p-4">
+        <Checkbox
+          id="pricing-disclosure"
+          checked={pricingDisclosureAccepted}
+          onCheckedChange={(checked) => onPricingDisclosureChange(Boolean(checked))}
+        />
+        <Label
+          htmlFor="pricing-disclosure"
+          className="cursor-pointer text-sm leading-relaxed"
+        >
+          I reviewed this pre-confirmation estimate and understand there are
+          no hidden fees or surprise add-ons.
+        </Label>
+      </div>
+    </>
+  );
+}
 
 function PaymentForm({
   onSuccess,
@@ -128,17 +227,34 @@ export function StepPayment({
   onNext,
   onBack,
   totalAmount,
+  pricingQuote,
+  bookingPayload,
 }: StepPaymentProps) {
+  const router = useRouter();
   const [clientSecret, setClientSecret] = useState(data.clientSecret || "");
+  const [bookingId, setBookingId] = useState(data.bookingId || "");
   const [pricingDisclosureAccepted, setPricingDisclosureAccepted] = useState(
     Boolean(data.pricingDisclosureAccepted),
   );
+  const [bookingError, setBookingError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const subtotal = Math.round(totalAmount * 100) / 100;
-  const tax = Math.round(subtotal * 0.1 * 100) / 100;
-  const totalWithTax = Math.round((subtotal + tax) * 100) / 100;
+  const hasAutoInitAttempted = useRef(Boolean(data.bookingId));
+  const subtotal = Math.round((pricingQuote?.subtotal || 0) * 100) / 100;
+  const tax = Math.round((pricingQuote?.tax || 0) * 100) / 100;
+  const totalWithTax = Math.round((pricingQuote?.total || totalAmount) * 100) / 100;
+  const disclosure = pricingQuote?.disclosure || BOOKING_PRICING_DISCLOSURE;
 
-  const handleNext = () => {
+  const handleDisclosureChange = (accepted: boolean) => {
+    setPricingDisclosureAccepted(accepted);
+    onUpdate({ pricingDisclosureAccepted: accepted });
+  };
+
+  const finalizeBooking = () => {
+    if (!bookingId || !bookingPayload) {
+      toast.error("Booking details are incomplete. Please retry.");
+      return;
+    }
+
     if (!pricingDisclosureAccepted) {
       toast.error("Please acknowledge pricing disclosure before confirming.");
       return;
@@ -158,44 +274,173 @@ export function StepPayment({
       paymentOption: "full",
       amount: totalWithTax,
       pricingDisclosureAccepted,
+      bookingId,
     });
+
     onNext();
+    router.push(`/book/confirmation?bookingId=${bookingId}`);
   };
 
-  const initializePayment = async () => {
+  const initializeBookingAndPayment = useCallback(async () => {
+    if (!bookingPayload) {
+      setBookingError("Complete all previous steps before submitting payment.");
+      return;
+    }
+
+    if (!pricingQuote) {
+      setBookingError("Pricing validation is required before payment.");
+      return;
+    }
+
+    setBookingError("");
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/payments/create-intent", {
+      const response = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: totalWithTax }),
+        body: JSON.stringify(bookingPayload),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to initialize payment");
+        const errorBody = (await response.json().catch(() => ({}))) as {
+          error?: string;
+          message?: string;
+        };
+        throw new Error(
+          errorBody.error ||
+            errorBody.message ||
+            "Failed to initialize booking payment",
+        );
       }
 
-      const { clientSecret } = await response.json();
-      setClientSecret(clientSecret);
-      onUpdate({ clientSecret });
-    } catch (error) {
-      console.error("Payment initialization error:", error);
-      toast.error("Failed to initialize payment. Please try again.");
+      const payload = (await response.json()) as {
+        booking: { id: string; bookingNumber?: string };
+        pricing: {
+          subtotal: number;
+          tax: number;
+          total: number;
+          currency: string;
+        };
+        payment?: { clientSecret?: string };
+      };
+
+      if (Math.abs(payload.pricing.total - pricingQuote.total) > 0.01) {
+        throw new Error("Pricing changed during booking. Please review and retry.");
+      }
+
+      const nextBookingId = payload.booking.id;
+      const nextClientSecret = payload.payment?.clientSecret || "";
+
+      sessionStorage.setItem(
+        `booking-${nextBookingId}`,
+        JSON.stringify({
+          id: nextBookingId,
+          bookingNumber: payload.booking.bookingNumber || nextBookingId,
+          checkIn: bookingPayload.checkIn,
+          checkOut: bookingPayload.checkOut,
+          suite: bookingPayload.suiteType,
+          pricing: {
+            subtotal: payload.pricing.subtotal,
+            tax: payload.pricing.tax,
+            total: payload.pricing.total,
+            currency: payload.pricing.currency || "USD",
+          },
+          total: payload.pricing.total,
+          petNames: bookingPayload.petNames
+            .split(",")
+            .map((name) => name.trim())
+            .filter((name) => name.length > 0),
+          email: bookingPayload.email,
+        }),
+      );
+
+      setBookingId(nextBookingId);
+      setClientSecret(nextClientSecret);
+      onUpdate({
+        bookingId: nextBookingId,
+        clientSecret: nextClientSecret,
+      });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to initialize payment. Please try again.";
+      setBookingError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [bookingPayload, onUpdate, pricingQuote]);
 
-  if (!clientSecret) {
+  useEffect(() => {
+    if (bookingId || isLoading || hasAutoInitAttempted.current) {
+      return;
+    }
+
+    hasAutoInitAttempted.current = true;
+    void initializeBookingAndPayment();
+  }, [bookingId, isLoading, initializeBookingAndPayment]);
+
+  if (!bookingId) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center space-y-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p>Initializing payment...</p>
-          <Button onClick={initializePayment} disabled={isLoading}>
+          <p>
+            {isLoading ? "Preparing your booking..." : "Preparing secure checkout..."}
+          </p>
+          {bookingError ? (
+            <p className="text-sm text-destructive">{bookingError}</p>
+          ) : null}
+          <Button
+            onClick={initializeBookingAndPayment}
+            disabled={isLoading && !bookingError}
+          >
             Retry
           </Button>
+          <Button variant="outline" onClick={onBack} disabled={isLoading}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!clientSecret) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5" />
+            Booking Ready
+          </CardTitle>
+          <CardDescription>{BOOKING_PRICING_MODEL_LABEL}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <PricingDisclosureCard
+            subtotal={subtotal}
+            tax={tax}
+            totalWithTax={totalWithTax}
+            disclosure={disclosure}
+            pricingDisclosureAccepted={pricingDisclosureAccepted}
+            onPricingDisclosureChange={handleDisclosureChange}
+          />
+          <p className="text-sm text-muted-foreground">
+            Your booking has been created. Payment processing is currently
+            unavailable, and your reservation remains pending confirmation.
+          </p>
+          <div className="flex justify-between pt-4">
+            <Button type="button" variant="outline" onClick={onBack}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+            <Button onClick={finalizeBooking} disabled={!pricingDisclosureAccepted}>
+              Complete Booking
+              <CheckCircle2 className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -208,47 +453,19 @@ export function StepPayment({
           <CheckCircle2 className="h-5 w-5" />
           Payment Information
         </CardTitle>
-        <CardDescription>{BOOKING_PRICING_MODEL_LABEL}</CardDescription>
+        <CardDescription>
+          {pricingQuote?.pricingModelLabel || BOOKING_PRICING_MODEL_LABEL}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="rounded-lg border bg-muted/50 p-4">
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Tax</span>
-              <span>${tax.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between border-t pt-2 text-base font-semibold">
-              <span>Total before confirmation</span>
-              <span>${totalWithTax.toFixed(2)}</span>
-            </div>
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            {BOOKING_PRICING_DISCLOSURE}
-          </p>
-        </div>
-
-        <div className="flex items-start space-x-3 rounded-lg border p-4">
-          <Checkbox
-            id="pricing-disclosure"
-            checked={pricingDisclosureAccepted}
-            onCheckedChange={(checked) => {
-              const accepted = Boolean(checked);
-              setPricingDisclosureAccepted(accepted);
-              onUpdate({ pricingDisclosureAccepted: accepted });
-            }}
-          />
-          <Label
-            htmlFor="pricing-disclosure"
-            className="cursor-pointer text-sm leading-relaxed"
-          >
-            I reviewed this pre-confirmation estimate and understand there are
-            no hidden fees or surprise add-ons.
-          </Label>
-        </div>
+        <PricingDisclosureCard
+          subtotal={subtotal}
+          tax={tax}
+          totalWithTax={totalWithTax}
+          disclosure={disclosure}
+          pricingDisclosureAccepted={pricingDisclosureAccepted}
+          onPricingDisclosureChange={handleDisclosureChange}
+        />
 
         <Elements
           stripe={getStripe()}
@@ -258,7 +475,7 @@ export function StepPayment({
           }}
         >
           <PaymentForm
-            onSuccess={handleNext}
+            onSuccess={finalizeBooking}
             onBack={onBack}
             disclosureAccepted={pricingDisclosureAccepted}
             totalWithTax={totalWithTax}

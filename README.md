@@ -349,7 +349,7 @@ This project uses GitHub Actions for continuous integration and deployment. The 
 
 **Status Badges:**
 
-![CI Status](https://github.com/Coding-Krakken/Zaines/actions/workflows/ci.yml/badge.svg)
+![CI Status](https://github.com/Custom-Coding-Creations/Zaines/actions/workflows/ci.yml/badge.svg)
 
 ### Deploy Workflow
 

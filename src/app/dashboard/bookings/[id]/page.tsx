@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { CancelBookingButton } from "./CancelBookingButton";
 
 type Props = { params: { id: string } };
 
@@ -14,12 +15,14 @@ type BookingDetailPrisma = {
         payments: boolean;
       };
     }) => Promise<{
+      id: string;
       userId: string;
       bookingNumber: string;
       checkInDate: Date;
       checkOutDate: Date;
       total: number;
       status: string;
+      createdAt: Date;
       suite?: { name?: string; tier?: string } | null;
       bookingPets: Array<{ id: string; pet?: { name?: string } | null }>;
       payments: Array<{ id: string; status: string; amount: number }>;
@@ -62,6 +65,9 @@ export default async function BookingDetail({ params }: Props) {
     );
   }
 
+  const canCancel =
+    booking.status === "pending" || booking.status === "confirmed";
+
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-semibold">
@@ -92,6 +98,10 @@ export default async function BookingDetail({ params }: Props) {
           <h2 className="font-medium">Payment</h2>
           <p className="text-sm">Total: ${booking.total}</p>
           <p className="text-sm">Status: {booking.status}</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Cancellation policy: 48+ hours full refund, 24-48 hours 50% refund,
+            under 24 hours no refund.
+          </p>
           <h3 className="mt-3 font-medium">Payments</h3>
           <ul className="text-sm list-disc pl-5">
             {booking.payments.map(
@@ -102,6 +112,13 @@ export default async function BookingDetail({ params }: Props) {
               ),
             )}
           </ul>
+          <div className="mt-4">
+            <CancelBookingButton
+              bookingId={booking.id}
+              bookingStatus={booking.status}
+              canCancel={canCancel}
+            />
+          </div>
         </div>
       </div>
     </div>

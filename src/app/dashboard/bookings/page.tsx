@@ -2,6 +2,25 @@ import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { CancelBookingButton } from "./[id]/CancelBookingButton";
+
+function statusBadgeVariant(
+  status: string,
+): "default" | "secondary" | "destructive" | "outline" {
+  switch (status) {
+    case "confirmed":
+      return "default";
+    case "checked_in":
+      return "secondary";
+    case "cancelled":
+      return "destructive";
+    case "completed":
+      return "outline";
+    default:
+      return "outline";
+  }
+}
 
 export default async function BookingsPage() {
   const session = await auth();
@@ -41,6 +60,7 @@ export default async function BookingsPage() {
             suite?: { name?: string } | null;
             checkInDate: Date;
             checkOutDate: Date;
+            status: string;
             bookingPets: Array<{ pet?: { name?: string } | null }>;
             bookingNumber: string;
           }) => (
@@ -60,8 +80,13 @@ export default async function BookingsPage() {
                     .filter(Boolean)
                     .join(", ")}
                 </div>
+                <div className="mt-2">
+                  <Badge variant={statusBadgeVariant(b.status)}>
+                    {b.status.replace("_", " ")}
+                  </Badge>
+                </div>
               </div>
-              <div className="text-right">
+              <div className="text-right space-y-3">
                 <div className="font-medium">{b.bookingNumber}</div>
                 <Link
                   href={`/dashboard/bookings/${b.id}`}
@@ -69,6 +94,17 @@ export default async function BookingsPage() {
                 >
                   View details
                 </Link>
+                <div className="flex justify-end">
+                  <CancelBookingButton
+                    bookingId={b.id}
+                    bookingStatus={b.status}
+                    canCancel={
+                      (b.status === "pending" || b.status === "confirmed") &&
+                      new Date(b.checkInDate) > new Date()
+                    }
+                    compact
+                  />
+                </div>
               </div>
             </div>
           ),
