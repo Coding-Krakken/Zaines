@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
   }
 
   const imageUrl = await storeFile(file, bookingId);
-  const uploadedBy = session.user.name ?? session.user.email ?? session.user.id;
+  const uploadedBy = session.user!.name ?? session.user!.email ?? session.user!.id;
 
   const photo = await prisma.petPhoto.create({
     data: {

@@ -111,18 +111,14 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialBookingId]);
 
-  useEffect(() => {
-    const pet = selectedPets[0];
-    if (pet && !selectedPets.some((candidate) => candidate.id === petId)) {
-      setPetId(pet.id);
-    }
-    if (!pet) {
-      setPetId('');
-    }
+  const activePetId = useMemo(() => {
+    if (!selectedPets.length) return '';
+    return selectedPets.some((p) => p.id === petId) ? petId : (selectedPets[0]?.id ?? '');
   }, [petId, selectedPets]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -135,7 +131,7 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
       const res = await fetch('/api/admin/activities', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId, petId, type, description, notes }),
+        body: JSON.stringify({ bookingId, petId: activePetId, type, description, notes }),
       });
 
       const data = (await res.json()) as { activity?: ActivityItem; error?: string };
@@ -180,7 +176,7 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
 
             <div className="space-y-1">
               <p className="text-sm font-medium">Pet</p>
-              <Select value={petId} onValueChange={setPetId}>
+              <Select value={activePetId} onValueChange={setPetId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select pet" />
                 </SelectTrigger>

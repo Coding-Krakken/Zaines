@@ -66,14 +66,9 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
     };
   }, [previewUrl]);
 
-  useEffect(() => {
-    const pet = selectedPets[0];
-    if (pet && !selectedPets.some((candidate) => candidate.id === petId)) {
-      setPetId(pet.id);
-    }
-    if (!pet) {
-      setPetId('');
-    }
+  const activePetId = useMemo(() => {
+    if (!selectedPets.length) return '';
+    return selectedPets.some((p) => p.id === petId) ? petId : (selectedPets[0]?.id ?? '');
   }, [petId, selectedPets]);
 
   async function loadData() {
@@ -120,6 +115,7 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialBookingId]);
@@ -138,7 +134,7 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
     try {
       const formData = new FormData();
       formData.set('bookingId', bookingId);
-      formData.set('petId', petId);
+      formData.set('petId', activePetId);
       formData.set('caption', caption);
       formData.set('file', file);
 
@@ -189,7 +185,7 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
 
             <div className="space-y-1">
               <p className="text-sm font-medium">Pet</p>
-              <Select value={petId} onValueChange={setPetId}>
+              <Select value={activePetId} onValueChange={setPetId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select pet" />
                 </SelectTrigger>

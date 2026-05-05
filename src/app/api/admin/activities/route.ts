@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const performedBy = session.user.name ?? session.user.email ?? session.user.id;
+  const performedBy = session.user!.name ?? session.user!.email ?? session.user!.id;
 
   const activity = await prisma.activity.create({
     data: {
