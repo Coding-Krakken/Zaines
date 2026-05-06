@@ -29,21 +29,24 @@ export function SiteFooter() {
             <div className="flex gap-3">
               <Link
                 href={siteConfig.links.facebook}
+                aria-label="Zaine's Stay & Play on Facebook"
                 className="text-muted-foreground hover:text-foreground"
               >
-                <Facebook className="h-5 w-5" />
+                <Facebook className="h-5 w-5" aria-hidden />
               </Link>
               <Link
                 href={siteConfig.links.instagram}
+                aria-label="Zaine's Stay & Play on Instagram"
                 className="text-muted-foreground hover:text-foreground"
               >
-                <Instagram className="h-5 w-5" />
+                <Instagram className="h-5 w-5" aria-hidden />
               </Link>
               <Link
                 href={siteConfig.links.twitter}
+                aria-label="Zaine's Stay & Play on X"
                 className="text-muted-foreground hover:text-foreground"
               >
-                <Twitter className="h-5 w-5" />
+                <Twitter className="h-5 w-5" aria-hidden />
               </Link>
             </div>
           </div>
