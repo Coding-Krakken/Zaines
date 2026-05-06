@@ -13,9 +13,12 @@ const authSecret =
 
 const isProduction = process.env.NODE_ENV === "production";
 const hasDatabase = isDatabaseConfigured();
+const hasResendProviderConfig =
+  Boolean(process.env.AUTH_RESEND_KEY || process.env.RESEND_API_KEY) &&
+  Boolean(process.env.EMAIL_FROM);
 
 const providers: NonNullable<NextAuthConfig["providers"]> = [
-  ...(hasDatabase
+  ...(hasDatabase && hasResendProviderConfig
     ? [
         Resend({
           from: process.env.EMAIL_FROM || "noreply@pawfectstays.com",
