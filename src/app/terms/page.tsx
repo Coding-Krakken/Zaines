@@ -4,6 +4,11 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
+import {
+  CANCELLATION_POLICY_COPY,
+  PRICING_TRUST_DISCLOSURE,
+  TRUST_EVIDENCE_CLAIM,
+} from "@/config/trust-copy";
 
 export const metadata: Metadata = {
   title: "Terms of Service | Zaine's Stay & Play",
@@ -24,6 +29,9 @@ export default function TermsPage() {
             </h1>
             <p className="mb-8 text-xl text-muted-foreground">
               Please read these terms carefully before using our services
+            </p>
+            <p className="mb-4 text-sm text-muted-foreground md:text-base">
+              {TRUST_EVIDENCE_CLAIM}
             </p>
             <p className="text-sm text-muted-foreground">
               Last updated: February 6, 2026 • Effective Date: January 1, 2026
@@ -226,8 +234,12 @@ export default function TermsPage() {
               <p className="mb-4 text-muted-foreground">
                 Late pickup fees ($25 per 30 minutes after 8 PM), early drop-off
                 fees ($15), and holiday surcharges (20%) apply as stated in our
-                Policies. Emergency veterinary care costs are the client&apos;s
+                Policies and are disclosed before processing whenever added to a
+                booking. Emergency veterinary care costs are the client&apos;s
                 responsibility.
+              </p>
+              <p className="mb-4 text-muted-foreground">
+                {PRICING_TRUST_DISCLOSURE}
               </p>
 
               <h3 className="mb-3 text-xl font-semibold">
@@ -247,25 +259,33 @@ export default function TermsPage() {
               </h2>
               <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
                 <li>
-                  <strong>48+ hours notice:</strong> Full refund
+                  <strong>48+ hours notice:</strong>{" "}
+                  {CANCELLATION_POLICY_COPY.fullRefund.replace(
+                    "48+ hours before check-in: ",
+                    "",
+                  )}
                 </li>
                 <li>
-                  <strong>24-48 hours notice:</strong> 50% refund or full credit
-                  toward future visit
+                  <strong>24-48 hours notice:</strong>{" "}
+                  {CANCELLATION_POLICY_COPY.partialRefund.replace(
+                    "24-48 hours before check-in: ",
+                    "",
+                  )}
                 </li>
                 <li>
-                  <strong>Less than 24 hours:</strong> No refund (credit may be
-                  offered at management discretion)
+                  <strong>Less than 24 hours:</strong>{" "}
+                  {CANCELLATION_POLICY_COPY.noRefund.replace(
+                    "Less than 24 hours before check-in: ",
+                    "",
+                  )}
                 </li>
                 <li>
-                  <strong>No-show:</strong> Full charge applies, no refund or
-                  credit
+                  <strong>No-show:</strong>{" "}
+                  {CANCELLATION_POLICY_COPY.noShow.replace("No-show: ", "")}
                 </li>
               </ul>
               <p className="mt-4 text-muted-foreground">
-                Refunds are processed within 5-7 business days to the original
-                payment method. Holiday bookings may have different cancellation
-                terms specified at booking.
+                {CANCELLATION_POLICY_COPY.processing}
               </p>
             </div>
 

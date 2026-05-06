@@ -123,6 +123,7 @@ describe("Issue #31 CP2 booking pricing disclosure contract", () => {
           liabilityAccepted: true,
           medicalAuthorizationAccepted: true,
           photoReleaseAccepted: true,
+          policyAcknowledgmentAccepted: true,
           signature: "Morgan Lee",
         },
       }),

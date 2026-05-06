@@ -21,6 +21,11 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { CheckCircle2, Calculator } from "lucide-react";
+import {
+  CANCELLATION_POLICY_COPY,
+  PRICING_TRUST_DISCLOSURE,
+  TRUST_EVIDENCE_CLAIM,
+} from "@/config/trust-copy";
 
 const services = {
   boarding: {
@@ -78,11 +83,10 @@ export default function PricingPage() {
             </h1>
             <p className="mb-8 text-xl text-muted-foreground">
               Premium but fair suite rates with clear pricing before
-              confirmation, no hidden fees, and no surprise add-ons.
+              confirmation.
             </p>
             <p className="mb-6 text-sm text-muted-foreground md:text-base">
-              Only 3 private suites, owner onsite, camera-monitored safety, no
-              harsh chemicals, and premium but fair pricing with no hidden fees.
+              {TRUST_EVIDENCE_CLAIM}
             </p>
             <div className="mb-4 md:hidden">
               <Button size="lg" className="w-full" asChild>
@@ -99,8 +103,7 @@ export default function PricingPage() {
             </div>
             <p className="text-sm text-muted-foreground">
               Rates below are planning ranges while package selection remains in
-              progress; you see a clear total before confirmation with no hidden
-              fees, no surprise add-ons, and a premium but fair pricing model.
+              progress. {PRICING_TRUST_DISCLOSURE}
             </p>
           </div>
         </div>
@@ -250,8 +253,7 @@ export default function PricingPage() {
                   </div>
                   <p className="text-sm text-muted-foreground">
                     This is a pre-confirmation estimate with premium but fair
-                    pricing. Final subtotal, tax, and total are shown before you
-                    confirm payment.
+                    pricing. {PRICING_TRUST_DISCLOSURE}
                   </p>
                 </div>
 
@@ -310,19 +312,18 @@ export default function PricingPage() {
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span>Second dog (same suite)</span>
-                  <span className="font-semibold">Priced in quote</span>
+                  <span className="font-semibold">Shown in quote</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Third+ dog (same suite)</span>
-                  <span className="font-semibold">Priced in quote</span>
+                  <span className="font-semibold">Shown in quote</span>
                 </div>
                 <div className="flex justify-between">
                   <span>14+ night stays</span>
-                  <span className="font-semibold">Priced in quote</span>
+                  <span className="font-semibold">Shown in quote</span>
                 </div>
                 <div className="pt-2 text-sm text-muted-foreground">
-                  Additional-dog pricing is disclosed before confirmation with
-                  no hidden fees.
+                  Additional-dog totals are disclosed before confirmation.
                 </div>
               </CardContent>
             </Card>
@@ -356,9 +357,8 @@ export default function PricingPage() {
 
           <div className="mt-12 text-center">
             <p className="text-muted-foreground">
-              Rates are reviewed regularly and confirmed before checkout. We use
-              premium but fair pricing with no hidden fees and no surprise
-              add-ons.
+              Rates are reviewed regularly and confirmed before checkout.
+              {` ${PRICING_TRUST_DISCLOSURE}`}
             </p>
           </div>
         </div>
@@ -382,8 +382,9 @@ export default function PricingPage() {
               <div>
                 <h3 className="mb-2 text-lg font-semibold">Cancellation</h3>
                 <p className="text-muted-foreground">
-                  Free cancellation up to 48 hours before check-in.
-                  Cancellations within 48 hours are subject to a 50% charge.
+                  {CANCELLATION_POLICY_COPY.fullRefund}{" "}
+                  {CANCELLATION_POLICY_COPY.partialRefund}{" "}
+                  {CANCELLATION_POLICY_COPY.noRefund}
                 </p>
               </div>
               <div>
@@ -397,7 +398,8 @@ export default function PricingPage() {
                 <h3 className="mb-2 text-lg font-semibold">Multiple Pets</h3>
                 <p className="text-muted-foreground">
                   Multi-dog totals are itemized in your pre-confirmation quote.
-                  No hidden fees or surprise add-ons are introduced at checkout.
+                  No hidden fees, no surprise add-ons, or other undisclosed
+                  charges are introduced at checkout.
                 </p>
               </div>
             </div>
@@ -411,7 +413,8 @@ export default function PricingPage() {
           <h2 className="mb-4 text-3xl font-bold">Questions About Pricing?</h2>
           <p className="mb-8 text-lg opacity-90">
             Our team can walk you through premium but fair pricing before
-            confirmation so there are no hidden fees or surprise add-ons.
+            confirmation so there are no hidden fees, no surprise add-ons, or
+            other undisclosed charges.
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" variant="secondary" asChild>

@@ -1,7 +1,7 @@
 export const BOOKING_PRICING_CURRENCY = "USD";
 export const BOOKING_PRICING_MODEL_LABEL = "Pre-confirmation estimate";
 export const BOOKING_PRICING_DISCLOSURE =
-  "Total price is shown before confirmation with no hidden fees or surprise add-ons.";
+  "Premium but fair pricing includes clear subtotal, applicable tax, selected care items, and total shown before confirmation. No hidden fees, no surprise add-ons, or other undisclosed charges are introduced at checkout.";
 
 export function calculateBookingPrice(
   checkIn: string,

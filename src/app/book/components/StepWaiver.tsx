@@ -17,6 +17,7 @@ import {
   stepWaiverSchema,
   type StepWaiverData,
 } from "@/lib/validations/booking-wizard";
+import { BOOKING_POLICY_ACKNOWLEDGMENT } from "@/config/trust-copy";
 import { toast } from "sonner";
 
 interface StepWaiverProps {
@@ -40,6 +41,8 @@ export function StepWaiver({
   const [photoReleaseAccepted, setPhotoReleaseAccepted] = useState(
     data.photoReleaseAccepted || false,
   );
+  const [policyAcknowledgmentAccepted, setPolicyAcknowledgmentAccepted] =
+    useState(data.policyAcknowledgmentAccepted || false);
   const signaturePadRef = useRef<HTMLCanvasElement>(null);
   const signaturePadInstanceRef = useRef<SignaturePad | null>(null);
   const [signature, setSignature] = useState(data.signature || "");
@@ -97,10 +100,11 @@ export function StepWaiver({
   };
 
   const handleNext = () => {
-    const waiverData: Partial<StepWaiverData> = {
+    const waiverData = {
       liabilityAccepted,
       medicalAuthorizationAccepted,
       photoReleaseAccepted,
+      policyAcknowledgmentAccepted,
       signature,
     };
 
@@ -111,7 +115,7 @@ export function StepWaiver({
       return;
     }
 
-    onUpdate(waiverData);
+    onUpdate(validation.data);
     onNext();
   };
 
@@ -138,9 +142,9 @@ export function StepWaiver({
             }
           />
           <Label htmlFor="liability" className="text-sm">
-            I accept the <strong>liability waiver</strong>, releasing
-            Zaine&apos;s Stay & Play from any liability for injuries or damages
-            during my pet&apos;s stay.
+            I accept the <strong>liability waiver</strong> and understand that
+            supervised dogs may still experience normal dog-behavior risks such
+            as scratches, scrapes, or property damage.
           </Label>
         </div>
 
@@ -172,6 +176,19 @@ export function StepWaiver({
           <Label htmlFor="photo" className="text-sm">
             I consent to the use of photos/videos of my pet for promotional
             purposes.
+          </Label>
+        </div>
+
+        <div className="space-y-2 rounded-lg border p-4">
+          <Checkbox
+            id="policy-acknowledgment"
+            checked={policyAcknowledgmentAccepted}
+            onCheckedChange={(checked) =>
+              setPolicyAcknowledgmentAccepted(checked as boolean)
+            }
+          />
+          <Label htmlFor="policy-acknowledgment" className="text-sm">
+            {BOOKING_POLICY_ACKNOWLEDGMENT}
           </Label>
         </div>
 
@@ -219,6 +236,7 @@ export function StepWaiver({
               !liabilityAccepted ||
               !medicalAuthorizationAccepted ||
               !photoReleaseAccepted ||
+              !policyAcknowledgmentAccepted ||
               !signature
             }
           >
