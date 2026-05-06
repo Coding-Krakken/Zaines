@@ -22,8 +22,11 @@ import {
   stepPaymentSchema,
   type StepPaymentData,
 } from "@/lib/validations/booking-wizard";
+import {
+  BOOKING_PRICING_DISCLOSURE,
+  BOOKING_PRICING_MODEL_LABEL,
+} from "@/lib/booking/pricing";
 import { getStripe } from "@/lib/stripe-client";
-import { PRICING_TRUST_DISCLOSURE } from "@/config/trust-copy";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -88,9 +91,6 @@ interface StepPaymentProps {
     };
   } | null;
 }
-
-const BOOKING_PRICING_MODEL_LABEL = "Pre-confirmation estimate";
-const BOOKING_PRICING_DISCLOSURE = PRICING_TRUST_DISCLOSURE;
 
 function PricingDisclosureCard({
   subtotal,
@@ -381,13 +381,25 @@ export function StepPayment({
   }, [bookingPayload, onUpdate, pricingQuote]);
 
   useEffect(() => {
-    if (bookingId || isLoading || hasAutoInitAttempted.current) {
+    if (
+      bookingId ||
+      isLoading ||
+      hasAutoInitAttempted.current ||
+      !bookingPayload ||
+      !pricingQuote
+    ) {
       return;
     }
 
     hasAutoInitAttempted.current = true;
     void initializeBookingAndPayment();
-  }, [bookingId, isLoading, initializeBookingAndPayment]);
+  }, [
+    bookingId,
+    bookingPayload,
+    isLoading,
+    initializeBookingAndPayment,
+    pricingQuote,
+  ]);
 
   if (!bookingId) {
     return (

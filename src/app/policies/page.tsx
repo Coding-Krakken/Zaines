@@ -15,6 +15,7 @@ import { CheckCircle2, XCircle, AlertTriangle, FileText } from "lucide-react";
 import {
   CANCELLATION_POLICY_COPY,
   PRICING_TRUST_DISCLOSURE,
+  SAFETY_STANDARDS_COPY,
   TRUST_EVIDENCE_CLAIM,
 } from "@/config/trust-copy";
 
@@ -71,15 +72,9 @@ export default function PoliciesPage() {
                 <div>
                   <h3 className="mb-2 font-semibold">Required Vaccinations</h3>
                   <ul className="ml-6 list-disc space-y-1 text-muted-foreground">
-                    <li>
-                      Rabies (current within 1-3 years depending on vaccine
-                      type)
-                    </li>
-                    <li>
-                      DHPP - Distemper, Hepatitis, Parvovirus, Parainfluenza
-                      (annual)
-                    </li>
-                    <li>Bordetella - Kennel cough (every 6-12 months)</li>
+                    {SAFETY_STANDARDS_COPY.requiredVaccines.map((vaccine) => (
+                      <li key={vaccine}>{vaccine}</li>
+                    ))}
                   </ul>
                 </div>
                 <div>
@@ -92,9 +87,9 @@ export default function PoliciesPage() {
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
-                    Proof of vaccination must be provided before first visit.
-                    Vaccinations must be administered at least 2 weeks prior to
-                    check-in to be effective.
+                    {SAFETY_STANDARDS_COPY.vaccineRecordTiming} Vaccinations
+                    must be administered at least 2 weeks prior to check-in to
+                    be effective.
                   </AlertDescription>
                 </Alert>
               </CardContent>
@@ -137,6 +132,14 @@ export default function PoliciesPage() {
                     Dogs over 7 months of age should be spayed or neutered
                     unless your veterinarian has advised otherwise. This helps
                     maintain a calm, safe boarding environment.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="mb-2 font-semibold">
+                    Supervision Protocols
+                  </h3>
+                  <p className="text-muted-foreground">
+                    {SAFETY_STANDARDS_COPY.supervisionProtocol}
                   </p>
                 </div>
                 <div>
@@ -310,10 +313,7 @@ export default function PoliciesPage() {
                     Emergency Veterinary Care
                   </h3>
                   <p className="text-muted-foreground">
-                    In the event your pet requires emergency veterinary care, we
-                    will make every reasonable effort to contact you
-                    immediately. If we cannot reach you, we will seek emergency
-                    care at the nearest veterinary hospital. All emergency
+                    {SAFETY_STANDARDS_COPY.emergencyProtocol} All emergency
                     veterinary costs are the owner&apos;s responsibility.
                   </p>
                 </div>

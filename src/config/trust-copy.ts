@@ -24,6 +24,20 @@ export const CANCELLATION_POLICY_COPY = {
     "Refunds are returned to the original payment method when payment processing is available.",
 } as const;
 
+export const SAFETY_STANDARDS_COPY = {
+  requiredVaccines: [
+    "Rabies",
+    "DHPP - Distemper, Hepatitis, Parvovirus, Parainfluenza",
+    "Bordetella",
+  ],
+  vaccineRecordTiming:
+    "Vaccination records must be submitted before confirmation and kept current for every stay.",
+  supervisionProtocol:
+    "Owner-on-site supervision, camera-monitored safety, no overcrowded group handling, and structured rest, feeding, medication, and special-instruction routines.",
+  emergencyProtocol:
+    "If emergency care is needed, we contact the owner immediately when reachable and seek veterinary care when urgent treatment cannot wait.",
+} as const;
+
 export const BOOKING_POLICY_ACKNOWLEDGMENT =
   "I have reviewed the Terms, Privacy Policy, cancellation policy, vaccination requirements, emergency-care authorization, and pricing disclosure before requesting confirmation.";
 

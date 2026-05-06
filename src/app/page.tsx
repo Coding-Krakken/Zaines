@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Star } from "lucide-react";
+import { SAFETY_STANDARDS_COPY } from "@/config/trust-copy";
 
 export const metadata: Metadata = {
   title: "Private Dog Boarding Syracuse",
@@ -152,6 +153,13 @@ export default function Home() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
+                    <span>
+                      Rabies, DHPP, and Bordetella records required before
+                      confirmation
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
                     <span>Structured feeding and rest windows</span>
                   </li>
                   <li className="flex items-start gap-2">
@@ -162,7 +170,7 @@ export default function Home() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                    <span>Medication and special instructions tracked</span>
+                    <span>{SAFETY_STANDARDS_COPY.emergencyProtocol}</span>
                   </li>
                 </ul>
                 <Link

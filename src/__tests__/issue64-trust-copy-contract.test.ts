@@ -7,6 +7,7 @@ import {
   FORBIDDEN_TRUST_COPY_PATTERNS,
   PRICING_TRUST_DISCLOSURE,
   PRIVACY_SECURITY_DISCLOSURE,
+  SAFETY_STANDARDS_COPY,
   TRUST_EVIDENCE_CLAIM,
   TRUST_PROFILE_EVIDENCE,
 } from "@/config/trust-copy";
@@ -21,6 +22,7 @@ const trustCriticalFiles = [
   "src/app/terms/page.tsx",
   "src/app/privacy/page.tsx",
   "src/app/policies/page.tsx",
+  "src/app/page.tsx",
   "src/app/api/bookings/route.ts",
   "src/lib/booking/pricing.ts",
   "src/lib/validations/booking-wizard.ts",
@@ -89,6 +91,28 @@ describe("Issue #64 trust and safety evidence layer", () => {
     expect(BOOKING_POLICY_ACKNOWLEDGMENT).toContain("Privacy Policy");
     expect(BOOKING_POLICY_ACKNOWLEDGMENT).toContain("cancellation policy");
     expect(BOOKING_POLICY_ACKNOWLEDGMENT).toContain("vaccination requirements");
+  });
+
+  it("anchors safety standards to vaccine, supervision, and emergency protocols", () => {
+    expect(SAFETY_STANDARDS_COPY.requiredVaccines).toEqual(
+      expect.arrayContaining([
+        "Rabies",
+        expect.stringContaining("DHPP"),
+        "Bordetella",
+      ]),
+    );
+    expect(SAFETY_STANDARDS_COPY.vaccineRecordTiming).toContain(
+      "before confirmation",
+    );
+    expect(SAFETY_STANDARDS_COPY.supervisionProtocol).toContain(
+      "Owner-on-site supervision",
+    );
+    expect(SAFETY_STANDARDS_COPY.supervisionProtocol).toContain(
+      "camera-monitored safety",
+    );
+    expect(SAFETY_STANDARDS_COPY.emergencyProtocol).toContain(
+      "veterinary care",
+    );
   });
 
   it("prevents unsupported or contradictory trust-critical copy from returning", () => {
