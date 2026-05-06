@@ -16,9 +16,11 @@ const hasDatabase = isDatabaseConfigured();
 const hasResendProviderConfig =
   Boolean(process.env.AUTH_RESEND_KEY || process.env.RESEND_API_KEY) &&
   Boolean(process.env.EMAIL_FROM);
+const useDatabaseSessions =
+  process.env.AUTH_ENABLE_DATABASE_SESSIONS === "true" && hasDatabase;
 
 const providers: NonNullable<NextAuthConfig["providers"]> = [
-  ...(hasDatabase && hasResendProviderConfig
+  ...(useDatabaseSessions && hasResendProviderConfig
     ? [
         Resend({
           from: process.env.EMAIL_FROM || "noreply@pawfectstays.com",
@@ -44,7 +46,7 @@ const providers: NonNullable<NextAuthConfig["providers"]> = [
 ];
 
 export const authConfig: NextAuthConfig = {
-  ...(hasDatabase ? { adapter: PrismaAdapter(prisma) } : {}),
+  ...(useDatabaseSessions ? { adapter: PrismaAdapter(prisma) } : {}),
 
   // Required for Vercel / AWS Lambda deployments: allows NextAuth to trust
   // the x-forwarded-host header when computing cookie domains during the
@@ -99,7 +101,7 @@ export const authConfig: NextAuthConfig = {
     },
   },
   session: {
-    strategy: hasDatabase ? "database" : "jwt",
+    strategy: useDatabaseSessions ? "database" : "jwt",
   },
   debug: process.env.NODE_ENV === "development",
 };
