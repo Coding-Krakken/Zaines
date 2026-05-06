@@ -1,7 +1,8 @@
+import { PRICING_TRUST_DISCLOSURE } from "@/config/trust-copy";
+
 export const BOOKING_PRICING_CURRENCY = "USD";
 export const BOOKING_PRICING_MODEL_LABEL = "Pre-confirmation estimate";
-export const BOOKING_PRICING_DISCLOSURE =
-  "Total price is shown before confirmation with no hidden fees or surprise add-ons.";
+export const BOOKING_PRICING_DISCLOSURE = PRICING_TRUST_DISCLOSURE;
 
 export function calculateBookingPrice(
   checkIn: string,

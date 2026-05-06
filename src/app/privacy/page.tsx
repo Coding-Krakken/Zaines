@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Lock, Eye, UserCheck, Database, Mail } from "lucide-react";
+import { PRIVACY_SECURITY_DISCLOSURE } from "@/config/trust-copy";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Zaine's Stay & Play",
@@ -66,8 +67,8 @@ export default function PrivacyPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  All data is encrypted and stored securely using
-                  industry-standard security measures.
+                  Payment details are handled by Stripe, and booking data is
+                  protected with access controls and secure transmission.
                 </p>
               </CardContent>
             </Card>
@@ -252,13 +253,18 @@ export default function PrivacyPage() {
               </p>
               <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
                 <li>SSL/TLS encryption for data transmission</li>
-                <li>Encrypted storage of sensitive information</li>
-                <li>Regular security audits and vulnerability assessments</li>
+                <li>Stripe payment processing for card details</li>
                 <li>
                   Restricted access to personal information (need-to-know basis)
                 </li>
-                <li>Employee training on data privacy and security</li>
+                <li>
+                  Booking, health, and message data used only for care,
+                  operations, safety, and customer communication
+                </li>
               </ul>
+              <p className="mt-4 text-muted-foreground">
+                {PRIVACY_SECURITY_DISCLOSURE}
+              </p>
               <p className="mt-4 text-sm text-muted-foreground">
                 However, no method of transmission over the internet or
                 electronic storage is 100% secure. While we strive to protect

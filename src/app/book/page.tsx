@@ -12,6 +12,10 @@ import { Stepper } from "@/components/Stepper";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
+import {
+  PRICING_TRUST_DISCLOSURE,
+  TRUST_EVIDENCE_CLAIM,
+} from "@/config/trust-copy";
 
 type BookingValidationPricing = {
   subtotal: number;
@@ -107,6 +111,9 @@ export default function BookPage() {
           wizardData.waiver?.medicalAuthorizationAccepted,
         ),
         photoReleaseAccepted: Boolean(wizardData.waiver?.photoReleaseAccepted),
+        policyAcknowledgmentAccepted: Boolean(
+          wizardData.waiver?.policyAcknowledgmentAccepted,
+        ),
         signature: wizardData.waiver?.signature || "pending-signature",
       },
     };
@@ -210,13 +217,10 @@ export default function BookPage() {
             </Button>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
-            Only 3 private suites, owner onsite, camera-monitored safety, no
-            harsh chemicals, and premium but fair pricing with no hidden fees.
+            {TRUST_EVIDENCE_CLAIM}
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            You see a clear total before confirmation with no surprise add-ons.
-            Total price is shown before confirmation with no hidden fees or
-            surprise add-ons.
+            {PRICING_TRUST_DISCLOSURE}
           </p>
         </div>
 
@@ -298,7 +302,9 @@ export default function BookPage() {
                           variant="outline"
                           size="sm"
                           onClick={() =>
-                            setQuoteRetryNonce((currentValue) => currentValue + 1)
+                            setQuoteRetryNonce(
+                              (currentValue) => currentValue + 1,
+                            )
                           }
                         >
                           Retry pricing validation

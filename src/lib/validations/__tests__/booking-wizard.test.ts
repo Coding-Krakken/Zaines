@@ -88,6 +88,7 @@ describe("Validation Schemas", () => {
       liabilityAccepted: true,
       medicalAuthorizationAccepted: true,
       photoReleaseAccepted: true,
+      policyAcknowledgmentAccepted: true,
       signature: "data:image/png;base64,...",
       timestamp: new Date("2026-02-17T00:24:24.022Z"),
     };

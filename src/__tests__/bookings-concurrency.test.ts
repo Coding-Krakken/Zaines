@@ -244,6 +244,7 @@ function createBookingRequest(suiteType: string = "standard") {
         liabilityAccepted: true,
         medicalAuthorizationAccepted: true,
         photoReleaseAccepted: true,
+        policyAcknowledgmentAccepted: true,
         signature: "Test User Signature Data",
       },
     }),

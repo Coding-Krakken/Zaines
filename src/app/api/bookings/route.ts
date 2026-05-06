@@ -130,9 +130,10 @@ const bookingSchema = z.object({
     )
     .optional(),
   waiver: z.object({
-    liabilityAccepted: z.boolean(),
-    medicalAuthorizationAccepted: z.boolean(),
-    photoReleaseAccepted: z.boolean(),
+    liabilityAccepted: z.literal(true),
+    medicalAuthorizationAccepted: z.literal(true),
+    photoReleaseAccepted: z.literal(true),
+    policyAcknowledgmentAccepted: z.literal(true),
     signature: z.string().min(10),
   }),
 });

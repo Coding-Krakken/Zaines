@@ -69,7 +69,16 @@ const routeAuditCases: RouteAuditCase[] = [
 
 function readRouteSource(relativePath: string) {
   const absolutePath = path.join(process.cwd(), relativePath);
-  return fs.readFileSync(absolutePath, "utf8").toLowerCase();
+  const source = fs.readFileSync(absolutePath, "utf8");
+
+  if (source.includes("@/config/trust-copy")) {
+    return `${source}\n${fs.readFileSync(
+      path.join(process.cwd(), "src/config/trust-copy.ts"),
+      "utf8",
+    )}`.toLowerCase();
+  }
+
+  return source.toLowerCase();
 }
 
 describe("Issue #31 CP1 route copy consistency", () => {

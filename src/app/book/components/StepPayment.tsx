@@ -22,6 +22,10 @@ import {
   stepPaymentSchema,
   type StepPaymentData,
 } from "@/lib/validations/booking-wizard";
+import {
+  BOOKING_PRICING_DISCLOSURE,
+  BOOKING_PRICING_MODEL_LABEL,
+} from "@/lib/booking/pricing";
 import { getStripe } from "@/lib/stripe-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -82,14 +86,11 @@ interface StepPaymentProps {
       liabilityAccepted: boolean;
       medicalAuthorizationAccepted: boolean;
       photoReleaseAccepted: boolean;
+      policyAcknowledgmentAccepted: boolean;
       signature: string;
     };
   } | null;
 }
-
-const BOOKING_PRICING_MODEL_LABEL = "Pre-confirmation estimate";
-const BOOKING_PRICING_DISCLOSURE =
-  "Total price is shown before confirmation with no hidden fees or surprise add-ons.";
 
 function PricingDisclosureCard({
   subtotal,
@@ -130,14 +131,17 @@ function PricingDisclosureCard({
         <Checkbox
           id="pricing-disclosure"
           checked={pricingDisclosureAccepted}
-          onCheckedChange={(checked) => onPricingDisclosureChange(Boolean(checked))}
+          onCheckedChange={(checked) =>
+            onPricingDisclosureChange(Boolean(checked))
+          }
         />
         <Label
           htmlFor="pricing-disclosure"
           className="cursor-pointer text-sm leading-relaxed"
         >
-          I reviewed this pre-confirmation estimate and understand there are
-          no hidden fees or surprise add-ons.
+          I reviewed this pre-confirmation estimate and understand no hidden
+          fees, no surprise add-ons, or other undisclosed charges are introduced
+          at checkout.
         </Label>
       </div>
     </>
@@ -241,7 +245,8 @@ export function StepPayment({
   const hasAutoInitAttempted = useRef(Boolean(data.bookingId));
   const subtotal = Math.round((pricingQuote?.subtotal || 0) * 100) / 100;
   const tax = Math.round((pricingQuote?.tax || 0) * 100) / 100;
-  const totalWithTax = Math.round((pricingQuote?.total || totalAmount) * 100) / 100;
+  const totalWithTax =
+    Math.round((pricingQuote?.total || totalAmount) * 100) / 100;
   const disclosure = pricingQuote?.disclosure || BOOKING_PRICING_DISCLOSURE;
 
   const handleDisclosureChange = (accepted: boolean) => {
@@ -326,7 +331,9 @@ export function StepPayment({
       };
 
       if (Math.abs(payload.pricing.total - pricingQuote.total) > 0.01) {
-        throw new Error("Pricing changed during booking. Please review and retry.");
+        throw new Error(
+          "Pricing changed during booking. Please review and retry.",
+        );
       }
 
       const nextBookingId = payload.booking.id;
@@ -374,13 +381,25 @@ export function StepPayment({
   }, [bookingPayload, onUpdate, pricingQuote]);
 
   useEffect(() => {
-    if (bookingId || isLoading || hasAutoInitAttempted.current) {
+    if (
+      bookingId ||
+      isLoading ||
+      hasAutoInitAttempted.current ||
+      !bookingPayload ||
+      !pricingQuote
+    ) {
       return;
     }
 
     hasAutoInitAttempted.current = true;
     void initializeBookingAndPayment();
-  }, [bookingId, isLoading, initializeBookingAndPayment]);
+  }, [
+    bookingId,
+    bookingPayload,
+    isLoading,
+    initializeBookingAndPayment,
+    pricingQuote,
+  ]);
 
   if (!bookingId) {
     return (
@@ -388,7 +407,9 @@ export function StepPayment({
         <CardContent className="flex flex-col items-center justify-center space-y-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p>
-            {isLoading ? "Preparing your booking..." : "Preparing secure checkout..."}
+            {isLoading
+              ? "Preparing your booking..."
+              : "Preparing secure checkout..."}
           </p>
           {bookingError ? (
             <p className="text-sm text-destructive">{bookingError}</p>
@@ -436,7 +457,10 @@ export function StepPayment({
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>
-            <Button onClick={finalizeBooking} disabled={!pricingDisclosureAccepted}>
+            <Button
+              onClick={finalizeBooking}
+              disabled={!pricingDisclosureAccepted}
+            >
               Complete Booking
               <CheckCircle2 className="ml-2 h-4 w-4" />
             </Button>

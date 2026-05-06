@@ -63,18 +63,20 @@ const {
         },
       ),
       payment: {
-        findFirst: vi.fn(async (args?: { where?: { stripePaymentId?: string } }) => {
-          if (args?.where?.stripePaymentId) {
-            return {
-              id: "payment-001",
-              bookingId: "booking-contract-001",
-              stripePaymentId: args.where.stripePaymentId,
-              status: state.paymentStatus,
-            };
-          }
+        findFirst: vi.fn(
+          async (args?: { where?: { stripePaymentId?: string } }) => {
+            if (args?.where?.stripePaymentId) {
+              return {
+                id: "payment-001",
+                bookingId: "booking-contract-001",
+                stripePaymentId: args.where.stripePaymentId,
+                status: state.paymentStatus,
+              };
+            }
 
-          return null;
-        }),
+            return null;
+          },
+        ),
         create: vi.fn(async () => ({ id: "payment-001" })),
         updateMany: vi.fn(async (args?: { data?: { status?: string } }) => {
           if (args?.data?.status === "succeeded") {
@@ -130,16 +132,19 @@ describe("booking flow contract", () => {
   });
 
   it("keeps quote totals and created booking totals consistent", async () => {
-    const quoteRequest = new NextRequest("http://localhost/api/bookings/validate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        checkIn: "2026-06-10",
-        checkOut: "2026-06-13",
-        suiteType: "deluxe",
-        petCount: 1,
-      }),
-    });
+    const quoteRequest = new NextRequest(
+      "http://localhost/api/bookings/validate",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          checkIn: "2026-06-10",
+          checkOut: "2026-06-13",
+          suiteType: "deluxe",
+          petCount: 1,
+        }),
+      },
+    );
 
     const quoteResponse = await validateBooking(quoteRequest);
     const quoteBody = await quoteResponse.json();
@@ -166,6 +171,7 @@ describe("booking flow contract", () => {
           liabilityAccepted: true,
           medicalAuthorizationAccepted: true,
           photoReleaseAccepted: true,
+          policyAcknowledgmentAccepted: true,
           signature: "Morgan Lee",
         },
       }),

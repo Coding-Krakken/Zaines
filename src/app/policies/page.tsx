@@ -12,6 +12,12 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle2, XCircle, AlertTriangle, FileText } from "lucide-react";
+import {
+  CANCELLATION_POLICY_COPY,
+  PRICING_TRUST_DISCLOSURE,
+  SAFETY_STANDARDS_COPY,
+  TRUST_EVIDENCE_CLAIM,
+} from "@/config/trust-copy";
 
 export const metadata: Metadata = {
   title: "Policies | Zaine's Stay & Play",
@@ -35,8 +41,10 @@ export default function PoliciesPage() {
               all our guests
             </p>
             <p className="mb-4 text-sm text-muted-foreground md:text-base">
-              We use premium but fair pricing with clear totals before
-              confirmation, no hidden fees, and no surprise add-ons.
+              {TRUST_EVIDENCE_CLAIM}
+            </p>
+            <p className="mb-4 text-sm text-muted-foreground md:text-base">
+              {PRICING_TRUST_DISCLOSURE}
             </p>
             <p className="text-sm text-muted-foreground">
               Last updated: February 6, 2026
@@ -64,15 +72,9 @@ export default function PoliciesPage() {
                 <div>
                   <h3 className="mb-2 font-semibold">Required Vaccinations</h3>
                   <ul className="ml-6 list-disc space-y-1 text-muted-foreground">
-                    <li>
-                      Rabies (current within 1-3 years depending on vaccine
-                      type)
-                    </li>
-                    <li>
-                      DHPP - Distemper, Hepatitis, Parvovirus, Parainfluenza
-                      (annual)
-                    </li>
-                    <li>Bordetella - Kennel cough (every 6-12 months)</li>
+                    {SAFETY_STANDARDS_COPY.requiredVaccines.map((vaccine) => (
+                      <li key={vaccine}>{vaccine}</li>
+                    ))}
                   </ul>
                 </div>
                 <div>
@@ -85,9 +87,9 @@ export default function PoliciesPage() {
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
-                    Proof of vaccination must be provided before first visit.
-                    Vaccinations must be administered at least 2 weeks prior to
-                    check-in to be effective.
+                    {SAFETY_STANDARDS_COPY.vaccineRecordTiming} Vaccinations
+                    must be administered at least 2 weeks prior to check-in to
+                    be effective.
                   </AlertDescription>
                 </Alert>
               </CardContent>
@@ -133,6 +135,14 @@ export default function PoliciesPage() {
                   </p>
                 </div>
                 <div>
+                  <h3 className="mb-2 font-semibold">
+                    Supervision Protocols
+                  </h3>
+                  <p className="text-muted-foreground">
+                    {SAFETY_STANDARDS_COPY.supervisionProtocol}
+                  </p>
+                </div>
+                <div>
                   <h3 className="mb-2 font-semibold">What We Check For</h3>
                   <p className="text-muted-foreground">
                     Upon arrival, our staff conducts a visual health assessment
@@ -162,7 +172,7 @@ export default function PoliciesPage() {
                       48+ Hours Notice
                     </h3>
                     <p className="text-sm text-green-800">
-                      Full refund - no questions asked
+                      {CANCELLATION_POLICY_COPY.fullRefund}
                     </p>
                   </div>
                   <div className="rounded-lg border-2 border-orange-200 bg-orange-50 p-4">
@@ -170,7 +180,7 @@ export default function PoliciesPage() {
                       24-48 Hours Notice
                     </h3>
                     <p className="text-sm text-orange-800">
-                      50% refund or full credit toward future visit
+                      {CANCELLATION_POLICY_COPY.partialRefund}
                     </p>
                   </div>
                   <div className="rounded-lg border-2 border-red-200 bg-red-50 p-4">
@@ -178,7 +188,7 @@ export default function PoliciesPage() {
                       Less than 24 Hours
                     </h3>
                     <p className="text-sm text-red-800">
-                      No refund, but credit available at management discretion
+                      {CANCELLATION_POLICY_COPY.noRefund}
                     </p>
                   </div>
                   <div className="rounded-lg border-2 border-gray-200 bg-gray-50 p-4">
@@ -186,15 +196,13 @@ export default function PoliciesPage() {
                       No-Show
                     </h3>
                     <p className="text-sm text-gray-800">
-                      Full charge applies, no refund or credit
+                      {CANCELLATION_POLICY_COPY.noShow}
                     </p>
                   </div>
                 </div>
                 <Alert>
                   <AlertDescription>
-                    Refunds are processed within 5-7 business days to the
-                    original payment method. Holiday bookings may be subject to
-                    different cancellation terms.
+                    {CANCELLATION_POLICY_COPY.processing}
                   </AlertDescription>
                 </Alert>
               </CardContent>
@@ -259,7 +267,8 @@ export default function PoliciesPage() {
                       processing
                     </li>
                     <li>
-                      Clear subtotal, tax, and total shown before confirmation
+                      Clear subtotal, applicable tax, selected care items, and
+                      total shown before confirmation
                     </li>
                   </ul>
                 </div>
@@ -304,19 +313,16 @@ export default function PoliciesPage() {
                     Emergency Veterinary Care
                   </h3>
                   <p className="text-muted-foreground">
-                    In the event your pet requires emergency veterinary care, we
-                    will make every reasonable effort to contact you
-                    immediately. If we cannot reach you, we will seek emergency
-                    care at the nearest veterinary hospital. All emergency
+                    {SAFETY_STANDARDS_COPY.emergencyProtocol} All emergency
                     veterinary costs are the owner&apos;s responsibility.
                   </p>
                 </div>
                 <div>
                   <h3 className="mb-2 font-semibold">Liability</h3>
                   <p className="text-muted-foreground">
-                    While we maintain high safety standards and provide constant
-                    supervision, dogs at play can occasionally sustain minor
-                    injuries (scratches, scrapes). We will notify you of any
+                    While we follow safety standards and provide supervised
+                    care, dogs can occasionally sustain minor injuries such as
+                    scratches or scrapes. We will notify you of observed
                     injuries and provide necessary care. Zaine's Stay & Play is
                     not liable for injuries resulting from normal dog behavior.
                   </p>
@@ -348,7 +354,7 @@ export default function PoliciesPage() {
                     Please Bring:
                   </h3>
                   <ul className="ml-6 list-disc space-y-1 text-muted-foreground">
-                    <li>Eno food for entire stay (plus 1-2 extra days)</li>
+                    <li>Enough food for entire stay (plus 1-2 extra days)</li>
                     <li>
                       Any medications in original packaging with clear
                       instructions
@@ -395,8 +401,7 @@ export default function PoliciesPage() {
                 you&apos;re comfortable with our terms.
               </p>
               <p className="mt-4 text-muted-foreground">
-                Total price is shown before confirmation with no hidden fees or
-                surprise add-ons, and our pricing remains premium but fair.
+                {PRICING_TRUST_DISCLOSURE}
               </p>
             </CardContent>
           </Card>
@@ -414,7 +419,7 @@ export default function PoliciesPage() {
           </p>
           <p className="mb-6 text-sm opacity-90 md:text-base">
             Premium but fair pricing is disclosed before confirmation with no
-            hidden fees and no surprise add-ons.
+            hidden fees, no surprise add-ons, or other undisclosed charges.
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" variant="secondary" asChild>

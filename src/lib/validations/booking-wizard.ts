@@ -82,13 +82,10 @@ export const stepPetsSchema = z
       )
       .default([]),
   })
-  .refine(
-    (data) => data.selectedPetIds.length + data.newPets.length > 0,
-    {
-      message: "Please select or add at least one pet",
-      path: ["selectedPetIds"],
-    },
-  )
+  .refine((data) => data.selectedPetIds.length + data.newPets.length > 0, {
+    message: "Please select or add at least one pet",
+    path: ["selectedPetIds"],
+  })
   .refine(
     (data) => {
       // Ensure all selected pets (existing + new) have vaccines uploaded
@@ -103,14 +100,17 @@ export const stepPetsSchema = z
 
 // Step 5: Waiver & E-Signature
 export const stepWaiverSchema = z.object({
-  liabilityAccepted: z.boolean().refine((val) => val === true, {
+  liabilityAccepted: z.literal(true, {
     message: "You must accept the liability waiver",
   }),
-  medicalAuthorizationAccepted: z.boolean().refine((val) => val === true, {
+  medicalAuthorizationAccepted: z.literal(true, {
     message: "You must authorize emergency medical treatment",
   }),
-  photoReleaseAccepted: z.boolean().refine((val) => val === true, {
+  photoReleaseAccepted: z.literal(true, {
     message: "You must consent to photo/video use",
+  }),
+  policyAcknowledgmentAccepted: z.literal(true, {
+    message: "You must acknowledge the booking policies",
   }),
   signature: z.string().min(10, "Please provide a signature"),
   ipAddress: z
@@ -160,6 +160,10 @@ export const createBookingSchema = z.object({
   // Step 5 data
   waiver: z.object({
     signature: z.string(),
+    liabilityAccepted: z.literal(true),
+    medicalAuthorizationAccepted: z.literal(true),
+    photoReleaseAccepted: z.literal(true),
+    policyAcknowledgmentAccepted: z.literal(true),
     ipAddress: z.string().optional(),
     userAgent: z.string().optional(),
   }),
