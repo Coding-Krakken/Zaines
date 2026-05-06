@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { absoluteUrl } from "@/lib/seo";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -8,6 +9,7 @@ export default function robots(): MetadataRoute.Robots {
       disallow: [
         "/api/",
         "/dashboard/",
+        "/admin/",
         "/auth/",
         "/book/confirmation",
         "/_next/",
@@ -15,6 +17,6 @@ export default function robots(): MetadataRoute.Robots {
         "/preview-themes/",
       ],
     },
-    sitemap: "https://zaines.vercel.app/sitemap.xml",
+    sitemap: absoluteUrl("/sitemap.xml"),
   };
 }

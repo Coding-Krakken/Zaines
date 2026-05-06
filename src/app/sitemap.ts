@@ -1,14 +1,13 @@
 import type { MetadataRoute } from "next";
-
-const BASE_URL = "https://zaines.vercel.app";
+import { absoluteUrl, publicSeoRoutes } from "@/lib/seo";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const routes = ["/", "/about", "/pricing", "/book", "/contact"];
+  const now = new Date();
 
-  return routes.map((route) => ({
-    url: `${BASE_URL}${route}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly",
-    priority: route === "/" ? 1 : 0.8,
+  return publicSeoRoutes.map((route) => ({
+    url: absoluteUrl(route.route),
+    lastModified: now,
+    changeFrequency: route.changeFrequency,
+    priority: route.priority,
   }));
 }
