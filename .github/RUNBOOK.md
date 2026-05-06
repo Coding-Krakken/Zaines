@@ -173,6 +173,117 @@ curl -s https://api.vercel.com/v6/deployments?projectId=$PROJECT_ID -H "Authoriz
 
 ---
 
+### INC-006: High Error Rate at Rollout Gate (Launch-Specific)
+
+**Severity:** SEV-1 (Auto-Rollback Trigger)  
+**Trigger:** Error rate >1% for 5 minutes during Phase 1-3  
+**Likely Cause:** Code defect introduced in deployment
+
+**Symptoms:**
+- Sentry reporting >50 errors per minute
+- Error rate dashboard shows spike above 1%
+- PagerDuty alert: "High Error Rate Detected"
+
+**Diagnosis:**
+1. Check Sentry top errors → identify pattern (validation error, timeout, etc.)
+2. Check if error is in our code or external service (Square, CDN)
+3. Compare to previous deployment → was this working before?
+
+**Resolution:**
+- **Auto-Action:** Vercel instant rollback triggered automatically
+- **Manual:** If not auto-triggered, execute "Option 1: Vercel Instant Rollback" (see below)
+- **Post-Rollback:** Verify error rate dropped below 0.5%
+
+**Prevention:** Load testing, error path testing, canary phase (Phase 1)
+
+**Full Details:** See [`docs/LAUNCH_INCIDENT_RUNBOOKS.md#inc-006`](docs/LAUNCH_INCIDENT_RUNBOOKS.md#inc-006)
+
+---
+
+### INC-007: Checkout Success Rate Drops (Launch-Specific)
+
+**Severity:** SEV-1 (Auto-Rollback Trigger)  
+**Trigger:** Checkout success <95% for 5 minutes  
+**Likely Cause:** Payment processing broken, validation bug, or Square API issue
+
+**Symptoms:**
+- Customers report: "Cannot complete purchase"
+- Checkout success rate dashboard shows drop <95%
+- Sentry showing payment validation errors
+
+**Diagnosis:**
+1. Check if issue is in our checkout code (validation errors)
+2. Check Square status page (API outage?)
+3. Check if error is code vs infrastructure
+
+**Resolution:**
+- **If our code:** Rollback via "Option 1: Vercel Instant Rollback"
+- **If Square outage:** Display maintenance banner, wait for Square to recover
+- **Post-Incident:** Calculate revenue impact, file post-incident review
+
+**Prevention:** Checkout funnel testing, load testing on payment path, 24/7 Square API monitoring
+
+**Full Details:** See [`docs/LAUNCH_INCIDENT_RUNBOOKS.md#inc-007`](docs/LAUNCH_INCIDENT_RUNBOOKS.md#inc-007)
+
+---
+
+### INC-008: Performance Degradation During Traffic Spike (Launch-Specific)
+
+**Severity:** SEV-1 (if sustained >10 min, evaluate rollback)  
+**Trigger:** P95 latency >3s for 5+ minutes  
+**Likely Cause:** Resource exhaustion, database slow, or external API latency
+
+**Symptoms:**
+- Users report "Site is very slow"
+- Vercel Analytics shows LCP >5s
+- P95 latency spike: 1.5s → 4.2s
+- No error spike (errors <0.1%)
+
+**Diagnosis:**
+1. Is it frontend (bundle size) or backend (slow API)?
+2. Check database performance (slow queries?)
+3. Check Square API latency
+4. Check server resource usage (CPU, memory)
+
+**Resolution:**
+- **Quick Fix:** Restart Vercel deployment (clears cache/memory)
+- **If sustained:** Investigate root cause, may need rollback
+- **If normal traffic spike:** No action needed, monitor trends
+
+**Prevention:** Load testing at expected traffic, performance budgets, database indices
+
+**Full Details:** See [`docs/LAUNCH_INCIDENT_RUNBOOKS.md#inc-008`](docs/LAUNCH_INCIDENT_RUNBOOKS.md#inc-008)
+
+---
+
+### INC-009: Security Anomaly Post-Launch (Launch-Specific)
+
+**Severity:** SEV-1 (Potential PCI Impact)  
+**Trigger:** Security alert, credential exposure, or code injection attempt  
+**Likely Cause:** Vulnerability in code or unauthorized access attempt
+
+**Symptoms:**
+- Sentry detects `CredentialExposure` or `CodeInjection`
+- Security scanning tool alerts anomalous activity
+- Manual report of suspicious behavior
+
+**Immediate Actions (Do All):**
+1. **Assess:** Is this confirmed breach or potential vulnerability?
+2. **Contain:** Revoke any exposed credentials immediately
+3. **Rollback:** If PCI boundary violated, rollback IMMEDIATELY
+4. **Escalate:** Notify Security Engineer and Incident Commander
+
+**Resolution:**
+- **If PCI violation (card data exposed):** Auto-rollback, begin breach notification
+- **If code vulnerability (no exploitation evidence):** Hotfix + deploy, monitor
+- **If external attack:** Activate rate limiting, block IP if needed
+
+**Prevention:** Secrets scanning, dependency scanning, rate limiting, input validation
+
+**Full Details:** See [`docs/LAUNCH_INCIDENT_RUNBOOKS.md#inc-009`](docs/LAUNCH_INCIDENT_RUNBOOKS.md#inc-009)
+
+---
+
 ## Rollback Procedures
 
 ### Option 1: Vercel Instant Rollback (Preferred)
