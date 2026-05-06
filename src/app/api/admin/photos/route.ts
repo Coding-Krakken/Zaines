@@ -1,23 +1,27 @@
-import { randomUUID } from 'crypto';
-import { mkdir, writeFile } from 'fs/promises';
-import path from 'path';
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { validateFile } from '@/lib/file-upload';
-import { prisma, isDatabaseConfigured } from '@/lib/prisma';
+import { randomUUID } from "crypto";
+import { mkdir, writeFile } from "fs/promises";
+import path from "path";
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { validateFile } from "@/lib/file-upload";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/jpg'];
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/jpg"];
 const IMAGE_MAX_SIZE = 5 * 1024 * 1024;
 
 async function requireStaffSession() {
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
+    return {
+      error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    };
   }
 
   const role = (session.user as { id: string; role?: string }).role;
-  if (!role || !['staff', 'admin'].includes(role)) {
-    return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
+  if (!role || !["staff", "admin"].includes(role)) {
+    return {
+      error: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+    };
   }
 
   return { session };
@@ -27,17 +31,17 @@ async function storeFile(file: File, bookingId: string): Promise<string> {
   const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
 
   if (blobToken) {
-    const { put } = await import('@vercel/blob');
+    const { put } = await import("@vercel/blob");
     const key = `photos/${bookingId}/${Date.now()}-${file.name}`;
-    const blob = await put(key, file, { access: 'public', token: blobToken });
+    const blob = await put(key, file, { access: "public", token: blobToken });
     return blob.url;
   }
 
   // Local fallback for development/test environments.
-  const localDir = path.join(process.cwd(), 'public', 'uploads', 'pet-photos');
+  const localDir = path.join(process.cwd(), "public", "uploads", "pet-photos");
   await mkdir(localDir, { recursive: true });
 
-  const extension = path.extname(file.name) || '.jpg';
+  const extension = path.extname(file.name) || ".jpg";
   const localName = `${Date.now()}-${randomUUID()}${extension}`;
   const buffer = Buffer.from(await file.arrayBuffer());
   await writeFile(path.join(localDir, localName), buffer);
@@ -55,15 +59,18 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ photos: [] });
   }
 
-  const bookingId = request.nextUrl.searchParams.get('bookingId')?.trim();
-  const take = Math.min(Number(request.nextUrl.searchParams.get('limit') ?? '30') || 30, 100);
+  const bookingId = request.nextUrl.searchParams.get("bookingId")?.trim();
+  const take = Math.min(
+    Number(request.nextUrl.searchParams.get("limit") ?? "30") || 30,
+    100,
+  );
 
   const photos = await prisma.petPhoto.findMany({
     where: bookingId
       ? { bookingId }
       : {
           booking: {
-            status: 'checked_in',
+            status: "checked_in",
           },
         },
     include: {
@@ -74,7 +81,7 @@ export async function GET(request: NextRequest) {
         select: { id: true, bookingNumber: true, status: true },
       },
     },
-    orderBy: { uploadedAt: 'desc' },
+    orderBy: { uploadedAt: "desc" },
     take,
   });
 
@@ -90,28 +97,37 @@ export async function POST(request: NextRequest) {
   const session = authResult.session;
 
   if (!isDatabaseConfigured()) {
-    return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+    return NextResponse.json(
+      { error: "Database not configured" },
+      { status: 503 },
+    );
   }
 
   const formData = await request.formData().catch(() => null);
-  const bookingId = formData?.get('bookingId');
-  const petId = formData?.get('petId');
-  const caption = formData?.get('caption');
-  const file = formData?.get('file');
+  const bookingId = formData?.get("bookingId");
+  const petId = formData?.get("petId");
+  const caption = formData?.get("caption");
+  const file = formData?.get("file");
 
-  if (!bookingId || typeof bookingId !== 'string') {
-    return NextResponse.json({ error: 'bookingId is required' }, { status: 400 });
+  if (!bookingId || typeof bookingId !== "string") {
+    return NextResponse.json(
+      { error: "bookingId is required" },
+      { status: 400 },
+    );
   }
-  if (!petId || typeof petId !== 'string') {
-    return NextResponse.json({ error: 'petId is required' }, { status: 400 });
+  if (!petId || typeof petId !== "string") {
+    return NextResponse.json({ error: "petId is required" }, { status: 400 });
   }
   if (!(file instanceof File)) {
-    return NextResponse.json({ error: 'file is required' }, { status: 400 });
+    return NextResponse.json({ error: "file is required" }, { status: 400 });
   }
 
   const validation = validateFile(file, ALLOWED_IMAGE_TYPES, IMAGE_MAX_SIZE);
   if (!validation.valid) {
-    return NextResponse.json({ error: validation.error ?? 'Invalid file' }, { status: 400 });
+    return NextResponse.json(
+      { error: validation.error ?? "Invalid file" },
+      { status: 400 },
+    );
   }
 
   const booking = await prisma.booking.findUnique({
@@ -124,12 +140,14 @@ export async function POST(request: NextRequest) {
   });
 
   if (!booking) {
-    return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+    return NextResponse.json({ error: "Booking not found" }, { status: 404 });
   }
 
-  if (booking.status !== 'checked_in') {
+  if (booking.status !== "checked_in") {
     return NextResponse.json(
-      { error: `Cannot upload photo for booking with status: ${booking.status}` },
+      {
+        error: `Cannot upload photo for booking with status: ${booking.status}`,
+      },
       { status: 409 },
     );
   }
@@ -137,20 +155,21 @@ export async function POST(request: NextRequest) {
   const petIsOnBooking = booking.bookingPets.some((bp) => bp.petId === petId);
   if (!petIsOnBooking) {
     return NextResponse.json(
-      { error: 'Pet is not assigned to this booking' },
+      { error: "Pet is not assigned to this booking" },
       { status: 409 },
     );
   }
 
   const imageUrl = await storeFile(file, bookingId);
-  const uploadedBy = session.user!.name ?? session.user!.email ?? session.user!.id;
+  const uploadedBy =
+    session.user!.name ?? session.user!.email ?? session.user!.id;
 
   const photo = await prisma.petPhoto.create({
     data: {
       bookingId,
       petId,
       imageUrl,
-      caption: typeof caption === 'string' ? caption.trim() || null : null,
+      caption: typeof caption === "string" ? caption.trim() || null : null,
       uploadedBy,
     },
     include: {

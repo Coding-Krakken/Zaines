@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 // Lightweight edge-compatible guard. The next-auth database session strategy
 // cannot be verified in the Edge runtime (no Prisma). We gate on the presence
@@ -7,23 +7,24 @@ import type { NextRequest } from 'next/server';
 // server side, so this is defence-in-depth only.
 export function middleware(req: NextRequest) {
   const isAdminRoute =
-    req.nextUrl.pathname.startsWith('/admin') ||
-    req.nextUrl.pathname.startsWith('/api/admin');
+    req.nextUrl.pathname.startsWith("/admin") ||
+    req.nextUrl.pathname.startsWith("/api/admin");
 
   if (isAdminRoute) {
     const e2eBypassEnabled =
-      process.env.PLAYWRIGHT_TEST === '1' && req.cookies.get('e2e-staff')?.value === '1';
+      process.env.PLAYWRIGHT_TEST === "1" &&
+      req.cookies.get("e2e-staff")?.value === "1";
     if (e2eBypassEnabled) {
       return NextResponse.next();
     }
 
     const sessionCookie =
-      req.cookies.get('authjs.session-token') ??
-      req.cookies.get('__Secure-authjs.session-token');
+      req.cookies.get("authjs.session-token") ??
+      req.cookies.get("__Secure-authjs.session-token");
 
     if (!sessionCookie) {
-      const signInUrl = new URL('/auth/signin', req.nextUrl.origin);
-      signInUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
+      const signInUrl = new URL("/auth/signin", req.nextUrl.origin);
+      signInUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
       return NextResponse.redirect(signInUrl);
     }
   }
@@ -32,5 +33,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/admin/:path*'],
+  matcher: ["/admin/:path*", "/api/admin/:path*"],
 };

@@ -104,8 +104,6 @@ export function StepPets({
     }
   }, [session]);
 
-  
-
   const handlePetSelection = (petId: string, checked: boolean) => {
     let updated: string[];
     if (checked) {
@@ -145,7 +143,9 @@ export function StepPets({
     // New-pet vaccine keys are index-based (new-0, new-1, ...). Clear and rebuild
     // these entries after a removal so validation state stays consistent.
     setVaccines((prev) => {
-      const existingPetVaccines = prev.filter((v) => !v.petId.startsWith("new-"));
+      const existingPetVaccines = prev.filter(
+        (v) => !v.petId.startsWith("new-"),
+      );
       const nextVaccines = [...existingPetVaccines];
 
       onUpdate({
@@ -363,7 +363,9 @@ export function StepPets({
               {newPets.map((pet, index) => {
                 const newPetVaccineId = `new-${index}`;
                 const vaccineInputId = `vaccine-new-${index}`;
-                const hasVaccine = vaccines.some((v) => v.petId === newPetVaccineId);
+                const hasVaccine = vaccines.some(
+                  (v) => v.petId === newPetVaccineId,
+                );
 
                 return (
                   <div
@@ -374,8 +376,8 @@ export function StepPets({
                       <div className="flex-1">
                         <div className="font-medium">{pet.name}</div>
                         <div className="text-sm text-muted-foreground">
-                          {pet.breed} • {pet.age} {pet.age === 1 ? "year" : "years"}{" "}
-                          • {pet.weight} lbs
+                          {pet.breed} • {pet.age}{" "}
+                          {pet.age === 1 ? "year" : "years"} • {pet.weight} lbs
                         </div>
                       </div>
                       <Button

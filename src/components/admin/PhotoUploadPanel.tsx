@@ -1,19 +1,27 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 
 type BookingOption = {
   id: string;
   bookingNumber: string;
   status: string;
   user: { name: string | null; email: string | null } | null;
-  bookingPets: Array<{ pet: { id: string; name: string; breed: string } | null }>;
+  bookingPets: Array<{
+    pet: { id: string; name: string; breed: string } | null;
+  }>;
 };
 
 type PhotoItem = {
@@ -26,25 +34,31 @@ type PhotoItem = {
   booking: { id: string; bookingNumber: string; status: string };
 };
 
-export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?: string }) {
+export function PhotoUploadPanel({
+  initialBookingId = "",
+}: {
+  initialBookingId?: string;
+}) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const [bookings, setBookings] = useState<BookingOption[]>([]);
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
 
-  const [bookingId, setBookingId] = useState('');
-  const [petId, setPetId] = useState('');
-  const [caption, setCaption] = useState('');
+  const [bookingId, setBookingId] = useState("");
+  const [petId, setPetId] = useState("");
+  const [caption, setCaption] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
   const activeBookings = useMemo(
-    () => bookings.filter((booking) => booking.status === 'checked_in'),
+    () => bookings.filter((booking) => booking.status === "checked_in"),
     [bookings],
   );
-  const selectedBooking = activeBookings.find((booking) => booking.id === bookingId);
+  const selectedBooking = activeBookings.find(
+    (booking) => booking.id === bookingId,
+  );
   const selectedPets = useMemo(
     () =>
       selectedBooking?.bookingPets
@@ -54,7 +68,7 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
   );
 
   const previewUrl = useMemo(() => {
-    if (!file) return '';
+    if (!file) return "";
     return URL.createObjectURL(file);
   }, [file]);
 
@@ -67,28 +81,36 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
   }, [previewUrl]);
 
   const activePetId = useMemo(() => {
-    if (!selectedPets.length) return '';
-    return selectedPets.some((p) => p.id === petId) ? petId : (selectedPets[0]?.id ?? '');
+    if (!selectedPets.length) return "";
+    return selectedPets.some((p) => p.id === petId)
+      ? petId
+      : (selectedPets[0]?.id ?? "");
   }, [petId, selectedPets]);
 
   async function loadData() {
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const [bookingsRes, photosRes] = await Promise.all([
-        fetch('/api/admin/bookings', { cache: 'no-store' }),
-        fetch('/api/admin/photos?limit=30', { cache: 'no-store' }),
+        fetch("/api/admin/bookings", { cache: "no-store" }),
+        fetch("/api/admin/photos?limit=30", { cache: "no-store" }),
       ]);
 
-      const bookingsData = (await bookingsRes.json()) as { bookings?: BookingOption[]; error?: string };
-      const photosData = (await photosRes.json()) as { photos?: PhotoItem[]; error?: string };
+      const bookingsData = (await bookingsRes.json()) as {
+        bookings?: BookingOption[];
+        error?: string;
+      };
+      const photosData = (await photosRes.json()) as {
+        photos?: PhotoItem[];
+        error?: string;
+      };
 
       if (!bookingsRes.ok) {
-        throw new Error(bookingsData.error ?? 'Unable to load bookings');
+        throw new Error(bookingsData.error ?? "Unable to load bookings");
       }
       if (!photosRes.ok) {
-        throw new Error(photosData.error ?? 'Unable to load photos');
+        throw new Error(photosData.error ?? "Unable to load photos");
       }
 
       const loadedBookings = bookingsData.bookings ?? [];
@@ -97,18 +119,25 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
 
       const preselectedBooking =
         loadedBookings.find(
-          (booking) => booking.status === 'checked_in' && booking.id === initialBookingId,
-        ) ?? loadedBookings.find((booking) => booking.status === 'checked_in');
+          (booking) =>
+            booking.status === "checked_in" && booking.id === initialBookingId,
+        ) ?? loadedBookings.find((booking) => booking.status === "checked_in");
 
       if (preselectedBooking && !bookingId) {
         setBookingId(preselectedBooking.id);
-        const firstPet = preselectedBooking.bookingPets.find((bp) => bp.pet)?.pet;
+        const firstPet = preselectedBooking.bookingPets.find(
+          (bp) => bp.pet,
+        )?.pet;
         if (firstPet) {
           setPetId(firstPet.id);
         }
       }
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : 'Unable to load photo data');
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : "Unable to load photo data",
+      );
     } finally {
       setLoading(false);
     }
@@ -123,37 +152,41 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!file) {
-      setError('Select an image before uploading.');
+      setError("Select an image before uploading.");
       return;
     }
 
     setSaving(true);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     try {
       const formData = new FormData();
-      formData.set('bookingId', bookingId);
-      formData.set('petId', activePetId);
-      formData.set('caption', caption);
-      formData.set('file', file);
+      formData.set("bookingId", bookingId);
+      formData.set("petId", activePetId);
+      formData.set("caption", caption);
+      formData.set("file", file);
 
-      const res = await fetch('/api/admin/photos', {
-        method: 'POST',
+      const res = await fetch("/api/admin/photos", {
+        method: "POST",
         body: formData,
       });
 
       const data = (await res.json()) as { photo?: PhotoItem; error?: string };
       if (!res.ok || !data.photo) {
-        throw new Error(data.error ?? 'Unable to upload photo');
+        throw new Error(data.error ?? "Unable to upload photo");
       }
 
       setPhotos((current) => [data.photo as PhotoItem, ...current]);
-      setCaption('');
+      setCaption("");
       setFile(null);
-      setSuccess('Photo uploaded.');
+      setSuccess("Photo uploaded.");
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : 'Unable to upload photo');
+      setError(
+        uploadError instanceof Error
+          ? uploadError.message
+          : "Unable to upload photo",
+      );
     } finally {
       setSaving(false);
     }
@@ -176,7 +209,8 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
                 <SelectContent>
                   {activeBookings.map((booking) => (
                     <SelectItem key={booking.id} value={booking.id}>
-                      {booking.bookingNumber} - {booking.user?.name ?? booking.user?.email ?? 'Guest'}
+                      {booking.bookingNumber} -{" "}
+                      {booking.user?.name ?? booking.user?.email ?? "Guest"}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -210,20 +244,36 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
 
             <div className="space-y-1">
               <p className="text-sm font-medium">Caption (optional)</p>
-              <Input value={caption} onChange={(event) => setCaption(event.target.value)} placeholder="Quick update for the owner" />
+              <Input
+                value={caption}
+                onChange={(event) => setCaption(event.target.value)}
+                placeholder="Quick update for the owner"
+              />
             </div>
 
             {previewUrl && (
               <div className="overflow-hidden rounded-md border">
-                <Image src={previewUrl} alt="Preview" width={640} height={360} className="h-auto w-full" />
+                <Image
+                  src={previewUrl}
+                  alt="Preview"
+                  width={640}
+                  height={360}
+                  className="h-auto w-full"
+                />
               </div>
             )}
 
             {error && <p className="text-sm text-red-700">{error}</p>}
             {success && <p className="text-sm text-green-700">{success}</p>}
 
-            <Button type="submit" className="w-full" disabled={saving || !bookingId || !activePetId || !file || loading}>
-              {saving ? 'Uploading…' : 'Upload Photo'}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={
+                saving || !bookingId || !activePetId || !file || loading
+              }
+            >
+              {saving ? "Uploading…" : "Upload Photo"}
             </Button>
           </form>
         </CardContent>
@@ -232,7 +282,12 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Recent Photos</CardTitle>
-          <Button variant="outline" size="sm" onClick={() => void loadData()} disabled={loading}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void loadData()}
+            disabled={loading}
+          >
             Refresh
           </Button>
         </CardHeader>
@@ -240,11 +295,16 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading photos…</p>
           ) : photos.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No photos uploaded yet.</p>
+            <p className="text-sm text-muted-foreground">
+              No photos uploaded yet.
+            </p>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {photos.map((photo) => (
-                <div key={photo.id} className="overflow-hidden rounded-md border">
+                <div
+                  key={photo.id}
+                  className="overflow-hidden rounded-md border"
+                >
                   <Image
                     src={photo.imageUrl}
                     alt={photo.caption ?? `${photo.pet.name} photo`}
@@ -255,11 +315,14 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
                   <div className="space-y-1 p-2 text-xs">
                     <div className="flex items-center justify-between">
                       <Badge variant="outline">{photo.pet.name}</Badge>
-                      <span className="text-muted-foreground">{photo.booking.bookingNumber}</span>
+                      <span className="text-muted-foreground">
+                        {photo.booking.bookingNumber}
+                      </span>
                     </div>
                     {photo.caption && <p>{photo.caption}</p>}
                     <p className="text-muted-foreground">
-                      {new Date(photo.uploadedAt).toLocaleString()} by {photo.uploadedBy ?? 'staff'}
+                      {new Date(photo.uploadedAt).toLocaleString()} by{" "}
+                      {photo.uploadedBy ?? "staff"}
                     </p>
                   </div>
                 </div>

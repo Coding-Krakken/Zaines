@@ -1,19 +1,27 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
+import { useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 
 type BookingOption = {
   id: string;
   bookingNumber: string;
   status: string;
   user: { name: string | null; email: string | null } | null;
-  bookingPets: Array<{ pet: { id: string; name: string; breed: string } | null }>;
+  bookingPets: Array<{
+    pet: { id: string; name: string; breed: string } | null;
+  }>;
 };
 
 type ActivityItem = {
@@ -28,35 +36,41 @@ type ActivityItem = {
 };
 
 const ACTIVITY_TYPES = [
-  'feeding',
-  'walk',
-  'play',
-  'bathroom',
-  'medication',
-  'grooming',
+  "feeding",
+  "walk",
+  "play",
+  "bathroom",
+  "medication",
+  "grooming",
 ] as const;
 
-export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?: string }) {
+export function ActivityLogPanel({
+  initialBookingId = "",
+}: {
+  initialBookingId?: string;
+}) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const [bookings, setBookings] = useState<BookingOption[]>([]);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
 
-  const [bookingId, setBookingId] = useState('');
-  const [petId, setPetId] = useState('');
-  const [type, setType] = useState<(typeof ACTIVITY_TYPES)[number]>('feeding');
-  const [description, setDescription] = useState('');
-  const [notes, setNotes] = useState('');
+  const [bookingId, setBookingId] = useState("");
+  const [petId, setPetId] = useState("");
+  const [type, setType] = useState<(typeof ACTIVITY_TYPES)[number]>("feeding");
+  const [description, setDescription] = useState("");
+  const [notes, setNotes] = useState("");
 
   const activeBookings = useMemo(
-    () => bookings.filter((booking) => booking.status === 'checked_in'),
+    () => bookings.filter((booking) => booking.status === "checked_in"),
     [bookings],
   );
 
-  const selectedBooking = activeBookings.find((booking) => booking.id === bookingId);
+  const selectedBooking = activeBookings.find(
+    (booking) => booking.id === bookingId,
+  );
   const selectedPets = useMemo(
     () =>
       selectedBooking?.bookingPets
@@ -67,22 +81,28 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
 
   async function loadData() {
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const [bookingsRes, activitiesRes] = await Promise.all([
-        fetch('/api/admin/bookings', { cache: 'no-store' }),
-        fetch('/api/admin/activities?limit=30', { cache: 'no-store' }),
+        fetch("/api/admin/bookings", { cache: "no-store" }),
+        fetch("/api/admin/activities?limit=30", { cache: "no-store" }),
       ]);
 
-      const bookingsData = (await bookingsRes.json()) as { bookings?: BookingOption[]; error?: string };
-      const activitiesData = (await activitiesRes.json()) as { activities?: ActivityItem[]; error?: string };
+      const bookingsData = (await bookingsRes.json()) as {
+        bookings?: BookingOption[];
+        error?: string;
+      };
+      const activitiesData = (await activitiesRes.json()) as {
+        activities?: ActivityItem[];
+        error?: string;
+      };
 
       if (!bookingsRes.ok) {
-        throw new Error(bookingsData.error ?? 'Unable to load bookings');
+        throw new Error(bookingsData.error ?? "Unable to load bookings");
       }
       if (!activitiesRes.ok) {
-        throw new Error(activitiesData.error ?? 'Unable to load activities');
+        throw new Error(activitiesData.error ?? "Unable to load activities");
       }
 
       const loadedBookings = bookingsData.bookings ?? [];
@@ -93,18 +113,25 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
 
       const preselectedBooking =
         loadedBookings.find(
-          (booking) => booking.status === 'checked_in' && booking.id === initialBookingId,
-        ) ?? loadedBookings.find((booking) => booking.status === 'checked_in');
+          (booking) =>
+            booking.status === "checked_in" && booking.id === initialBookingId,
+        ) ?? loadedBookings.find((booking) => booking.status === "checked_in");
 
       if (preselectedBooking && !bookingId) {
         setBookingId(preselectedBooking.id);
-        const firstPet = preselectedBooking.bookingPets.find((bp) => bp.pet)?.pet;
+        const firstPet = preselectedBooking.bookingPets.find(
+          (bp) => bp.pet,
+        )?.pet;
         if (firstPet) {
           setPetId(firstPet.id);
         }
       }
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : 'Unable to load staff activity data');
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : "Unable to load staff activity data",
+      );
     } finally {
       setLoading(false);
     }
@@ -117,34 +144,49 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
   }, [initialBookingId]);
 
   const activePetId = useMemo(() => {
-    if (!selectedPets.length) return '';
-    return selectedPets.some((p) => p.id === petId) ? petId : (selectedPets[0]?.id ?? '');
+    if (!selectedPets.length) return "";
+    return selectedPets.some((p) => p.id === petId)
+      ? petId
+      : (selectedPets[0]?.id ?? "");
   }, [petId, selectedPets]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaving(true);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     try {
-      const res = await fetch('/api/admin/activities', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId, petId: activePetId, type, description, notes }),
+      const res = await fetch("/api/admin/activities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bookingId,
+          petId: activePetId,
+          type,
+          description,
+          notes,
+        }),
       });
 
-      const data = (await res.json()) as { activity?: ActivityItem; error?: string };
+      const data = (await res.json()) as {
+        activity?: ActivityItem;
+        error?: string;
+      };
       if (!res.ok || !data.activity) {
-        throw new Error(data.error ?? 'Unable to save activity');
+        throw new Error(data.error ?? "Unable to save activity");
       }
 
       setActivities((current) => [data.activity as ActivityItem, ...current]);
-      setDescription('');
-      setNotes('');
-      setSuccess('Activity logged.');
+      setDescription("");
+      setNotes("");
+      setSuccess("Activity logged.");
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : 'Unable to save activity');
+      setError(
+        saveError instanceof Error
+          ? saveError.message
+          : "Unable to save activity",
+      );
     } finally {
       setSaving(false);
     }
@@ -167,7 +209,8 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
                 <SelectContent>
                   {activeBookings.map((booking) => (
                     <SelectItem key={booking.id} value={booking.id}>
-                      {booking.bookingNumber} - {booking.user?.name ?? booking.user?.email ?? 'Guest'}
+                      {booking.bookingNumber} -{" "}
+                      {booking.user?.name ?? booking.user?.email ?? "Guest"}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -192,7 +235,12 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
 
             <div className="space-y-1">
               <p className="text-sm font-medium">Type</p>
-              <Select value={type} onValueChange={(value) => setType(value as (typeof ACTIVITY_TYPES)[number])}>
+              <Select
+                value={type}
+                onValueChange={(value) =>
+                  setType(value as (typeof ACTIVITY_TYPES)[number])
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -228,8 +276,12 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
             {error && <p className="text-sm text-red-700">{error}</p>}
             {success && <p className="text-sm text-green-700">{success}</p>}
 
-            <Button type="submit" className="w-full" disabled={saving || !bookingId || !activePetId || loading}>
-              {saving ? 'Saving…' : 'Log Activity'}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={saving || !bookingId || !activePetId || loading}
+            >
+              {saving ? "Saving…" : "Log Activity"}
             </Button>
           </form>
         </CardContent>
@@ -238,7 +290,12 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Recent Activities</CardTitle>
-          <Button variant="outline" size="sm" onClick={() => void loadData()} disabled={loading}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void loadData()}
+            disabled={loading}
+          >
             Refresh
           </Button>
         </CardHeader>
@@ -246,20 +303,33 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading activities…</p>
           ) : activities.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No activity logged yet.</p>
+            <p className="text-sm text-muted-foreground">
+              No activity logged yet.
+            </p>
           ) : (
             <div className="space-y-3">
               {activities.map((activity) => (
                 <div key={activity.id} className="rounded-md border p-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="secondary">{activity.type}</Badge>
-                    <span className="text-sm font-medium">{activity.pet.name}</span>
-                    <span className="text-xs text-muted-foreground">{activity.booking.bookingNumber}</span>
+                    <span className="text-sm font-medium">
+                      {activity.pet.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {activity.booking.bookingNumber}
+                    </span>
                   </div>
-                  {activity.description && <p className="mt-2 text-sm">{activity.description}</p>}
-                  {activity.notes && <p className="mt-1 text-sm text-muted-foreground">{activity.notes}</p>}
+                  {activity.description && (
+                    <p className="mt-2 text-sm">{activity.description}</p>
+                  )}
+                  {activity.notes && (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {activity.notes}
+                    </p>
+                  )}
                   <p className="mt-2 text-xs text-muted-foreground">
-                    {new Date(activity.performedAt).toLocaleString()} by {activity.performedBy ?? 'staff'}
+                    {new Date(activity.performedAt).toLocaleString()} by{" "}
+                    {activity.performedBy ?? "staff"}
                   </p>
                 </div>
               ))}

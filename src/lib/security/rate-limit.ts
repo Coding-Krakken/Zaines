@@ -22,9 +22,10 @@ export function checkRateLimit(params: {
   const subject = params.subject ? `:${params.subject.toLowerCase()}` : "";
   const key = `${params.routeKey}:${getClientKey(params.request)}${subject}`;
   const now = Date.now();
-  const hits = buckets
-    .get(key)
-    ?.filter((timestamp) => now - timestamp < params.windowMs) ?? [];
+  const hits =
+    buckets
+      .get(key)
+      ?.filter((timestamp) => now - timestamp < params.windowMs) ?? [];
 
   if (hits.length >= params.limit) {
     buckets.set(key, hits);

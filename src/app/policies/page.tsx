@@ -135,9 +135,7 @@ export default function PoliciesPage() {
                   </p>
                 </div>
                 <div>
-                  <h3 className="mb-2 font-semibold">
-                    Supervision Protocols
-                  </h3>
+                  <h3 className="mb-2 font-semibold">Supervision Protocols</h3>
                   <p className="text-muted-foreground">
                     {SAFETY_STANDARDS_COPY.supervisionProtocol}
                   </p>

@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@stripe/stripe-js", () => ({
-  loadStripe: vi.fn(async () => ({ /* mock Stripe instance */ })),
+  loadStripe: vi.fn(async () => ({
+    /* mock Stripe instance */
+  })),
 }));
 
 describe("stripe-client.ts – getStripe()", () => {

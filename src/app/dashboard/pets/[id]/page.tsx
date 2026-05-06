@@ -39,7 +39,10 @@ export default async function PetDetail({ params }: Props) {
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold">{pet.name}</h1>
-        <Link href={`/dashboard/pets/${pet.id}/edit`} className="text-sm text-primary">
+        <Link
+          href={`/dashboard/pets/${pet.id}/edit`}
+          className="text-sm text-primary"
+        >
           Edit Profile
         </Link>
       </div>
@@ -53,7 +56,8 @@ export default async function PetDetail({ params }: Props) {
           <p className="text-sm">Gender: {pet.gender}</p>
           {pet.specialNeeds && (
             <p className="text-sm mt-2">
-              <span className="font-medium">Special Needs:</span> {pet.specialNeeds}
+              <span className="font-medium">Special Needs:</span>{" "}
+              {pet.specialNeeds}
             </p>
           )}
         </div>

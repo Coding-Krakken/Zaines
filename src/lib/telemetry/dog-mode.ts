@@ -138,7 +138,9 @@ function isPiiLikeKey(key: string): boolean {
     return true;
   }
 
-  return piiKeyPatternFragments.some((fragment) => normalized.includes(fragment));
+  return piiKeyPatternFragments.some((fragment) =>
+    normalized.includes(fragment),
+  );
 }
 
 export function buildDogTelemetryEvent(
@@ -204,7 +206,10 @@ export function createDogSessionId(
 ): string {
   const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
   const bytes = randomBytes(12);
-  const segment = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join("");
+  const segment = Array.from(
+    bytes,
+    (byte) => alphabet[byte % alphabet.length],
+  ).join("");
   return `dog_${segment}`;
 }
 

@@ -441,12 +441,12 @@ export async function POST(request: NextRequest) {
         process.env.NODE_ENV !== "test" &&
         !hasLoggedStripeUnavailableWarning
       ) {
-          logSecurityEvent({
-            route: "/api/bookings",
-            event: "BOOKING_STRIPE_UNAVAILABLE",
-            correlationId,
-            level: "warn",
-          });
+        logSecurityEvent({
+          route: "/api/bookings",
+          event: "BOOKING_STRIPE_UNAVAILABLE",
+          correlationId,
+          level: "warn",
+        });
         hasLoggedStripeUnavailableWarning = true;
       }
     }

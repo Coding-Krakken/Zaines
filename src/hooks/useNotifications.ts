@@ -61,7 +61,9 @@ export function useNotifications({
   pollIntervalMs = 30000, // 30s SLA
   onNotification,
 }: UseNotificationsOptions): UseNotificationsResult {
-  const [pendingNotifications, setPendingNotifications] = useState<NotificationEvent[]>([]);
+  const [pendingNotifications, setPendingNotifications] = useState<
+    NotificationEvent[]
+  >([]);
   const [lastPollTime, setLastPollTime] = useState<Date | null>(null);
   const [pollError, setPollError] = useState<Error | null>(null);
   const [seenEventIds, setSeenEventIds] = useState<Set<string>>(new Set());
@@ -85,7 +87,7 @@ export function useNotifications({
         `/api/bookings/${bookingId}/notifications?${params}`,
         {
           signal: abortControllerRef.current.signal,
-        }
+        },
       );
 
       if (!response.ok) {

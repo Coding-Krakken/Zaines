@@ -1,4 +1,4 @@
-import { ActivityLogPanel } from '@/components/admin/ActivityLogPanel';
+import { ActivityLogPanel } from "@/components/admin/ActivityLogPanel";
 
 export default async function AdminActivitiesPage({
   searchParams,

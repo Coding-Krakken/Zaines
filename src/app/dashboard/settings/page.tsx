@@ -12,7 +12,8 @@ export default async function SettingsPage() {
       <div className="container mx-auto p-6">
         <h1 className="text-2xl font-semibold">Settings</h1>
         <p className="mt-4 text-muted-foreground">
-          Database is not configured. Settings are unavailable in this environment.
+          Database is not configured. Settings are unavailable in this
+          environment.
         </p>
       </div>
     );

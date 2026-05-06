@@ -2,7 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
 const { signInMock } = vi.hoisted(() => ({
-  signInMock: vi.fn(async (): Promise<{ ok?: boolean; error?: Error }> => ({ ok: true })),
+  signInMock: vi.fn(
+    async (): Promise<{ ok?: boolean; error?: Error }> => ({ ok: true }),
+  ),
 }));
 
 vi.mock("@/lib/auth", () => ({
@@ -67,7 +69,9 @@ describe("magic-link route", () => {
     delete process.env.RESEND_API_KEY;
     delete process.env.EMAIL_FROM;
 
-    const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
+    const res = await POST(
+      makeRequest({ email: "user@example.com", intent: "sign_in" }),
+    );
     expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.errorCode).toBe("AUTH_PROVIDER_MISCONFIGURED");
@@ -76,14 +80,18 @@ describe("magic-link route", () => {
   it("returns 500 when EMAIL_FROM is missing", async () => {
     delete process.env.EMAIL_FROM;
 
-    const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
+    const res = await POST(
+      makeRequest({ email: "user@example.com", intent: "sign_in" }),
+    );
     expect(res.status).toBe(500);
   });
 
   it("returns 202 on successful sign-in link dispatch", async () => {
     signInMock.mockResolvedValueOnce({ ok: true });
 
-    const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
+    const res = await POST(
+      makeRequest({ email: "user@example.com", intent: "sign_in" }),
+    );
     expect(res.status).toBe(202);
     const body = await res.json();
     expect(body.state).toBe("sent");
@@ -105,7 +113,9 @@ describe("magic-link route", () => {
   it("uses /dashboard callbackUrl when intent is sign_in", async () => {
     signInMock.mockResolvedValueOnce({ ok: true });
 
-    const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
+    const res = await POST(
+      makeRequest({ email: "user@example.com", intent: "sign_in" }),
+    );
     expect(res.status).toBe(202);
     expect(signInMock).toHaveBeenCalledWith(
       "resend",
@@ -114,9 +124,13 @@ describe("magic-link route", () => {
   });
 
   it("returns 500 when signIn returns an error object (misconfigured)", async () => {
-    signInMock.mockResolvedValueOnce({ error: new Error("resend configuration failed") });
+    signInMock.mockResolvedValueOnce({
+      error: new Error("resend configuration failed"),
+    });
 
-    const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
+    const res = await POST(
+      makeRequest({ email: "user@example.com", intent: "sign_in" }),
+    );
     expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.errorCode).toBe("AUTH_PROVIDER_MISCONFIGURED");
@@ -126,7 +140,9 @@ describe("magic-link route", () => {
   it("returns 500 when signIn returns an error object (transient)", async () => {
     signInMock.mockResolvedValueOnce({ error: new Error("network timeout") });
 
-    const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
+    const res = await POST(
+      makeRequest({ email: "user@example.com", intent: "sign_in" }),
+    );
     expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.errorCode).toBe("AUTH_TRANSIENT_FAILURE");
@@ -136,7 +152,9 @@ describe("magic-link route", () => {
   it("returns 500 when signIn throws (misconfigured error)", async () => {
     signInMock.mockRejectedValueOnce(new Error("resend configuration failed"));
 
-    const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
+    const res = await POST(
+      makeRequest({ email: "user@example.com", intent: "sign_in" }),
+    );
     expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.errorCode).toBe("AUTH_PROVIDER_MISCONFIGURED");
@@ -145,7 +163,9 @@ describe("magic-link route", () => {
   it("returns 500 when signIn throws (transient error)", async () => {
     signInMock.mockRejectedValueOnce(new Error("connection reset"));
 
-    const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
+    const res = await POST(
+      makeRequest({ email: "user@example.com", intent: "sign_in" }),
+    );
     expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.errorCode).toBe("AUTH_TRANSIENT_FAILURE");
@@ -157,7 +177,9 @@ describe("magic-link route", () => {
     process.env.RESEND_API_KEY = "re_test_key";
     signInMock.mockResolvedValueOnce({ ok: true });
 
-    const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
+    const res = await POST(
+      makeRequest({ email: "user@example.com", intent: "sign_in" }),
+    );
     expect(res.status).toBe(202);
   });
 });

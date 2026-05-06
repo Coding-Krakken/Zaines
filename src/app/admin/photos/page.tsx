@@ -1,4 +1,4 @@
-import { PhotoUploadPanel } from '@/components/admin/PhotoUploadPanel';
+import { PhotoUploadPanel } from "@/components/admin/PhotoUploadPanel";
 
 export default async function AdminPhotosPage({
   searchParams,

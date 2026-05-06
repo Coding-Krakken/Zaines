@@ -76,7 +76,7 @@ export function usePhotoGallery({
           `/api/bookings/${bookingId}/photos?${params}`,
           {
             signal: abortControllerRef.current.signal,
-          }
+          },
         );
 
         if (!response.ok) {
@@ -109,7 +109,7 @@ export function usePhotoGallery({
         setIsLoading(false);
       }
     },
-    [bookingId, petId]
+    [bookingId, petId],
   );
 
   // Load more handler

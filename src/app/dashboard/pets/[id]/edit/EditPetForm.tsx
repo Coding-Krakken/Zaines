@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import type { Pet } from '@prisma/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import type { Pet } from "@prisma/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea';
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 
 type Props = { pet: Pet };
 
@@ -33,27 +33,28 @@ export function EditPetForm({ pet }: Props) {
 
     const form = new FormData(e.currentTarget);
     const data = {
-      name: form.get('name') as string,
-      breed: form.get('breed') as string,
-      age: parseInt(form.get('age') as string, 10),
-      weight: parseFloat(form.get('weight') as string),
+      name: form.get("name") as string,
+      breed: form.get("breed") as string,
+      age: parseInt(form.get("age") as string, 10),
+      weight: parseFloat(form.get("weight") as string),
       gender,
       spayedNeutered,
-      specialNeeds: (form.get('specialNeeds') as string) || undefined,
-      feedingInstructions: (form.get('feedingInstructions') as string) || undefined,
+      specialNeeds: (form.get("specialNeeds") as string) || undefined,
+      feedingInstructions:
+        (form.get("feedingInstructions") as string) || undefined,
     };
 
     const res = await fetch(`/api/pets/${pet.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
     if (res.ok) {
       router.push(`/dashboard/pets/${pet.id}`);
     } else {
-      const body = await res.json() as { error?: string };
-      setError(body.error ?? 'Failed to save pet');
+      const body = (await res.json()) as { error?: string };
+      setError(body.error ?? "Failed to save pet");
       setIsLoading(false);
     }
   }
@@ -75,7 +76,12 @@ export function EditPetForm({ pet }: Props) {
 
             <div className="space-y-1">
               <Label htmlFor="breed">Breed *</Label>
-              <Input id="breed" name="breed" defaultValue={pet.breed} required />
+              <Input
+                id="breed"
+                name="breed"
+                defaultValue={pet.breed}
+                required
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -133,7 +139,7 @@ export function EditPetForm({ pet }: Props) {
                 id="specialNeeds"
                 name="specialNeeds"
                 rows={2}
-                defaultValue={pet.specialNeeds ?? ''}
+                defaultValue={pet.specialNeeds ?? ""}
               />
             </div>
 
@@ -143,12 +149,12 @@ export function EditPetForm({ pet }: Props) {
                 id="feedingInstructions"
                 name="feedingInstructions"
                 rows={2}
-                defaultValue={pet.feedingInstructions ?? ''}
+                defaultValue={pet.feedingInstructions ?? ""}
               />
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Saving…' : 'Save Changes'}
+              {isLoading ? "Saving…" : "Save Changes"}
             </Button>
           </form>
         </CardContent>

@@ -80,7 +80,7 @@ export function useActivityPolling({
           `/api/bookings/${bookingId}/activities?${params}`,
           {
             signal: abortControllerRef.current.signal,
-          }
+          },
         );
 
         if (!response.ok) {
@@ -113,7 +113,7 @@ export function useActivityPolling({
         setIsLoading(false);
       }
     },
-    [bookingId, filter]
+    [bookingId, filter],
   );
 
   // Load more handler

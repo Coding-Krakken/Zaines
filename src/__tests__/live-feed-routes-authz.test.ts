@@ -43,8 +43,12 @@ describe("live-feed write routes authz", () => {
   });
 
   it("allows admin role to create activities", async () => {
-    authMock.mockResolvedValue({ user: { id: "staff-1", role: "admin", name: "Admin" } });
-    prismaMock.bookingPet.findUnique.mockResolvedValue({ bookingId: "booking-1" });
+    authMock.mockResolvedValue({
+      user: { id: "staff-1", role: "admin", name: "Admin" },
+    });
+    prismaMock.bookingPet.findUnique.mockResolvedValue({
+      bookingId: "booking-1",
+    });
     prismaMock.activity.create.mockResolvedValue({ id: "activity-1" });
 
     const response = await postActivity(
@@ -52,7 +56,7 @@ describe("live-feed write routes authz", () => {
         petId: "pet-1",
         type: "feeding",
       }),
-      ctx("booking-1")
+      ctx("booking-1"),
     );
 
     expect(response.status).toBe(201);
@@ -60,7 +64,9 @@ describe("live-feed write routes authz", () => {
   });
 
   it("rejects activity creation when pet is not part of booking", async () => {
-    authMock.mockResolvedValue({ user: { id: "staff-1", role: "staff", name: "Staff" } });
+    authMock.mockResolvedValue({
+      user: { id: "staff-1", role: "staff", name: "Staff" },
+    });
     prismaMock.bookingPet.findUnique.mockResolvedValue(null);
 
     const response = await postActivity(
@@ -68,7 +74,7 @@ describe("live-feed write routes authz", () => {
         petId: "pet-unknown",
         type: "walk",
       }),
-      ctx("booking-1")
+      ctx("booking-1"),
     );
 
     expect(response.status).toBe(400);
@@ -76,8 +82,12 @@ describe("live-feed write routes authz", () => {
   });
 
   it("allows admin role to create photos", async () => {
-    authMock.mockResolvedValue({ user: { id: "staff-1", role: "admin", name: "Admin" } });
-    prismaMock.bookingPet.findUnique.mockResolvedValue({ bookingId: "booking-1" });
+    authMock.mockResolvedValue({
+      user: { id: "staff-1", role: "admin", name: "Admin" },
+    });
+    prismaMock.bookingPet.findUnique.mockResolvedValue({
+      bookingId: "booking-1",
+    });
     prismaMock.petPhoto.create.mockResolvedValue({ id: "photo-1" });
 
     const response = await postPhoto(
@@ -85,7 +95,7 @@ describe("live-feed write routes authz", () => {
         petId: "pet-1",
         imageUrl: "https://example.test/photo.jpg",
       }),
-      ctx("booking-1")
+      ctx("booking-1"),
     );
 
     expect(response.status).toBe(201);
@@ -93,7 +103,9 @@ describe("live-feed write routes authz", () => {
   });
 
   it("rejects photo creation when pet is not part of booking", async () => {
-    authMock.mockResolvedValue({ user: { id: "staff-1", role: "staff", name: "Staff" } });
+    authMock.mockResolvedValue({
+      user: { id: "staff-1", role: "staff", name: "Staff" },
+    });
     prismaMock.bookingPet.findUnique.mockResolvedValue(null);
 
     const response = await postPhoto(
@@ -101,7 +113,7 @@ describe("live-feed write routes authz", () => {
         petId: "pet-unknown",
         imageUrl: "https://example.test/photo.jpg",
       }),
-      ctx("booking-1")
+      ctx("booking-1"),
     );
 
     expect(response.status).toBe(400);

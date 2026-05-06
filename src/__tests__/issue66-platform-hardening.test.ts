@@ -106,7 +106,9 @@ describe("Issue #66 platform hardening", () => {
 
   it("returns rate-limit envelopes with Retry-After and no PII log context", async () => {
     process.env.ENABLE_RATE_LIMIT_IN_TESTS = "1";
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const warnSpy = vi
+      .spyOn(console, "warn")
+      .mockImplementation(() => undefined);
     const request = new Request("http://localhost/api/contact/submissions", {
       headers: { "x-forwarded-for": "198.51.100.8" },
     });
@@ -148,7 +150,9 @@ describe("Issue #66 platform hardening", () => {
         correlationId: expect.any(String),
       }),
     );
-    expect(JSON.stringify(warnSpy.mock.calls)).not.toContain("taylor@example.com");
+    expect(JSON.stringify(warnSpy.mock.calls)).not.toContain(
+      "taylor@example.com",
+    );
     warnSpy.mockRestore();
   });
 });

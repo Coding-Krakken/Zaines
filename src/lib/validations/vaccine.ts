@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const vaccineSchema = z.object({
-  name: z.string().min(1, 'Vaccine name is required').max(100),
+  name: z.string().min(1, "Vaccine name is required").max(100),
   administeredDate: z.string().datetime().or(z.date()),
   expiryDate: z.string().datetime().or(z.date()),
   veterinarian: z.string().max(200).optional(),

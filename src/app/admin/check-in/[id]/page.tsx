@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { use, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { use, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function CheckInPage({
   params,
@@ -13,33 +13,35 @@ export default function CheckInPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleCheckIn() {
-    setStatus('loading');
-    setErrorMessage('');
+    setStatus("loading");
+    setErrorMessage("");
 
     try {
-      const res = await fetch('/api/admin/check-in', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/admin/check-in", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ bookingId: id }),
       });
 
       const data = (await res.json()) as { error?: string };
 
       if (!res.ok) {
-        setStatus('error');
-        setErrorMessage(data.error ?? 'Check-in failed');
+        setStatus("error");
+        setErrorMessage(data.error ?? "Check-in failed");
         return;
       }
 
-      setStatus('success');
-      setTimeout(() => router.push('/admin'), 2000);
+      setStatus("success");
+      setTimeout(() => router.push("/admin"), 2000);
     } catch {
-      setStatus('error');
-      setErrorMessage('Network error. Please try again.');
+      setStatus("error");
+      setErrorMessage("Network error. Please try again.");
     }
   }
 
@@ -54,16 +56,16 @@ export default function CheckInPage({
             Booking ID: <span className="font-mono text-foreground">{id}</span>
           </p>
 
-          {status === 'success' && (
+          {status === "success" && (
             <div className="rounded-md bg-green-50 p-4 text-green-800 text-sm">
-              ✅ Guest successfully checked in.{' '}
+              ✅ Guest successfully checked in.{" "}
               <Link href="/admin" className="font-medium underline">
                 Back to dashboard
               </Link>
             </div>
           )}
 
-          {status === 'error' && (
+          {status === "error" && (
             <div className="rounded-md bg-red-50 p-4 text-red-800 text-sm">
               ❌ {errorMessage}
             </div>
@@ -72,9 +74,9 @@ export default function CheckInPage({
           <div className="flex gap-3">
             <Button
               onClick={handleCheckIn}
-              disabled={status === 'loading' || status === 'success'}
+              disabled={status === "loading" || status === "success"}
             >
-              {status === 'loading' ? 'Checking in…' : 'Confirm Check-In'}
+              {status === "loading" ? "Checking in…" : "Confirm Check-In"}
             </Button>
             <Button variant="outline" asChild>
               <Link href="/admin">Cancel</Link>

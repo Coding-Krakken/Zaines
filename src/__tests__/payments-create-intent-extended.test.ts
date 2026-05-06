@@ -112,9 +112,15 @@ describe("create-intent route – extended coverage", () => {
   });
 
   it("returns 404 when booking is not found", async () => {
-    prismaMock.booking.findUnique.mockResolvedValueOnce(null as unknown as {
-      id: string; userId: string; bookingNumber: string; total: number; user: { email: string };
-    });
+    prismaMock.booking.findUnique.mockResolvedValueOnce(
+      null as unknown as {
+        id: string;
+        userId: string;
+        bookingNumber: string;
+        total: number;
+        user: { email: string };
+      },
+    );
 
     const res = await createIntent(
       buildRequest({ bookingId: "missing-booking", amount: 150 }),
@@ -147,7 +153,9 @@ describe("create-intent route – extended coverage", () => {
   });
 
   it("returns 409 when payment already exists", async () => {
-    prismaMock.payment.findFirst.mockResolvedValueOnce({ id: "existing-pay" } as unknown as null);
+    prismaMock.payment.findFirst.mockResolvedValueOnce({
+      id: "existing-pay",
+    } as unknown as null);
 
     const res = await createIntent(
       buildRequest({ bookingId: "booking-001", amount: 150 }),

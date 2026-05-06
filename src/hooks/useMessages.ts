@@ -80,7 +80,7 @@ export function useMessages({
           `/api/bookings/${bookingId}/messages?${params}`,
           {
             signal: abortControllerRef.current.signal,
-          }
+          },
         );
 
         if (!response.ok) {
@@ -113,7 +113,7 @@ export function useMessages({
         setIsLoading(false);
       }
     },
-    [bookingId]
+    [bookingId],
   );
 
   // Load more handler
@@ -163,7 +163,8 @@ export function useMessages({
 
         return message;
       } catch (err) {
-        const sendError = err instanceof Error ? err : new Error("Unknown error");
+        const sendError =
+          err instanceof Error ? err : new Error("Unknown error");
         setIsError(true);
         setError(sendError);
         console.error("Error sending message:", err);
@@ -172,7 +173,7 @@ export function useMessages({
         setIsSending(false);
       }
     },
-    [bookingId]
+    [bookingId],
   );
 
   // Initial load and polling setup

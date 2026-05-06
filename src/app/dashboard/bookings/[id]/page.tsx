@@ -101,7 +101,7 @@ export default async function BookingDetail({ params }: Props) {
     booking.status === "pending" || booking.status === "confirmed";
 
   return (
-    <BookingDetailClient 
+    <BookingDetailClient
       booking={booking}
       canCancel={canCancel}
       CancelButton={CancelBookingButton}

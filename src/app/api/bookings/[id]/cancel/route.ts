@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { getCorrelationId, logServerFailure } from "@/lib/api/issue26";
-import { stripe, isStripeConfigured, formatAmountForStripe } from "@/lib/stripe";
+import {
+  stripe,
+  isStripeConfigured,
+  formatAmountForStripe,
+} from "@/lib/stripe";
 
 type BookingCancelRecord = {
   id: string;
@@ -43,7 +47,8 @@ function calculateCancellationPolicy(
     return {
       policyWindow: "full_refund",
       refundEligibleAmount: roundCurrency(bookingTotal),
-      message: "Cancellation accepted with full refund (48+ hours before check-in).",
+      message:
+        "Cancellation accepted with full refund (48+ hours before check-in).",
     };
   }
 
@@ -51,18 +56,22 @@ function calculateCancellationPolicy(
     return {
       policyWindow: "partial_refund",
       refundEligibleAmount: roundCurrency(bookingTotal * 0.5),
-      message: "Cancellation accepted with 50% refund (24-48 hours before check-in).",
+      message:
+        "Cancellation accepted with 50% refund (24-48 hours before check-in).",
     };
   }
 
   return {
     policyWindow: "no_refund",
     refundEligibleAmount: 0,
-    message: "Cancellation accepted. No refund is available within 24 hours of check-in.",
+    message:
+      "Cancellation accepted. No refund is available within 24 hours of check-in.",
   };
 }
 
-function resolveRouteParams(context: { params: { id: string } | Promise<{ id: string }> }) {
+function resolveRouteParams(context: {
+  params: { id: string } | Promise<{ id: string }>;
+}) {
   return Promise.resolve(context.params);
 }
 
@@ -106,10 +115,7 @@ export async function POST(
     })) as BookingCancelRecord | null;
 
     if (!booking || booking.userId !== session.user.id) {
-      return NextResponse.json(
-        { error: "Booking not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
     if (
@@ -131,7 +137,11 @@ export async function POST(
       );
     }
 
-    const policy = calculateCancellationPolicy(booking.checkInDate, booking.total, now);
+    const policy = calculateCancellationPolicy(
+      booking.checkInDate,
+      booking.total,
+      now,
+    );
 
     await prisma.booking.update({
       where: { id: booking.id },
@@ -149,7 +159,8 @@ export async function POST(
     });
 
     const succeededPayments = booking.payments.filter(
-      (payment) => payment.status === "succeeded" && Boolean(payment.stripePaymentId),
+      (payment) =>
+        payment.status === "succeeded" && Boolean(payment.stripePaymentId),
     );
 
     let refundedAmount = 0;
@@ -171,7 +182,10 @@ export async function POST(
           continue;
         }
 
-        const amountForThisPayment = Math.min(remainingToRefund, payment.amount);
+        const amountForThisPayment = Math.min(
+          remainingToRefund,
+          payment.amount,
+        );
         if (amountForThisPayment <= 0) {
           continue;
         }
@@ -191,7 +205,9 @@ export async function POST(
         });
 
         refundedAmount = roundCurrency(refundedAmount + amountForThisPayment);
-        remainingToRefund = roundCurrency(remainingToRefund - amountForThisPayment);
+        remainingToRefund = roundCurrency(
+          remainingToRefund - amountForThisPayment,
+        );
       }
     }
 

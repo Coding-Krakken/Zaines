@@ -58,17 +58,26 @@ describe("booking cancellation route", () => {
     isDatabaseConfiguredMock.mockReturnValue(true);
     isStripeConfiguredMock.mockReturnValue(false);
 
-    bookingUpdateMock.mockResolvedValue({ id: "booking-1", status: "cancelled" });
+    bookingUpdateMock.mockResolvedValue({
+      id: "booking-1",
+      status: "cancelled",
+    });
     paymentUpdateManyMock.mockResolvedValue({ count: 1 });
-    paymentUpdateMock.mockResolvedValue({ id: "payment-1", status: "refunded" });
+    paymentUpdateMock.mockResolvedValue({
+      id: "payment-1",
+      status: "refunded",
+    });
   });
 
   it("returns 401 when user is not authenticated", async () => {
     authMock.mockResolvedValueOnce(null);
 
-    const request = new NextRequest("http://localhost:3000/api/bookings/booking-1/cancel", {
-      method: "POST",
-    });
+    const request = new NextRequest(
+      "http://localhost:3000/api/bookings/booking-1/cancel",
+      {
+        method: "POST",
+      },
+    );
 
     const response = await cancelBookingPost(request, {
       params: { id: "booking-1" },
@@ -80,9 +89,12 @@ describe("booking cancellation route", () => {
   it("returns 404 when booking does not exist or user does not own booking", async () => {
     bookingFindUniqueMock.mockResolvedValueOnce(null);
 
-    const request = new NextRequest("http://localhost:3000/api/bookings/missing/cancel", {
-      method: "POST",
-    });
+    const request = new NextRequest(
+      "http://localhost:3000/api/bookings/missing/cancel",
+      {
+        method: "POST",
+      },
+    );
 
     const response = await cancelBookingPost(request, {
       params: { id: "missing" },
@@ -110,9 +122,12 @@ describe("booking cancellation route", () => {
       ],
     });
 
-    const request = new NextRequest("http://localhost:3000/api/bookings/booking-1/cancel", {
-      method: "POST",
-    });
+    const request = new NextRequest(
+      "http://localhost:3000/api/bookings/booking-1/cancel",
+      {
+        method: "POST",
+      },
+    );
 
     const response = await cancelBookingPost(request, {
       params: { id: "booking-1" },
@@ -146,9 +161,12 @@ describe("booking cancellation route", () => {
       payments: [],
     });
 
-    const request = new NextRequest("http://localhost:3000/api/bookings/booking-2/cancel", {
-      method: "POST",
-    });
+    const request = new NextRequest(
+      "http://localhost:3000/api/bookings/booking-2/cancel",
+      {
+        method: "POST",
+      },
+    );
 
     const response = await cancelBookingPost(request, {
       params: { id: "booking-2" },

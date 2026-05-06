@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { NextRequest } from 'next/server';
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { NextRequest } from "next/server";
 
 // ── hoisted mocks ────────────────────────────────────────────────────────────
 const { authMock, prismaMock } = vi.hoisted(() => ({
@@ -15,64 +15,71 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('@/lib/auth', () => ({ auth: authMock }));
-vi.mock('@/lib/prisma', () => ({
+vi.mock("@/lib/auth", () => ({ auth: authMock }));
+vi.mock("@/lib/prisma", () => ({
   prisma: prismaMock,
   isDatabaseConfigured: vi.fn(() => true),
 }));
 
-import { GET as getPets, POST as postPet } from '@/app/api/pets/route';
+import { GET as getPets, POST as postPet } from "@/app/api/pets/route";
 import {
   GET as getPet,
   PUT as putPet,
   DELETE as deletePet,
-} from '@/app/api/pets/[id]/route';
-import { isDatabaseConfigured } from '@/lib/prisma';
+} from "@/app/api/pets/[id]/route";
+import { isDatabaseConfigured } from "@/lib/prisma";
 
-const isDatabaseConfiguredMock = isDatabaseConfigured as ReturnType<typeof vi.fn>;
+const isDatabaseConfiguredMock = isDatabaseConfigured as ReturnType<
+  typeof vi.fn
+>;
 
-const userSession = { user: { id: 'user-1' } };
-const otherSession = { user: { id: 'user-2' } };
+const userSession = { user: { id: "user-1" } };
+const otherSession = { user: { id: "user-2" } };
 
 const validPetBody = {
-  name: 'Buddy',
-  breed: 'Labrador',
+  name: "Buddy",
+  breed: "Labrador",
   age: 3,
   weight: 60.5,
-  gender: 'male',
+  gender: "male",
   spayedNeutered: false,
 };
 
 const storedPet = {
-  id: 'pet-1',
-  userId: 'user-1',
+  id: "pet-1",
+  userId: "user-1",
   ...validPetBody,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
 
-function makeGetRequest(url = 'http://localhost/api/pets') {
-  return new NextRequest(url, { method: 'GET' });
+function makeGetRequest(url = "http://localhost/api/pets") {
+  return new NextRequest(url, { method: "GET" });
 }
 
-function makePostRequest(body: Record<string, unknown>, url = 'http://localhost/api/pets') {
+function makePostRequest(
+  body: Record<string, unknown>,
+  url = "http://localhost/api/pets",
+) {
   return new NextRequest(url, {
-    method: 'POST',
+    method: "POST",
     body: JSON.stringify(body),
-    headers: { 'Content-Type': 'application/json' },
+    headers: { "Content-Type": "application/json" },
   });
 }
 
-function makePutRequest(body: Record<string, unknown>, id = 'pet-1') {
+function makePutRequest(body: Record<string, unknown>, id = "pet-1") {
   return new NextRequest(`http://localhost/api/pets/${id}`, {
-    method: 'PUT',
+    method: "PUT",
     body: JSON.stringify(body),
-    headers: { 'Content-Type': 'application/json' },
+    headers: { "Content-Type": "application/json" },
   });
 }
 
-function makeDeleteRequest(id = 'pet-1') {
-  return new NextRequest(`http://localhost/api/pets/${id}`, { method: 'DELETE' });
+function makeDeleteRequest(id = "pet-1") {
+  return new NextRequest(`http://localhost/api/pets/${id}`, {
+    method: "DELETE",
+  });
 }
 
 function ctx(id: string) {
@@ -80,174 +87,177 @@ function ctx(id: string) {
 }
 
 // ── GET /api/pets ─────────────────────────────────────────────────────────────
-describe('GET /api/pets', () => {
+describe("GET /api/pets", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('returns 401 when not authenticated', async () => {
+  it("returns 401 when not authenticated", async () => {
     authMock.mockResolvedValue(null);
     const res = await getPets();
     expect(res.status).toBe(401);
-    const data = await res.json() as { error: string };
-    expect(data.error).toBe('Unauthorized');
+    const data = (await res.json()) as { error: string };
+    expect(data.error).toBe("Unauthorized");
   });
 
-  it('returns 503 when database not configured', async () => {
+  it("returns 503 when database not configured", async () => {
     authMock.mockResolvedValue(userSession);
     isDatabaseConfiguredMock.mockReturnValueOnce(false);
     const res = await getPets();
     expect(res.status).toBe(503);
   });
 
-  it('returns 200 with pets list', async () => {
+  it("returns 200 with pets list", async () => {
     authMock.mockResolvedValue(userSession);
     prismaMock.pet.findMany.mockResolvedValue([storedPet]);
     const res = await getPets();
     expect(res.status).toBe(200);
-    const data = await res.json() as { pets: typeof storedPet[] };
+    const data = (await res.json()) as { pets: (typeof storedPet)[] };
     expect(data.pets).toHaveLength(1);
-    expect(data.pets[0].name).toBe('Buddy');
+    expect(data.pets[0].name).toBe("Buddy");
   });
 });
 
 // ── POST /api/pets ────────────────────────────────────────────────────────────
-describe('POST /api/pets', () => {
+describe("POST /api/pets", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('returns 401 when not authenticated', async () => {
+  it("returns 401 when not authenticated", async () => {
     authMock.mockResolvedValue(null);
     const res = await postPet(makePostRequest(validPetBody));
     expect(res.status).toBe(401);
-    const data = await res.json() as { error: string };
-    expect(data.error).toBe('Unauthorized');
+    const data = (await res.json()) as { error: string };
+    expect(data.error).toBe("Unauthorized");
   });
 
-  it('returns 400 for invalid body', async () => {
+  it("returns 400 for invalid body", async () => {
     authMock.mockResolvedValue(userSession);
-    const res = await postPet(makePostRequest({ name: '' }));
+    const res = await postPet(makePostRequest({ name: "" }));
     expect(res.status).toBe(400);
-    const data = await res.json() as { error: string };
-    expect(data.error).toBe('Invalid request');
+    const data = (await res.json()) as { error: string };
+    expect(data.error).toBe("Invalid request");
   });
 
-  it('returns 201 with created pet', async () => {
+  it("returns 201 with created pet", async () => {
     authMock.mockResolvedValue(userSession);
     prismaMock.pet.create.mockResolvedValue(storedPet);
     const res = await postPet(makePostRequest(validPetBody));
     expect(res.status).toBe(201);
-    const data = await res.json() as { pet: typeof storedPet };
-    expect(data.pet.id).toBe('pet-1');
+    const data = (await res.json()) as { pet: typeof storedPet };
+    expect(data.pet.id).toBe("pet-1");
     expect(prismaMock.pet.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({ name: 'Buddy', userId: 'user-1' }),
+      data: expect.objectContaining({ name: "Buddy", userId: "user-1" }),
     });
   });
 });
 
 // ── GET /api/pets/[id] ────────────────────────────────────────────────────────
-describe('GET /api/pets/[id]', () => {
+describe("GET /api/pets/[id]", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('returns 401 when not authenticated', async () => {
+  it("returns 401 when not authenticated", async () => {
     authMock.mockResolvedValue(null);
-    const res = await getPet(makeGetRequest(), ctx('pet-1'));
+    const res = await getPet(makeGetRequest(), ctx("pet-1"));
     expect(res.status).toBe(401);
   });
 
-  it('returns 404 when pet not found', async () => {
+  it("returns 404 when pet not found", async () => {
     authMock.mockResolvedValue(userSession);
     prismaMock.pet.findUnique.mockResolvedValue(null);
-    const res = await getPet(makeGetRequest(), ctx('pet-1'));
+    const res = await getPet(makeGetRequest(), ctx("pet-1"));
     expect(res.status).toBe(404);
   });
 
-  it('returns 403 for wrong user', async () => {
+  it("returns 403 for wrong user", async () => {
     authMock.mockResolvedValue(otherSession);
     prismaMock.pet.findUnique.mockResolvedValue(storedPet);
-    const res = await getPet(makeGetRequest(), ctx('pet-1'));
+    const res = await getPet(makeGetRequest(), ctx("pet-1"));
     expect(res.status).toBe(403);
   });
 
-  it('returns 200 with pet', async () => {
+  it("returns 200 with pet", async () => {
     authMock.mockResolvedValue(userSession);
     prismaMock.pet.findUnique.mockResolvedValue(storedPet);
-    const res = await getPet(makeGetRequest(), ctx('pet-1'));
+    const res = await getPet(makeGetRequest(), ctx("pet-1"));
     expect(res.status).toBe(200);
-    const data = await res.json() as { pet: typeof storedPet };
-    expect(data.pet.id).toBe('pet-1');
+    const data = (await res.json()) as { pet: typeof storedPet };
+    expect(data.pet.id).toBe("pet-1");
   });
 });
 
 // ── PUT /api/pets/[id] ────────────────────────────────────────────────────────
-describe('PUT /api/pets/[id]', () => {
+describe("PUT /api/pets/[id]", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('returns 401 when not authenticated', async () => {
+  it("returns 401 when not authenticated", async () => {
     authMock.mockResolvedValue(null);
-    const res = await putPet(makePutRequest(validPetBody), ctx('pet-1'));
+    const res = await putPet(makePutRequest(validPetBody), ctx("pet-1"));
     expect(res.status).toBe(401);
   });
 
-  it('returns 403 for wrong user', async () => {
+  it("returns 403 for wrong user", async () => {
     authMock.mockResolvedValue(otherSession);
     prismaMock.pet.findUnique.mockResolvedValue(storedPet);
-    const res = await putPet(makePutRequest(validPetBody), ctx('pet-1'));
+    const res = await putPet(makePutRequest(validPetBody), ctx("pet-1"));
     expect(res.status).toBe(403);
   });
 
-  it('returns 404 when pet not found', async () => {
+  it("returns 404 when pet not found", async () => {
     authMock.mockResolvedValue(userSession);
     prismaMock.pet.findUnique.mockResolvedValue(null);
-    const res = await putPet(makePutRequest(validPetBody), ctx('pet-1'));
+    const res = await putPet(makePutRequest(validPetBody), ctx("pet-1"));
     expect(res.status).toBe(404);
   });
 
-  it('returns 400 for invalid body', async () => {
+  it("returns 400 for invalid body", async () => {
     authMock.mockResolvedValue(userSession);
     prismaMock.pet.findUnique.mockResolvedValue(storedPet);
-    const res = await putPet(makePutRequest({ name: '' }), ctx('pet-1'));
+    const res = await putPet(makePutRequest({ name: "" }), ctx("pet-1"));
     expect(res.status).toBe(400);
   });
 
-  it('returns 200 with updated pet', async () => {
+  it("returns 200 with updated pet", async () => {
     authMock.mockResolvedValue(userSession);
     prismaMock.pet.findUnique.mockResolvedValue(storedPet);
-    const updated = { ...storedPet, name: 'Max' };
+    const updated = { ...storedPet, name: "Max" };
     prismaMock.pet.update.mockResolvedValue(updated);
-    const res = await putPet(makePutRequest({ ...validPetBody, name: 'Max' }), ctx('pet-1'));
+    const res = await putPet(
+      makePutRequest({ ...validPetBody, name: "Max" }),
+      ctx("pet-1"),
+    );
     expect(res.status).toBe(200);
-    const data = await res.json() as { pet: typeof updated };
-    expect(data.pet.name).toBe('Max');
+    const data = (await res.json()) as { pet: typeof updated };
+    expect(data.pet.name).toBe("Max");
   });
 });
 
 // ── DELETE /api/pets/[id] ─────────────────────────────────────────────────────
-describe('DELETE /api/pets/[id]', () => {
+describe("DELETE /api/pets/[id]", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('returns 401 when not authenticated', async () => {
+  it("returns 401 when not authenticated", async () => {
     authMock.mockResolvedValue(null);
-    const res = await deletePet(makeDeleteRequest(), ctx('pet-1'));
+    const res = await deletePet(makeDeleteRequest(), ctx("pet-1"));
     expect(res.status).toBe(401);
   });
 
-  it('returns 403 for wrong user', async () => {
+  it("returns 403 for wrong user", async () => {
     authMock.mockResolvedValue(otherSession);
     prismaMock.pet.findUnique.mockResolvedValue(storedPet);
-    const res = await deletePet(makeDeleteRequest(), ctx('pet-1'));
+    const res = await deletePet(makeDeleteRequest(), ctx("pet-1"));
     expect(res.status).toBe(403);
   });
 
-  it('returns 404 when pet not found', async () => {
+  it("returns 404 when pet not found", async () => {
     authMock.mockResolvedValue(userSession);
     prismaMock.pet.findUnique.mockResolvedValue(null);
-    const res = await deletePet(makeDeleteRequest(), ctx('pet-1'));
+    const res = await deletePet(makeDeleteRequest(), ctx("pet-1"));
     expect(res.status).toBe(404);
   });
 
-  it('returns 204 on success', async () => {
+  it("returns 204 on success", async () => {
     authMock.mockResolvedValue(userSession);
     prismaMock.pet.findUnique.mockResolvedValue(storedPet);
     prismaMock.pet.delete.mockResolvedValue(storedPet);
-    const res = await deletePet(makeDeleteRequest(), ctx('pet-1'));
+    const res = await deletePet(makeDeleteRequest(), ctx("pet-1"));
     expect(res.status).toBe(204);
   });
 });

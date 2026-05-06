@@ -1,16 +1,20 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma, isDatabaseConfigured } from '@/lib/prisma';
+import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 
 async function requireStaffSession() {
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
+    return {
+      error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    };
   }
 
   const role = (session.user as { id: string; role?: string }).role;
-  if (!role || !['staff', 'admin'].includes(role)) {
-    return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
+  if (!role || !["staff", "admin"].includes(role)) {
+    return {
+      error: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+    };
   }
 
   return { session };
@@ -23,14 +27,17 @@ export async function GET() {
   }
 
   if (!isDatabaseConfigured()) {
-    return NextResponse.json({ suites: [], summary: { suites: 0, occupiedSuites: 0, occupiedPets: 0 } });
+    return NextResponse.json({
+      suites: [],
+      summary: { suites: 0, occupiedSuites: 0, occupiedPets: 0 },
+    });
   }
 
   const suites = await prisma.suite.findMany({
     where: { isActive: true },
     include: {
       bookings: {
-        where: { status: 'checked_in' },
+        where: { status: "checked_in" },
         include: {
           user: {
             select: { id: true, name: true, email: true },
@@ -45,7 +52,7 @@ export async function GET() {
         },
       },
     },
-    orderBy: { name: 'asc' },
+    orderBy: { name: "asc" },
   });
 
   const normalizedSuites = suites.map((suite) => {
@@ -53,7 +60,10 @@ export async function GET() {
       (sum, booking) => sum + booking.bookingPets.length,
       0,
     );
-    const occupancyPct = suite.capacity > 0 ? Math.min(100, Math.round((occupiedPets / suite.capacity) * 100)) : 0;
+    const occupancyPct =
+      suite.capacity > 0
+        ? Math.min(100, Math.round((occupiedPets / suite.capacity) * 100))
+        : 0;
 
     return {
       id: suite.id,
@@ -63,7 +73,7 @@ export async function GET() {
       capacity: suite.capacity,
       occupiedPets,
       occupancyPct,
-      status: occupiedPets > 0 ? 'occupied' : 'available',
+      status: occupiedPets > 0 ? "occupied" : "available",
       bookings: suite.bookings.map((booking) => ({
         id: booking.id,
         bookingNumber: booking.bookingNumber,
@@ -77,8 +87,12 @@ export async function GET() {
 
   const summary = {
     suites: normalizedSuites.length,
-    occupiedSuites: normalizedSuites.filter((suite) => suite.occupiedPets > 0).length,
-    occupiedPets: normalizedSuites.reduce((sum, suite) => sum + suite.occupiedPets, 0),
+    occupiedSuites: normalizedSuites.filter((suite) => suite.occupiedPets > 0)
+      .length,
+    occupiedPets: normalizedSuites.reduce(
+      (sum, suite) => sum + suite.occupiedPets,
+      0,
+    ),
   };
 
   return NextResponse.json({

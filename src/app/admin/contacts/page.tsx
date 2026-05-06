@@ -1,4 +1,4 @@
-import { EmergencyContactsTable } from '@/components/admin/EmergencyContactsTable';
+import { EmergencyContactsTable } from "@/components/admin/EmergencyContactsTable";
 
 export default async function AdminContactsPage() {
   return (

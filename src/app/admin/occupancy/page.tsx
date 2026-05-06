@@ -1,4 +1,4 @@
-import { OccupancyGrid } from '@/components/admin/OccupancyGrid';
+import { OccupancyGrid } from "@/components/admin/OccupancyGrid";
 
 export default async function AdminOccupancyPage() {
   return (

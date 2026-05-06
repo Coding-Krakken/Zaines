@@ -1,19 +1,25 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, Calendar, Pill, Activity, Scale } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { AlertCircle, Calendar, Pill, Activity, Scale } from "lucide-react";
 
 interface TimelineItem {
   id: string;
-  type: 'vaccine' | 'medication' | 'weight' | 'activity';
+  type: "vaccine" | "medication" | "weight" | "activity";
   date: string;
   petId: string;
   petName: string;
   title: string;
   details?: string;
-  alert?: 'critical' | 'warning' | 'info';
+  alert?: "critical" | "warning" | "info";
 }
 
 interface HealthTimelineProps {
@@ -31,18 +37,18 @@ export function HealthTimeline({ petId }: HealthTimelineProps) {
       try {
         const url = petId
           ? `/api/health-timeline?petId=${petId}`
-          : '/api/health-timeline';
+          : "/api/health-timeline";
         const response = await fetch(url);
 
         if (!response.ok) {
-          throw new Error('Failed to fetch health timeline');
+          throw new Error("Failed to fetch health timeline");
         }
 
         const data = await response.json();
         setTimeline(data.timeline || []);
         setAlerts(data.alerts || { critical: 0, warning: 0, info: 0 });
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setLoading(false);
       }
@@ -53,13 +59,13 @@ export function HealthTimeline({ petId }: HealthTimelineProps) {
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'vaccine':
+      case "vaccine":
         return <AlertCircle className="h-4 w-4" />;
-      case 'medication':
+      case "medication":
         return <Pill className="h-4 w-4" />;
-      case 'weight':
+      case "weight":
         return <Scale className="h-4 w-4" />;
-      case 'activity':
+      case "activity":
         return <Activity className="h-4 w-4" />;
       default:
         return <Calendar className="h-4 w-4" />;
@@ -70,14 +76,18 @@ export function HealthTimeline({ petId }: HealthTimelineProps) {
     if (!alert) return null;
 
     const variants = {
-      critical: 'destructive',
-      warning: 'default',
-      info: 'secondary',
+      critical: "destructive",
+      warning: "default",
+      info: "secondary",
     } as const;
 
     return (
-      <Badge variant={variants[alert as keyof typeof variants] || 'secondary'}>
-        {alert === 'critical' ? 'Urgent' : alert === 'warning' ? 'Warning' : 'Info'}
+      <Badge variant={variants[alert as keyof typeof variants] || "secondary"}>
+        {alert === "critical"
+          ? "Urgent"
+          : alert === "warning"
+            ? "Warning"
+            : "Info"}
       </Badge>
     );
   };
@@ -111,12 +121,12 @@ export function HealthTimeline({ petId }: HealthTimelineProps) {
         <CardDescription>
           {alerts.critical > 0 && (
             <span className="text-red-600 font-medium">
-              {alerts.critical} urgent alert{alerts.critical > 1 ? 's' : ''}
+              {alerts.critical} urgent alert{alerts.critical > 1 ? "s" : ""}
             </span>
           )}
           {alerts.warning > 0 && alerts.critical === 0 && (
             <span className="text-yellow-600 font-medium">
-              {alerts.warning} warning{alerts.warning > 1 ? 's' : ''}
+              {alerts.warning} warning{alerts.warning > 1 ? "s" : ""}
             </span>
           )}
           {alerts.critical === 0 && alerts.warning === 0 && (
@@ -126,18 +136,20 @@ export function HealthTimeline({ petId }: HealthTimelineProps) {
       </CardHeader>
       <CardContent>
         {timeline.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No health records found.</p>
+          <p className="text-sm text-muted-foreground">
+            No health records found.
+          </p>
         ) : (
           <div className="space-y-3">
             {timeline.slice(0, 10).map((item) => (
               <div
                 key={item.id}
                 className={`flex items-start gap-3 p-3 border rounded ${
-                  item.alert === 'critical'
-                    ? 'border-red-200 bg-red-50'
-                    : item.alert === 'warning'
-                      ? 'border-yellow-200 bg-yellow-50'
-                      : ''
+                  item.alert === "critical"
+                    ? "border-red-200 bg-red-50"
+                    : item.alert === "warning"
+                      ? "border-yellow-200 bg-yellow-50"
+                      : ""
                 }`}
               >
                 <div className="mt-0.5">{getIcon(item.type)}</div>
@@ -150,7 +162,9 @@ export function HealthTimeline({ petId }: HealthTimelineProps) {
                     {item.petName} • {new Date(item.date).toLocaleDateString()}
                   </p>
                   {item.details && (
-                    <p className="text-xs text-muted-foreground mt-1">{item.details}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {item.details}
+                    </p>
                   )}
                 </div>
               </div>

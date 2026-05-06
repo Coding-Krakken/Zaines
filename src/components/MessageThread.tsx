@@ -8,7 +8,10 @@ interface MessageThreadProps {
   bookingNumber: string;
 }
 
-export function MessageThread({ bookingId, bookingNumber }: MessageThreadProps) {
+export function MessageThread({
+  bookingId,
+  bookingNumber,
+}: MessageThreadProps) {
   const {
     messages,
     isLoading,
@@ -191,9 +194,7 @@ export function MessageThread({ bookingId, bookingNumber }: MessageThreadProps) 
         </div>
 
         <div className="flex items-center justify-between">
-          <p className="text-xs text-gray-500">
-            {messageInput.length}/5000
-          </p>
+          <p className="text-xs text-gray-500">{messageInput.length}/5000</p>
           <button
             onClick={handleSendMessage}
             disabled={isSending || !messageInput.trim()}

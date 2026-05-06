@@ -168,7 +168,11 @@ function ConfirmationContent() {
             📱 You can view and manage your booking in your dashboard.
           </p>
           <p className="mt-2 text-sm text-blue-900">
-            Need help? Visit our <Link href="/contact" className="underline font-medium">support page</Link> or call the front desk.
+            Need help? Visit our{" "}
+            <Link href="/contact" className="underline font-medium">
+              support page
+            </Link>{" "}
+            or call the front desk.
           </p>
         </div>
         <div className="flex flex-col gap-2">

@@ -1,7 +1,7 @@
-import { auth } from '@/lib/auth';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { AdminNav } from '@/components/admin/AdminNav';
+import { auth } from "@/lib/auth";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { AdminNav } from "@/components/admin/AdminNav";
 
 export default async function AdminLayout({
   children,
@@ -10,7 +10,8 @@ export default async function AdminLayout({
 }) {
   const cookieStore = await cookies();
   const e2eBypassEnabled =
-    process.env.PLAYWRIGHT_TEST === '1' && cookieStore.get('e2e-staff')?.value === '1';
+    process.env.PLAYWRIGHT_TEST === "1" &&
+    cookieStore.get("e2e-staff")?.value === "1";
 
   if (e2eBypassEnabled) {
     return (
@@ -23,12 +24,12 @@ export default async function AdminLayout({
 
   const session = await auth();
   if (!session?.user?.id) {
-    redirect('/auth/signin');
+    redirect("/auth/signin");
   }
 
   const role = (session.user as { id: string; role?: string }).role;
-  if (!role || !['staff', 'admin'].includes(role)) {
-    redirect('/dashboard');
+  if (!role || !["staff", "admin"].includes(role)) {
+    redirect("/dashboard");
   }
 
   return (

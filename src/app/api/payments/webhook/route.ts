@@ -4,7 +4,11 @@ import Stripe from "stripe";
 import { stripe, isStripeConfigured } from "@/lib/stripe";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { sendPaymentNotification } from "@/lib/notifications";
-import { errorResponse, getCorrelationId, logServerFailure } from "@/lib/security/api";
+import {
+  errorResponse,
+  getCorrelationId,
+  logServerFailure,
+} from "@/lib/security/api";
 import { logSecurityEvent } from "@/lib/security/logging";
 
 // POST /api/payments/webhook - Handle Stripe webhook events

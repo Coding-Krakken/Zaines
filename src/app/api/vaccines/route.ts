@@ -1,20 +1,23 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma, isDatabaseConfigured } from '@/lib/prisma';
-import { vaccineSchema } from '@/lib/validations/vaccine';
+import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import { vaccineSchema } from "@/lib/validations/vaccine";
 
 export async function GET(request: Request) {
   if (!isDatabaseConfigured()) {
-    return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+    return NextResponse.json(
+      { error: "Database not configured" },
+      { status: 503 },
+    );
   }
 
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
-  const petId = searchParams.get('petId');
+  const petId = searchParams.get("petId");
 
   // Build query based on whether petId is provided
   const whereClause = petId
@@ -32,7 +35,7 @@ export async function GET(request: Request) {
         },
       },
     },
-    orderBy: { expiryDate: 'asc' },
+    orderBy: { expiryDate: "asc" },
   });
 
   return NextResponse.json({ vaccines });
@@ -40,19 +43,22 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   if (!isDatabaseConfigured()) {
-    return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+    return NextResponse.json(
+      { error: "Database not configured" },
+      { status: 503 },
+    );
   }
 
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body: unknown = await request.json();
   const { petId, ...vaccineData } = body as { petId?: string };
 
   if (!petId) {
-    return NextResponse.json({ error: 'petId is required' }, { status: 400 });
+    return NextResponse.json({ error: "petId is required" }, { status: 400 });
   }
 
   // Verify pet ownership
@@ -62,17 +68,17 @@ export async function POST(request: Request) {
   });
 
   if (!pet) {
-    return NextResponse.json({ error: 'Pet not found' }, { status: 404 });
+    return NextResponse.json({ error: "Pet not found" }, { status: 404 });
   }
 
   if (pet.userId !== session.user.id) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const result = vaccineSchema.safeParse(vaccineData);
   if (!result.success) {
     return NextResponse.json(
-      { error: 'Invalid request', details: result.error.flatten().fieldErrors },
+      { error: "Invalid request", details: result.error.flatten().fieldErrors },
       { status: 400 },
     );
   }

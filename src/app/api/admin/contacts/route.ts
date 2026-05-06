@@ -1,16 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma, isDatabaseConfigured } from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 
 async function requireStaffSession() {
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
+    return {
+      error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    };
   }
 
   const role = (session.user as { id: string; role?: string }).role;
-  if (!role || !['staff', 'admin'].includes(role)) {
-    return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
+  if (!role || !["staff", "admin"].includes(role)) {
+    return {
+      error: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+    };
   }
 
   return { session };
@@ -26,7 +30,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ contacts: [] });
   }
 
-  const bookingId = request.nextUrl.searchParams.get('bookingId')?.trim();
+  const bookingId = request.nextUrl.searchParams.get("bookingId")?.trim();
 
   if (bookingId) {
     const booking = await prisma.booking.findUnique({
@@ -38,7 +42,7 @@ export async function GET(request: NextRequest) {
             name: true,
             email: true,
             emergencyContacts: {
-              orderBy: [{ isPrimary: 'desc' }, { createdAt: 'asc' }],
+              orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
             },
           },
         },
@@ -53,12 +57,14 @@ export async function GET(request: NextRequest) {
     });
 
     if (!booking) {
-      return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+      return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
-    if (booking.status !== 'checked_in') {
+    if (booking.status !== "checked_in") {
       return NextResponse.json(
-        { error: `Cannot retrieve active contacts for booking with status: ${booking.status}` },
+        {
+          error: `Cannot retrieve active contacts for booking with status: ${booking.status}`,
+        },
         { status: 409 },
       );
     }
@@ -80,7 +86,7 @@ export async function GET(request: NextRequest) {
 
   const activeBookings = await prisma.booking.findMany({
     where: {
-      status: 'checked_in',
+      status: "checked_in",
     },
     include: {
       user: {
@@ -89,7 +95,7 @@ export async function GET(request: NextRequest) {
           name: true,
           email: true,
           emergencyContacts: {
-            orderBy: [{ isPrimary: 'desc' }, { createdAt: 'asc' }],
+            orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
           },
         },
       },
@@ -101,7 +107,7 @@ export async function GET(request: NextRequest) {
         },
       },
     },
-    orderBy: { checkInDate: 'asc' },
+    orderBy: { checkInDate: "asc" },
   });
 
   const contacts = activeBookings.flatMap((booking) =>

@@ -25,7 +25,10 @@ export function computeAdaptivePollDelay({
   const boundedJitterRatio = Math.min(Math.max(jitterRatio, 0), 0.5);
 
   const exponentialDelay = safeBase * 2 ** safeFailures;
-  const cappedDelay = Math.min(exponentialDelay, Math.max(maxIntervalMs, safeBase));
+  const cappedDelay = Math.min(
+    exponentialDelay,
+    Math.max(maxIntervalMs, safeBase),
+  );
 
   const minDelay = Math.floor(cappedDelay * (1 - boundedJitterRatio));
   const maxDelay = Math.ceil(cappedDelay * (1 + boundedJitterRatio));

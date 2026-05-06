@@ -1,26 +1,26 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea';
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function NewPetPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [gender, setGender] = useState('');
+  const [gender, setGender] = useState("");
   const [spayedNeutered, setSpayedNeutered] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -30,27 +30,28 @@ export default function NewPetPage() {
 
     const form = new FormData(e.currentTarget);
     const data = {
-      name: form.get('name') as string,
-      breed: form.get('breed') as string,
-      age: parseInt(form.get('age') as string, 10),
-      weight: parseFloat(form.get('weight') as string),
+      name: form.get("name") as string,
+      breed: form.get("breed") as string,
+      age: parseInt(form.get("age") as string, 10),
+      weight: parseFloat(form.get("weight") as string),
       gender,
       spayedNeutered,
-      specialNeeds: (form.get('specialNeeds') as string) || undefined,
-      feedingInstructions: (form.get('feedingInstructions') as string) || undefined,
+      specialNeeds: (form.get("specialNeeds") as string) || undefined,
+      feedingInstructions:
+        (form.get("feedingInstructions") as string) || undefined,
     };
 
-    const res = await fetch('/api/pets', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/api/pets", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
     if (res.ok) {
-      router.push('/dashboard/pets');
+      router.push("/dashboard/pets");
     } else {
-      const body = await res.json() as { error?: string };
-      setError(body.error ?? 'Failed to save pet');
+      const body = (await res.json()) as { error?: string };
+      setError(body.error ?? "Failed to save pet");
       setIsLoading(false);
     }
   }
@@ -78,11 +79,25 @@ export default function NewPetPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label htmlFor="age">Age (years) *</Label>
-                <Input id="age" name="age" type="number" min="0" max="30" required />
+                <Input
+                  id="age"
+                  name="age"
+                  type="number"
+                  min="0"
+                  max="30"
+                  required
+                />
               </div>
               <div className="space-y-1">
                 <Label htmlFor="weight">Weight (lbs) *</Label>
-                <Input id="weight" name="weight" type="number" step="0.1" min="0.1" required />
+                <Input
+                  id="weight"
+                  name="weight"
+                  type="number"
+                  step="0.1"
+                  min="0.1"
+                  required
+                />
               </div>
             </div>
 
@@ -115,11 +130,15 @@ export default function NewPetPage() {
 
             <div className="space-y-1">
               <Label htmlFor="feedingInstructions">Feeding Instructions</Label>
-              <Textarea id="feedingInstructions" name="feedingInstructions" rows={2} />
+              <Textarea
+                id="feedingInstructions"
+                name="feedingInstructions"
+                rows={2}
+              />
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Saving…' : 'Add Pet'}
+              {isLoading ? "Saving…" : "Add Pet"}
             </Button>
           </form>
         </CardContent>

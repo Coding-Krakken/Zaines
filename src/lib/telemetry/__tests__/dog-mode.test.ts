@@ -108,8 +108,8 @@ describe("Dog Mode telemetry", () => {
   });
 
   it("creates anonymous kiosk session ids", () => {
-    expect(createDogSessionId((length) => new Uint8Array(length).fill(1))).toMatch(
-      /^dog_[a-z0-9]{10,40}$/,
-    );
+    expect(
+      createDogSessionId((length) => new Uint8Array(length).fill(1)),
+    ).toMatch(/^dog_[a-z0-9]{10,40}$/);
   });
 });

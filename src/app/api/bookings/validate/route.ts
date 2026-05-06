@@ -85,7 +85,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const pricing = calculateBookingPrice(checkIn, checkOut, suiteType, petCount);
+    const pricing = calculateBookingPrice(
+      checkIn,
+      checkOut,
+      suiteType,
+      petCount,
+    );
 
     return NextResponse.json(
       {

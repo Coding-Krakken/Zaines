@@ -10,14 +10,24 @@ interface PhotoGalleryProps {
 }
 
 export function PhotoGallery({ bookingId, petId }: PhotoGalleryProps) {
-  const { photos, isLoading, isError, error, hasMore, totalPhotos, loadMore, refresh } =
-    usePhotoGallery({
-      bookingId,
-      pollIntervalMs: 30000, // 30s polling
-      petId,
-    });
+  const {
+    photos,
+    isLoading,
+    isError,
+    error,
+    hasMore,
+    totalPhotos,
+    loadMore,
+    refresh,
+  } = usePhotoGallery({
+    bookingId,
+    pollIntervalMs: 30000, // 30s polling
+    petId,
+  });
 
-  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
+    null,
+  );
   const lightboxRef = useRef<HTMLDivElement>(null);
 
   // Handle keyboard navigation in lightbox
@@ -27,11 +37,11 @@ export function PhotoGallery({ bookingId, petId }: PhotoGalleryProps) {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") {
         setSelectedPhotoIndex((prev) =>
-          prev !== null && prev > 0 ? prev - 1 : null
+          prev !== null && prev > 0 ? prev - 1 : null,
         );
       } else if (e.key === "ArrowRight") {
         setSelectedPhotoIndex((prev) =>
-          prev !== null && prev < photos.length - 1 ? prev + 1 : null
+          prev !== null && prev < photos.length - 1 ? prev + 1 : null,
         );
       } else if (e.key === "Escape") {
         setSelectedPhotoIndex(null);
@@ -90,7 +100,8 @@ export function PhotoGallery({ bookingId, petId }: PhotoGalleryProps) {
           {/* Header */}
           <div className="mb-4">
             <h3 className="font-semibold text-sm">
-              Photo Gallery ({totalPhotos} {totalPhotos === 1 ? "photo" : "photos"})
+              Photo Gallery ({totalPhotos}{" "}
+              {totalPhotos === 1 ? "photo" : "photos"})
             </h3>
           </div>
 
@@ -180,7 +191,10 @@ export function PhotoGallery({ bookingId, petId }: PhotoGalleryProps) {
           <div className="relative w-full h-full max-w-2xl max-h-[80vh]">
             <Image
               src={photos[selectedPhotoIndex]!.imageUrl}
-              alt={photos[selectedPhotoIndex]!.caption || `Photo ${selectedPhotoIndex + 1}`}
+              alt={
+                photos[selectedPhotoIndex]!.caption ||
+                `Photo ${selectedPhotoIndex + 1}`
+              }
               fill
               className="object-contain"
               priority
@@ -203,7 +217,9 @@ export function PhotoGallery({ bookingId, petId }: PhotoGalleryProps) {
           <div className="absolute bottom-0 left-0 right-0 bg-black/75 text-white p-4">
             <div className="text-sm">
               {photos[selectedPhotoIndex]?.caption && (
-                <p className="font-medium mb-2">{photos[selectedPhotoIndex].caption}</p>
+                <p className="font-medium mb-2">
+                  {photos[selectedPhotoIndex].caption}
+                </p>
               )}
               <div className="flex justify-between text-xs text-gray-300">
                 <span>
@@ -212,7 +228,9 @@ export function PhotoGallery({ bookingId, petId }: PhotoGalleryProps) {
                 <span>
                   By {photos[selectedPhotoIndex]?.uploadedBy}
                   {" • "}
-                  {new Date(photos[selectedPhotoIndex]!.uploadedAt).toLocaleString()}
+                  {new Date(
+                    photos[selectedPhotoIndex]!.uploadedAt,
+                  ).toLocaleString()}
                 </span>
               </div>
             </div>

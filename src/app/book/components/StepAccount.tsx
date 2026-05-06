@@ -431,7 +431,10 @@ export function StepAccount({
           <Button
             onClick={handleNext}
             disabled={
-              !resolvedEmail || !resolvedFirstName || !resolvedLastName || !phone
+              !resolvedEmail ||
+              !resolvedFirstName ||
+              !resolvedLastName ||
+              !phone
             }
           >
             Continue to Pet Profiles

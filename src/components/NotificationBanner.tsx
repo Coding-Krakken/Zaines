@@ -8,27 +8,31 @@ interface NotificationBannerProps {
 }
 
 export function NotificationBanner({ bookingId }: NotificationBannerProps) {
-  const dismissTimersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>(
-    {}
-  );
+  const dismissTimersRef = useRef<
+    Record<string, ReturnType<typeof setTimeout>>
+  >({});
 
-  const { pendingNotifications, clearNotifications, markNotificationRead, newEventCount } =
-    useNotifications({
-      bookingId,
-      pollIntervalMs: 30000,
-      onNotification: (event) => {
-        const existingTimer = dismissTimersRef.current[event.id];
-        if (existingTimer) {
-          clearTimeout(existingTimer);
-        }
+  const {
+    pendingNotifications,
+    clearNotifications,
+    markNotificationRead,
+    newEventCount,
+  } = useNotifications({
+    bookingId,
+    pollIntervalMs: 30000,
+    onNotification: (event) => {
+      const existingTimer = dismissTimersRef.current[event.id];
+      if (existingTimer) {
+        clearTimeout(existingTimer);
+      }
 
-        // Automatically hide notification after 5 seconds
-        dismissTimersRef.current[event.id] = setTimeout(() => {
-          markNotificationRead(event.id);
-          delete dismissTimersRef.current[event.id];
-        }, 5000);
-      },
-    });
+      // Automatically hide notification after 5 seconds
+      dismissTimersRef.current[event.id] = setTimeout(() => {
+        markNotificationRead(event.id);
+        delete dismissTimersRef.current[event.id];
+      }, 5000);
+    },
+  });
 
   useEffect(() => {
     return () => {
@@ -56,22 +60,22 @@ export function NotificationBanner({ bookingId }: NotificationBannerProps) {
           notification.type === "activity"
             ? "bg-blue-50 border-blue-200"
             : notification.type === "photo"
-            ? "bg-green-50 border-green-200"
-            : "bg-purple-50 border-purple-200";
+              ? "bg-green-50 border-green-200"
+              : "bg-purple-50 border-purple-200";
 
         const textColor =
           notification.type === "activity"
             ? "text-blue-900"
             : notification.type === "photo"
-            ? "text-green-900"
-            : "text-purple-900";
+              ? "text-green-900"
+              : "text-purple-900";
 
         const emoji =
           notification.type === "activity"
             ? "📋"
             : notification.type === "photo"
-            ? "📸"
-            : "💬";
+              ? "📸"
+              : "💬";
 
         return (
           <div

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface ProfileFormProps {
   user: {
@@ -25,13 +25,13 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    name: user.name || '',
-    email: user.email || '',
-    phone: user.phone || '',
-    address: user.address || '',
-    city: user.city || '',
-    state: user.state || '',
-    zip: user.zip || '',
+    name: user.name || "",
+    email: user.email || "",
+    phone: user.phone || "",
+    address: user.address || "",
+    city: user.city || "",
+    state: user.state || "",
+    zip: user.zip || "",
   });
 
   const handleChange = (field: string, value: string) => {
@@ -44,22 +44,22 @@ export function ProfileForm({ user }: ProfileFormProps) {
     setError(null);
 
     try {
-      const response = await fetch('/api/profile', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to update profile');
+        throw new Error(data.error || "Failed to update profile");
       }
 
       setIsEditing(false);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsSaving(false);
     }
@@ -67,13 +67,13 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
   const handleCancel = () => {
     setFormData({
-      name: user.name || '',
-      email: user.email || '',
-      phone: user.phone || '',
-      address: user.address || '',
-      city: user.city || '',
-      state: user.state || '',
-      zip: user.zip || '',
+      name: user.name || "",
+      email: user.email || "",
+      phone: user.phone || "",
+      address: user.address || "",
+      city: user.city || "",
+      state: user.state || "",
+      zip: user.zip || "",
     });
     setIsEditing(false);
     setError(null);
@@ -84,7 +84,11 @@ export function ProfileForm({ user }: ProfileFormProps) {
       <div className="flex justify-between items-center mb-4">
         <h2 className="font-medium text-lg">Profile</h2>
         {!isEditing && (
-          <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">
+          <Button
+            onClick={() => setIsEditing(true)}
+            variant="outline"
+            size="sm"
+          >
             Edit
           </Button>
         )}
@@ -103,11 +107,11 @@ export function ProfileForm({ user }: ProfileFormProps) {
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
+              onChange={(e) => handleChange("name", e.target.value)}
               disabled={isSaving}
             />
           ) : (
-            <p className="mt-1 text-sm">{user.name || 'Not provided'}</p>
+            <p className="mt-1 text-sm">{user.name || "Not provided"}</p>
           )}
         </div>
 
@@ -118,11 +122,11 @@ export function ProfileForm({ user }: ProfileFormProps) {
               id="email"
               type="email"
               value={formData.email}
-              onChange={(e) => handleChange('email', e.target.value)}
+              onChange={(e) => handleChange("email", e.target.value)}
               disabled={isSaving}
             />
           ) : (
-            <p className="mt-1 text-sm">{user.email || 'Not provided'}</p>
+            <p className="mt-1 text-sm">{user.email || "Not provided"}</p>
           )}
         </div>
 
@@ -133,12 +137,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
               id="phone"
               type="tel"
               value={formData.phone}
-              onChange={(e) => handleChange('phone', e.target.value)}
+              onChange={(e) => handleChange("phone", e.target.value)}
               disabled={isSaving}
               placeholder="(555) 123-4567"
             />
           ) : (
-            <p className="mt-1 text-sm">{user.phone || 'Not provided'}</p>
+            <p className="mt-1 text-sm">{user.phone || "Not provided"}</p>
           )}
         </div>
 
@@ -148,12 +152,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
             <Input
               id="address"
               value={formData.address}
-              onChange={(e) => handleChange('address', e.target.value)}
+              onChange={(e) => handleChange("address", e.target.value)}
               disabled={isSaving}
               placeholder="123 Main St"
             />
           ) : (
-            <p className="mt-1 text-sm">{user.address || 'Not provided'}</p>
+            <p className="mt-1 text-sm">{user.address || "Not provided"}</p>
           )}
         </div>
 
@@ -164,11 +168,11 @@ export function ProfileForm({ user }: ProfileFormProps) {
               <Input
                 id="city"
                 value={formData.city}
-                onChange={(e) => handleChange('city', e.target.value)}
+                onChange={(e) => handleChange("city", e.target.value)}
                 disabled={isSaving}
               />
             ) : (
-              <p className="mt-1 text-sm">{user.city || 'N/A'}</p>
+              <p className="mt-1 text-sm">{user.city || "N/A"}</p>
             )}
           </div>
 
@@ -178,13 +182,13 @@ export function ProfileForm({ user }: ProfileFormProps) {
               <Input
                 id="state"
                 value={formData.state}
-                onChange={(e) => handleChange('state', e.target.value)}
+                onChange={(e) => handleChange("state", e.target.value)}
                 disabled={isSaving}
                 maxLength={2}
                 placeholder="NY"
               />
             ) : (
-              <p className="mt-1 text-sm">{user.state || 'N/A'}</p>
+              <p className="mt-1 text-sm">{user.state || "N/A"}</p>
             )}
           </div>
 
@@ -194,12 +198,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
               <Input
                 id="zip"
                 value={formData.zip}
-                onChange={(e) => handleChange('zip', e.target.value)}
+                onChange={(e) => handleChange("zip", e.target.value)}
                 disabled={isSaving}
                 placeholder="12345"
               />
             ) : (
-              <p className="mt-1 text-sm">{user.zip || 'N/A'}</p>
+              <p className="mt-1 text-sm">{user.zip || "N/A"}</p>
             )}
           </div>
         </div>
@@ -207,9 +211,13 @@ export function ProfileForm({ user }: ProfileFormProps) {
         {isEditing && (
           <div className="flex gap-2 pt-2">
             <Button onClick={handleSave} disabled={isSaving}>
-              {isSaving ? 'Saving...' : 'Save'}
+              {isSaving ? "Saving..." : "Save"}
             </Button>
-            <Button onClick={handleCancel} variant="outline" disabled={isSaving}>
+            <Button
+              onClick={handleCancel}
+              variant="outline"
+              disabled={isSaving}
+            >
               Cancel
             </Button>
           </div>

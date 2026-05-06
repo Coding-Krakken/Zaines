@@ -17,7 +17,7 @@ interface RouteParams {
  * Query params:
  *   - since: ISO timestamp of last poll (default: 30 seconds ago)
  *   - includeRead: whether to include read messages (default: false)
- * 
+ *
  * Returns: { activities: [], photos: [], messages: [], timestamp }
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const { searchParams } = new URL(request.url);
     const bookingId = id;
-    
+
     // Parse since parameter - default to 30 seconds ago for SLA compliance
     let sinceDate: Date;
     const since = searchParams.get("since");
@@ -152,9 +152,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const now = new Date();
     const eventCount = activities.length + photos.length + messages.length;
     const pollLatency = {
-      activities: Math.max(...activities.map(a => now.getTime() - new Date(a.performedAt).getTime()), 0),
-      photos: Math.max(...photos.map(p => now.getTime() - new Date(p.uploadedAt).getTime()), 0),
-      messages: Math.max(...messages.map(m => now.getTime() - new Date(m.sentAt).getTime()), 0),
+      activities: Math.max(
+        ...activities.map(
+          (a) => now.getTime() - new Date(a.performedAt).getTime(),
+        ),
+        0,
+      ),
+      photos: Math.max(
+        ...photos.map((p) => now.getTime() - new Date(p.uploadedAt).getTime()),
+        0,
+      ),
+      messages: Math.max(
+        ...messages.map((m) => now.getTime() - new Date(m.sentAt).getTime()),
+        0,
+      ),
     };
 
     return NextResponse.json({
