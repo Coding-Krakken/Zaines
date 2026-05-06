@@ -33,11 +33,6 @@ export default function ContactPage() {
               Have questions? We&apos;d love to hear from you. Send us a message
               and we&apos;ll respond as soon as possible.
             </p>
-            <div className="mt-6 md:hidden">
-              <Button size="lg" className="w-full" asChild>
-                <Link href="/book">Book Your Stay</Link>
-              </Button>
-            </div>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Button size="lg" asChild>
                 <Link href="/book">Book Your Stay</Link>
