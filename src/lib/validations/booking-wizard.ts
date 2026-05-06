@@ -160,10 +160,10 @@ export const createBookingSchema = z.object({
   // Step 5 data
   waiver: z.object({
     signature: z.string(),
-    liabilityAccepted: z.literal(true).optional(),
-    medicalAuthorizationAccepted: z.literal(true).optional(),
-    photoReleaseAccepted: z.literal(true).optional(),
-    policyAcknowledgmentAccepted: z.literal(true).optional(),
+    liabilityAccepted: z.literal(true),
+    medicalAuthorizationAccepted: z.literal(true),
+    photoReleaseAccepted: z.literal(true),
+    policyAcknowledgmentAccepted: z.literal(true),
     ipAddress: z.string().optional(),
     userAgent: z.string().optional(),
   }),

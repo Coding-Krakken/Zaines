@@ -138,7 +138,7 @@ export function StepWaiver({
             id="liability"
             checked={liabilityAccepted}
             onCheckedChange={(checked) =>
-              setLiabilityAccepted(checked as boolean)
+              setLiabilityAccepted(checked === true)
             }
           />
           <Label htmlFor="liability" className="text-sm">
@@ -154,7 +154,7 @@ export function StepWaiver({
             id="medical"
             checked={medicalAuthorizationAccepted}
             onCheckedChange={(checked) =>
-              setMedicalAuthorizationAccepted(checked as boolean)
+              setMedicalAuthorizationAccepted(checked === true)
             }
           />
           <Label htmlFor="medical" className="text-sm">
@@ -170,7 +170,7 @@ export function StepWaiver({
             id="photo"
             checked={photoReleaseAccepted}
             onCheckedChange={(checked) =>
-              setPhotoReleaseAccepted(checked as boolean)
+              setPhotoReleaseAccepted(checked === true)
             }
           />
           <Label htmlFor="photo" className="text-sm">
@@ -184,7 +184,7 @@ export function StepWaiver({
             id="policy-acknowledgment"
             checked={policyAcknowledgmentAccepted}
             onCheckedChange={(checked) =>
-              setPolicyAcknowledgmentAccepted(checked as boolean)
+              setPolicyAcknowledgmentAccepted(checked === true)
             }
           />
           <Label htmlFor="policy-acknowledgment" className="text-sm">
