@@ -57,6 +57,7 @@ import { POST as reviewPost } from "@/app/api/reviews/submissions/route";
 import { GET as reviewsGet } from "@/app/api/reviews/route";
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
+import { absoluteUrl } from "@/lib/seo";
 import {
   __resetIssue26InMemoryState,
   logServerFailure,
@@ -251,7 +252,7 @@ describe("Issue #26 API contracts", () => {
     const robotsConfig = robots();
     const sitemapConfig = sitemap();
 
-    expect(robotsConfig.sitemap).toBe("https://zaines.vercel.app/sitemap.xml");
+    expect(robotsConfig.sitemap).toBe(absoluteUrl("/sitemap.xml"));
     expect(robotsConfig.rules).toEqual(
       expect.objectContaining({
         userAgent: "*",

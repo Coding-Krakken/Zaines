@@ -54,6 +54,36 @@ export const navItems: NavItem[] = [
     href: "/suites",
   },
   {
+    title: "Locations",
+    href: "/locations",
+    children: [
+      {
+        title: "Dog Boarding Syracuse",
+        href: "/dog-boarding-syracuse",
+      },
+      {
+        title: "Liverpool Dog Boarding",
+        href: "/locations/liverpool-ny",
+      },
+      {
+        title: "Cicero Dog Boarding",
+        href: "/locations/cicero-ny",
+      },
+      {
+        title: "Baldwinsville Dog Boarding",
+        href: "/locations/baldwinsville-ny",
+      },
+      {
+        title: "Fayetteville Dog Boarding",
+        href: "/locations/fayetteville-ny",
+      },
+      {
+        title: "Manlius Dog Boarding",
+        href: "/locations/manlius-ny",
+      },
+    ],
+  },
+  {
     title: "Pricing",
     href: "/pricing",
   },
