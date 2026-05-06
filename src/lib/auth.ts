@@ -4,6 +4,7 @@ import Resend from "next-auth/providers/resend";
 import Google from "next-auth/providers/google";
 import Facebook from "next-auth/providers/facebook";
 import { prisma } from "./prisma";
+import { isDatabaseConfigured } from "./prisma";
 
 // NextAuth v5 uses AUTH_SECRET; fall back to NEXTAUTH_SECRET for deployments
 // that have not yet migrated their environment variables.
@@ -11,9 +12,36 @@ const authSecret =
   process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
 
 const isProduction = process.env.NODE_ENV === "production";
+const hasDatabase = isDatabaseConfigured();
+
+const providers: NonNullable<NextAuthConfig["providers"]> = [
+  ...(hasDatabase
+    ? [
+        Resend({
+          from: process.env.EMAIL_FROM || "noreply@pawfectstays.com",
+        }),
+      ]
+    : []),
+  ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    ? [
+        Google({
+          clientId: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        }),
+      ]
+    : []),
+  ...(process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET
+    ? [
+        Facebook({
+          clientId: process.env.FACEBOOK_CLIENT_ID,
+          clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+        }),
+      ]
+    : []),
+];
 
 export const authConfig: NextAuthConfig = {
-  adapter: PrismaAdapter(prisma),
+  ...(hasDatabase ? { adapter: PrismaAdapter(prisma) } : {}),
 
   // Required for Vercel / AWS Lambda deployments: allows NextAuth to trust
   // the x-forwarded-host header when computing cookie domains during the
@@ -44,44 +72,31 @@ export const authConfig: NextAuthConfig = {
     },
   },
 
-  providers: [
-    Resend({
-      from: process.env.EMAIL_FROM || "noreply@pawfectstays.com",
-    }),
-    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-      ? [
-          Google({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          }),
-        ]
-      : []),
-    ...(process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET
-      ? [
-          Facebook({
-            clientId: process.env.FACEBOOK_CLIENT_ID,
-            clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-          }),
-        ]
-      : []),
-  ],
+  providers,
   pages: {
     signIn: "/auth/signin",
     verifyRequest: "/auth/verify",
     error: "/auth/error",
   },
   callbacks: {
-    async session({ session, user }) {
+    async session({ session, user, token }) {
       if (session.user) {
-        session.user.id = user.id;
+        session.user.id = user?.id ?? token.sub ?? "";
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        session.user.role = (user as any).role ?? "customer";
+        session.user.role = (user as any)?.role ?? token.role ?? "customer";
       }
       return session;
     },
+    async jwt({ token, user }) {
+      if (user) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        token.role = (user as any)?.role ?? "customer";
+      }
+      return token;
+    },
   },
   session: {
-    strategy: "database",
+    strategy: hasDatabase ? "database" : "jwt",
   },
   debug: process.env.NODE_ENV === "development",
 };

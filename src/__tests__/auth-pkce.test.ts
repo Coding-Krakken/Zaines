@@ -29,7 +29,10 @@ vi.mock("next-auth/providers/resend", () => ({ default: vi.fn(() => ({})) }));
 vi.mock("next-auth/providers/google", () => ({ default: vi.fn(() => ({})) }));
 vi.mock("next-auth/providers/facebook", () => ({ default: vi.fn(() => ({})) }));
 vi.mock("@auth/prisma-adapter", () => ({ PrismaAdapter: vi.fn(() => ({})) }));
-vi.mock("@/lib/prisma", () => ({ prisma: {} }));
+vi.mock("@/lib/prisma", () => ({
+  prisma: {},
+  isDatabaseConfigured: vi.fn(() => false),
+}));
 
 // ── import after mocks ────────────────────────────────────────────────────────
 
@@ -40,10 +43,12 @@ import { authConfig } from "../lib/auth";
 describe("authConfig — PKCE regression (Issue #84)", () => {
   let originalAuthSecret: string | undefined;
   let originalNextAuthSecret: string | undefined;
+  let originalDatabaseUrl: string | undefined;
 
   beforeEach(() => {
     originalAuthSecret = process.env.AUTH_SECRET;
     originalNextAuthSecret = process.env.NEXTAUTH_SECRET;
+    originalDatabaseUrl = process.env.DATABASE_URL;
   });
 
   afterEach(() => {
@@ -56,6 +61,11 @@ describe("authConfig — PKCE regression (Issue #84)", () => {
       delete process.env.NEXTAUTH_SECRET;
     } else {
       process.env.NEXTAUTH_SECRET = originalNextAuthSecret;
+    }
+    if (originalDatabaseUrl === undefined) {
+      delete process.env.DATABASE_URL;
+    } else {
+      process.env.DATABASE_URL = originalDatabaseUrl;
     }
   });
 
@@ -106,8 +116,8 @@ describe("authConfig — PKCE regression (Issue #84)", () => {
 
   // ── session strategy ──────────────────────────────────────────────────────
 
-  it("uses database session strategy (required with Prisma adapter)", () => {
-    expect(authConfig.session?.strategy).toBe("database");
+  it("falls back to jwt session strategy when DATABASE_URL is not configured", () => {
+    expect(authConfig.session?.strategy).toBe("jwt");
   });
 
   // ── error pages ───────────────────────────────────────────────────────────
