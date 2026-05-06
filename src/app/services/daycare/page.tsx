@@ -14,7 +14,9 @@ export default function DaycarePage() {
     <div className="container mx-auto flex min-h-[70vh] items-center px-4 py-16">
       <Card className="mx-auto w-full max-w-2xl">
         <CardHeader>
-          <CardTitle>Service Update</CardTitle>
+          <CardTitle>
+            <h1>Service Update</h1>
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-muted-foreground">

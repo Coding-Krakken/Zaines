@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import {
+  errorResponse,
+  getCorrelationId,
+  logServerFailure,
+  rateLimitedResponse,
+} from "@/lib/security/api";
 
 type AvailabilityPrisma = {
   booking: {
@@ -30,17 +36,28 @@ const availabilitySchema = z.object({
 
 // GET /api/availability - Check suite availability for dates
 export async function GET(request: NextRequest) {
+  const correlationId = getCorrelationId(request);
+
   try {
+    const rateLimit = rateLimitedResponse({
+      request,
+      routeKey: "availability_get",
+      route: "/api/availability",
+      correlationId,
+      limit: 60,
+      windowMs: 60_000,
+    });
+    if (rateLimit) return rateLimit;
+
     // Check if database is configured
     if (!isDatabaseConfigured()) {
-      return NextResponse.json(
-        {
-          error: "Availability check is not available",
-          message:
-            "Database is not configured. Please set DATABASE_URL environment variable.",
-        },
-        { status: 400 },
-      );
+      return errorResponse({
+        status: 503,
+        errorCode: "AVAILABILITY_UNAVAILABLE",
+        message: "Availability is temporarily unavailable. Please retry.",
+        retryable: true,
+        correlationId,
+      });
     }
 
     const searchParams = request.nextUrl.searchParams;
@@ -49,10 +66,13 @@ export async function GET(request: NextRequest) {
     const suiteType = searchParams.get("suiteType");
 
     if (!checkIn || !checkOut) {
-      return NextResponse.json(
-        { error: "checkIn and checkOut dates are required" },
-        { status: 400 },
-      );
+      return errorResponse({
+        status: 400,
+        errorCode: "AVAILABILITY_VALIDATION_ERROR",
+        message: "checkIn and checkOut dates are required.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     const validation = availabilitySchema.safeParse({
@@ -62,10 +82,18 @@ export async function GET(request: NextRequest) {
     });
 
     if (!validation.success) {
-      return NextResponse.json(
-        { error: "Invalid parameters", details: validation.error },
-        { status: 400 },
-      );
+      return errorResponse({
+        status: 400,
+        errorCode: "AVAILABILITY_VALIDATION_ERROR",
+        message: "Invalid availability parameters.",
+        retryable: false,
+        correlationId,
+        details: {
+          fields: validation.error.issues
+            .map((issue) => issue.path.join("."))
+            .filter(Boolean),
+        },
+      });
     }
 
     const checkInDate = new Date(checkIn);
@@ -151,10 +179,18 @@ export async function GET(request: NextRequest) {
         : Object.values(availability).some((count) => count > 0),
     });
   } catch (error) {
-    console.error("Availability check error:", error);
-    return NextResponse.json(
-      { error: "Failed to check availability" },
-      { status: 500 },
+    logServerFailure(
+      "/api/availability",
+      "AVAILABILITY_CHECK_FAILED",
+      correlationId,
+      error,
     );
+    return errorResponse({
+      status: 500,
+      errorCode: "AVAILABILITY_CHECK_FAILED",
+      message: "Failed to check availability. Please retry.",
+      retryable: true,
+      correlationId,
+    });
   }
 }

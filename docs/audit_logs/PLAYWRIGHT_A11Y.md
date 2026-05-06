@@ -1,0 +1,22 @@
+# Playwright accessibility scan
+- Base: http://localhost:3000
+- Scanned at: 2026-05-06T11:55:44.064Z
+
+- / — Violations: 0
+- /about — Violations: 0
+- /contact — Violations: 0
+- /book — Violations: 0
+- /dog — Violations: 0
+- /dog/calm — Violations: 0
+- /faq — Violations: 0
+- /gallery — Violations: 0
+- /policies — Violations: 0
+- /pricing — Violations: 0
+- /privacy — Violations: 0
+- /reviews — Violations: 0
+- /services/boarding — Violations: 0
+- /services/daycare — Violations: 0
+- /services/grooming — Violations: 0
+- /services/training — Violations: 0
+- /suites — Violations: 0
+- /auth/signin — Violations: 0

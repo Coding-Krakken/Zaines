@@ -5,8 +5,8 @@ import {
   getCorrelationId,
   logServerFailure,
   persistContactSubmission,
-  shouldThrottle,
 } from "@/lib/api/issue26";
+import { rateLimitedResponse } from "@/lib/security/api";
 
 export async function POST(request: NextRequest) {
   const correlationId = getCorrelationId(request);
@@ -39,17 +39,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (shouldThrottle(request, "contact_submit")) {
-    return NextResponse.json(
-      createPublicErrorEnvelope({
-        errorCode: "CONTACT_RATE_LIMITED",
-        message: "Too many attempts. Please wait and try again.",
-        retryable: true,
-        correlationId,
-      }),
-      { status: 429 },
-    );
-  }
+  const rateLimit = rateLimitedResponse({
+    request,
+    routeKey: "contact_submit",
+    route: "/api/contact/submissions",
+    correlationId,
+    limit: 5,
+    windowMs: 60_000,
+    subject: parsed.data.idempotencyKey,
+    errorCode: "CONTACT_RATE_LIMITED",
+  });
+  if (rateLimit) return rateLimit;
 
   try {
     const persisted = await persistContactSubmission(parsed.data);

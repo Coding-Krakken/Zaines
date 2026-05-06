@@ -1,5 +1,12 @@
 import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import {
+  errorResponse,
+  getCorrelationId,
+  logServerFailure,
+  rateLimitedResponse,
+} from "@/lib/security/api";
+import { logSecurityEvent } from "@/lib/security/logging";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
@@ -16,17 +23,27 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const correlationId = getCorrelationId(request);
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse({
+        status: 401,
+        errorCode: "AUTH_REQUIRED",
+        message: "Authentication is required.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     if (!isDatabaseConfigured()) {
-      return NextResponse.json(
-        { error: "Database not configured" },
-        { status: 503 }
-      );
+      return errorResponse({
+        status: 503,
+        errorCode: "PHOTOS_UNAVAILABLE",
+        message: "Photos are temporarily unavailable.",
+        retryable: true,
+        correlationId,
+      });
     }
 
     const { searchParams } = new URL(request.url);
@@ -45,10 +62,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!booking || booking.userId !== session.user.id) {
-      return NextResponse.json(
-        { error: "Booking not found or access denied" },
-        { status: 404 }
-      );
+      return errorResponse({
+        status: 404,
+        errorCode: "BOOKING_NOT_FOUND",
+        message: "Booking not found.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     // Build query
@@ -90,11 +110,19 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("Error fetching photos:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch photos" },
-      { status: 500 }
+    logServerFailure(
+      "/api/bookings/[id]/photos",
+      "PHOTOS_FETCH_FAILED",
+      correlationId,
+      error,
     );
+    return errorResponse({
+      status: 500,
+      errorCode: "PHOTOS_FETCH_FAILED",
+      message: "Failed to fetch photos.",
+      retryable: true,
+      correlationId,
+    });
   }
 }
 
@@ -108,28 +136,52 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const correlationId = getCorrelationId(request);
   try {
+    const rateLimit = rateLimitedResponse({
+      request,
+      routeKey: "booking_photo_create",
+      route: "/api/bookings/[id]/photos",
+      correlationId,
+      limit: 30,
+      windowMs: 60_000,
+      subject: id,
+    });
+    if (rateLimit) return rateLimit;
+
     const session = await auth();
     const userRole = session?.user?.role;
     if (!session?.user?.id || (userRole !== "staff" && userRole !== "admin")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse({
+        status: 401,
+        errorCode: "AUTH_REQUIRED",
+        message: "Authentication is required.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     if (!isDatabaseConfigured()) {
-      return NextResponse.json(
-        { error: "Database not configured" },
-        { status: 503 }
-      );
+      return errorResponse({
+        status: 503,
+        errorCode: "PHOTO_CREATE_UNAVAILABLE",
+        message: "Photo creation is temporarily unavailable.",
+        retryable: true,
+        correlationId,
+      });
     }
 
     const bookingId = id;
     const { petId, imageUrl, caption } = await request.json();
 
     if (!petId || !imageUrl) {
-      return NextResponse.json(
-        { error: "petId and imageUrl are required" },
-        { status: 400 }
-      );
+      return errorResponse({
+        status: 400,
+        errorCode: "PHOTO_VALIDATION_ERROR",
+        message: "petId and imageUrl are required.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     const bookingPet = await prisma.bookingPet.findUnique({
@@ -143,10 +195,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!bookingPet) {
-      return NextResponse.json(
-        { error: "petId must belong to the booking" },
-        { status: 400 }
-      );
+      return errorResponse({
+        status: 400,
+        errorCode: "PHOTO_PET_MISMATCH",
+        message: "petId must belong to the booking.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     // Create photo
@@ -173,14 +228,27 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     // Trigger notification (in real implementation, this would queue an event)
     // For now, just track that notification should be sent
-    console.log(`[NOTIFICATION] New photo created for booking ${bookingId}`);
+    logSecurityEvent({
+      route: "/api/bookings/[id]/photos",
+      event: "PHOTO_CREATED",
+      correlationId,
+      context: { bookingId },
+    });
 
     return NextResponse.json(photo, { status: 201 });
   } catch (error) {
-    console.error("Error creating photo:", error);
-    return NextResponse.json(
-      { error: "Failed to create photo" },
-      { status: 500 }
+    logServerFailure(
+      "/api/bookings/[id]/photos",
+      "PHOTO_CREATE_FAILED",
+      correlationId,
+      error,
     );
+    return errorResponse({
+      status: 500,
+      errorCode: "PHOTO_CREATE_FAILED",
+      message: "Failed to create photo.",
+      retryable: true,
+      correlationId,
+    });
   }
 }

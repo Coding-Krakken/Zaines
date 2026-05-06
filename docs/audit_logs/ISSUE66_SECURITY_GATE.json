@@ -1,0 +1,12 @@
+{
+  "scannedAt": "2026-05-06T11:53:25.735Z",
+  "npmAudit": {
+    "critical": 0,
+    "high": 0,
+    "moderate": 6,
+    "low": 0,
+    "total": 6
+  },
+  "apiConsoleFindings": [],
+  "pass": true
+}

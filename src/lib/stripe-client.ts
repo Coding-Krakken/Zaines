@@ -9,7 +9,10 @@ let stripePromise: Promise<Stripe | null> | null = null;
 export const getStripe = (): Promise<Stripe | null> | null => {
   const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 
-  if (!publishableKey) {
+  if (
+    !publishableKey ||
+    !/^pk_(test|live)_[A-Za-z0-9_]+$/.test(publishableKey)
+  ) {
     console.warn(
       "Stripe publishable key not configured. Payment features will be unavailable.",
     );

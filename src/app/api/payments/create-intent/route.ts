@@ -7,7 +7,12 @@ import {
   isStripeConfigured,
 } from "@/lib/stripe";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
-import { getCorrelationId, logServerFailure } from "@/lib/api/issue26";
+import {
+  errorResponse,
+  getCorrelationId,
+  logServerFailure,
+  rateLimitedResponse,
+} from "@/lib/security/api";
 
 type PaymentIntentPrisma = {
   booking: {
@@ -67,56 +72,62 @@ export async function POST(request: NextRequest) {
   const correlationId = getCorrelationId(request);
 
   try {
+    const rateLimit = rateLimitedResponse({
+      request,
+      routeKey: "payments_create_intent",
+      route: "/api/payments/create-intent",
+      correlationId,
+      limit: 10,
+      windowMs: 60_000,
+    });
+    if (rateLimit) return rateLimit;
+
     // Check if Stripe is configured
     if (!isStripeConfigured()) {
-      return NextResponse.json(
-        {
-          error: "Payment processing is not available",
-          message:
-            "Stripe is not configured. Please contact support or set STRIPE_SECRET_KEY environment variable.",
-        },
-        { status: 400 },
-      );
+      return errorResponse({
+        status: 503,
+        errorCode: "PAYMENT_PROVIDER_UNAVAILABLE",
+        message: "Payment processing is temporarily unavailable.",
+        retryable: true,
+        correlationId,
+      });
     }
 
     // Check if database is configured
     if (!isDatabaseConfigured()) {
-      return NextResponse.json(
-        {
-          error: "Database is not available",
-          message:
-            "Database is not configured. Please set DATABASE_URL environment variable.",
-        },
-        { status: 400 },
-      );
+      return errorResponse({
+        status: 503,
+        errorCode: "PAYMENT_PERSISTENCE_UNAVAILABLE",
+        message: "Payment processing is temporarily unavailable.",
+        retryable: true,
+        correlationId,
+      });
     }
 
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        {
-          error: "Authentication required",
-          code: "AUTH_REQUIRED",
-          correlationId,
-        },
-        { status: 401 },
-      );
+      return errorResponse({
+        status: 401,
+        errorCode: "AUTH_REQUIRED",
+        message: "Authentication required",
+        retryable: false,
+        correlationId,
+      });
     }
 
     const body = await request.json();
     const validation = paymentIntentSchema.safeParse(body);
 
     if (!validation.success) {
-      return NextResponse.json(
-        {
-          error: "Invalid payment data",
-          code: "PAYMENT_VALIDATION_ERROR",
-          details: createPaymentValidationDetails(validation.error),
-          correlationId,
-        },
-        { status: 400 },
-      );
+      return errorResponse({
+        status: 400,
+        errorCode: "PAYMENT_VALIDATION_ERROR",
+        message: "Invalid payment data",
+        retryable: false,
+        correlationId,
+        details: createPaymentValidationDetails(validation.error),
+      });
     }
 
     const { bookingId, amount } = validation.data;
@@ -130,20 +141,35 @@ export async function POST(request: NextRequest) {
     });
 
     if (!booking) {
-      return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+      return errorResponse({
+        status: 404,
+        errorCode: "BOOKING_NOT_FOUND",
+        message: "Booking not found.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     // Verify user owns this booking or is authenticated
     if (booking.userId !== session.user.id) {
-      return NextResponse.json(
-        { error: "Unauthorized - this booking belongs to another user" },
-        { status: 403 },
-      );
+      return errorResponse({
+        status: 403,
+        errorCode: "BOOKING_ACCESS_DENIED",
+        message: "Unauthorized - this booking belongs to another user",
+        retryable: false,
+        correlationId,
+      });
     }
 
     // Verify amount matches booking
     if (Math.abs(booking.total - amount) > 0.01) {
-      return NextResponse.json({ error: "Amount mismatch" }, { status: 400 });
+      return errorResponse({
+        status: 400,
+        errorCode: "PAYMENT_AMOUNT_MISMATCH",
+        message: "Payment amount does not match the booking total.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     // Check if payment already exists for this booking
@@ -157,10 +183,13 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingPayment) {
-      return NextResponse.json(
-        { error: "Payment already exists for this booking" },
-        { status: 409 },
-      );
+      return errorResponse({
+        status: 409,
+        errorCode: "PAYMENT_ALREADY_EXISTS",
+        message: "Payment already exists for this booking.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     // Create Stripe Payment Intent
@@ -201,10 +230,12 @@ export async function POST(request: NextRequest) {
       correlationId,
       error,
     );
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Failed to create payment intent";
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    return errorResponse({
+      status: 500,
+      errorCode: "PAYMENT_INTENT_CREATE_FAILED",
+      message: "Failed to create payment intent. Please retry.",
+      retryable: true,
+      correlationId,
+    });
   }
 }

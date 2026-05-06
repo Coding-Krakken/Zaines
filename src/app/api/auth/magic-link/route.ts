@@ -6,6 +6,7 @@ import {
   logServerFailure,
   magicLinkRequestSchema,
 } from "@/lib/api/issue26";
+import { rateLimitedResponse } from "@/lib/security/api";
 
 function isAuthMisconfigured(): boolean {
   const hasResendKey = Boolean(
@@ -64,6 +65,18 @@ export async function POST(request: NextRequest) {
       { status: 422 },
     );
   }
+
+  const rateLimit = rateLimitedResponse({
+    request,
+    routeKey: "auth_magic_link",
+    route: "/api/auth/magic-link",
+    correlationId,
+    limit: 5,
+    windowMs: 10 * 60_000,
+    subject: parsed.data.email,
+    errorCode: "AUTH_RATE_LIMITED",
+  });
+  if (rateLimit) return rateLimit;
 
   if (isAuthMisconfigured()) {
     return NextResponse.json(

@@ -1,5 +1,12 @@
 import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import {
+  errorResponse,
+  getCorrelationId,
+  logServerFailure,
+  rateLimitedResponse,
+} from "@/lib/security/api";
+import { logSecurityEvent } from "@/lib/security/logging";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
@@ -16,17 +23,27 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const correlationId = getCorrelationId(request);
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse({
+        status: 401,
+        errorCode: "AUTH_REQUIRED",
+        message: "Authentication is required.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     if (!isDatabaseConfigured()) {
-      return NextResponse.json(
-        { error: "Database not configured" },
-        { status: 503 }
-      );
+      return errorResponse({
+        status: 503,
+        errorCode: "MESSAGES_UNAVAILABLE",
+        message: "Messages are temporarily unavailable.",
+        retryable: true,
+        correlationId,
+      });
     }
 
     const { searchParams } = new URL(request.url);
@@ -46,10 +63,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!booking || booking.userId !== session.user.id) {
-      return NextResponse.json(
-        { error: "Booking not found or access denied" },
-        { status: 404 }
-      );
+      return errorResponse({
+        status: 404,
+        errorCode: "BOOKING_NOT_FOUND",
+        message: "Booking not found.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     // Mark messages as read (idempotent - only unread ones)
@@ -93,11 +113,19 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("Error fetching messages:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch messages" },
-      { status: 500 }
+    logServerFailure(
+      "/api/bookings/[id]/messages",
+      "MESSAGES_FETCH_FAILED",
+      correlationId,
+      error,
     );
+    return errorResponse({
+      status: 500,
+      errorCode: "MESSAGES_FETCH_FAILED",
+      message: "Failed to fetch messages.",
+      retryable: true,
+      correlationId,
+    });
   }
 }
 
@@ -110,31 +138,61 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const correlationId = getCorrelationId(request);
   try {
+    const rateLimit = rateLimitedResponse({
+      request,
+      routeKey: "booking_message_create",
+      route: "/api/bookings/[id]/messages",
+      correlationId,
+      limit: 20,
+      windowMs: 60_000,
+      subject: id,
+    });
+    if (rateLimit) return rateLimit;
+
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse({
+        status: 401,
+        errorCode: "AUTH_REQUIRED",
+        message: "Authentication is required.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     if (!isDatabaseConfigured()) {
-      return NextResponse.json(
-        { error: "Database not configured" },
-        { status: 503 }
-      );
+      return errorResponse({
+        status: 503,
+        errorCode: "MESSAGE_CREATE_UNAVAILABLE",
+        message: "Message creation is temporarily unavailable.",
+        retryable: true,
+        correlationId,
+      });
     }
 
     const bookingId = id;
     const { content } = await request.json();
 
     if (!content || content.trim().length === 0) {
-      return NextResponse.json({ error: "Content is required" }, { status: 400 });
+      return errorResponse({
+        status: 400,
+        errorCode: "MESSAGE_VALIDATION_ERROR",
+        message: "Content is required.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     if (content.length > 5000) {
-      return NextResponse.json(
-        { error: "Content must be <= 5000 characters" },
-        { status: 400 }
-      );
+      return errorResponse({
+        status: 400,
+        errorCode: "MESSAGE_VALIDATION_ERROR",
+        message: "Content must be <= 5000 characters.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     // Verify booking exists and user has access
@@ -144,10 +202,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!booking) {
-      return NextResponse.json(
-        { error: "Booking not found" },
-        { status: 404 }
-      );
+      return errorResponse({
+        status: 404,
+        errorCode: "BOOKING_NOT_FOUND",
+        message: "Booking not found.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     // Determine sender type and validate access
@@ -157,10 +218,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       senderType = "staff";
     } else if (booking.userId !== session.user.id) {
       // Customer can only message their own bookings
-      return NextResponse.json(
-        { error: "Access denied" },
-        { status: 403 }
-      );
+      return errorResponse({
+        status: 403,
+        errorCode: "BOOKING_ACCESS_DENIED",
+        message: "You do not have access to this booking.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     // Create message with server timestamp
@@ -184,14 +248,27 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    console.log(`[MESSAGE] New message created for booking ${bookingId}`);
+    logSecurityEvent({
+      route: "/api/bookings/[id]/messages",
+      event: "MESSAGE_CREATED",
+      correlationId,
+      context: { bookingId },
+    });
 
     return NextResponse.json(message, { status: 201 });
   } catch (error) {
-    console.error("Error creating message:", error);
-    return NextResponse.json(
-      { error: "Failed to create message" },
-      { status: 500 }
+    logServerFailure(
+      "/api/bookings/[id]/messages",
+      "MESSAGE_CREATE_FAILED",
+      correlationId,
+      error,
     );
+    return errorResponse({
+      status: 500,
+      errorCode: "MESSAGE_CREATE_FAILED",
+      message: "Failed to create message.",
+      retryable: true,
+      correlationId,
+    });
   }
 }

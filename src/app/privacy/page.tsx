@@ -411,7 +411,7 @@ export default function PrivacyPage() {
             <Button
               size="lg"
               variant="outline"
-              className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+              className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary"
               asChild
             >
               <Link href="/terms">View Terms of Service</Link>

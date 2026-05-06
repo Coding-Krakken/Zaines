@@ -68,19 +68,19 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
             <div className="text-center">
               <div className="mb-2 text-3xl">🏆</div>
-              <h3 className="font-semibold">Licensed & Insured</h3>
+              <div className="font-semibold">Licensed & Insured</div>
             </div>
             <div className="text-center">
               <div className="mb-2 text-3xl">👨‍⚕️</div>
-              <h3 className="font-semibold">Certified Staff</h3>
+              <div className="font-semibold">Certified Staff</div>
             </div>
             <div className="text-center">
               <div className="mb-2 text-3xl">👁️</div>
-              <h3 className="font-semibold">Owner On-Site</h3>
+              <div className="font-semibold">Owner On-Site</div>
             </div>
             <div className="text-center">
               <div className="mb-2 text-3xl">📸</div>
-              <h3 className="font-semibold">Live Photo Updates</h3>
+              <div className="font-semibold">Live Photo Updates</div>
             </div>
           </div>
         </div>

@@ -1,5 +1,10 @@
 import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import {
+  errorResponse,
+  getCorrelationId,
+  logServerFailure,
+} from "@/lib/security/api";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
@@ -17,17 +22,27 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const correlationId = getCorrelationId(request);
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse({
+        status: 401,
+        errorCode: "AUTH_REQUIRED",
+        message: "Authentication is required.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     if (!isDatabaseConfigured()) {
-      return NextResponse.json(
-        { error: "Database not configured" },
-        { status: 503 }
-      );
+      return errorResponse({
+        status: 503,
+        errorCode: "NOTIFICATIONS_UNAVAILABLE",
+        message: "Notifications are temporarily unavailable.",
+        retryable: true,
+        correlationId,
+      });
     }
 
     const { searchParams } = new URL(request.url);
@@ -40,10 +55,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       sinceDate = new Date(since);
       // Validate it's a valid date
       if (isNaN(sinceDate.getTime())) {
-        return NextResponse.json(
-          { error: "Invalid 'since' timestamp" },
-          { status: 400 }
-        );
+        return errorResponse({
+          status: 400,
+          errorCode: "NOTIFICATIONS_VALIDATION_ERROR",
+          message: "Invalid since timestamp.",
+          retryable: false,
+          correlationId,
+        });
       }
     } else {
       // Default: last 30 seconds (polling SLA)
@@ -59,10 +77,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!booking || booking.userId !== session.user.id) {
-      return NextResponse.json(
-        { error: "Booking not found or access denied" },
-        { status: 404 }
-      );
+      return errorResponse({
+        status: 404,
+        errorCode: "BOOKING_NOT_FOUND",
+        message: "Booking not found.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     // Fetch recent activities
@@ -150,10 +171,18 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       },
     });
   } catch (error) {
-    console.error("Error fetching notifications:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch notifications" },
-      { status: 500 }
+    logServerFailure(
+      "/api/bookings/[id]/notifications",
+      "NOTIFICATIONS_FETCH_FAILED",
+      correlationId,
+      error,
     );
+    return errorResponse({
+      status: 500,
+      errorCode: "NOTIFICATIONS_FETCH_FAILED",
+      message: "Failed to fetch notifications.",
+      retryable: true,
+      correlationId,
+    });
   }
 }

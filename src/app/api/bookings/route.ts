@@ -8,7 +8,13 @@ import {
   isStripeConfigured,
 } from "@/lib/stripe";
 import { sendBookingConfirmation } from "@/lib/notifications";
-import { getCorrelationId, logServerFailure } from "@/lib/api/issue26";
+import {
+  errorResponse,
+  getCorrelationId,
+  logServerFailure,
+  rateLimitedResponse,
+} from "@/lib/security/api";
+import { logSecurityEvent } from "@/lib/security/logging";
 import {
   BOOKING_PRICING_CURRENCY,
   BOOKING_PRICING_DISCLOSURE,
@@ -143,16 +149,25 @@ export async function POST(request: NextRequest) {
   const correlationId = getCorrelationId(request);
 
   try {
+    const rateLimit = rateLimitedResponse({
+      request,
+      routeKey: "bookings_create",
+      route: "/api/bookings",
+      correlationId,
+      limit: 12,
+      windowMs: 60_000,
+    });
+    if (rateLimit) return rateLimit;
+
     // Check if database is configured
     if (!isDatabaseConfigured()) {
-      return NextResponse.json(
-        {
-          error: "Booking system is not available",
-          message:
-            "Database is not configured. Please set DATABASE_URL environment variable.",
-        },
-        { status: 400 },
-      );
+      return errorResponse({
+        status: 503,
+        errorCode: "BOOKING_PERSISTENCE_UNAVAILABLE",
+        message: "Booking system is temporarily unavailable.",
+        retryable: true,
+        correlationId,
+      });
     }
 
     // Check if user is authenticated
@@ -162,15 +177,14 @@ export async function POST(request: NextRequest) {
     const validation = bookingSchema.safeParse(body);
 
     if (!validation.success) {
-      return NextResponse.json(
-        {
-          error: "Invalid booking data",
-          code: "BOOKING_VALIDATION_ERROR",
-          details: createBookingValidationDetails(validation.error),
-          correlationId,
-        },
-        { status: 400 },
-      );
+      return errorResponse({
+        status: 400,
+        errorCode: "BOOKING_VALIDATION_ERROR",
+        message: "Invalid booking data",
+        retryable: false,
+        correlationId,
+        details: createBookingValidationDetails(validation.error),
+      });
     }
 
     const data = validation.data;
@@ -209,12 +223,15 @@ export async function POST(request: NextRequest) {
 
     // Log advisory lock acquisition
     if (shouldLogBookingDiagnostics) {
-      console.log(
-        "Attempting to acquire advisory lock for suite type:",
-        data.suiteType,
-        "and check-in date:",
-        checkInDate.toISOString(),
-      );
+      logSecurityEvent({
+        route: "/api/bookings",
+        event: "BOOKING_ADVISORY_LOCK_ATTEMPT",
+        correlationId,
+        context: {
+          suiteType: data.suiteType,
+          checkInDate: checkInDate.toISOString(),
+        },
+      });
     }
 
     // Wrap booking creation in transaction with advisory lock
@@ -230,17 +247,25 @@ export async function POST(request: NextRequest) {
       `;
 
         if (shouldLogBookingDiagnostics) {
-          console.log(
-            "Advisory lock acquired for suite type:",
-            data.suiteType,
-            "and check-in date:",
-            checkInDate.toISOString(),
-          );
+          logSecurityEvent({
+            route: "/api/bookings",
+            event: "BOOKING_ADVISORY_LOCK_ACQUIRED",
+            correlationId,
+            context: {
+              suiteType: data.suiteType,
+              checkInDate: checkInDate.toISOString(),
+            },
+          });
         }
 
         // Log capacity check
         if (shouldLogBookingDiagnostics) {
-          console.log("Checking capacity for suite type:", data.suiteType);
+          logSecurityEvent({
+            route: "/api/bookings",
+            event: "BOOKING_CAPACITY_CHECK",
+            correlationId,
+            context: { suiteType: data.suiteType },
+          });
         }
         const overlappingBookings = await tx.booking.count({
           where: {
@@ -285,7 +310,12 @@ export async function POST(request: NextRequest) {
         });
 
         if (shouldLogBookingDiagnostics) {
-          console.log("Overlapping bookings count:", overlappingBookings);
+          logSecurityEvent({
+            route: "/api/bookings",
+            event: "BOOKING_OVERLAP_COUNT",
+            correlationId,
+            context: { overlappingBookings },
+          });
         }
 
         // 3. Enforce capacity limit
@@ -325,7 +355,12 @@ export async function POST(request: NextRequest) {
         }
 
         if (shouldLogBookingDiagnostics) {
-          console.log("Available suite found:", availableSuite.id);
+          logSecurityEvent({
+            route: "/api/bookings",
+            event: "BOOKING_AVAILABLE_SUITE_FOUND",
+            correlationId,
+            context: { suiteId: availableSuite.id },
+          });
         }
 
         // 5. Create or find user inside transaction
@@ -406,9 +441,12 @@ export async function POST(request: NextRequest) {
         process.env.NODE_ENV !== "test" &&
         !hasLoggedStripeUnavailableWarning
       ) {
-        console.warn(
-          "Stripe is not configured. Payment features will be unavailable.",
-        );
+          logSecurityEvent({
+            route: "/api/bookings",
+            event: "BOOKING_STRIPE_UNAVAILABLE",
+            correlationId,
+            level: "warn",
+          });
         hasLoggedStripeUnavailableWarning = true;
       }
     }
@@ -509,23 +547,23 @@ export async function POST(request: NextRequest) {
     // Handle custom business logic errors
     if (error instanceof Error) {
       if (error.message === "CAPACITY_EXCEEDED") {
-        return NextResponse.json(
-          {
-            error: "Selected suite type is not available for these dates",
-            code: "CAPACITY_EXCEEDED",
-          },
-          { status: 409 },
-        );
+        return errorResponse({
+          status: 409,
+          errorCode: "CAPACITY_EXCEEDED",
+          message: "Selected suite type is not available for these dates",
+          retryable: false,
+          correlationId,
+        });
       }
 
       if (error.message === "NO_SUITE_AVAILABLE") {
-        return NextResponse.json(
-          {
-            error: "No suites available for the selected tier",
-            code: "NO_SUITE_AVAILABLE",
-          },
-          { status: 404 },
-        );
+        return errorResponse({
+          status: 404,
+          errorCode: "NO_SUITE_AVAILABLE",
+          message: "No suites available for the selected tier",
+          retryable: false,
+          correlationId,
+        });
       }
 
       // Handle transaction timeout
@@ -533,16 +571,14 @@ export async function POST(request: NextRequest) {
         error.message.includes("timeout") ||
         error.message.includes("timed out")
       ) {
-        return NextResponse.json(
-          {
-            error: "High server load. Please retry in a few seconds.",
-            code: "TIMEOUT",
-          },
-          {
-            status: 503,
-            headers: { "Retry-After": "5" },
-          },
-        );
+        return errorResponse({
+          status: 503,
+          errorCode: "TIMEOUT",
+          message: "High server load. Please retry in a few seconds.",
+          retryable: true,
+          correlationId,
+          headers: { "Retry-After": "5" },
+        });
       }
     }
 
@@ -552,24 +588,25 @@ export async function POST(request: NextRequest) {
 
       // P2034: Transaction conflict (serialization failure, deadlock)
       if (prismaError.code === "P2034") {
-        return NextResponse.json(
-          {
-            error: "Booking conflict detected. Please retry your request.",
-            code: "TRANSACTION_CONFLICT",
-          },
-          {
-            status: 409,
-            headers: { "Retry-After": "3" },
-          },
-        );
+        return errorResponse({
+          status: 409,
+          errorCode: "TRANSACTION_CONFLICT",
+          message: "Booking conflict detected. Please retry your request.",
+          retryable: true,
+          correlationId,
+          headers: { "Retry-After": "3" },
+        });
       }
     }
 
     // Generic error fallback
-    return NextResponse.json(
-      { error: "Failed to create booking. Please try again." },
-      { status: 500 },
-    );
+    return errorResponse({
+      status: 500,
+      errorCode: "BOOKING_CREATE_FAILED",
+      message: "Failed to create booking. Please try again.",
+      retryable: true,
+      correlationId,
+    });
   }
 }
 
