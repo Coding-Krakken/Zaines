@@ -67,8 +67,7 @@ test.describe("Parent Experience Live Feed - Issue #62", () => {
       {
         name: "e2e-customer",
         value: "1",
-        domain: "localhost",
-        path: "/",
+        url: "http://localhost:4020",
       },
     ]);
 
