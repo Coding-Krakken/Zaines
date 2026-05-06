@@ -1,5 +1,11 @@
 import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import {
+  errorResponse,
+  getCorrelationId,
+  logServerFailure,
+  rateLimitedResponse,
+} from "@/lib/security/api";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
@@ -17,17 +23,27 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const correlationId = getCorrelationId(request);
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse({
+        status: 401,
+        errorCode: "AUTH_REQUIRED",
+        message: "Authentication is required.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     if (!isDatabaseConfigured()) {
-      return NextResponse.json(
-        { error: "Database not configured" },
-        { status: 503 }
-      );
+      return errorResponse({
+        status: 503,
+        errorCode: "ACTIVITIES_UNAVAILABLE",
+        message: "Activity feed is temporarily unavailable.",
+        retryable: true,
+        correlationId,
+      });
     }
 
     const { searchParams } = new URL(request.url);
@@ -48,10 +64,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!booking || booking.userId !== session.user.id) {
-      return NextResponse.json(
-        { error: "Booking not found or access denied" },
-        { status: 404 }
-      );
+      return errorResponse({
+        status: 404,
+        errorCode: "BOOKING_NOT_FOUND",
+        message: "Booking not found.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     // Build query
@@ -95,11 +114,19 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("Error fetching activities:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch activities" },
-      { status: 500 }
+    logServerFailure(
+      "/api/bookings/[id]/activities",
+      "ACTIVITIES_FETCH_FAILED",
+      correlationId,
+      error,
     );
+    return errorResponse({
+      status: 500,
+      errorCode: "ACTIVITIES_FETCH_FAILED",
+      message: "Failed to fetch activities.",
+      retryable: true,
+      correlationId,
+    });
   }
 }
 
@@ -109,28 +136,52 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const correlationId = getCorrelationId(request);
   try {
+    const rateLimit = rateLimitedResponse({
+      request,
+      routeKey: "booking_activity_create",
+      route: "/api/bookings/[id]/activities",
+      correlationId,
+      limit: 30,
+      windowMs: 60_000,
+      subject: id,
+    });
+    if (rateLimit) return rateLimit;
+
     const session = await auth();
     const userRole = session?.user?.role;
     if (!session?.user?.id || (userRole !== "staff" && userRole !== "admin")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse({
+        status: 401,
+        errorCode: "AUTH_REQUIRED",
+        message: "Authentication is required.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     if (!isDatabaseConfigured()) {
-      return NextResponse.json(
-        { error: "Database not configured" },
-        { status: 503 }
-      );
+      return errorResponse({
+        status: 503,
+        errorCode: "ACTIVITY_CREATE_UNAVAILABLE",
+        message: "Activity creation is temporarily unavailable.",
+        retryable: true,
+        correlationId,
+      });
     }
 
     const bookingId = id;
     const { petId, type, description, notes } = await request.json();
 
     if (!petId || !type) {
-      return NextResponse.json(
-        { error: "petId and type are required" },
-        { status: 400 }
-      );
+      return errorResponse({
+        status: 400,
+        errorCode: "ACTIVITY_VALIDATION_ERROR",
+        message: "petId and type are required.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     const bookingPet = await prisma.bookingPet.findUnique({
@@ -144,10 +195,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!bookingPet) {
-      return NextResponse.json(
-        { error: "petId must belong to the booking" },
-        { status: 400 }
-      );
+      return errorResponse({
+        status: 400,
+        errorCode: "ACTIVITY_PET_MISMATCH",
+        message: "petId must belong to the booking.",
+        retryable: false,
+        correlationId,
+      });
     }
 
     // Create activity with server timestamp (prevents client clock skew)
@@ -176,10 +230,18 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(activity, { status: 201 });
   } catch (error) {
-    console.error("Error creating activity:", error);
-    return NextResponse.json(
-      { error: "Failed to create activity" },
-      { status: 500 }
+    logServerFailure(
+      "/api/bookings/[id]/activities",
+      "ACTIVITY_CREATE_FAILED",
+      correlationId,
+      error,
     );
+    return errorResponse({
+      status: 500,
+      errorCode: "ACTIVITY_CREATE_FAILED",
+      message: "Failed to create activity.",
+      retryable: true,
+      correlationId,
+    });
   }
 }

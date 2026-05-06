@@ -77,30 +77,30 @@ describe("webhook route – extended coverage", () => {
     delete process.env.STRIPE_WEBHOOK_SECRET;
   });
 
-  it("returns 400 when Stripe is not configured", async () => {
+  it("returns 503 when Stripe is not configured", async () => {
     const { isStripeConfigured } = await import("@/lib/stripe");
     vi.mocked(isStripeConfigured).mockReturnValueOnce(false);
     const res = await webhookHandler(makeRequest());
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(503);
     const body = await res.json();
-    expect(body.error).toMatch(/not available/i);
+    expect(body.errorCode).toBe("WEBHOOK_PROVIDER_UNAVAILABLE");
   });
 
-  it("returns 400 when database is not configured", async () => {
+  it("returns 503 when database is not configured", async () => {
     const { isDatabaseConfigured } = await import("@/lib/prisma");
     vi.mocked(isDatabaseConfigured).mockReturnValueOnce(false);
     const res = await webhookHandler(makeRequest());
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(503);
     const body = await res.json();
-    expect(body.error).toMatch(/database/i);
+    expect(body.errorCode).toBe("WEBHOOK_PERSISTENCE_UNAVAILABLE");
   });
 
-  it("returns 400 when STRIPE_WEBHOOK_SECRET is not set", async () => {
+  it("returns 503 when STRIPE_WEBHOOK_SECRET is not set", async () => {
     delete process.env.STRIPE_WEBHOOK_SECRET;
     const res = await webhookHandler(makeRequest());
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(503);
     const body = await res.json();
-    expect(body.error).toMatch(/webhook/i);
+    expect(body.errorCode).toBe("WEBHOOK_SECRET_UNAVAILABLE");
   });
 
   it("returns 400 when stripe-signature header is missing", async () => {
@@ -108,7 +108,7 @@ describe("webhook route – extended coverage", () => {
     const res = await webhookHandler(makeRequest());
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(body.error).toMatch(/stripe-signature/i);
+    expect(body.errorCode).toBe("WEBHOOK_SIGNATURE_MISSING");
   });
 
   it("returns 400 when signature verification fails", async () => {
@@ -118,7 +118,8 @@ describe("webhook route – extended coverage", () => {
     const res = await webhookHandler(makeRequest());
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(body.error).toContain("Webhook Error");
+    expect(body.errorCode).toBe("WEBHOOK_SIGNATURE_VERIFICATION_FAILED");
+    expect(body.error).not.toContain("No matching signature");
   });
 
   it("handles payment_intent.succeeded and returns 200", async () => {

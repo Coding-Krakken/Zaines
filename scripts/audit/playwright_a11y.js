@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 /* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require("fs");
-const { chromium } = require("playwright");
-const { injectAxe, checkA11y } = require("axe-playwright");
+const { chromium } = require("@playwright/test");
+const axeSource = require("axe-core").source;
 
-const BASE = process.argv[2] || "http://localhost:3000";
+const BASE =
+  process.argv.find((arg, index) => index > 1 && arg !== "--") ||
+  "http://localhost:3000";
 const ROUTES = [
   "/",
   "/about",
@@ -36,10 +38,11 @@ const ROUTES = [
     try {
       console.log("Visiting", url);
       await page.goto(url, { waitUntil: "networkidle" });
-      await injectAxe(page);
-      const results = await checkA11y(page, undefined, {
-        detailedReport: true,
-        detailedReportOptions: { html: true },
+      await page.addScriptTag({ content: axeSource });
+      const results = await page.evaluate(async () => {
+        return await window.axe.run(document, {
+          resultTypes: ["violations"],
+        });
       });
       out.results.push({
         route,
@@ -74,6 +77,14 @@ const ROUTES = [
     else md.push(`- ${r.route} — Violations: ${r.violations}`);
   });
   fs.writeFileSync(`${outDir}/PLAYWRIGHT_A11Y.md`, md.join("\n"));
+
+  const failedRoutes = out.results.filter((r) => r.error || r.violations > 0);
+  if (failedRoutes.length > 0) {
+    console.error(
+      `\nPlaywright accessibility scan failed on ${failedRoutes.length} route(s).`,
+    );
+    process.exit(1);
+  }
 
   console.log(
     "\nPlaywright accessibility scan complete — results written to docs/audit_logs",

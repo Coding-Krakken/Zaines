@@ -1,6 +1,15 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import {
+  getCorrelationId as getSecurityCorrelationId,
+  logServerFailure as logSecurityServerFailure,
+  publicErrorEnvelope,
+} from "@/lib/security/api";
+import {
+  checkRateLimit,
+  resetRateLimitBucketsForTests,
+} from "@/lib/security/rate-limit";
 
 type Issue26SettingsStore = {
   findUnique: (args: {
@@ -20,8 +29,6 @@ type Issue26SettingsStore = {
 
 const prismaSettings = (prisma as unknown as { settings: Issue26SettingsStore })
   .settings;
-
-const contactRateLimitBucket = new Map<string, number[]>();
 
 export const availabilityRequestSchema = z.object({
   checkIn: z.string().min(1),
@@ -54,7 +61,7 @@ export const reviewSubmissionSchema = z.object({
 });
 
 export function getCorrelationId(request: Request): string {
-  return request.headers.get("x-correlation-id") || randomUUID();
+  return getSecurityCorrelationId(request);
 }
 
 export function createPublicErrorEnvelope(params: {
@@ -68,12 +75,7 @@ export function createPublicErrorEnvelope(params: {
   retryable: boolean;
   correlationId: string;
 } {
-  return {
-    errorCode: params.errorCode,
-    message: params.message,
-    retryable: params.retryable,
-    correlationId: params.correlationId,
-  };
+  return publicErrorEnvelope(params);
 }
 
 export function parseDate(value: string): Date | null {
@@ -87,15 +89,7 @@ export function logServerFailure(
   correlationId: string,
   error: unknown,
 ): void {
-  const errorType = error instanceof Error ? error.name : "unknown_error";
-  console.error(
-    JSON.stringify({
-      route,
-      errorCode,
-      correlationId,
-      errorType,
-    }),
-  );
+  logSecurityServerFailure(route, errorCode, correlationId, error);
 }
 
 export function shouldThrottle(
@@ -104,22 +98,7 @@ export function shouldThrottle(
   limit = 5,
   windowMs = 60_000,
 ): boolean {
-  const ip = request.headers.get("x-forwarded-for") || "unknown";
-  const key = `${routeKey}:${ip.split(",")[0].trim()}`;
-  const now = Date.now();
-  const current = contactRateLimitBucket.get(key) || [];
-  const withinWindow = current.filter(
-    (timestamp) => now - timestamp < windowMs,
-  );
-
-  if (withinWindow.length >= limit) {
-    contactRateLimitBucket.set(key, withinWindow);
-    return true;
-  }
-
-  withinWindow.push(now);
-  contactRateLimitBucket.set(key, withinWindow);
-  return false;
+  return checkRateLimit({ request, routeKey, limit, windowMs }).limited;
 }
 
 async function ensureDatabaseReady(): Promise<void> {
@@ -278,5 +257,5 @@ function safeParseStoredValue(value: string): Record<string, unknown> {
 }
 
 export function __resetIssue26InMemoryState(): void {
-  contactRateLimitBucket.clear();
+  resetRateLimitBucketsForTests();
 }

@@ -22,6 +22,8 @@
     "audit:ui:accessibility": "node scripts/audit/accessibility_check.js",
     "audit:ui:accessibility:basic": "node scripts/audit/accessibility_basic_check.js",
     "audit:ui:accessibility:playwright": "node scripts/audit/playwright_a11y.js",
+    "audit:issue66:performance": "node scripts/audit/issue66_performance_budget.js",
+    "audit:issue66:security": "node scripts/audit/issue66_security_gate.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio"
@@ -87,5 +89,8 @@
       "@types/pg": "8.11.11",
       "undici": "^6.24.0"
     }
+  },
+  "overrides": {
+    "socket.io-parser": "^4.2.6"
   }
 }

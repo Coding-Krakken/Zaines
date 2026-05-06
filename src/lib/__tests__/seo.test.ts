@@ -83,12 +83,14 @@ describe("localGrowthMetadata", () => {
 
   it("sets OG type to website", () => {
     const meta = localGrowthMetadata(page);
-    expect(meta.openGraph?.type).toBe("website");
+    const openGraph = meta.openGraph as { type?: string } | undefined;
+    expect(openGraph?.type).toBe("website");
   });
 
   it("sets Twitter card to summary_large_image", () => {
     const meta = localGrowthMetadata(page);
-    expect(meta.twitter?.card).toBe("summary_large_image");
+    const twitter = meta.twitter as { card?: string } | undefined;
+    expect(twitter?.card).toBe("summary_large_image");
   });
 
   it("includes primary keyword in keywords list", () => {

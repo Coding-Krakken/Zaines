@@ -7,6 +7,7 @@ import {
   logServerFailure,
   parseDate,
 } from "@/lib/api/issue26";
+import { rateLimitedResponse } from "@/lib/security/api";
 
 type BookingPrisma = {
   suite: {
@@ -54,6 +55,16 @@ export async function POST(request: NextRequest) {
       { status: 400 },
     );
   }
+
+  const rateLimit = rateLimitedResponse({
+    request,
+    routeKey: "booking_availability",
+    route: "/api/booking/availability",
+    correlationId,
+    limit: 60,
+    windowMs: 60_000,
+  });
+  if (rateLimit) return rateLimit;
 
   const checkInDate = parseDate(parsed.data.checkIn);
   const checkOutDate = parseDate(parsed.data.checkOut);

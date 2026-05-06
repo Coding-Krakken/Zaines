@@ -5,7 +5,6 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Camera, Heart, Play } from "lucide-react";
 
 const galleryImages = [
@@ -168,19 +167,23 @@ export default function GalleryPage() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           {/* Category Tabs */}
-          <Tabs
-            defaultValue="all"
-            className="mb-8"
-            onValueChange={setSelectedCategory}
-          >
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
-              {categories.map((category) => (
-                <TabsTrigger key={category.value} value={category.value}>
-                  {category.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+          <div className="mb-8 grid w-full grid-cols-2 gap-2 rounded-lg bg-muted p-1 md:grid-cols-5">
+            {categories.map((category) => (
+              <button
+                key={category.value}
+                type="button"
+                aria-pressed={selectedCategory === category.value}
+                onClick={() => setSelectedCategory(category.value)}
+                className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                  selectedCategory === category.value
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-foreground/80 hover:bg-background/70 hover:text-foreground"
+                }`}
+              >
+                {category.label}
+              </button>
+            ))}
+          </div>
 
           {/* Image Grid */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -201,7 +204,7 @@ export default function GalleryPage() {
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold">{image.title}</h3>
+                  <div className="font-semibold">{image.title}</div>
                   <p className="text-sm text-muted-foreground">
                     {image.description}
                   </p>
@@ -315,7 +318,7 @@ export default function GalleryPage() {
                   </div>
                 </div>
               </div>
-              <p className="rounded-lg bg-blue-50 p-4 text-sm text-muted-foreground">
+              <p className="rounded-lg bg-blue-50 p-4 text-sm text-foreground/80">
                 Webcam access is included with Deluxe and Luxury suites.
                 Available as an add-on for Standard suites.
               </p>
@@ -341,7 +344,7 @@ export default function GalleryPage() {
             <Button
               size="lg"
               variant="outline"
-              className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+              className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary"
               asChild
             >
               <a href="/contact">Schedule a Tour</a>

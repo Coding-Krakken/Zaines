@@ -61,7 +61,7 @@ export default function PoliciesPage() {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-6 w-6 text-green-600" />
+                  <CheckCircle2 className="h-6 w-6 text-green-700" />
                   <CardTitle>Vaccination Requirements</CardTitle>
                 </div>
                 <CardDescription>
@@ -70,7 +70,7 @@ export default function PoliciesPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h3 className="mb-2 font-semibold">Required Vaccinations</h3>
+                  <h2 className="mb-2 font-semibold">Required Vaccinations</h2>
                   <ul className="ml-6 list-disc space-y-1 text-muted-foreground">
                     {SAFETY_STANDARDS_COPY.requiredVaccines.map((vaccine) => (
                       <li key={vaccine}>{vaccine}</li>
@@ -350,7 +350,7 @@ export default function PoliciesPage() {
               </CardHeader>
               <CardContent>
                 <div className="mb-4">
-                  <h3 className="mb-2 font-semibold text-green-600">
+                  <h3 className="mb-2 font-semibold text-green-700">
                     Please Bring:
                   </h3>
                   <ul className="ml-6 list-disc space-y-1 text-muted-foreground">
@@ -428,7 +428,7 @@ export default function PoliciesPage() {
             <Button
               size="lg"
               variant="outline"
-              className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+              className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary"
               asChild
             >
               <Link href="/faq">View FAQ</Link>

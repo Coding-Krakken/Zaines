@@ -28,12 +28,14 @@ describe("GET /api/availability", () => {
     const response = await GET(request);
     const data = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(data).toEqual({
-      error: "Availability check is not available",
-      message:
-        "Database is not configured. Please set DATABASE_URL environment variable.",
-    });
+    expect(response.status).toBe(503);
+    expect(data).toEqual(
+      expect.objectContaining({
+        errorCode: "AVAILABILITY_UNAVAILABLE",
+        retryable: true,
+        correlationId: expect.any(String),
+      }),
+    );
   });
 
   it("should return 400 when checkIn is missing", async () => {
@@ -48,9 +50,13 @@ describe("GET /api/availability", () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data).toEqual({
-      error: "checkIn and checkOut dates are required",
-    });
+    expect(data).toEqual(
+      expect.objectContaining({
+        errorCode: "AVAILABILITY_VALIDATION_ERROR",
+        retryable: false,
+        correlationId: expect.any(String),
+      }),
+    );
   });
 
   it("should return 400 when checkOut is missing", async () => {
@@ -65,9 +71,13 @@ describe("GET /api/availability", () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data).toEqual({
-      error: "checkIn and checkOut dates are required",
-    });
+    expect(data).toEqual(
+      expect.objectContaining({
+        errorCode: "AVAILABILITY_VALIDATION_ERROR",
+        retryable: false,
+        correlationId: expect.any(String),
+      }),
+    );
   });
 
   it("should return availability when database is configured and dates are valid", async () => {

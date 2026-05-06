@@ -60,28 +60,28 @@ describe("create-intent route – extended coverage", () => {
     authMock.mockResolvedValue({ user: { id: "user-001" } });
   });
 
-  it("returns 400 when Stripe is not configured", async () => {
+  it("returns 503 when Stripe is not configured", async () => {
     const { isStripeConfigured } = await import("@/lib/stripe");
     vi.mocked(isStripeConfigured).mockReturnValueOnce(false);
 
     const res = await createIntent(
       buildRequest({ bookingId: "booking-001", amount: 150 }),
     );
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(503);
     const body = await res.json();
-    expect(body.error).toMatch(/not available/i);
+    expect(body.errorCode).toBe("PAYMENT_PROVIDER_UNAVAILABLE");
   });
 
-  it("returns 400 when database is not configured", async () => {
+  it("returns 503 when database is not configured", async () => {
     const { isDatabaseConfigured } = await import("@/lib/prisma");
     vi.mocked(isDatabaseConfigured).mockReturnValueOnce(false);
 
     const res = await createIntent(
       buildRequest({ bookingId: "booking-001", amount: 150 }),
     );
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(503);
     const body = await res.json();
-    expect(body.error).toMatch(/database/i);
+    expect(body.errorCode).toBe("PAYMENT_PERSISTENCE_UNAVAILABLE");
   });
 
   it("returns 401 when user is not authenticated", async () => {
@@ -143,7 +143,7 @@ describe("create-intent route – extended coverage", () => {
     );
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(body.error).toMatch(/amount mismatch/i);
+    expect(body.errorCode).toBe("PAYMENT_AMOUNT_MISMATCH");
   });
 
   it("returns 409 when payment already exists", async () => {
@@ -178,6 +178,7 @@ describe("create-intent route – extended coverage", () => {
     );
     expect(res.status).toBe(500);
     const body = await res.json();
-    expect(body.error).toContain("Stripe API error");
+    expect(body.errorCode).toBe("PAYMENT_INTENT_CREATE_FAILED");
+    expect(body.error).not.toContain("Stripe API error");
   });
 });

@@ -53,7 +53,7 @@ export function SiteFooter() {
 
           {/* Boarding */}
           <div>
-            <h3 className="font-semibold mb-4">Boarding</h3>
+            <h2 className="font-semibold mb-4 text-base">Boarding</h2>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
@@ -100,7 +100,7 @@ export function SiteFooter() {
 
           {/* Company */}
           <div>
-            <h3 className="font-semibold mb-4">Company</h3>
+            <h2 className="font-semibold mb-4 text-base">Company</h2>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
@@ -147,7 +147,7 @@ export function SiteFooter() {
 
           {/* Contact */}
           <div>
-            <h3 className="font-semibold mb-4">Contact</h3>
+            <h2 className="font-semibold mb-4 text-base">Contact</h2>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2 text-muted-foreground">
                 <MapPin className="h-4 w-4 mt-0.5 shrink-0" />

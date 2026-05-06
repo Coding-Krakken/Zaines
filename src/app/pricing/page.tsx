@@ -201,6 +201,7 @@ export default function PricingPage() {
                     min={1}
                     max={30}
                     step={1}
+                    aria-label="Number of nights"
                     className="w-full"
                   />
                 </div>
@@ -210,7 +211,7 @@ export default function PricingPage() {
                   <Label className="text-base font-semibold">
                     Optional Care Selections
                   </Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-foreground/80">
                     Optional selections are only included when you choose them;
                     nothing is auto-added.
                   </p>
@@ -251,7 +252,7 @@ export default function PricingPage() {
                       ${calculateTotal()}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-foreground/80">
                     This is a pre-confirmation estimate with premium but fair
                     pricing. {PRICING_TRUST_DISCLOSURE}
                   </p>
@@ -423,7 +424,7 @@ export default function PricingPage() {
             <Button
               size="lg"
               variant="outline"
-              className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+              className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary"
               asChild
             >
               <Link href="/book">Book Now</Link>
