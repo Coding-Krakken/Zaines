@@ -5,8 +5,45 @@ import Google from "next-auth/providers/google";
 import Facebook from "next-auth/providers/facebook";
 import { prisma } from "./prisma";
 
+// NextAuth v5 uses AUTH_SECRET; fall back to NEXTAUTH_SECRET for deployments
+// that have not yet migrated their environment variables.
+const authSecret =
+  process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+
+const isProduction = process.env.NODE_ENV === "production";
+
 export const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(prisma),
+
+  // Required for Vercel / AWS Lambda deployments: allows NextAuth to trust
+  // the x-forwarded-host header when computing cookie domains during the
+  // OAuth PKCE flow. Without this flag the PKCE verifier cookie is set with
+  // the wrong domain and cannot be read back on the callback, producing:
+  //   InvalidCheck: pkceCodeVerifier value could not be parsed
+  trustHost: true,
+
+  // Explicit secret resolves AUTH_SECRET/NEXTAUTH_SECRET naming ambiguity.
+  // NextAuth v5 prefers AUTH_SECRET; providing it here makes both work.
+  ...(authSecret ? { secret: authSecret } : {}),
+
+  // Explicit PKCE cookie configuration ensures the verifier survives the
+  // OAuth redirect across all serverless environments.
+  cookies: {
+    pkceCodeVerifier: {
+      name: isProduction
+        ? "__Secure-authjs.pkce.code_verifier"
+        : "authjs.pkce.code_verifier",
+      options: {
+        httpOnly: true,
+        sameSite: "lax" as const,
+        path: "/",
+        secure: isProduction,
+        // 15 minutes is sufficient to complete the OAuth redirect flow.
+        maxAge: 60 * 15,
+      },
+    },
+  },
+
   providers: [
     Resend({
       from: process.env.EMAIL_FROM || "noreply@pawfectstays.com",
