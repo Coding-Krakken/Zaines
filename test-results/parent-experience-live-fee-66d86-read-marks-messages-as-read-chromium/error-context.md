@@ -1,131 +1,157 @@
-# Instructions
+# Page snapshot
 
-- Following Playwright test failed.
-- Explain why, be concise, respect Playwright best practices.
-- Provide a snippet of code with the fix, if possible.
-
-# Test info
-
-- Name: parent-experience-live-feed.spec.ts >> Parent Experience Live Feed - Issue #62 >> Messaging Thread >> message thread marks messages as read
-- Location: tests/e2e/parent-experience-live-feed.spec.ts:397:9
-
-# Error details
-
-```
-Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4020/dashboard/bookings/test-booking-123
-Call log:
-  - navigating to "http://localhost:4020/dashboard/bookings/test-booking-123", waiting until "load"
-
-```
-
-# Test source
-
-```ts
-  1   | import { test, expect, type Page } from "@playwright/test";
-  2   | 
-  3   | const TEST_BOOKING_ID = "test-booking-123";
-  4   | 
-  5   | async function gotoBooking(page: Page) {
-> 6   |   await page.goto(`/dashboard/bookings/${TEST_BOOKING_ID}`);
-      |              ^ Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4020/dashboard/bookings/test-booking-123
-  7   |   await expect(page).not.toHaveURL(/\/auth\/signin/);
-  8   | }
-  9   | 
-  10  | test.describe("Parent Experience Live Feed - Issue #62", () => {
-  11  |   test.beforeEach(async ({ page, context }) => {
-  12  |     const activitiesPage1 = [
-  13  |       {
-  14  |         id: "activity-1",
-  15  |         type: "feeding",
-  16  |         description: "Breakfast served",
-  17  |         performedBy: "Staff",
-  18  |         performedAt: "2026-05-05T10:00:00.000Z",
-  19  |         notes: "Ate all food",
-  20  |         pet: { id: "pet-1", name: "Milo" },
-  21  |       },
-  22  |       {
-  23  |         id: "activity-2",
-  24  |         type: "walk",
-  25  |         description: "Morning walk",
-  26  |         performedBy: "Staff",
-  27  |         performedAt: "2026-05-05T09:00:00.000Z",
-  28  |         notes: "Great energy",
-  29  |         pet: { id: "pet-1", name: "Milo" },
-  30  |       },
-  31  |     ];
-  32  |     const activitiesPage2 = [
-  33  |       {
-  34  |         id: "activity-3",
-  35  |         type: "play",
-  36  |         description: "Play session",
-  37  |         performedBy: "Staff",
-  38  |         performedAt: "2026-05-05T08:00:00.000Z",
-  39  |         notes: "Loved fetch",
-  40  |         pet: { id: "pet-1", name: "Milo" },
-  41  |       },
-  42  |     ];
-  43  | 
-  44  |     const photos = [
-  45  |       {
-  46  |         id: "photo-1",
-  47  |         imageUrl: "/file.svg",
-  48  |         caption: "Nap time",
-  49  |         uploadedBy: "Staff",
-  50  |         uploadedAt: "2026-05-05T10:10:00.000Z",
-  51  |         pet: { id: "pet-1", name: "Milo" },
-  52  |       },
-  53  |     ];
-  54  | 
-  55  |     const messages = [
-  56  |       {
-  57  |         id: "message-1",
-  58  |         content: "Milo is doing great today!",
-  59  |         senderType: "staff",
-  60  |         senderName: "Staff",
-  61  |         sentAt: "2026-05-05T10:20:00.000Z",
-  62  |         isRead: true,
-  63  |       },
-  64  |     ];
-  65  | 
-  66  |     await context.addCookies([
-  67  |       {
-  68  |         name: "e2e-customer",
-  69  |         value: "1",
-  70  |         domain: "localhost",
-  71  |         path: "/",
-  72  |       },
-  73  |     ]);
-  74  | 
-  75  |     await page.route(`**/api/bookings/${TEST_BOOKING_ID}/activities**`, async (route) => {
-  76  |       if (route.request().method() !== "GET") {
-  77  |         await route.fulfill({ status: 405, body: "" });
-  78  |         return;
-  79  |       }
-  80  | 
-  81  |       const url = new URL(route.request().url());
-  82  |       const cursor = url.searchParams.get("cursor");
-  83  |       const items = cursor ? activitiesPage2 : activitiesPage1;
-  84  | 
-  85  |       await route.fulfill({
-  86  |         status: 200,
-  87  |         contentType: "application/json",
-  88  |         body: JSON.stringify({
-  89  |           items,
-  90  |           hasMore: !cursor,
-  91  |           nextCursor: cursor ? null : "activity-2",
-  92  |           timestamp: new Date().toISOString(),
-  93  |         }),
-  94  |       });
-  95  |     });
-  96  | 
-  97  |     await page.route(`**/api/bookings/${TEST_BOOKING_ID}/photos**`, async (route) => {
-  98  |       if (route.request().method() !== "GET") {
-  99  |         await route.fulfill({ status: 405, body: "" });
-  100 |         return;
-  101 |       }
-  102 | 
-  103 |       await route.fulfill({
-  104 |         status: 200,
-  105 |         contentType: "application/json",
-  106 |         body: JSON.stringify({
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - link "🐾 Zaine's Stay & Play" [ref=e6] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e7]: 🐾
+            - generic [ref=e8]: Zaine's Stay & Play
+          - navigation "Main" [ref=e9]:
+            - list [ref=e11]:
+              - listitem [ref=e12]:
+                - link "Home" [ref=e13] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e14]:
+                - link "Suites" [ref=e15] [cursor=pointer]:
+                  - /url: /suites
+              - listitem [ref=e16]:
+                - link "Pricing" [ref=e17] [cursor=pointer]:
+                  - /url: /pricing
+              - listitem [ref=e18]:
+                - link "Book Now" [ref=e19] [cursor=pointer]:
+                  - /url: /book
+              - listitem [ref=e20]:
+                - link "About" [ref=e21] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e22]:
+                - link "Contact" [ref=e23] [cursor=pointer]:
+                  - /url: /contact
+        - link "Book Now" [ref=e25] [cursor=pointer]:
+          - /url: /book
+    - main [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - heading "Booking E2E-BOOK-001" [level=1] [ref=e30]
+          - paragraph [ref=e31]: 5/5/2026 → 5/7/2026
+        - tablist "Booking details navigation" [ref=e32]:
+          - tab "📋Overview" [selected] [ref=e33]
+          - tab "📝Activity" [ref=e34]
+          - tab "📸Photos" [ref=e35]
+          - tab "💬Messages" [active] [ref=e36]
+        - tabpanel [ref=e37]:
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - heading "Suite Information" [level=2] [ref=e40]
+              - generic [ref=e41]:
+                - generic [ref=e42]:
+                  - paragraph [ref=e43]: Suite
+                  - paragraph [ref=e44]: E2E Suite (Deluxe)
+                - generic [ref=e45]:
+                  - paragraph [ref=e46]: Check-in
+                  - paragraph [ref=e47]: 5/5/2026, 9:39:01 PM
+                - generic [ref=e48]:
+                  - paragraph [ref=e49]: Check-out
+                  - paragraph [ref=e50]: 5/7/2026, 9:39:01 PM
+                - generic [ref=e51]:
+                  - paragraph [ref=e52]: Status
+                  - paragraph [ref=e53]: confirmed
+            - generic [ref=e54]:
+              - heading "Pets" [level=2] [ref=e55]
+              - paragraph [ref=e58]: E2E Pet
+            - generic [ref=e59]:
+              - heading "Payment" [level=2] [ref=e60]
+              - generic [ref=e61]:
+                - generic [ref=e62]:
+                  - paragraph [ref=e63]: "Total Amount:"
+                  - paragraph [ref=e64]: $199
+                - generic [ref=e65]:
+                  - paragraph [ref=e66]: "Payment History:"
+                  - generic [ref=e68]:
+                    - generic [ref=e69]: succeeded - $199
+                    - generic [ref=e70]: ✓
+                - generic [ref=e71]:
+                  - paragraph [ref=e72]: "Cancellation policy: 48+ hours full refund, 24-48 hours 50% refund, under 24 hours no refund."
+                  - button "Cancel Booking" [ref=e73]
+    - contentinfo [ref=e74]:
+      - generic [ref=e75]:
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - link "🐾 Zaine's Stay & Play" [ref=e78] [cursor=pointer]:
+              - /url: /
+              - generic [ref=e79]: 🐾
+              - generic [ref=e80]: Zaine's Stay & Play
+            - paragraph [ref=e81]: Private, safety-first dog boarding in Syracuse with three suite options and owner-led care.
+            - generic [ref=e82]:
+              - link [ref=e83] [cursor=pointer]:
+                - /url: https://www.facebook.com/people/Zaines-Stay-Play/61550036005682/
+                - img [ref=e84]
+              - link [ref=e86] [cursor=pointer]:
+                - /url: https://instagram.com/zainesstayandplay
+                - img [ref=e87]
+              - link [ref=e90] [cursor=pointer]:
+                - /url: https://twitter.com/zainesstayandplay
+                - img [ref=e91]
+          - generic [ref=e93]:
+            - heading "Boarding" [level=3] [ref=e94]
+            - list [ref=e95]:
+              - listitem [ref=e96]:
+                - link "Suite Options" [ref=e97] [cursor=pointer]:
+                  - /url: /suites
+              - listitem [ref=e98]:
+                - link "Pricing" [ref=e99] [cursor=pointer]:
+                  - /url: /pricing
+              - listitem [ref=e100]:
+                - link "Book Now" [ref=e101] [cursor=pointer]:
+                  - /url: /book
+          - generic [ref=e102]:
+            - heading "Company" [level=3] [ref=e103]
+            - list [ref=e104]:
+              - listitem [ref=e105]:
+                - link "About Us" [ref=e106] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e107]:
+                - link "Reviews" [ref=e108] [cursor=pointer]:
+                  - /url: /reviews
+              - listitem [ref=e109]:
+                - link "FAQ" [ref=e110] [cursor=pointer]:
+                  - /url: /faq
+              - listitem [ref=e111]:
+                - link "Contact" [ref=e112] [cursor=pointer]:
+                  - /url: /contact
+              - listitem [ref=e113]:
+                - link "Policies" [ref=e114] [cursor=pointer]:
+                  - /url: /policies
+          - generic [ref=e115]:
+            - heading "Contact" [level=3] [ref=e116]
+            - list [ref=e117]:
+              - listitem [ref=e118]:
+                - img [ref=e119]
+                - generic [ref=e122]:
+                  - text: 123 Pet Paradise Lane
+                  - text: Syracuse, NY 13202
+              - listitem [ref=e123]:
+                - img [ref=e124]
+                - link "(315) 657-1332" [ref=e126] [cursor=pointer]:
+                  - /url: tel:(315) 657-1332
+              - listitem [ref=e127]:
+                - img [ref=e128]
+                - link "hello@zainesstayandplay.com" [ref=e131] [cursor=pointer]:
+                  - /url: mailto:hello@zainesstayandplay.com
+              - listitem [ref=e132]:
+                - img [ref=e133]
+                - generic [ref=e136]:
+                  - text: 6:00 AM - 8:00 PM
+                  - text: 24/7 Supervision
+        - generic [ref=e137]:
+          - paragraph [ref=e138]: © 2026 Zaine's Stay & Play. All rights reserved.
+          - generic [ref=e139]:
+            - link "Privacy Policy" [ref=e140] [cursor=pointer]:
+              - /url: /privacy
+            - link "Terms of Service" [ref=e141] [cursor=pointer]:
+              - /url: /terms
+  - region "Notifications alt+T"
 ```
