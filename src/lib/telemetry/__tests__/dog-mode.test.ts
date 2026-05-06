@@ -83,6 +83,15 @@ describe("Dog Mode telemetry", () => {
     ).toThrow(ZodError);
 
     expect(containsPiiKeys({ nested: { petId: "pet-1" } })).toBe(true);
+    expect(containsPiiKeys({ metadata: { phoneNumber: "123" } })).toBe(true);
+  });
+
+  it("does not recurse forever on circular objects", () => {
+    const circular: Record<string, unknown> = {};
+    circular.self = circular;
+
+    expect(() => containsPiiKeys(circular)).not.toThrow();
+    expect(containsPiiKeys(circular)).toBe(false);
   });
 
   it("publishes the staff-visible contract without identity fields", () => {
@@ -99,7 +108,7 @@ describe("Dog Mode telemetry", () => {
   });
 
   it("creates anonymous kiosk session ids", () => {
-    expect(createDogSessionId(() => 0.123456789)).toMatch(
+    expect(createDogSessionId((length) => new Uint8Array(length).fill(1))).toMatch(
       /^dog_[a-z0-9]{10,40}$/,
     );
   });

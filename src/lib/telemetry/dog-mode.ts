@@ -110,6 +110,37 @@ const forbiddenPiiKeys = [
   "user",
 ] as const;
 
+const piiKeyPatternFragments = [
+  "address",
+  "booking",
+  "breed",
+  "contact",
+  "customer",
+  "email",
+  "name",
+  "owner",
+  "pet",
+  "phone",
+  "suite",
+  "user",
+] as const;
+
+function normalizeKey(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function isPiiLikeKey(key: string): boolean {
+  const normalized = normalizeKey(key);
+
+  if (
+    forbiddenPiiKeys.some((forbidden) => normalizeKey(forbidden) === normalized)
+  ) {
+    return true;
+  }
+
+  return piiKeyPatternFragments.some((fragment) => normalized.includes(fragment));
+}
+
 export function buildDogTelemetryEvent(
   input: DogTelemetryInput,
   now = new Date(),
@@ -125,20 +156,26 @@ export function validateDogTelemetryEvent(value: unknown): DogTelemetryEvent {
   return dogTelemetryEventSchema.parse(value);
 }
 
-export function containsPiiKeys(value: unknown): boolean {
+export function containsPiiKeys(
+  value: unknown,
+  seen: WeakSet<object> = new WeakSet(),
+): boolean {
   if (!value || typeof value !== "object") return false;
 
+  if (seen.has(value)) return false;
+  seen.add(value);
+
   if (Array.isArray(value)) {
-    return value.some((item) => containsPiiKeys(item));
+    return value.some((item) => containsPiiKeys(item, seen));
   }
 
   return Object.entries(value as Record<string, unknown>).some(
     ([key, item]) => {
-      if (forbiddenPiiKeys.includes(key as (typeof forbiddenPiiKeys)[number])) {
+      if (isPiiLikeKey(key)) {
         return true;
       }
 
-      return containsPiiKeys(item);
+      return containsPiiKeys(item, seen);
     },
   );
 }
@@ -151,8 +188,23 @@ export function assertDogTelemetryHasNoPii(event: DogTelemetryEvent): void {
   }
 }
 
-export function createDogSessionId(random = Math.random): string {
-  const segment = random().toString(36).slice(2, 14).padEnd(10, "0");
+function defaultRandomBytes(length: number): Uint8Array {
+  const runtimeCrypto = globalThis.crypto;
+  if (!runtimeCrypto) {
+    throw new Error("Secure random generator unavailable for dog session id.");
+  }
+
+  const buffer = new Uint8Array(length);
+  runtimeCrypto.getRandomValues(buffer);
+  return buffer;
+}
+
+export function createDogSessionId(
+  randomBytes: (length: number) => Uint8Array = defaultRandomBytes,
+): string {
+  const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
+  const bytes = randomBytes(12);
+  const segment = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join("");
   return `dog_${segment}`;
 }
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type React from "react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   ArrowLeft,
   Bell,
@@ -77,14 +77,14 @@ const schedule: ScheduleItem[] = [
 ];
 
 function useDogTelemetry(surface: DogTelemetrySurface, mode: DogTelemetryMode) {
-  const sessionId = useMemo(() => {
+  const [sessionId] = useState(() => {
     if (typeof window === "undefined") return "dog_0000000000";
     const existing = window.sessionStorage.getItem("dog-mode-session-id");
     if (existing) return existing;
     const next = createDogSessionId();
     window.sessionStorage.setItem("dog-mode-session-id", next);
     return next;
-  }, []);
+  });
 
   return (
     event: Omit<
@@ -100,9 +100,15 @@ function useDogTelemetry(surface: DogTelemetrySurface, mode: DogTelemetryMode) {
     });
     assertDogTelemetryHasNoPii(payload);
 
-    const stored = JSON.parse(
-      window.localStorage.getItem("dog-mode-telemetry") ?? "[]",
-    ) as DogTelemetryEvent[];
+    let stored: DogTelemetryEvent[] = [];
+    try {
+      const raw = window.localStorage.getItem("dog-mode-telemetry");
+      const parsed = raw ? JSON.parse(raw) : [];
+      stored = Array.isArray(parsed) ? (parsed as DogTelemetryEvent[]) : [];
+    } catch {
+      stored = [];
+    }
+
     const next = [...stored.slice(-49), payload];
     window.localStorage.setItem("dog-mode-telemetry", JSON.stringify(next));
     window.dispatchEvent(
