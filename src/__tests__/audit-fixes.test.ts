@@ -52,7 +52,6 @@ describe("Audit Fixes - Regression Tests", () => {
       
       // Both should parse to same date
       const isoDate = "2026-06-20";
-      const usDate = "06/20/2026";
       const [year, month, day] = isoDate.split("-");
       const usFormatParsed = `${year}-${month}-${day}`;
       

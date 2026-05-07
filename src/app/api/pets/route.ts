@@ -56,16 +56,24 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ pet }, { status: 201 });
   } catch (error) {
-    // Log the error for debugging
-    console.error('[API] Pet creation failed:', error);
+    // Generate correlation ID for request tracing
+    const correlationId = crypto.randomUUID();
     
-    // Return a properly formatted error response
+    // Log the error for debugging with correlation ID
+    console.error('[API] Pet creation failed:', {
+      correlationId,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      userId: session.user.id,
+    });
+    
+    // Return a properly formatted error response with correlation ID
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
       { 
         error: 'Failed to create pet',
         message: errorMessage,
-        code: 'PET_CREATION_ERROR'
+        code: 'PET_CREATION_ERROR',
+        correlationId,
       },
       { status: 500 },
     );
