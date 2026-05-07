@@ -43,6 +43,30 @@ const providers: NonNullable<NextAuthConfig["providers"]> = [
         }),
       ]
     : []),
+  // FIXED (Issue #101): Facebook provider is only included if BOTH environment variables
+  // are set AND contain valid (non-placeholder) values. If Facebook provider is not included,
+  // the signin page will automatically hide the Facebook button.
+  // 
+  // IMPLEMENTATION DETAILS:
+  // - Provider is conditionally included only when FACEBOOK_CLIENT_ID is set and is NOT a placeholder
+  // - If either env var is missing or contains placeholder value ("your_facebook_app_id_here"), 
+  //   the Facebook provider is not added to the providers array
+  // - This means the signin page won't show the Facebook button for incomplete configurations
+  // - NextAuth automatically hides unavailable providers from signin UI
+  // - This approach is safer than runtime checks and fails-fast during app initialization
+  // 
+  // TO ENABLE FACEBOOK OAUTH:
+  // 1. Create a Facebook App at https://developers.facebook.com/apps/
+  // 2. Copy Client ID and Client Secret
+  // 3. Set FACEBOOK_CLIENT_ID and FACEBOOK_CLIENT_SECRET in your environment variables
+  // 4. VERIFY values are NOT placeholder strings like "your_facebook_app_id_here"
+  // 5. Deploy to staging first to test the signin flow
+  // 6. Do NOT deploy to production with unset or placeholder Facebook credentials
+  // 
+  // TROUBLESHOOTING:
+  // - Facebook button not appearing? Check if FACEBOOK_CLIENT_ID is set in environment
+  // - OAuth flow failing? Verify Facebook app is properly configured in Facebook Developer Console
+  // - Invalid app ID error? Check that FACEBOOK_CLIENT_ID matches your Facebook app ID exactly
 ];
 
 export const authConfig: NextAuthConfig = {

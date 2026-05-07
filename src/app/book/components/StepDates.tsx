@@ -207,6 +207,55 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
 
   const minDate = getTodayString();
 
+  // Parse flexible date formats (MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD, etc.)
+  const parseDateInput = (input: string): string | null => {
+    if (!input) return null;
+    
+    // Already in ISO format
+    if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+      return input;
+    }
+    
+    // Try MM/DD/YYYY or M/D/YYYY format
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(input)) {
+      const parts = input.split('/');
+      const month = parts[0].padStart(2, '0');
+      const day = parts[1].padStart(2, '0');
+      const year = parts[2];
+      const dateStr = `${year}-${month}-${day}`;
+      if (!isNaN(new Date(dateStr).getTime())) {
+        return dateStr;
+      }
+    }
+    
+    return null;
+  };
+
+  const handleDateInput = (rawInput: string, setter: (value: string) => void) => {
+    // If input looks complete, try to parse it
+    if (rawInput.length >= 8) {
+      const parsed = parseDateInput(rawInput);
+      if (parsed) {
+        setter(parsed);
+        return;
+      }
+    }
+    // Keep the input as-is for user correction
+    // Parser will validate on blur
+  };
+
+  const handleDateBlur = (input: string, setter: (value: string) => void) => {
+    const parsed = parseDateInput(input);
+    if (parsed) {
+      setter(parsed);
+    } else if (input.trim()) {
+      // Input was invalid, clear it and show message
+      setAvailabilityState('invalid_input');
+      setAvailabilityMessage('Please enter date in MM/DD/YYYY or YYYY-MM-DD format');
+      setter('');
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -216,7 +265,7 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
         </CardTitle>
         <CardDescription>
           Choose your check-in/check-out dates and number of pets for private
-          boarding
+          boarding. Use calendar picker or enter dates as MM/DD/YYYY
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -227,11 +276,14 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
               id="checkIn"
               type="date"
               min={minDate}
+              placeholder="MM/DD/YYYY or click calendar"
               value={data.checkIn || ""}
-              onChange={(e) => onUpdate({ checkIn: e.target.value })}
+              onChange={(e) => handleDateInput(e.target.value, (v) => onUpdate({ checkIn: v }))}
+              onBlur={(e) => handleDateBlur(e.target.value, (v) => onUpdate({ checkIn: v }))}
               required
               className="w-full"
             />
+            <p className="text-xs text-muted-foreground">Format: MM/DD/YYYY or click the calendar icon</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="checkOut">Check-out Date *</Label>
@@ -239,11 +291,14 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
               id="checkOut"
               type="date"
               min={data.checkIn || minDate}
+              placeholder="MM/DD/YYYY or click calendar"
               value={data.checkOut || ""}
-              onChange={(e) => onUpdate({ checkOut: e.target.value })}
+              onChange={(e) => handleDateInput(e.target.value, (v) => onUpdate({ checkOut: v }))}
+              onBlur={(e) => handleDateBlur(e.target.value, (v) => onUpdate({ checkOut: v }))}
               required
               className="w-full"
             />
+            <p className="text-xs text-muted-foreground">Format: MM/DD/YYYY or click the calendar icon</p>
           </div>
         </div>
 
