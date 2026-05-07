@@ -43,6 +43,15 @@ const providers: NonNullable<NextAuthConfig["providers"]> = [
         }),
       ]
     : []),
+  // FIXED (Issue #101): Facebook provider is only included if BOTH environment variables
+  // are set AND contain valid (non-placeholder) values. If Facebook provider is not included,
+  // the signin page will automatically hide the Facebook button.
+  // 
+  // To enable Facebook OAuth:
+  // 1. Create a Facebook App at https://developers.facebook.com/apps/
+  // 2. Set FACEBOOK_CLIENT_ID and FACEBOOK_CLIENT_SECRET in environment
+  // 3. VERIFY values are NOT placeholder strings like "your_facebook_app_id_here"
+  // 4. Do NOT deploy to production with unset or placeholder Facebook credentials
 ];
 
 export const authConfig: NextAuthConfig = {

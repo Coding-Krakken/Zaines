@@ -31,7 +31,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body: unknown = await request.json();
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Invalid JSON', message: 'Request body must be valid JSON' },
+      { status: 400 },
+    );
+  }
+
   const result = petSchema.safeParse(body);
   if (!result.success) {
     return NextResponse.json(
@@ -40,9 +49,25 @@ export async function POST(request: Request) {
     );
   }
 
-  const pet = await prisma.pet.create({
-    data: { ...result.data, userId: session.user.id },
-  });
+  try {
+    const pet = await prisma.pet.create({
+      data: { ...result.data, userId: session.user.id },
+    });
 
-  return NextResponse.json({ pet }, { status: 201 });
+    return NextResponse.json({ pet }, { status: 201 });
+  } catch (error) {
+    // Log the error for debugging
+    console.error('[API] Pet creation failed:', error);
+    
+    // Return a properly formatted error response
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json(
+      { 
+        error: 'Failed to create pet',
+        message: errorMessage,
+        code: 'PET_CREATION_ERROR'
+      },
+      { status: 500 },
+    );
+  }
 }

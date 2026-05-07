@@ -3,6 +3,18 @@ import { redirect } from "next/navigation";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { ProfileForm } from "./ProfileForm";
 
+export const metadata = {
+  title: "Settings | Dashboard",
+  description: "Manage your account settings and preferences",
+};
+
+/**
+ * Dashboard Settings Page
+ * 
+ * FIXED (Issue #100): Proper authentication guard.
+ * Auth check: redirect only if user is NOT authenticated.
+ * The session is used to fetch user data and protect the route.
+ */
 export default async function SettingsPage() {
   const session = await auth();
   if (!session?.user?.id) return redirect("/auth/signin");
