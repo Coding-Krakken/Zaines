@@ -19,6 +19,9 @@ const hasResendProviderConfig =
 const useDatabaseSessions =
   process.env.AUTH_ENABLE_DATABASE_SESSIONS === "true" && hasDatabase;
 
+const normalizeRole = (value: unknown): string =>
+  typeof value === "string" && value.length > 0 ? value : "customer";
+
 const providers: NonNullable<NextAuthConfig["providers"]> = [
   ...(useDatabaseSessions && hasResendProviderConfig
     ? [
@@ -123,7 +126,8 @@ export const authConfig: NextAuthConfig = {
             session.user.role = (dbUser as any)?.role ?? "customer";
           } catch {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            session.user.role = (user as any)?.role ?? token.role ?? "customer";
+            session.user.role =
+              (user as any)?.role ?? normalizeRole(token.role);
           }
         } else {
           // For JWT sessions: refresh role from DB on every request so that
@@ -136,14 +140,15 @@ export const authConfig: NextAuthConfig = {
                 select: { role: true },
               });
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              session.user.role = (dbUser as any)?.role ?? token.role ?? "customer";
+              session.user.role =
+                (dbUser as any)?.role ?? normalizeRole(token.role);
             } catch {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              session.user.role = token.role ?? "customer";
+              session.user.role = normalizeRole(token.role);
             }
           } else {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            session.user.role = token.role ?? "customer";
+            session.user.role = normalizeRole(token.role);
           }
         }
       }
