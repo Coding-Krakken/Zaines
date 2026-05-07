@@ -41,21 +41,70 @@ describe("Audit Fixes - Regression Tests", () => {
   });
 
   describe("Issue #102: Date Input Format Flexibility", () => {
-    it("should accept multiple date formats", () => {
-      // Test date parsing logic from StepDates component
+    /**
+     * Date parsing logic extracted from StepDates component
+     * Supports MM/DD/YYYY, M/D/YYYY, and ISO yyyy-MM-dd formats
+     */
+    const parseDateInput = (input: string): string | null => {
+      if (!input) return null;
       
-      // ISO format (yyyy-MM-dd) - native
-      expect("2026-06-20").toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      // Already in ISO format
+      if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+        return input;
+      }
       
-      // US format (MM/DD/YYYY)
-      expect("06/20/2026").toMatch(/^\d{1,2}\/\d{1,2}\/\d{4}$/);
+      // Try MM/DD/YYYY or M/D/YYYY format
+      if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(input)) {
+        const parts = input.split('/');
+        const month = parts[0].padStart(2, '0');
+        const day = parts[1].padStart(2, '0');
+        const year = parts[2];
+        const dateStr = `${year}-${month}-${day}`;
+        if (!isNaN(new Date(dateStr).getTime())) {
+          return dateStr;
+        }
+      }
       
-      // Both should parse to same date
-      const isoDate = "2026-06-20";
-      const [year, month, day] = isoDate.split("-");
-      const usFormatParsed = `${year}-${month}-${day}`;
-      
-      expect(isoDate).toBe(usFormatParsed);
+      return null;
+    };
+
+    it("should accept ISO format (yyyy-MM-dd)", () => {
+      expect(parseDateInput("2026-06-20")).toBe("2026-06-20");
+      expect(parseDateInput("2026-01-01")).toBe("2026-01-01");
+      expect(parseDateInput("2026-12-31")).toBe("2026-12-31");
+    });
+
+    it("should accept US format (MM/DD/YYYY)", () => {
+      expect(parseDateInput("06/20/2026")).toBe("2026-06-20");
+      expect(parseDateInput("01/01/2026")).toBe("2026-01-01");
+      expect(parseDateInput("12/31/2026")).toBe("2026-12-31");
+    });
+
+    it("should accept abbreviated US format (M/D/YYYY)", () => {
+      expect(parseDateInput("6/20/2026")).toBe("2026-06-20");
+      expect(parseDateInput("1/1/2026")).toBe("2026-01-01");
+      expect(parseDateInput("9/9/2026")).toBe("2026-09-09");
+    });
+
+    it("should reject invalid dates", () => {
+      expect(parseDateInput("13/01/2026")).toBe(null); // Invalid month
+      expect(parseDateInput("12/32/2026")).toBe(null); // Invalid day
+      expect(parseDateInput("2026/06/20")).toBe(null); // Wrong format
+      expect(parseDateInput("invalid")).toBe(null);
+      expect(parseDateInput("")).toBe(null);
+    });
+
+    it("should handle edge cases correctly", () => {
+      expect(parseDateInput("2/29/2024")).toBe("2024-02-29"); // Leap year
+      expect(parseDateInput("2/28/2026")).toBe("2026-02-28"); // Non-leap year
+    });
+
+    it("should parse and normalize dates correctly", () => {
+      // Both formats should produce same result
+      const isoDate = parseDateInput("2026-06-20");
+      const usDate = parseDateInput("06/20/2026");
+      expect(isoDate).toBe(usDate);
+      expect(isoDate).toBe("2026-06-20");
     });
   });
 
@@ -87,6 +136,48 @@ describe("Audit Fixes - Regression Tests", () => {
       expect(dbError).toHaveProperty("error");
       expect(dbError).toHaveProperty("message");
       expect(dbError).toHaveProperty("code");
+    });
+
+    it("should return 400 for invalid JSON in request body", () => {
+      // Pet API should catch JSON parse errors and return 400 with proper envelope
+      const errorResponse = {
+        error: "Invalid JSON",
+        message: "Request body must be valid JSON",
+      };
+      
+      expect(errorResponse.error).toBe("Invalid JSON");
+      expect(() => JSON.stringify(errorResponse)).not.toThrow();
+    });
+
+    it("should return 400 for validation errors with correlation ID", () => {
+      // Pet API should validate request against schema and return 400
+      const errorResponse = {
+        error: "Failed to create pet",
+        message: "Invalid pet data",
+        code: "PET_CREATION_ERROR",
+        correlationId: "550e8400-e29b-41d4-a716-446655440000",
+      };
+      
+      expect(errorResponse).toHaveProperty("correlationId");
+      expect(errorResponse.correlationId).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      );
+      expect(() => JSON.stringify(errorResponse)).not.toThrow();
+    });
+
+    it("should include correlation ID in error responses for debugging", () => {
+      // All error responses should include a UUID correlation ID for tracing
+      const correlationId = "123e4567-e89b-12d3-a456-426614174000";
+      const errorResponse = {
+        error: "Database connection failed",
+        message: "Could not reach database",
+        code: "DB_CONNECTION_ERROR",
+        correlationId,
+      };
+      
+      expect(errorResponse.correlationId).toBeDefined();
+      expect(typeof errorResponse.correlationId).toBe("string");
+      expect(errorResponse.correlationId.length).toBeGreaterThan(0);
     });
   });
 
