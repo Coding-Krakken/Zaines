@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import { isDatabaseConfigured } from "@/lib/prisma";
 import {
   Card,
   CardContent,

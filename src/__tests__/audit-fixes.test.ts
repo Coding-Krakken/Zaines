@@ -45,10 +45,10 @@ describe("Audit Fixes - Regression Tests", () => {
       // Test date parsing logic from StepDates component
       
       // ISO format (yyyy-MM-dd) - native
-      expect("2026-06-20").toMatch(/^\\d{4}-\\d{2}-\\d{2}$/);
+      expect("2026-06-20").toMatch(/^\d{4}-\d{2}-\d{2}$/);
       
       // US format (MM/DD/YYYY)
-      expect("06/20/2026").toMatch(/^\\d{1,2}\\/\\d{1,2}\\/\\d{4}$/);
+      expect("06/20/2026").toMatch(/^\d{1,2}\/\d{1,2}\/\d{4}$/);
       
       // Both should parse to same date
       const isoDate = "2026-06-20";
@@ -126,7 +126,16 @@ describe("Audit Fixes - Regression Tests", () => {
       const totalPets = stepPetsSchema.selectedPetIds.length + stepPetsSchema.newPets.length;
       const vaccinesProvided = stepPetsSchema.vaccines.length;
       
-      expect(vaccinesProvided >= totalPets).toBe(false); // Currently no vaccines
+      // With no pets, no vaccines needed - this is valid
+      expect(vaccinesProvided >= totalPets).toBe(true); // 0 >= 0 is true
+      
+      // But if we had a pet, vaccine would be required
+      const withPet = { ...stepPetsSchema, newPets: [{ name: "Fido" }] };
+      const totalPetsWithPet = withPet.selectedPetIds.length + withPet.newPets.length;
+      const vaccinesWithPet = withPet.vaccines.length;
+      
+      // With 1 pet and 0 vaccines, validation should fail
+      expect(vaccinesWithPet >= totalPetsWithPet).toBe(false);
     });
   });
 });
