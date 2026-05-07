@@ -102,6 +102,9 @@ export default async function AdminDashboardPage() {
         <Link href="/admin/contacts" className="text-sm font-medium text-primary hover:underline">
           Emergency Contacts
         </Link>
+        <Link href="/admin/messages" className="text-sm font-medium text-primary hover:underline">
+          Contact Messages
+        </Link>
       </div>
 
       {bookings.length === 0 ? (

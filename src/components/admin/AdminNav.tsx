@@ -19,6 +19,9 @@ export function AdminNav() {
       <Link href="/admin/contacts" className="text-sm text-muted-foreground hover:text-foreground">
         Contacts
       </Link>
+      <Link href="/admin/messages" className="text-sm text-muted-foreground hover:text-foreground">
+        Messages
+      </Link>
     </nav>
   );
 }

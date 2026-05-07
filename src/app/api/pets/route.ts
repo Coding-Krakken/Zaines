@@ -3,6 +3,15 @@ import { auth } from '@/lib/auth';
 import { prisma, isDatabaseConfigured } from '@/lib/prisma';
 import { petSchema } from '@/lib/validations/pet';
 
+function isSchemaDriftError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  return (
+    error.message.includes('does not exist') ||
+    error.message.includes('P2021') ||
+    error.message.includes('P2022')
+  );
+}
+
 export async function GET() {
   if (!isDatabaseConfigured()) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
@@ -13,10 +22,22 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const pets = await prisma.pet.findMany({
-    where: { userId: session.user.id },
-    orderBy: { createdAt: 'desc' },
-  });
+  let pets;
+  try {
+    pets = await prisma.pet.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: 'desc' },
+    });
+  } catch (error) {
+    if (!isSchemaDriftError(error)) {
+      throw error;
+    }
+
+    // Fallback for partially migrated environments missing createdAt.
+    pets = await prisma.pet.findMany({
+      where: { userId: session.user.id },
+    });
+  }
 
   return NextResponse.json({ pets });
 }
@@ -50,9 +71,31 @@ export async function POST(request: Request) {
   }
 
   try {
-    const pet = await prisma.pet.create({
-      data: { ...result.data, userId: session.user.id },
-    });
+    const fullData = { ...result.data, userId: session.user.id };
+    let pet;
+
+    try {
+      pet = await prisma.pet.create({
+        data: fullData,
+      });
+    } catch (error) {
+      if (!isSchemaDriftError(error)) {
+        throw error;
+      }
+
+      // Fallback write path when optional columns are not present yet.
+      pet = await prisma.pet.create({
+        data: {
+          userId: session.user.id,
+          name: result.data.name,
+          breed: result.data.breed,
+          age: result.data.age,
+          weight: result.data.weight,
+          gender: result.data.gender,
+          spayedNeutered: result.data.spayedNeutered,
+        },
+      });
+    }
 
     return NextResponse.json({ pet }, { status: 201 });
   } catch (error) {

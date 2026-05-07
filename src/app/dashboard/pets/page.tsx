@@ -4,6 +4,15 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
+function isSchemaDriftError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  return (
+    error.message.includes("does not exist") ||
+    error.message.includes("P2021") ||
+    error.message.includes("P2022")
+  );
+}
+
 export default async function PetsPage() {
   const session = await auth();
   if (!session?.user?.id) return redirect("/auth/signin");
@@ -17,10 +26,23 @@ export default async function PetsPage() {
     );
   }
 
-  const pets = await prisma.pet.findMany({
-    where: { userId: session.user.id },
-    orderBy: { createdAt: "desc" },
-  });
+  let pets;
+  let usedFallbackQuery = false;
+  try {
+    pets = await prisma.pet.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    if (!isSchemaDriftError(error)) {
+      throw error;
+    }
+
+    usedFallbackQuery = true;
+    pets = await prisma.pet.findMany({
+      where: { userId: session.user.id },
+    });
+  }
 
   return (
     <div className="container mx-auto p-6">
@@ -30,6 +52,13 @@ export default async function PetsPage() {
           <Link href="/dashboard/pets/new">Add Pet</Link>
         </Button>
       </div>
+
+      {usedFallbackQuery && (
+        <p className="mt-3 text-sm text-amber-700">
+          Pet list loaded in compatibility mode. Run database migrations to
+          restore full sorting.
+        </p>
+      )}
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {pets.length === 0 && (

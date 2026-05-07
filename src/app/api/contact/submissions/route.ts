@@ -6,6 +6,7 @@ import {
   logServerFailure,
   persistContactSubmission,
 } from "@/lib/api/issue26";
+import { sendContactSubmissionNotification } from "@/lib/notifications";
 import { rateLimitedResponse } from "@/lib/security/api";
 
 export async function POST(request: NextRequest) {
@@ -53,6 +54,24 @@ export async function POST(request: NextRequest) {
 
   try {
     const persisted = await persistContactSubmission(parsed.data);
+
+    // Best-effort admin alert. Submission success should not depend on email delivery.
+    try {
+      await sendContactSubmissionNotification({
+        submissionId: persisted.submissionId,
+        fullName: parsed.data.fullName,
+        email: parsed.data.email,
+        phone: parsed.data.phone,
+        message: parsed.data.message,
+      });
+    } catch (notificationError) {
+      logServerFailure(
+        "/api/contact/submissions",
+        "CONTACT_NOTIFICATION_FAILED",
+        correlationId,
+        notificationError,
+      );
+    }
 
     return NextResponse.json(
       {

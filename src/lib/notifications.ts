@@ -100,6 +100,15 @@ async function sendEmailViaResend(payload: {
   throw lastError;
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
 type EmailQueueBookingEntry = {
   type: "booking_confirmation";
   from: string;
@@ -123,9 +132,21 @@ type EmailQueuePaymentEntry = {
   error?: string;
 };
 
+type EmailQueueContactEntry = {
+  type: "contact_submission_notification";
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+  submissionId: string;
+  response?: unknown;
+  error?: string;
+};
+
 type EmailQueueEntry =
   | EmailQueueBookingEntry
   | EmailQueuePaymentEntry
+  | EmailQueueContactEntry
   | { type?: string };
 
 async function processQueuedEntries() {
@@ -150,9 +171,13 @@ async function processQueuedEntries() {
 
         if (
           entry.type === "booking_confirmation" ||
-          entry.type === "payment_notification"
+          entry.type === "payment_notification" ||
+          entry.type === "contact_submission_notification"
         ) {
-          const e = entry as EmailQueueBookingEntry | EmailQueuePaymentEntry;
+          const e = entry as
+            | EmailQueueBookingEntry
+            | EmailQueuePaymentEntry
+            | EmailQueueContactEntry;
           const payload = {
             from: e.from,
             to: e.to,
@@ -311,6 +336,79 @@ export async function sendPaymentNotification(
       html,
       bookingId,
       status: type,
+      error: String(err),
+    });
+    return { sent: false, provider: "dev-queue", detail: String(err) };
+  }
+}
+
+export async function sendContactSubmissionNotification(payload: {
+  submissionId: string;
+  fullName: string;
+  email: string;
+  phone?: string | null;
+  message: string;
+}): Promise<SendResult> {
+  const from = process.env.EMAIL_FROM || "noreply@pawfectstays.com";
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = process.env.CONTACT_INBOX_EMAIL;
+
+  if (!to) {
+    return {
+      sent: false,
+      provider: "dev-queue",
+      detail: "no-contact-inbox-recipient",
+    };
+  }
+
+  const subject = `New contact submission ${payload.submissionId}`;
+  const safeName = escapeHtml(payload.fullName);
+  const safeEmail = escapeHtml(payload.email);
+  const safePhone = escapeHtml(payload.phone || "Not provided");
+  const safeMessage = escapeHtml(payload.message).replace(/\n/g, "<br />");
+  const html = `
+    <p><strong>Submission ID:</strong> ${payload.submissionId}</p>
+    <p><strong>Name:</strong> ${safeName}</p>
+    <p><strong>Email:</strong> ${safeEmail}</p>
+    <p><strong>Phone:</strong> ${safePhone}</p>
+    <p><strong>Message:</strong></p>
+    <p>${safeMessage}</p>
+  `;
+
+  if (!apiKey) {
+    await appendToDevQueue({
+      type: "contact_submission_notification",
+      to,
+      from,
+      subject,
+      html,
+      submissionId: payload.submissionId,
+    });
+    return { sent: false, provider: "dev-queue" };
+  }
+
+  try {
+    const resp = await sendEmailViaResend({ from, to, subject, html });
+    if (resp && resp.ok)
+      return { sent: true, provider: "resend", detail: resp.json };
+    await appendToDevQueue({
+      type: "contact_submission_notification",
+      to,
+      from,
+      subject,
+      html,
+      submissionId: payload.submissionId,
+      response: resp.json,
+    });
+    return { sent: false, provider: "dev-queue", detail: resp.json };
+  } catch (err) {
+    await appendToDevQueue({
+      type: "contact_submission_notification",
+      to,
+      from,
+      subject,
+      html,
+      submissionId: payload.submissionId,
       error: String(err),
     });
     return { sent: false, provider: "dev-queue", detail: String(err) };

@@ -2,6 +2,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import {
   sendBookingConfirmation,
+  sendContactSubmissionNotification,
   sendPaymentNotification,
 } from "@/lib/notifications";
 
@@ -24,6 +25,7 @@ describe("notifications helper (resend path)", () => {
 
   afterEach(() => {
     delete process.env.RESEND_API_KEY;
+    delete process.env.CONTACT_INBOX_EMAIL;
     vi.restoreAllMocks();
   });
 
@@ -69,5 +71,35 @@ describe("notifications helper (resend path)", () => {
     const res = await sendPaymentNotification("b3", "success", booking);
     expect(res.provider).toBe("resend");
     expect(fetchMock).toHaveBeenCalled();
+  });
+
+  it("sends contact notification via Resend when inbox recipient configured", async () => {
+    process.env.CONTACT_INBOX_EMAIL = "staff@example.com";
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ id: "c1" }) });
+
+    const res = await sendContactSubmissionNotification({
+      submissionId: "sub-1",
+      fullName: "Taylor Example",
+      email: "taylor@example.com",
+      phone: "555-0100",
+      message: "Need details about availability next month.",
+    });
+
+    expect(res.provider).toBe("resend");
+    expect(fetchMock).toHaveBeenCalled();
+  });
+
+  it("returns dev-queue when contact inbox recipient is missing", async () => {
+    delete process.env.CONTACT_INBOX_EMAIL;
+
+    const res = await sendContactSubmissionNotification({
+      submissionId: "sub-2",
+      fullName: "No Inbox",
+      email: "nobody@example.com",
+      message: "Hello there, checking in.",
+    });
+
+    expect(res.provider).toBe("dev-queue");
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

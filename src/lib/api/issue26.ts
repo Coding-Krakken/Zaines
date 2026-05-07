@@ -110,6 +110,16 @@ async function ensureDatabaseReady(): Promise<void> {
 type ContactPayload = z.infer<typeof contactSubmissionSchema>;
 type ReviewPayload = z.infer<typeof reviewSubmissionSchema>;
 
+export type ContactSubmissionRecord = {
+  submissionId: string;
+  fullName: string;
+  email: string;
+  phone: string | null;
+  message: string;
+  createdAt: string;
+  status: "open" | "resolved";
+};
+
 export async function persistContactSubmission(
   payload: ContactPayload,
 ): Promise<{ submissionId: string }> {
@@ -140,6 +150,7 @@ export async function persistContactSubmission(
         phone: payload.phone || null,
         message: payload.message,
         createdAt: new Date().toISOString(),
+        status: "open",
       }),
     },
   });
@@ -154,6 +165,74 @@ export async function persistContactSubmission(
   });
 
   return { submissionId };
+}
+
+export async function updateContactSubmissionStatus(
+  submissionId: string,
+  status: "open" | "resolved",
+): Promise<void> {
+  if (!isDatabaseConfigured()) {
+    throw new Error("PERSISTENCE_UNAVAILABLE");
+  }
+
+  const recordKey = `contact:submission:${submissionId}`;
+  const existing = await prismaSettings.findUnique({
+    where: { key: recordKey },
+  });
+
+  if (!existing) {
+    throw new Error("SUBMISSION_NOT_FOUND");
+  }
+
+  const parsed = safeParseStoredValue(existing.value);
+  await prismaSettings.upsert({
+    where: { key: recordKey },
+    create: {
+      key: recordKey,
+      value: JSON.stringify({ ...parsed, status }),
+    },
+    update: {
+      value: JSON.stringify({ ...parsed, status }),
+    },
+  });
+}
+
+export async function getRecentContactSubmissions(
+  limit = 100,
+): Promise<ContactSubmissionRecord[]> {
+  if (!isDatabaseConfigured()) {
+    return [];
+  }
+
+  const records = await prismaSettings.findMany({
+    where: {
+      key: {
+        startsWith: "contact:submission:",
+      },
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  });
+
+  return records
+    .map((record: { value: string }) => safeParseStoredValue(record.value))
+    .filter(
+      (
+        submission: Record<string, unknown>,
+      ): submission is ContactSubmissionRecord => {
+        return (
+          typeof submission.submissionId === "string" &&
+          typeof submission.fullName === "string" &&
+          typeof submission.email === "string" &&
+          (submission.phone === null || typeof submission.phone === "string") &&
+          typeof submission.message === "string" &&
+          typeof submission.createdAt === "string" &&
+          (submission.status === "open" || submission.status === "resolved")
+        );
+      },
+    )
+    .slice(0, limit);
 }
 
 export async function persistReviewSubmission(
