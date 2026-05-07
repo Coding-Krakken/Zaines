@@ -224,7 +224,7 @@ seo_and_metadata_requirements:
     minimum_directives:
       - User-agent: '*'
       - Allow: '/'
-      - Sitemap: https://zaines.vercel.app/sitemap.xml
+      - Sitemap: https://zainesstayandplay.com/sitemap.xml
   sitemap:
     path: /sitemap.xml
     status: 200

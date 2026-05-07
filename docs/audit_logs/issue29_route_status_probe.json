@@ -11,6 +11,6 @@
     "status": 200,
     "ok": true,
     "contentType": "application/xml",
-    "sample": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n<url>\n<loc>https://zaines.vercel.app/</loc>\n<lastmod>2026-02-27T19:18:55.196Z</lastmod>\n<changefreq>"
+    "sample": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n<url>\n<loc>https://zainesstayandplay.com/</loc>\n<lastmod>2026-02-27T19:18:55.196Z</lastmod>\n<changefreq>"
   }
 ]
