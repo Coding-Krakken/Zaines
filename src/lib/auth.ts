@@ -111,15 +111,65 @@ export const authConfig: NextAuthConfig = {
     async session({ session, user, token }) {
       if (session.user) {
         session.user.id = user?.id ?? token.sub ?? "";
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        session.user.role = (user as any)?.role ?? token.role ?? "customer";
+        
+        // For database sessions: fetch latest role from database each request
+        if (useDatabaseSessions && hasDatabase && user?.id) {
+          try {
+            const dbUser = await prisma.user.findUnique({
+              where: { id: user.id },
+              select: { role: true },
+            });
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            session.user.role = (dbUser as any)?.role ?? "customer";
+          } catch {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            session.user.role = (user as any)?.role ?? token.role ?? "customer";
+          }
+        } else {
+          // For JWT sessions: refresh role from DB on every request so that
+          // role changes (e.g. promotions) take effect without requiring sign-out.
+          const userId = token.sub ?? "";
+          if (hasDatabase && userId) {
+            try {
+              const dbUser = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { role: true },
+              });
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              session.user.role = (dbUser as any)?.role ?? token.role ?? "customer";
+            } catch {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              session.user.role = token.role ?? "customer";
+            }
+          } else {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            session.user.role = token.role ?? "customer";
+          }
+        }
       }
       return session;
     },
     async jwt({ token, user }) {
-      if (user) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        token.role = (user as any)?.role ?? "customer";
+      if (user?.id) {
+        // PrismaAdapter does not include custom fields like `role` in the user
+        // object. Fetch the latest role from the database at sign-in time so
+        // that role changes (e.g. promotion to admin) take effect on next login.
+        if (hasDatabase) {
+          try {
+            const dbUser = await prisma.user.findUnique({
+              where: { id: user.id },
+              select: { role: true },
+            });
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            token.role = (dbUser as any)?.role ?? "customer";
+          } catch {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            token.role = (user as any)?.role ?? "customer";
+          }
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          token.role = (user as any)?.role ?? "customer";
+        }
       }
       return token;
     },
