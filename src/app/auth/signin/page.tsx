@@ -41,6 +41,7 @@ function SignInForm() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [providerIds, setProviderIds] = useState<Set<string>>(new Set());
+  const [providerLoadFailed, setProviderLoadFailed] = useState(false);
   const [magicLinkState, setMagicLinkState] = useState<MagicLinkState>("idle");
   const [message, setMessage] = useState("");
   const [correlationId, setCorrelationId] = useState<string | null>(null);
@@ -57,12 +58,17 @@ function SignInForm() {
     const loadProviders = async () => {
       try {
         const response = await fetch("/api/auth/providers");
-        if (!response.ok) return;
+        if (!response.ok) {
+          if (mounted) setProviderLoadFailed(true);
+          return;
+        }
         const providers = (await response.json()) as Record<string, unknown>;
         if (!mounted || !providers || typeof providers !== "object") return;
+        setProviderLoadFailed(false);
         setProviderIds(new Set(Object.keys(providers)));
       } catch {
-        // Keep default empty provider set; page still renders with support guidance.
+        // Preserve a functional sign-in path even if provider discovery fails.
+        if (mounted) setProviderLoadFailed(true);
       }
     };
 
@@ -376,12 +382,34 @@ function SignInForm() {
                       )}
                     </div>
                   ) : (
-                    <Alert variant="destructive">
-                      <AlertDescription>
-                        Sign-in providers are currently unavailable. Please contact
-                        support.
-                      </AlertDescription>
-                    </Alert>
+                    <div className="space-y-3">
+                      {providerLoadFailed ? (
+                        <>
+                          <Alert>
+                            <AlertDescription>
+                              We couldn't verify available sign-in providers. You can
+                              still try Google sign-in.
+                            </AlertDescription>
+                          </Alert>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full"
+                            onClick={() => handleOAuthSignIn("google")}
+                            disabled={isLoading}
+                          >
+                            Continue with Google
+                          </Button>
+                        </>
+                      ) : (
+                        <Alert variant="destructive">
+                          <AlertDescription>
+                            Sign-in providers are currently unavailable. Please contact
+                            support.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
