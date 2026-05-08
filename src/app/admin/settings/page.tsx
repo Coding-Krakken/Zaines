@@ -17,8 +17,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
-import type { AdminSettings, BusinessHours } from '@/types/admin';
+import type { AdminSettings, BusinessHours, AvailabilityRules } from '@/types/admin';
 import { ServiceManagementCard } from '@/components/admin/ServiceManagementCard';
+import { AvailabilityRulesCard } from '@/components/admin/AvailabilityRulesCard';
 
 const businessHoursSchema = z.object({
   openTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
@@ -48,6 +49,13 @@ const settingsFormSchema = z.object({
   city: z.string().min(1, 'City is required'),
   state: z.string().min(2, 'State must be 2 characters').max(2),
   zip: z.string().min(5, 'ZIP code must be at least 5 characters').max(10),
+  // Phase 3: Availability & Scheduling Rules
+  availabilityRules: z.object({
+    minNightsPerBooking: z.number().min(1, 'Minimum 1 night'),
+    maxNightsPerBooking: z.number().min(1, 'Maximum must be at least 1'),
+    advanceBookingWindowDays: z.number().min(1, 'Minimum 1 day'),
+    minimumLeadTimeDays: z.number().min(0, 'Minimum 0 days'),
+  }),
 });
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
@@ -88,6 +96,13 @@ export default function AdminSettingsPage() {
       city: 'Syracuse',
       state: 'NY',
       zip: '13202',
+      // Phase 3: Availability & Scheduling Rules
+      availabilityRules: {
+        minNightsPerBooking: 1,
+        maxNightsPerBooking: 365,
+        advanceBookingWindowDays: 365,
+        minimumLeadTimeDays: 0,
+      },
     },
   });
 
@@ -453,6 +468,9 @@ export default function AdminSettingsPage() {
 
           {/* Services & Pricing Card */}
           <ServiceManagementCard />
+
+          {/* Availability & Scheduling Rules Card */}
+          <AvailabilityRulesCard />
 
           {/* Save Button */}
           <Button type="submit" disabled={isSaving} className="w-full md:w-auto" size="lg">

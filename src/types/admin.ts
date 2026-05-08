@@ -17,6 +17,13 @@ export interface BusinessHours {
   sunday: { openTime: string; closeTime: string; isClosed: boolean };
 }
 
+export interface AvailabilityRules {
+  minNightsPerBooking: number;
+  maxNightsPerBooking: number;
+  advanceBookingWindowDays: number; // How many days ahead customers can book
+  minimumLeadTimeDays: number; // Minimum days before check-in to allow booking
+}
+
 export interface AdminSettings {
   // Operational Preferences
   autoConfirmBookings: boolean;
@@ -32,6 +39,9 @@ export interface AdminSettings {
   city: string;
   state: string;
   zip: string;
+
+  // Phase 3: Availability & Scheduling Rules
+  availabilityRules: AvailabilityRules;
 }
 
 export interface SettingsRecord {

@@ -4,7 +4,7 @@
  */
 
 import { prisma, isDatabaseConfigured } from '@/lib/prisma';
-import type { AdminSettings, BusinessHours } from '@/types/admin';
+import type { AdminSettings, BusinessHours, AvailabilityRules } from '@/types/admin';
 
 const SETTINGS_KEYS = {
   AUTO_CONFIRM_BOOKINGS: 'admin.auto_confirm_bookings',
@@ -19,6 +19,8 @@ const SETTINGS_KEYS = {
   CITY: 'admin.city',
   STATE: 'admin.state',
   ZIP: 'admin.zip',
+  // Phase 3: Availability & Scheduling Rules
+  AVAILABILITY_RULES: 'admin.availability_rules', // JSON string
 };
 
 /**
@@ -65,6 +67,15 @@ export async function getAdminSettings(): Promise<AdminSettings> {
       city: settingsMap.get(SETTINGS_KEYS.CITY) || 'Syracuse',
       state: settingsMap.get(SETTINGS_KEYS.STATE) || 'NY',
       zip: settingsMap.get(SETTINGS_KEYS.ZIP) || '13202',
+      // Phase 3: Availability & Scheduling Rules
+      availabilityRules: (() => {
+        try {
+          const rulesJson = settingsMap.get(SETTINGS_KEYS.AVAILABILITY_RULES);
+          return rulesJson ? JSON.parse(rulesJson) : getDefaultAvailabilityRules();
+        } catch {
+          return getDefaultAvailabilityRules();
+        }
+      })(),
     };
   } catch (error) {
     console.error('Error fetching admin settings:', error);
@@ -245,6 +256,20 @@ export async function updateAdminSettings(updates: Partial<AdminSettings>): Prom
       );
     }
 
+    // Phase 3: Availability & Scheduling Rules
+    if (updates.availabilityRules !== undefined) {
+      updatePromises.push(
+        prisma.settings.upsert({
+          where: { key: SETTINGS_KEYS.AVAILABILITY_RULES },
+          update: { value: JSON.stringify(updates.availabilityRules) },
+          create: {
+            key: SETTINGS_KEYS.AVAILABILITY_RULES,
+            value: JSON.stringify(updates.availabilityRules),
+          },
+        }),
+      );
+    }
+
     await Promise.all(updatePromises);
 
     // Return updated settings
@@ -271,6 +296,18 @@ function getDefaultBusinessHours(): BusinessHours {
 }
 
 /**
+ * Get default availability rules
+ */
+function getDefaultAvailabilityRules(): AvailabilityRules {
+  return {
+    minNightsPerBooking: 1,
+    maxNightsPerBooking: 365,
+    advanceBookingWindowDays: 365, // Allow booking up to 1 year ahead
+    minimumLeadTimeDays: 0, // Allow same-day bookings
+  };
+}
+
+/**
  * Get default admin settings
  */
 export function getDefaultSettings(): AdminSettings {
@@ -286,5 +323,7 @@ export function getDefaultSettings(): AdminSettings {
     city: 'Syracuse',
     state: 'NY',
     zip: '13202',
+    // Phase 3: Availability & Scheduling Rules
+    availabilityRules: getDefaultAvailabilityRules(),
   };
 }
