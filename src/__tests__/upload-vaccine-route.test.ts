@@ -7,6 +7,9 @@ const { authMock, prismaMock, mkdirMock, writeFileMock } = vi.hoisted(() => ({
     pet: {
       findUnique: vi.fn(),
     },
+    vaccine: {
+      create: vi.fn(),
+    },
   },
   mkdirMock: vi.fn(),
   writeFileMock: vi.fn(),
@@ -78,5 +81,31 @@ describe('POST /api/upload/vaccine', () => {
     );
     expect(mkdirMock).toHaveBeenCalledTimes(1);
     expect(writeFileMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('persists uploaded vaccine metadata for existing pets', async () => {
+    writeFileMock.mockResolvedValue(undefined);
+    mkdirMock.mockResolvedValue(undefined);
+    authMock.mockResolvedValue({ user: { id: 'user-1' } });
+    prismaMock.pet.findUnique.mockResolvedValue({ userId: 'user-1' });
+    prismaMock.vaccine.create.mockResolvedValue({ id: 'vaccine-1' });
+
+    const response = await POST(makeUploadRequest('vaccines.pdf', 'pet-1'));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual(
+      expect.objectContaining({
+        savedToDatabase: true,
+        fileName: 'vaccines.pdf',
+      }),
+    );
+    expect(prismaMock.vaccine.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          petId: 'pet-1',
+          documentUrl: expect.stringMatching(/^\/uploads\/vaccines\//),
+        }),
+      }),
+    );
   });
 });

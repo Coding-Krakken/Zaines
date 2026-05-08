@@ -23,6 +23,46 @@ function isTemporaryPetId(petId: string): boolean {
   return petId.startsWith('new-');
 }
 
+function deriveVaccineNameFromFileName(fileName: string): string {
+  const withoutExtension = fileName.replace(/\.[^/.]+$/, '');
+  const normalized = withoutExtension.replace(/[_-]+/g, ' ').trim();
+  if (!normalized) return 'Uploaded Vaccination Record';
+  return normalized.slice(0, 120);
+}
+
+function deriveDefaultExpiryDate(administeredDate: Date): Date {
+  const expiry = new Date(administeredDate);
+  expiry.setFullYear(expiry.getFullYear() + 1);
+  return expiry;
+}
+
+async function persistUploadedVaccineRecord(params: {
+  petId: string;
+  fileName: string;
+  fileUrl: string;
+}): Promise<void> {
+  if (!isDatabaseConfigured()) {
+    throw new VaccineUploadStorageError(
+      'Database not configured for vaccine record persistence.',
+      503,
+    );
+  }
+
+  const administeredDate = new Date();
+  const expiryDate = deriveDefaultExpiryDate(administeredDate);
+
+  await prisma.vaccine.create({
+    data: {
+      petId: params.petId,
+      name: deriveVaccineNameFromFileName(params.fileName),
+      administeredDate,
+      expiryDate,
+      documentUrl: params.fileUrl,
+      notes: 'Auto-generated from vaccine document upload.',
+    },
+  });
+}
+
 async function storeFile(file: File, petId: string): Promise<string> {
   const blobToken = process.env.BLOB_READ_WRITE_TOKEN?.trim();
 
@@ -202,12 +242,51 @@ export async function POST(request: NextRequest) {
       throw storageError;
     }
 
+    const shouldPersistToDatabase = !isTemporaryPetId(petId);
+
+    if (shouldPersistToDatabase) {
+      try {
+        await persistUploadedVaccineRecord({
+          petId,
+          fileName: file.name,
+          fileUrl: url,
+        });
+      } catch (persistenceError) {
+        console.error('Vaccine record persistence failed:', {
+          errorName:
+            persistenceError instanceof Error
+              ? persistenceError.name
+              : 'Unknown',
+          errorMessage:
+            persistenceError instanceof Error
+              ? persistenceError.message
+              : String(persistenceError),
+          petId,
+          fileName: file.name,
+          fileUrl: url,
+        });
+
+        if (persistenceError instanceof VaccineUploadStorageError) {
+          return NextResponse.json(
+            { error: persistenceError.message },
+            { status: persistenceError.status },
+          );
+        }
+
+        return NextResponse.json(
+          { error: 'Failed to save vaccine record to the database.' },
+          { status: 503 },
+        );
+      }
+    }
+
     return NextResponse.json(
       {
         url,
         fileName: file.name,
         fileSize: file.size,
         contentType: file.type,
+        savedToDatabase: shouldPersistToDatabase,
       },
       { 
         status: 200,
