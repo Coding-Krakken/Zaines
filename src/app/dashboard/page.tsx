@@ -3,6 +3,7 @@ import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { HealthTimeline } from "@/components/HealthTimeline";
+import { Button } from "@/components/ui/button";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -43,9 +44,9 @@ export default async function DashboardPage() {
     <div className="container mx-auto p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
-          <Button asChild>
-            <Link href="/book">Book a Stay</Link>
-          </Button>
+        <Button asChild>
+          <Link href="/book">Book a Stay</Link>
+        </Button>
       </div>
 
       <section className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">

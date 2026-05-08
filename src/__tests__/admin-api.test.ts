@@ -59,9 +59,13 @@ const customerSession = { user: { id: 'user-3', role: 'customer' } };
 describe('GET /api/admin/bookings', () => {
   beforeEach(() => vi.clearAllMocks());
 
+  function makeBookingsRequest(url = 'http://localhost/api/admin/bookings') {
+    return new NextRequest(url);
+  }
+
   it('returns 401 when not authenticated', async () => {
     authMock.mockResolvedValue(null);
-    const res = await getBookings();
+    const res = await getBookings(makeBookingsRequest());
     expect(res.status).toBe(401);
     const data = await res.json();
     expect(data.error).toBe('Unauthorized');
@@ -69,7 +73,7 @@ describe('GET /api/admin/bookings', () => {
 
   it('returns 403 for customer role', async () => {
     authMock.mockResolvedValue(customerSession);
-    const res = await getBookings();
+    const res = await getBookings(makeBookingsRequest());
     expect(res.status).toBe(403);
     const data = await res.json();
     expect(data.error).toBe('Forbidden');
@@ -78,7 +82,7 @@ describe('GET /api/admin/bookings', () => {
   it('returns empty bookings when DB not configured', async () => {
     authMock.mockResolvedValue(staffSession);
     isDatabaseConfiguredMock.mockReturnValueOnce(false);
-    const res = await getBookings();
+    const res = await getBookings(makeBookingsRequest());
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.bookings).toEqual([]);
@@ -99,7 +103,7 @@ describe('GET /api/admin/bookings', () => {
       },
     ];
     prismaMock.booking.findMany.mockResolvedValue(mockBookings);
-    const res = await getBookings();
+    const res = await getBookings(makeBookingsRequest());
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.bookings).toHaveLength(1);
@@ -108,7 +112,7 @@ describe('GET /api/admin/bookings', () => {
   it('returns bookings for admin role', async () => {
     authMock.mockResolvedValue(adminSession);
     prismaMock.booking.findMany.mockResolvedValue([]);
-    const res = await getBookings();
+    const res = await getBookings(makeBookingsRequest());
     expect(res.status).toBe(200);
   });
 });
