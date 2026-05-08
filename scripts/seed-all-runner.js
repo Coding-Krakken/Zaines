@@ -53,6 +53,72 @@ async function main() {
     });
   }
 
+  // Services (sample services for each type)
+  const services = [
+    {
+      id: "svc-boarding-overnight",
+      name: "Overnight Boarding",
+      description: "Overnight stay with meals and supervision",
+      price: 65.0,
+      duration: 1440, // 24 hours in minutes
+      isActive: true,
+      serviceTypeId: "svc-boarding",
+    },
+    {
+      id: "svc-daycare-group",
+      name: "Group Play Daycare",
+      description: "Daily daycare with group play sessions",
+      price: 35.0,
+      duration: 480, // 8 hours in minutes
+      isActive: true,
+      serviceTypeId: "svc-daycare",
+    },
+    {
+      id: "svc-daycare-half",
+      name: "Half-Day Daycare",
+      description: "Half-day daycare with play time",
+      price: 20.0,
+      duration: 240, // 4 hours in minutes
+      isActive: true,
+      serviceTypeId: "svc-daycare",
+    },
+    {
+      id: "svc-grooming-bath",
+      name: "Bath & Dry",
+      description: "Bath, dry, and brush grooming",
+      price: 45.0,
+      duration: 120, // 2 hours in minutes
+      isActive: true,
+      serviceTypeId: "svc-grooming",
+    },
+    {
+      id: "svc-grooming-full",
+      name: "Full Grooming Package",
+      description: "Bath, dry, nail trim, ear cleaning",
+      price: 75.0,
+      duration: 180, // 3 hours in minutes
+      isActive: true,
+      serviceTypeId: "svc-grooming",
+    },
+    {
+      id: "svc-training-basic",
+      name: "Basic Training Class",
+      description: "Introduction to obedience and commands",
+      price: 40.0,
+      duration: 60, // 1 hour in minutes
+      isActive: true,
+      serviceTypeId: "svc-training",
+    },
+  ];
+
+  for (const s of services) {
+    await prisma.service.upsert({
+      where: { id: s.id },
+      update: s,
+      create: s,
+    });
+  }
+
   // Add-ons
   const addOns = [
     {
@@ -103,7 +169,7 @@ async function main() {
     create: user,
   });
 
-  console.log("Seeded serviceTypes, addOns, settings, and test user");
+  console.log("Seeded serviceTypes, services, addOns, settings, and test user");
 
   await prisma.$disconnect();
   await pool.end();
