@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
-const { authMock, prismaMock, mkdirMock, writeFileMock } = vi.hoisted(() => ({
+const { authMock, prismaMock, mkdirMock, writeFileMock, blobPutMock } = vi.hoisted(() => ({
   authMock: vi.fn(),
   prismaMock: {
     pet: {
@@ -13,6 +13,7 @@ const { authMock, prismaMock, mkdirMock, writeFileMock } = vi.hoisted(() => ({
   },
   mkdirMock: vi.fn(),
   writeFileMock: vi.fn(),
+  blobPutMock: vi.fn(),
 }));
 
 vi.mock('@/lib/auth', () => ({ auth: authMock }));
@@ -23,6 +24,9 @@ vi.mock('@/lib/prisma', () => ({
 vi.mock('fs/promises', () => ({
   mkdir: mkdirMock,
   writeFile: writeFileMock,
+}));
+vi.mock('@vercel/blob', () => ({
+  put: blobPutMock,
 }));
 
 import { POST } from '@/app/api/upload/vaccine/route';
@@ -79,6 +83,26 @@ describe('POST /api/upload/vaccine', () => {
         url: expect.stringMatching(/^\/uploads\/vaccines\//),
       }),
     );
+    expect(mkdirMock).toHaveBeenCalledTimes(1);
+    expect(writeFileMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('falls back to local storage when blob upload fails', async () => {
+    vi.stubEnv('BLOB_READ_WRITE_TOKEN', 'token-present-but-invalid');
+    blobPutMock.mockRejectedValue(new Error('blob failed'));
+    writeFileMock.mockResolvedValue(undefined);
+    mkdirMock.mockResolvedValue(undefined);
+
+    const response = await POST(makeUploadRequest());
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual(
+      expect.objectContaining({
+        fileName: 'vaccines.pdf',
+        url: expect.stringMatching(/^\/uploads\/vaccines\//),
+      }),
+    );
+    expect(blobPutMock).toHaveBeenCalledTimes(1);
     expect(mkdirMock).toHaveBeenCalledTimes(1);
     expect(writeFileMock).toHaveBeenCalledTimes(1);
   });

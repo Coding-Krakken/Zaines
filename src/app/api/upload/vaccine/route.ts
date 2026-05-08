@@ -65,6 +65,7 @@ async function persistUploadedVaccineRecord(params: {
 
 async function storeFile(file: File, petId: string): Promise<string> {
   const blobToken = process.env.BLOB_READ_WRITE_TOKEN?.trim();
+  let blobUploadFailed = false;
 
   if (blobToken) {
     try {
@@ -73,14 +74,11 @@ async function storeFile(file: File, petId: string): Promise<string> {
       const blob = await put(key, file, { access: 'public', token: blobToken });
       return blob.url;
     } catch (blobError) {
+      blobUploadFailed = true;
       console.error('Vercel Blob upload failed:', {
         errorName: blobError instanceof Error ? blobError.name : 'Unknown',
         errorMessage: blobError instanceof Error ? blobError.message : String(blobError),
       });
-      throw new VaccineUploadStorageError(
-        'Vaccine storage service is temporarily unavailable. Please try again later.',
-        503,
-      );
     }
   }
 
@@ -150,7 +148,9 @@ async function storeFile(file: File, petId: string): Promise<string> {
     });
     
     throw new VaccineUploadStorageError(
-      blobToken
+      blobUploadFailed
+        ? 'Vaccine storage service is temporarily unavailable. Please try again later.'
+        : blobToken
         ? 'Failed to store vaccine record. Please check server logs.'
         : 'Vaccine uploads are unavailable. Configure BLOB_READ_WRITE_TOKEN or enable writable uploads storage.',
       503,
