@@ -24,6 +24,22 @@ export interface AvailabilityRules {
   minimumLeadTimeDays: number; // Minimum days before check-in to allow booking
 }
 
+export interface BlackoutDate {
+  id: string; // UUID, generated client-side
+  date: string; // ISO date "YYYY-MM-DD"
+  reason: string;
+  blockType: 'full_day' | 'check_in_only' | 'check_out_only';
+}
+
+export interface SeasonalPricingRule {
+  id: string; // UUID, generated client-side
+  name: string; // e.g., "Holiday Weekend", "Summer Peak"
+  startDate: string; // ISO date "YYYY-MM-DD"
+  endDate: string; // ISO date "YYYY-MM-DD"
+  priceMultiplier: number; // e.g., 1.25 = 25% surcharge, 0.9 = 10% discount
+  isActive: boolean;
+}
+
 export interface AdminSettings {
   // Operational Preferences
   autoConfirmBookings: boolean;
@@ -42,6 +58,10 @@ export interface AdminSettings {
 
   // Phase 3: Availability & Scheduling Rules
   availabilityRules: AvailabilityRules;
+
+  // Phase 4: Blackout Dates & Seasonal Pricing
+  blackoutDates: BlackoutDate[];
+  seasonalPricingRules: SeasonalPricingRule[];
 }
 
 export interface SettingsRecord {

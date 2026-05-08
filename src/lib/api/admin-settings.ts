@@ -6,7 +6,7 @@
 import { prisma, isDatabaseConfigured } from '@/lib/prisma';
 import type { AdminSettings, BusinessHours, AvailabilityRules } from '@/types/admin';
 
-const SETTINGS_KEYS = {
+const SETTINGS_KEYS: Record<string, string> = {
   AUTO_CONFIRM_BOOKINGS: 'admin.auto_confirm_bookings',
   PHOTO_NOTIFICATION_TYPE: 'admin.photo_notification_type',
   PHOTO_NOTIFICATION_TIME: 'admin.photo_notification_time',
@@ -21,6 +21,9 @@ const SETTINGS_KEYS = {
   ZIP: 'admin.zip',
   // Phase 3: Availability & Scheduling Rules
   AVAILABILITY_RULES: 'admin.availability_rules', // JSON string
+  // Phase 4: Blackout Dates & Seasonal Pricing
+  BLACKOUT_DATES: 'admin.blackout_dates', // JSON array
+  SEASONAL_PRICING_RULES: 'admin.seasonal_pricing_rules', // JSON array
 };
 
 /**
@@ -74,6 +77,23 @@ export async function getAdminSettings(): Promise<AdminSettings> {
           return rulesJson ? JSON.parse(rulesJson) : getDefaultAvailabilityRules();
         } catch {
           return getDefaultAvailabilityRules();
+        }
+      })(),
+      // Phase 4: Blackout Dates & Seasonal Pricing
+      blackoutDates: (() => {
+        try {
+          const json = settingsMap.get(SETTINGS_KEYS.BLACKOUT_DATES);
+          return json ? JSON.parse(json) : [];
+        } catch {
+          return [];
+        }
+      })(),
+      seasonalPricingRules: (() => {
+        try {
+          const json = settingsMap.get(SETTINGS_KEYS.SEASONAL_PRICING_RULES);
+          return json ? JSON.parse(json) : [];
+        } catch {
+          return [];
         }
       })(),
     };
@@ -270,6 +290,33 @@ export async function updateAdminSettings(updates: Partial<AdminSettings>): Prom
       );
     }
 
+    // Phase 4: Blackout Dates & Seasonal Pricing
+    if (updates.blackoutDates !== undefined) {
+      updatePromises.push(
+        prisma.settings.upsert({
+          where: { key: SETTINGS_KEYS.BLACKOUT_DATES },
+          update: { value: JSON.stringify(updates.blackoutDates) },
+          create: {
+            key: SETTINGS_KEYS.BLACKOUT_DATES,
+            value: JSON.stringify(updates.blackoutDates),
+          },
+        }),
+      );
+    }
+
+    if (updates.seasonalPricingRules !== undefined) {
+      updatePromises.push(
+        prisma.settings.upsert({
+          where: { key: SETTINGS_KEYS.SEASONAL_PRICING_RULES },
+          update: { value: JSON.stringify(updates.seasonalPricingRules) },
+          create: {
+            key: SETTINGS_KEYS.SEASONAL_PRICING_RULES,
+            value: JSON.stringify(updates.seasonalPricingRules),
+          },
+        }),
+      );
+    }
+
     await Promise.all(updatePromises);
 
     // Return updated settings
@@ -325,5 +372,8 @@ export function getDefaultSettings(): AdminSettings {
     zip: '13202',
     // Phase 3: Availability & Scheduling Rules
     availabilityRules: getDefaultAvailabilityRules(),
+    // Phase 4: Blackout Dates & Seasonal Pricing
+    blackoutDates: [],
+    seasonalPricingRules: [],
   };
 }

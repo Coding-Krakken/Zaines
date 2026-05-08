@@ -20,6 +20,8 @@ import { toast } from 'sonner';
 import type { AdminSettings, BusinessHours, AvailabilityRules } from '@/types/admin';
 import { ServiceManagementCard } from '@/components/admin/ServiceManagementCard';
 import { AvailabilityRulesCard } from '@/components/admin/AvailabilityRulesCard';
+import { BlackoutDatesCard } from '@/components/admin/BlackoutDatesCard';
+import { SeasonalPricingCard } from '@/components/admin/SeasonalPricingCard';
 
 const businessHoursSchema = z.object({
   openTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
@@ -56,6 +58,25 @@ const settingsFormSchema = z.object({
     advanceBookingWindowDays: z.number().min(1, 'Minimum 1 day'),
     minimumLeadTimeDays: z.number().min(0, 'Minimum 0 days'),
   }),
+  // Phase 4: Blackout Dates & Seasonal Pricing
+  blackoutDates: z.array(
+    z.object({
+      id: z.string(),
+      date: z.string().min(1, 'Date is required'),
+      reason: z.string(),
+      blockType: z.enum(['full_day', 'check_in_only', 'check_out_only']),
+    }),
+  ),
+  seasonalPricingRules: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string().min(1, 'Name is required'),
+      startDate: z.string().min(1, 'Start date is required'),
+      endDate: z.string().min(1, 'End date is required'),
+      priceMultiplier: z.number().min(0.1, 'Multiplier must be at least 0.1'),
+      isActive: z.boolean(),
+    }),
+  ),
 });
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
@@ -103,6 +124,9 @@ export default function AdminSettingsPage() {
         advanceBookingWindowDays: 365,
         minimumLeadTimeDays: 0,
       },
+      // Phase 4: Blackout Dates & Seasonal Pricing
+      blackoutDates: [],
+      seasonalPricingRules: [],
     },
   });
 
@@ -471,6 +495,12 @@ export default function AdminSettingsPage() {
 
           {/* Availability & Scheduling Rules Card */}
           <AvailabilityRulesCard />
+
+          {/* Blackout Dates Card */}
+          <BlackoutDatesCard />
+
+          {/* Seasonal Pricing Card */}
+          <SeasonalPricingCard />
 
           {/* Save Button */}
           <Button type="submit" disabled={isSaving} className="w-full md:w-auto" size="lg">
