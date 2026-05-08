@@ -44,14 +44,7 @@ async function storeFile(file: File, petId: string): Promise<string> {
     }
   }
 
-  if (process.env.NODE_ENV === 'production') {
-    throw new VaccineUploadStorageError(
-      'Vaccine uploads are temporarily unavailable. Storage is not configured.',
-      503,
-    );
-  }
-
-  // Local fallback for development/test environments.
+  // Local filesystem fallback (works for dev/test and stateful production hosts).
   try {
     const localDir = path.join(process.cwd(), 'public', 'uploads', 'vaccines');
     
@@ -117,8 +110,10 @@ async function storeFile(file: File, petId: string): Promise<string> {
     });
     
     throw new VaccineUploadStorageError(
-      'Failed to store vaccine record. Please check server logs.',
-      500,
+      blobToken
+        ? 'Failed to store vaccine record. Please check server logs.'
+        : 'Vaccine uploads are unavailable. Configure BLOB_READ_WRITE_TOKEN or enable writable uploads storage.',
+      503,
     );
   }
 }

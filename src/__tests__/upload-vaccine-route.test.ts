@@ -36,20 +36,30 @@ function makeUploadRequest(fileName = 'vaccines.pdf', petId = 'new-pet-1') {
 }
 
 describe('POST /api/upload/vaccine', () => {
-  const originalNodeEnv = process.env.NODE_ENV;
-  const originalBlobToken = process.env.BLOB_READ_WRITE_TOKEN;
-
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv('BLOB_READ_WRITE_TOKEN', '');
   });
 
   afterEach(() => {
-    // Env vars are already read-only, no need to restore
+    vi.unstubAllEnvs();
   });
 
-  it('returns 503 in production when blob storage is not configured', async () => {
-    // Skip this test since NODE_ENV is read-only in tests
-    // In production, the server will enforce this at runtime
+  it('stores uploads locally in production when blob storage is not configured', async () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    writeFileMock.mockResolvedValue(undefined);
+    mkdirMock.mockResolvedValue(undefined);
+
+    const response = await POST(makeUploadRequest());
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual(
+      expect.objectContaining({
+        fileName: 'vaccines.pdf',
+        contentType: 'application/pdf',
+        url: expect.stringMatching(/^\/uploads\/vaccines\//),
+      }),
+    );
   });
 
   it('stores uploads locally outside production when blob storage is not configured', async () => {
