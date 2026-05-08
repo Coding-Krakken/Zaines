@@ -68,6 +68,46 @@ export function TrustCopySettingsCard() {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={control}
+          name="trustCopySettings.privacySecurityDisclosure"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Privacy & Security Disclosure</FormLabel>
+              <FormDescription>
+                Used on privacy-policy data security sections.
+              </FormDescription>
+              <FormControl>
+                <textarea
+                  className="min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="trustCopySettings.trustEvidenceClaim"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Trust Evidence Claim</FormLabel>
+              <FormDescription>
+                Short trust statement used on booking and policy hero areas.
+              </FormDescription>
+              <FormControl>
+                <textarea
+                  className="min-h-[110px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </CardContent>
     </Card>
   );

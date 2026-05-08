@@ -15,7 +15,12 @@ import type {
   TrustCopySettings,
 } from '@/types/admin';
 import { siteConfig } from '@/config/site';
-import { CANCELLATION_POLICY_COPY, PRICING_TRUST_DISCLOSURE } from '@/config/trust-copy';
+import {
+  CANCELLATION_POLICY_COPY,
+  PRICING_TRUST_DISCLOSURE,
+  PRIVACY_SECURITY_DISCLOSURE,
+  TRUST_EVIDENCE_CLAIM,
+} from '@/config/trust-copy';
 
 const SETTINGS_KEYS: Record<string, string> = {
   AUTO_CONFIRM_BOOKINGS: 'admin.auto_confirm_bookings',
@@ -550,6 +555,8 @@ function getDefaultTrustCopySettings(): TrustCopySettings {
   return {
     pricingDisclosure: PRICING_TRUST_DISCLOSURE,
     cancellationProcessing: CANCELLATION_POLICY_COPY.processing,
+    privacySecurityDisclosure: PRIVACY_SECURITY_DISCLOSURE,
+    trustEvidenceClaim: TRUST_EVIDENCE_CLAIM,
   };
 }
 

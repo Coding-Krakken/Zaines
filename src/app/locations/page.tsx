@@ -2,16 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { absoluteUrl, localGrowthPages } from "@/lib/seo";
+import { localGrowthPages, locationsMetadataFromSettings } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Syracuse-Area Dog Boarding Locations",
-  description:
-    "Find private dog boarding pages for Syracuse, Liverpool, Cicero, Baldwinsville, Fayetteville, Manlius, and nearby Central New York families.",
-  alternates: {
-    canonical: absoluteUrl("/locations"),
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return locationsMetadataFromSettings();
+}
 
 export default function LocationsIndexPage() {
   const locationPages = localGrowthPages.filter((page) =>

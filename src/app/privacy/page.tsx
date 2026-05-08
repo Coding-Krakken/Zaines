@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Lock, Eye, UserCheck, Database, Mail } from "lucide-react";
 import { PRIVACY_SECURITY_DISCLOSURE } from "@/config/trust-copy";
+import { getAdminSettings } from "@/lib/api/admin-settings";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Zaine's Stay & Play",
@@ -12,7 +13,9 @@ export const metadata: Metadata = {
     "Learn how Zaine's Stay & Play collects, uses, and protects your personal information and data.",
 };
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const settings = await getAdminSettings();
+
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
@@ -263,7 +266,8 @@ export default function PrivacyPage() {
                 </li>
               </ul>
               <p className="mt-4 text-muted-foreground">
-                {PRIVACY_SECURITY_DISCLOSURE}
+                {settings.trustCopySettings.privacySecurityDisclosure ||
+                  PRIVACY_SECURITY_DISCLOSURE}
               </p>
               <p className="mt-4 text-sm text-muted-foreground">
                 However, no method of transmission over the internet or

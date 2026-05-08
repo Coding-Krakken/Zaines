@@ -123,6 +123,10 @@ const settingsFormSchema = z.object({
       cancellationProcessing: z
         .string()
         .min(1, 'Cancellation processing note is required'),
+      privacySecurityDisclosure: z
+        .string()
+        .min(1, 'Privacy and security disclosure is required'),
+      trustEvidenceClaim: z.string().min(1, 'Trust evidence claim is required'),
     })
     .refine(
       (val) =>
@@ -132,6 +136,26 @@ const settingsFormSchema = z.object({
         path: ['pricingDisclosure'],
         message:
           'Pricing disclosure must include "before confirmation" and "No hidden fees" language',
+      },
+    )
+    .refine(
+      (val) =>
+        val.privacySecurityDisclosure.includes('Stripe') &&
+        val.privacySecurityDisclosure.toLowerCase().includes('does not store card numbers'),
+      {
+        path: ['privacySecurityDisclosure'],
+        message:
+          'Privacy disclosure must mention Stripe and that card numbers are not stored',
+      },
+    )
+    .refine(
+      (val) =>
+        val.trustEvidenceClaim.includes('Only 3 private suites') &&
+        val.trustEvidenceClaim.toLowerCase().includes('owner onsite'),
+      {
+        path: ['trustEvidenceClaim'],
+        message:
+          'Trust evidence claim must include "Only 3 private suites" and "owner onsite"',
       },
     ),
 }).refine(
@@ -240,6 +264,10 @@ export default function AdminSettingsPage() {
           'Premium but fair pricing includes clear subtotal, applicable tax, selected care items, and total shown before confirmation. No hidden fees, no surprise add-ons, or other undisclosed charges are introduced at checkout.',
         cancellationProcessing:
           'Refunds are returned to the original payment method when payment processing is available.',
+        privacySecurityDisclosure:
+          "Payment details are processed by Stripe; Zaine's Stay & Play does not store card numbers on our servers. We use access controls and secure transmission for booking, account, pet health, and message data.",
+        trustEvidenceClaim:
+          'Only 3 private suites, owner onsite, camera-monitored safety, no harsh chemicals, and same-family dogs can stay together when approved.',
       },
     },
   });

@@ -216,6 +216,70 @@ export async function rootMetadataFromSettings(): Promise<Metadata> {
   };
 }
 
+export async function homeMetadataFromSettings(): Promise<Metadata> {
+  const seo = await getSeoRuntimeConfig();
+
+  return {
+    title: `Luxury Private Dog Boarding Syracuse NY | ${seo.siteName}`,
+    description:
+      "Boutique private dog boarding in Syracuse, NY. Only 3 suites, owner always on-site, camera-monitored 24/7, cage-free, no hidden fees. Serving Syracuse, Liverpool, Cicero, Baldwinsville & surrounding areas.",
+    alternates: { canonical: "/" },
+    openGraph: {
+      type: "website",
+      url: seo.siteUrl,
+      title: `Luxury Private Dog Boarding Syracuse NY | ${seo.siteName}`,
+      description:
+        "Only 3 private suites. Owner always on-site. Calm routines, daily photo updates, and genuine individualized care. Your dog's home away from home.",
+      siteName: seo.siteName,
+      images: [
+        {
+          url: seo.ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${seo.siteName} — Private Dog Boarding Syracuse NY`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `Luxury Private Dog Boarding Syracuse NY | ${seo.siteName}`,
+      description:
+        "Only 3 private suites. Owner always on-site. Calm routines, daily photo updates, and genuine individualized care.",
+      images: [seo.ogImageUrl],
+    },
+  };
+}
+
+export async function locationsMetadataFromSettings(): Promise<Metadata> {
+  const seo = await getSeoRuntimeConfig();
+  const canonical = absoluteUrlFromBase(seo.siteUrl, "/locations");
+
+  return {
+    title: "Syracuse-Area Dog Boarding Locations",
+    description:
+      "Find private dog boarding pages for Syracuse, Liverpool, Cicero, Baldwinsville, Fayetteville, Manlius, and nearby Central New York families.",
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      type: "website",
+      url: canonical,
+      title: `Syracuse-Area Dog Boarding Locations | ${seo.siteName}`,
+      description:
+        "Find private dog boarding pages for Syracuse-area families and move directly into booking availability.",
+      siteName: seo.siteName,
+      images: [
+        {
+          url: seo.ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${seo.siteName} service locations for Syracuse-area dog boarding`,
+        },
+      ],
+    },
+  };
+}
+
 export function localBusinessSchema() {
   return {
     "@context": "https://schema.org",

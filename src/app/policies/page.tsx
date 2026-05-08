@@ -14,9 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle2, XCircle, AlertTriangle, FileText } from "lucide-react";
 import {
   CANCELLATION_POLICY_COPY,
-  PRICING_TRUST_DISCLOSURE,
   SAFETY_STANDARDS_COPY,
-  TRUST_EVIDENCE_CLAIM,
 } from "@/config/trust-copy";
 import { getAdminSettings } from "@/lib/api/admin-settings";
 
@@ -58,10 +56,10 @@ export default async function PoliciesPage() {
               all our guests
             </p>
             <p className="mb-4 text-sm text-muted-foreground md:text-base">
-              {TRUST_EVIDENCE_CLAIM}
+              {settings.trustCopySettings.trustEvidenceClaim}
             </p>
             <p className="mb-4 text-sm text-muted-foreground md:text-base">
-              {PRICING_TRUST_DISCLOSURE}
+              {settings.trustCopySettings.pricingDisclosure}
             </p>
             <p className="text-sm text-muted-foreground">
               Last updated: February 6, 2026
@@ -418,7 +416,7 @@ export default async function PoliciesPage() {
                 you&apos;re comfortable with our terms.
               </p>
               <p className="mt-4 text-muted-foreground">
-                {PRICING_TRUST_DISCLOSURE}
+                {settings.trustCopySettings.pricingDisclosure}
               </p>
             </CardContent>
           </Card>

@@ -12,10 +12,7 @@ import { Stepper } from "@/components/Stepper";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
-import {
-  PRICING_TRUST_DISCLOSURE,
-  TRUST_EVIDENCE_CLAIM,
-} from "@/config/trust-copy";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 type BookingValidationPricing = {
   subtotal: number;
@@ -32,6 +29,7 @@ type BookingValidationResponse = {
 };
 
 export default function BookPage() {
+  const { trustCopy } = useSiteSettings();
   const { currentStep, wizardData, nextStep, prevStep, updateStepData } =
     useBookingWizard();
   const [pricingQuote, setPricingQuote] =
@@ -217,10 +215,10 @@ export default function BookPage() {
             </Button>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
-            {TRUST_EVIDENCE_CLAIM}
+            {trustCopy.trustEvidenceClaim}
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            {PRICING_TRUST_DISCLOSURE}
+            {trustCopy.pricingDisclosure}
           </p>
         </div>
 

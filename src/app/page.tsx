@@ -10,19 +10,11 @@ import { Testimonials } from "@/components/home/testimonials";
 import { ComparisonTable } from "@/components/home/comparison-table";
 import { BookingCTA } from "@/components/home/booking-cta";
 import { serviceSchema } from "@/lib/structured-data";
+import { homeMetadataFromSettings } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title:
-    "Luxury Private Dog Boarding Syracuse NY | Zaine's Stay & Play",
-  description:
-    "Boutique private dog boarding in Syracuse, NY. Only 3 suites, owner always on-site, camera-monitored 24/7, cage-free, no hidden fees. Serving Syracuse, Liverpool, Cicero, Baldwinsville & surrounding areas.",
-  alternates: { canonical: "/" },
-  openGraph: {
-    title: "Luxury Private Dog Boarding Syracuse NY | Zaine's Stay & Play",
-    description:
-      "Only 3 private suites. Owner always on-site. Calm routines, daily photo updates, and genuine individualized care. Your dog's home away from home.",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return homeMetadataFromSettings();
+}
 
 export default async function Home() {
   const serviceJsonLd = await serviceSchema();

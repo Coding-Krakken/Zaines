@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import robots from "../robots";
 import sitemap from "../sitemap";
-import { metadata as homeMetadata } from "../page";
+import { generateMetadata as generateHomeMetadata } from "../page";
 import { metadata as aboutMetadata } from "../about/page";
 import { metadata as pricingMetadata } from "../pricing/layout";
 import { metadata as bookMetadata } from "../book/layout";
@@ -81,6 +81,7 @@ describe("SEO metadata routes", () => {
   });
 
   it("enforces unique metadata on required pages", async () => {
+    const homeMetadata = await generateHomeMetadata();
     const syracuseMetadata = await generateSyracuseMetadata();
     const titles = [
       homeMetadata,
@@ -95,6 +96,7 @@ describe("SEO metadata routes", () => {
   });
 
   it("keeps required local-intent keyword alignment", async () => {
+    const homeMetadata = await generateHomeMetadata();
     const syracuseMetadata = await generateSyracuseMetadata();
     const descriptions = [
       homeMetadata,

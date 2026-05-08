@@ -76,6 +76,8 @@ export interface WebsiteProfileSettings {
 export interface TrustCopySettings {
   pricingDisclosure: string;
   cancellationProcessing: string;
+  privacySecurityDisclosure: string;
+  trustEvidenceClaim: string;
 }
 
 export interface AdminSettings {

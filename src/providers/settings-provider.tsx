@@ -97,6 +97,10 @@ function getDefaultSettings(): AdminSettings {
         'Premium but fair pricing includes clear subtotal, applicable tax, selected care items, and total shown before confirmation. No hidden fees, no surprise add-ons, or other undisclosed charges are introduced at checkout.',
       cancellationProcessing:
         'Refunds are returned to the original payment method when payment processing is available.',
+      privacySecurityDisclosure:
+        "Payment details are processed by Stripe; Zaine's Stay & Play does not store card numbers on our servers. We use access controls and secure transmission for booking, account, pet health, and message data.",
+      trustEvidenceClaim:
+        'Only 3 private suites, owner onsite, camera-monitored safety, no harsh chemicals, and same-family dogs can stay together when approved.',
     },
   };
 }

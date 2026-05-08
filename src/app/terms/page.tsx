@@ -6,8 +6,6 @@ import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 import {
   CANCELLATION_POLICY_COPY,
-  PRICING_TRUST_DISCLOSURE,
-  TRUST_EVIDENCE_CLAIM,
 } from "@/config/trust-copy";
 import { getAdminSettings } from "@/lib/api/admin-settings";
 
@@ -42,7 +40,7 @@ export default async function TermsPage() {
               Please read these terms carefully before using our services
             </p>
             <p className="mb-4 text-sm text-muted-foreground md:text-base">
-              {TRUST_EVIDENCE_CLAIM}
+              {settings.trustCopySettings.trustEvidenceClaim}
             </p>
             <p className="text-sm text-muted-foreground">
               Last updated: February 6, 2026 • Effective Date: January 1, 2026
@@ -251,7 +249,7 @@ export default async function TermsPage() {
                 responsibility.
               </p>
               <p className="mb-4 text-muted-foreground">
-                {PRICING_TRUST_DISCLOSURE}
+                {settings.trustCopySettings.pricingDisclosure}
               </p>
 
               <h3 className="mb-3 text-xl font-semibold">
