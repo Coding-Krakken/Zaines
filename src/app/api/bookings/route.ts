@@ -547,7 +547,9 @@ export async function POST(request: NextRequest) {
           total: responseTotal,
           currency: adminSettings.pricingSettings.currency || BOOKING_PRICING_CURRENCY,
           pricingModelLabel: BOOKING_PRICING_MODEL_LABEL,
-          disclosure: BOOKING_PRICING_DISCLOSURE,
+          disclosure:
+            adminSettings.trustCopySettings.pricingDisclosure ||
+            BOOKING_PRICING_DISCLOSURE,
         },
         payment: clientSecret ? { clientSecret } : undefined,
         message: clientSecret

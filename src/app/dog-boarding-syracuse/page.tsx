@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LocalGrowthPageView } from "@/components/local-growth-page";
 import {
-  localGrowthMetadata,
+  localGrowthMetadataFromSettings,
   localGrowthPages,
   syracusePillarRoute,
 } from "@/lib/seo";
@@ -16,7 +16,9 @@ if (!syracusePage) {
 
 const page = syracusePage;
 
-export const metadata: Metadata = localGrowthMetadata(page);
+export async function generateMetadata(): Promise<Metadata> {
+  return localGrowthMetadataFromSettings(page);
+}
 
 export default function SyracuseDogBoardingPage() {
   return <LocalGrowthPageView page={page} />;

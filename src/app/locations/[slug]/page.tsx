@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { LocalGrowthPageView } from "@/components/local-growth-page";
 import {
   findLocalGrowthPage,
-  localGrowthMetadata,
+  localGrowthMetadataFromSettings,
   localGrowthPages,
 } from "@/lib/seo";
 
@@ -29,7 +29,7 @@ export async function generateMetadata({
     return {};
   }
 
-  return localGrowthMetadata(page);
+  return localGrowthMetadataFromSettings(page);
 }
 
 export default async function LocationPage({ params }: LocationPageProps) {

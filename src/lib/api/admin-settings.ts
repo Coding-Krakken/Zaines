@@ -12,8 +12,10 @@ import type {
   CancellationPolicySettings,
   BusinessProfileSettings,
   WebsiteProfileSettings,
+  TrustCopySettings,
 } from '@/types/admin';
 import { siteConfig } from '@/config/site';
+import { CANCELLATION_POLICY_COPY, PRICING_TRUST_DISCLOSURE } from '@/config/trust-copy';
 
 const SETTINGS_KEYS: Record<string, string> = {
   AUTO_CONFIRM_BOOKINGS: 'admin.auto_confirm_bookings',
@@ -41,6 +43,8 @@ const SETTINGS_KEYS: Record<string, string> = {
   BUSINESS_PROFILE_SETTINGS: 'admin.business_profile_settings', // JSON object
   // Phase 8: Website Profile & Service Area
   WEBSITE_PROFILE_SETTINGS: 'admin.website_profile_settings', // JSON object
+  // Phase 9: Trust Copy Settings
+  TRUST_COPY_SETTINGS: 'admin.trust_copy_settings', // JSON object
 };
 
 /**
@@ -147,6 +151,15 @@ export async function getAdminSettings(): Promise<AdminSettings> {
           return json ? JSON.parse(json) : getDefaultWebsiteProfileSettings();
         } catch {
           return getDefaultWebsiteProfileSettings();
+        }
+      })(),
+      // Phase 9: Trust Copy Settings
+      trustCopySettings: (() => {
+        try {
+          const json = settingsMap.get(SETTINGS_KEYS.TRUST_COPY_SETTINGS);
+          return json ? JSON.parse(json) : getDefaultTrustCopySettings();
+        } catch {
+          return getDefaultTrustCopySettings();
         }
       })(),
     };
@@ -426,6 +439,20 @@ export async function updateAdminSettings(updates: Partial<AdminSettings>): Prom
       );
     }
 
+    // Phase 9: Trust Copy Settings
+    if (updates.trustCopySettings !== undefined) {
+      updatePromises.push(
+        prisma.settings.upsert({
+          where: { key: SETTINGS_KEYS.TRUST_COPY_SETTINGS },
+          update: { value: JSON.stringify(updates.trustCopySettings) },
+          create: {
+            key: SETTINGS_KEYS.TRUST_COPY_SETTINGS,
+            value: JSON.stringify(updates.trustCopySettings),
+          },
+        }),
+      );
+    }
+
     await Promise.all(updatePromises);
 
     // Return updated settings
@@ -517,6 +544,16 @@ function getDefaultWebsiteProfileSettings(): WebsiteProfileSettings {
 }
 
 /**
+ * Get default trust copy settings
+ */
+function getDefaultTrustCopySettings(): TrustCopySettings {
+  return {
+    pricingDisclosure: PRICING_TRUST_DISCLOSURE,
+    cancellationProcessing: CANCELLATION_POLICY_COPY.processing,
+  };
+}
+
+/**
  * Get default admin settings
  */
 export function getDefaultSettings(): AdminSettings {
@@ -545,5 +582,7 @@ export function getDefaultSettings(): AdminSettings {
     businessProfileSettings: getDefaultBusinessProfileSettings(),
     // Phase 8: Website Profile & Service Area
     websiteProfileSettings: getDefaultWebsiteProfileSettings(),
+    // Phase 9: Trust Copy Settings
+    trustCopySettings: getDefaultTrustCopySettings(),
   };
 }

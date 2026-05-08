@@ -39,6 +39,9 @@ export default async function PoliciesPage() {
     cancellationSettings.noShowRefundPercent > 0
       ? `No-show: ${cancellationSettings.noShowRefundPercent}% refund.`
       : CANCELLATION_POLICY_COPY.noShow;
+  const cancellationProcessingText =
+    settings.trustCopySettings.cancellationProcessing ||
+    CANCELLATION_POLICY_COPY.processing;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -216,7 +219,7 @@ export default async function PoliciesPage() {
                 </div>
                 <Alert>
                   <AlertDescription>
-                    {CANCELLATION_POLICY_COPY.processing}
+                    {cancellationProcessingText}
                   </AlertDescription>
                 </Alert>
               </CardContent>

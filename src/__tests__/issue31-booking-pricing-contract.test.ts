@@ -77,6 +77,9 @@ const { prismaMock } = vi.hoisted(() => {
     booking: {
       findMany: vi.fn(async () => []),
     },
+    settings: {
+      findMany: vi.fn(async () => []),
+    },
   };
 
   return { prismaMock: mock };

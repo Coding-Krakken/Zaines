@@ -104,7 +104,9 @@ export async function POST(request: NextRequest) {
           total: pricing.total,
           currency: settings.pricingSettings.currency || BOOKING_PRICING_CURRENCY,
           pricingModelLabel: BOOKING_PRICING_MODEL_LABEL,
-          disclosure: BOOKING_PRICING_DISCLOSURE,
+          disclosure:
+            settings.trustCopySettings.pricingDisclosure ||
+            BOOKING_PRICING_DISCLOSURE,
         },
       },
       { status: 200 },

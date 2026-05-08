@@ -106,7 +106,8 @@ export default async function TermsPage() {
                 discontinued at our discretion with advance notice.
               </p>
             </div>
-
+                {settings.trustCopySettings.cancellationProcessing ||
+                  CANCELLATION_POLICY_COPY.processing}
             {/* Booking and Reservations */}
             <div className="mb-12">
               <h2 className="mb-4 text-2xl font-bold">

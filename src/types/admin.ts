@@ -73,6 +73,11 @@ export interface WebsiteProfileSettings {
   serviceArea: string[];
 }
 
+export interface TrustCopySettings {
+  pricingDisclosure: string;
+  cancellationProcessing: string;
+}
+
 export interface AdminSettings {
   // Operational Preferences
   autoConfirmBookings: boolean;
@@ -107,6 +112,9 @@ export interface AdminSettings {
 
   // Phase 8: Website Profile & Service Area
   websiteProfileSettings: WebsiteProfileSettings;
+
+  // Phase 9: Trust Copy Settings
+  trustCopySettings: TrustCopySettings;
 }
 
 export interface SettingsRecord {

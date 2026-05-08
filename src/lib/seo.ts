@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
+import { getAdminSettings } from "@/lib/api/admin-settings";
 
 // Data, types, and constants live in seo.data.ts (kept under 300-line limit).
 // All symbols are re-exported here so existing `@/lib/seo` imports remain stable.
@@ -21,6 +22,47 @@ import {
   localGrowthPages,
   localFaqs,
 } from "./seo.data";
+
+type SeoRuntimeConfig = {
+  siteName: string;
+  siteUrl: string;
+  siteDescription: string;
+  ogImageUrl: string;
+};
+
+function stripTrailingSlash(url: string) {
+  return url.replace(/\/$/, "");
+}
+
+function absoluteUrlFromBase(baseUrl: string, path = "/") {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${stripTrailingSlash(baseUrl)}${normalizedPath}`;
+}
+
+export async function getSeoRuntimeConfig(): Promise<SeoRuntimeConfig> {
+  try {
+    const settings = await getAdminSettings();
+    const siteUrl = settings.websiteProfileSettings.siteUrl || siteConfig.url;
+    const ogImageUrl =
+      settings.websiteProfileSettings.ogImageUrl || siteConfig.ogImage;
+
+    return {
+      siteName: settings.businessProfileSettings.businessName || siteConfig.name,
+      siteUrl,
+      siteDescription:
+        settings.websiteProfileSettings.siteDescription ||
+        siteConfig.description,
+      ogImageUrl,
+    };
+  } catch {
+    return {
+      siteName: siteConfig.name,
+      siteUrl: siteConfig.url,
+      siteDescription: siteConfig.description,
+      ogImageUrl: siteConfig.ogImage,
+    };
+  }
+}
 
 export function absoluteUrl(path = "/") {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
@@ -61,6 +103,115 @@ export function localGrowthMetadata(page: LocalGrowthPage): Metadata {
       title: page.title,
       description: page.metaDescription,
       images: [siteConfig.ogImage],
+    },
+  };
+}
+
+export async function localGrowthMetadataFromSettings(
+  page: LocalGrowthPage,
+): Promise<Metadata> {
+  const seo = await getSeoRuntimeConfig();
+  const url = absoluteUrlFromBase(seo.siteUrl, page.route);
+
+  return {
+    title: page.title,
+    description: page.metaDescription,
+    keywords: [page.primaryKeyword, ...page.secondaryKeywords],
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      type: "website",
+      url,
+      title: page.title,
+      description: page.metaDescription,
+      siteName: seo.siteName,
+      images: [
+        {
+          url: seo.ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${seo.siteName} private dog boarding for ${page.city}`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: page.title,
+      description: page.metaDescription,
+      images: [seo.ogImageUrl],
+    },
+  };
+}
+
+export async function rootMetadataFromSettings(): Promise<Metadata> {
+  const seo = await getSeoRuntimeConfig();
+  const baselineDescription =
+    "Private boutique dog boarding in Syracuse, NY. Only 3 suites, owner always on-site, camera-monitored, cage-free. Serving Syracuse, Liverpool, Cicero, Baldwinsville & surrounding areas.";
+  const requiredLocalIntentTerms = [
+    "syracuse dog boarding",
+    "private dog boarding syracuse",
+    "small dog boarding syracuse",
+  ];
+  const candidateDescription = seo.siteDescription.trim();
+  const normalizedCandidateDescription = candidateDescription.toLowerCase();
+  const hasRequiredLocalIntentTerms = requiredLocalIntentTerms.every((term) =>
+    normalizedCandidateDescription.includes(term),
+  );
+  const rootDescription = hasRequiredLocalIntentTerms
+    ? candidateDescription
+    : baselineDescription;
+
+  return {
+    title: {
+      default: `Luxury Dog Boarding Syracuse NY | ${seo.siteName}`,
+      template: `%s | ${seo.siteName}`,
+    },
+    description: rootDescription,
+    keywords: [
+      "dog boarding Syracuse NY",
+      "luxury dog boarding Syracuse",
+      "private dog boarding Syracuse",
+      "overnight dog boarding Syracuse",
+      "boutique dog boarding",
+      "cage-free dog boarding",
+      "dog boarding Clay NY",
+      "dog boarding Cicero NY",
+      "dog boarding Baldwinsville NY",
+      "owner on site dog boarding",
+      "small capacity dog boarding",
+      "private dog boarding",
+    ],
+    authors: [{ name: seo.siteName, url: seo.siteUrl }],
+    creator: seo.siteName,
+    metadataBase: new URL(seo.siteUrl),
+    alternates: { canonical: "/" },
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      url: seo.siteUrl,
+      title: `Luxury Dog Boarding Syracuse NY | ${seo.siteName}`,
+      description: rootDescription,
+      siteName: seo.siteName,
+      images: [
+        {
+          url: seo.ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${seo.siteName} — Private Dog Boarding Syracuse NY`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `Luxury Dog Boarding Syracuse NY | ${seo.siteName}`,
+      description: rootDescription,
+      images: [seo.ogImageUrl],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true, "max-image-preview": "large" },
     },
   };
 }

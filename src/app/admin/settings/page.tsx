@@ -27,6 +27,7 @@ import { PricingSettingsCard } from '@/components/admin/PricingSettingsCard';
 import { CancellationPolicySettingsCard } from '@/components/admin/CancellationPolicySettingsCard';
 import { BusinessProfileSettingsCard } from '@/components/admin/BusinessProfileSettingsCard';
 import { WebsiteProfileSettingsCard } from '@/components/admin/WebsiteProfileSettingsCard';
+import { TrustCopySettingsCard } from '@/components/admin/TrustCopySettingsCard';
 
 const businessHoursSchema = z.object({
   openTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
@@ -115,6 +116,24 @@ const settingsFormSchema = z.object({
     ogImageUrl: z.string().url('OG image URL must be valid'),
     serviceArea: z.array(z.string().min(1)).min(1, 'At least one service area is required'),
   }),
+  // Phase 9: Trust Copy Settings
+  trustCopySettings: z
+    .object({
+      pricingDisclosure: z.string().min(1, 'Pricing disclosure is required'),
+      cancellationProcessing: z
+        .string()
+        .min(1, 'Cancellation processing note is required'),
+    })
+    .refine(
+      (val) =>
+        val.pricingDisclosure.toLowerCase().includes('before confirmation') &&
+        val.pricingDisclosure.toLowerCase().includes('no hidden fees'),
+      {
+        path: ['pricingDisclosure'],
+        message:
+          'Pricing disclosure must include "before confirmation" and "No hidden fees" language',
+      },
+    ),
 }).refine(
   (data) => data.cancellationPolicySettings.fullRefundHours > data.cancellationPolicySettings.partialRefundHours,
   {
@@ -214,6 +233,13 @@ export default function AdminSettingsPage() {
           'Clay',
           'North Syracuse',
         ],
+      },
+      // Phase 9: Trust Copy Settings
+      trustCopySettings: {
+        pricingDisclosure:
+          'Premium but fair pricing includes clear subtotal, applicable tax, selected care items, and total shown before confirmation. No hidden fees, no surprise add-ons, or other undisclosed charges are introduced at checkout.',
+        cancellationProcessing:
+          'Refunds are returned to the original payment method when payment processing is available.',
       },
     },
   });
@@ -604,6 +630,9 @@ export default function AdminSettingsPage() {
 
           {/* Website Profile & Service Area Card */}
           <WebsiteProfileSettingsCard />
+
+          {/* Trust Copy Card */}
+          <TrustCopySettingsCard />
 
           {/* Save Button */}
           <Button type="submit" disabled={isSaving} className="w-full md:w-auto" size="lg">

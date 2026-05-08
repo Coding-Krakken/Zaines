@@ -6,7 +6,7 @@ import { metadata as aboutMetadata } from "../about/page";
 import { metadata as pricingMetadata } from "../pricing/layout";
 import { metadata as bookMetadata } from "../book/layout";
 import { metadata as contactMetadata } from "../contact/page";
-import { metadata as syracuseMetadata } from "../dog-boarding-syracuse/page";
+import { generateMetadata as generateSyracuseMetadata } from "../dog-boarding-syracuse/page";
 import {
   absoluteUrl,
   conversionFunnelLinks,
@@ -80,7 +80,8 @@ describe("SEO metadata routes", () => {
     );
   });
 
-  it("enforces unique metadata on required pages", () => {
+  it("enforces unique metadata on required pages", async () => {
+    const syracuseMetadata = await generateSyracuseMetadata();
     const titles = [
       homeMetadata,
       aboutMetadata,
@@ -93,7 +94,8 @@ describe("SEO metadata routes", () => {
     expect(new Set(titles).size).toBe(titles.length);
   });
 
-  it("keeps required local-intent keyword alignment", () => {
+  it("keeps required local-intent keyword alignment", async () => {
+    const syracuseMetadata = await generateSyracuseMetadata();
     const descriptions = [
       homeMetadata,
       aboutMetadata,
@@ -129,7 +131,8 @@ describe("SEO metadata routes", () => {
     }
   });
 
-  it("sets canonical metadata for the Syracuse pillar", () => {
+  it("sets canonical metadata for the Syracuse pillar", async () => {
+    const syracuseMetadata = await generateSyracuseMetadata();
     expect(getCanonical(syracuseMetadata)).toBe(
       absoluteUrl("/dog-boarding-syracuse"),
     );

@@ -30,7 +30,7 @@ export const localGrowthPages = [
     region: "NY",
     title: "Dog Boarding Syracuse NY | Private 3-Suite Care",
     metaDescription:
-      "Private dog boarding in Syracuse, NY with three-suite capacity, owner-on-site routines, clear pricing, and booking support for local families.",
+      "Syracuse dog boarding with private three-suite capacity, owner-on-site routines, clear pricing, and booking support for local families.",
     h1: "Private Dog Boarding in Syracuse, NY",
     eyebrow: "Syracuse local boarding",
     primaryKeyword: "dog boarding Syracuse NY",

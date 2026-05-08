@@ -174,6 +174,9 @@ vi.mock("@/lib/prisma", () => {
       ),
       updateMany: vi.fn(() => Promise.resolve({ count: 1 })),
     },
+    settings: {
+      findMany: vi.fn(() => Promise.resolve([])),
+    },
   };
 
   return {
