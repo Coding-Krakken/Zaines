@@ -50,6 +50,13 @@ export interface PricingSettings {
   threePlusPetsDiscountPercent: number; // e.g. 20 for 20%
 }
 
+export interface CancellationPolicySettings {
+  fullRefundHours: number; // e.g. 48 means full refund at >=48h before check-in
+  partialRefundHours: number; // e.g. 24 means partial refund at >=24h and <fullRefundHours
+  partialRefundPercent: number; // e.g. 50 means 50% refund
+  noShowRefundPercent: number; // e.g. 0 means no-show gets no refund
+}
+
 export interface AdminSettings {
   // Operational Preferences
   autoConfirmBookings: boolean;
@@ -75,6 +82,9 @@ export interface AdminSettings {
 
   // Phase 5: Pricing & Fees Configuration
   pricingSettings: PricingSettings;
+
+  // Phase 6: Cancellation Policy Configuration
+  cancellationPolicySettings: CancellationPolicySettings;
 }
 
 export interface SettingsRecord {

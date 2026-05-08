@@ -6,6 +6,7 @@ import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { PhotoGallery } from "@/components/PhotoGallery";
 import { MessageThread } from "@/components/MessageThread";
 import { NotificationBanner } from "@/components/NotificationBanner";
+import { useSettings } from "@/providers/settings-provider";
 
 interface BookingDetailClientProps {
   booking: {
@@ -69,6 +70,11 @@ export default function BookingDetailClient({
   CancelButton,
 }: BookingDetailClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
+  const { settings } = useSettings();
+  const fullRefundHours = settings?.cancellationPolicySettings.fullRefundHours ?? 48;
+  const partialRefundHours = settings?.cancellationPolicySettings.partialRefundHours ?? 24;
+  const partialRefundPercent =
+    settings?.cancellationPolicySettings.partialRefundPercent ?? 50;
 
   const tabs: Array<{ id: TabType; label: string; icon: string }> = [
     { id: "overview", label: "Overview", icon: "📋" },
@@ -218,8 +224,8 @@ export default function BookingDetailClient({
 
                 <div className="pt-2 border-t">
                   <p className="text-xs text-gray-600 mb-3">
-                    Cancellation policy: 48+ hours full refund, 24-48 hours 50%
-                    refund, under 24 hours no refund.
+                      Cancellation policy: {fullRefundHours}+ hours full refund, {partialRefundHours}-{fullRefundHours} hours {partialRefundPercent}%
+                      refund, under {partialRefundHours} hours no refund.
                   </p>
                   {canCancel && (
                     <CancelButton

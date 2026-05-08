@@ -18,6 +18,7 @@ import {
   SAFETY_STANDARDS_COPY,
   TRUST_EVIDENCE_CLAIM,
 } from "@/config/trust-copy";
+import { getAdminSettings } from "@/lib/api/admin-settings";
 
 export const metadata: Metadata = {
   title: "Policies | Zaine's Stay & Play",
@@ -25,7 +26,20 @@ export const metadata: Metadata = {
     "Read about our private boarding policies, cancellation policy, health requirements, and service terms.",
 };
 
-export default function PoliciesPage() {
+export default async function PoliciesPage() {
+  const settings = await getAdminSettings();
+  const cancellationSettings = settings.cancellationPolicySettings;
+  const fullRefundLabel = `${cancellationSettings.fullRefundHours}+ Hours Notice`;
+  const partialRefundLabel = `${cancellationSettings.partialRefundHours}-${cancellationSettings.fullRefundHours} Hours Notice`;
+  const noRefundLabel = `Less than ${cancellationSettings.partialRefundHours} Hours`;
+  const fullRefundText = `${cancellationSettings.fullRefundHours}+ hours before check-in: full refund.`;
+  const partialRefundText = `${cancellationSettings.partialRefundHours}-${cancellationSettings.fullRefundHours} hours before check-in: ${cancellationSettings.partialRefundPercent}% refund.`;
+  const noRefundText = `Less than ${cancellationSettings.partialRefundHours} hours before check-in: no refund.`;
+  const noShowText =
+    cancellationSettings.noShowRefundPercent > 0
+      ? `No-show: ${cancellationSettings.noShowRefundPercent}% refund.`
+      : CANCELLATION_POLICY_COPY.noShow;
+
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
@@ -169,26 +183,26 @@ export default function PoliciesPage() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="rounded-lg border-2 border-green-200 bg-green-50 p-4">
                     <h3 className="mb-2 font-semibold text-green-900">
-                      48+ Hours Notice
+                      {fullRefundLabel}
                     </h3>
                     <p className="text-sm text-green-800">
-                      {CANCELLATION_POLICY_COPY.fullRefund}
+                      {fullRefundText}
                     </p>
                   </div>
                   <div className="rounded-lg border-2 border-orange-200 bg-orange-50 p-4">
                     <h3 className="mb-2 font-semibold text-orange-900">
-                      24-48 Hours Notice
+                      {partialRefundLabel}
                     </h3>
                     <p className="text-sm text-orange-800">
-                      {CANCELLATION_POLICY_COPY.partialRefund}
+                      {partialRefundText}
                     </p>
                   </div>
                   <div className="rounded-lg border-2 border-red-200 bg-red-50 p-4">
                     <h3 className="mb-2 font-semibold text-red-900">
-                      Less than 24 Hours
+                      {noRefundLabel}
                     </h3>
                     <p className="text-sm text-red-800">
-                      {CANCELLATION_POLICY_COPY.noRefund}
+                      {noRefundText}
                     </p>
                   </div>
                   <div className="rounded-lg border-2 border-gray-200 bg-gray-50 p-4">
@@ -196,7 +210,7 @@ export default function PoliciesPage() {
                       No-Show
                     </h3>
                     <p className="text-sm text-gray-800">
-                      {CANCELLATION_POLICY_COPY.noShow}
+                      {noShowText}
                     </p>
                   </div>
                 </div>

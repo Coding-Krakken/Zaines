@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { getCorrelationId, logServerFailure } from "@/lib/api/issue26";
 import { stripe, isStripeConfigured, formatAmountForStripe } from "@/lib/stripe";
+import { getAdminSettings } from "@/lib/api/admin-settings";
 
 type BookingCancelRecord = {
   id: string;
@@ -24,9 +25,6 @@ type CancellationPolicyResult = {
   message: string;
 };
 
-const HOURS_FULL_REFUND = 48;
-const HOURS_PARTIAL_REFUND = 24;
-
 function roundCurrency(amount: number): number {
   return Math.round(amount * 100) / 100;
 }
@@ -35,23 +33,29 @@ function calculateCancellationPolicy(
   checkInDate: Date,
   bookingTotal: number,
   now: Date,
+  policySettings: {
+    fullRefundHours: number;
+    partialRefundHours: number;
+    partialRefundPercent: number;
+  },
 ): CancellationPolicyResult {
   const msUntilCheckIn = checkInDate.getTime() - now.getTime();
   const hoursUntilCheckIn = msUntilCheckIn / (1000 * 60 * 60);
+  const partialRefundFactor = policySettings.partialRefundPercent / 100;
 
-  if (hoursUntilCheckIn >= HOURS_FULL_REFUND) {
+  if (hoursUntilCheckIn >= policySettings.fullRefundHours) {
     return {
       policyWindow: "full_refund",
       refundEligibleAmount: roundCurrency(bookingTotal),
-      message: "Cancellation accepted with full refund (48+ hours before check-in).",
+      message: `Cancellation accepted with full refund (${policySettings.fullRefundHours}+ hours before check-in).`,
     };
   }
 
-  if (hoursUntilCheckIn >= HOURS_PARTIAL_REFUND) {
+  if (hoursUntilCheckIn >= policySettings.partialRefundHours) {
     return {
       policyWindow: "partial_refund",
-      refundEligibleAmount: roundCurrency(bookingTotal * 0.5),
-      message: "Cancellation accepted with 50% refund (24-48 hours before check-in).",
+      refundEligibleAmount: roundCurrency(bookingTotal * partialRefundFactor),
+      message: `Cancellation accepted with ${policySettings.partialRefundPercent}% refund (${policySettings.partialRefundHours}-${policySettings.fullRefundHours} hours before check-in).`,
     };
   }
 
@@ -131,7 +135,13 @@ export async function POST(
       );
     }
 
-    const policy = calculateCancellationPolicy(booking.checkInDate, booking.total, now);
+    const settings = await getAdminSettings();
+    const policy = calculateCancellationPolicy(
+      booking.checkInDate,
+      booking.total,
+      now,
+      settings.cancellationPolicySettings,
+    );
 
     await prisma.booking.update({
       where: { id: booking.id },
@@ -208,7 +218,7 @@ export async function POST(
         refundEligibleAmount: policy.refundEligibleAmount,
         refundedAmount,
         refundPendingAmount,
-        currency: "USD",
+        currency: settings.pricingSettings.currency || "USD",
         message:
           refundPendingAmount > 0
             ? `${policy.message} Refund pending amount: $${refundPendingAmount.toFixed(2)}.`

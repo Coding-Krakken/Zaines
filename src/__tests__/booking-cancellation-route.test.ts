@@ -8,6 +8,7 @@ const {
   bookingUpdateMock,
   paymentUpdateManyMock,
   paymentUpdateMock,
+  settingsFindManyMock,
   isDatabaseConfiguredMock,
   isStripeConfiguredMock,
   stripeRefundCreateMock,
@@ -17,6 +18,7 @@ const {
   bookingUpdateMock: vi.fn(),
   paymentUpdateManyMock: vi.fn(),
   paymentUpdateMock: vi.fn(),
+  settingsFindManyMock: vi.fn(),
   isDatabaseConfiguredMock: vi.fn(),
   isStripeConfiguredMock: vi.fn(),
   stripeRefundCreateMock: vi.fn(),
@@ -35,6 +37,9 @@ vi.mock("@/lib/prisma", () => ({
     payment: {
       updateMany: paymentUpdateManyMock,
       update: paymentUpdateMock,
+    },
+    settings: {
+      findMany: settingsFindManyMock,
     },
   },
   isDatabaseConfigured: isDatabaseConfiguredMock,
@@ -57,6 +62,7 @@ describe("booking cancellation route", () => {
     authMock.mockResolvedValue({ user: { id: "user-1" } });
     isDatabaseConfiguredMock.mockReturnValue(true);
     isStripeConfiguredMock.mockReturnValue(false);
+    settingsFindManyMock.mockResolvedValue([]);
 
     bookingUpdateMock.mockResolvedValue({ id: "booking-1", status: "cancelled" });
     paymentUpdateManyMock.mockResolvedValue({ count: 1 });

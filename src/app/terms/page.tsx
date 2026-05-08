@@ -9,6 +9,7 @@ import {
   PRICING_TRUST_DISCLOSURE,
   TRUST_EVIDENCE_CLAIM,
 } from "@/config/trust-copy";
+import { getAdminSettings } from "@/lib/api/admin-settings";
 
 export const metadata: Metadata = {
   title: "Terms of Service | Zaine's Stay & Play",
@@ -16,7 +17,17 @@ export const metadata: Metadata = {
     "Read our terms of service governing use of Zaine's Stay & Play private boarding services and website.",
 };
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const settings = await getAdminSettings();
+  const cancellationSettings = settings.cancellationPolicySettings;
+  const fullRefundLine = `${cancellationSettings.fullRefundHours}+ hours before check-in: full refund.`;
+  const partialRefundLine = `${cancellationSettings.partialRefundHours}-${cancellationSettings.fullRefundHours} hours before check-in: ${cancellationSettings.partialRefundPercent}% refund.`;
+  const noRefundLine = `Less than ${cancellationSettings.partialRefundHours} hours before check-in: no refund.`;
+  const noShowLine =
+    cancellationSettings.noShowRefundPercent > 0
+      ? `${cancellationSettings.noShowRefundPercent}% refund.`
+      : CANCELLATION_POLICY_COPY.noShow.replace("No-show: ", "");
+
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
@@ -259,29 +270,20 @@ export default function TermsPage() {
               </h2>
               <ul className="ml-6 list-disc space-y-2 text-muted-foreground">
                 <li>
-                  <strong>48+ hours notice:</strong>{" "}
-                  {CANCELLATION_POLICY_COPY.fullRefund.replace(
-                    "48+ hours before check-in: ",
-                    "",
-                  )}
+                  <strong>{cancellationSettings.fullRefundHours}+ hours notice:</strong>{" "}
+                  {fullRefundLine.replace(`${cancellationSettings.fullRefundHours}+ hours before check-in: `, "")}
                 </li>
                 <li>
-                  <strong>24-48 hours notice:</strong>{" "}
-                  {CANCELLATION_POLICY_COPY.partialRefund.replace(
-                    "24-48 hours before check-in: ",
-                    "",
-                  )}
+                  <strong>{cancellationSettings.partialRefundHours}-{cancellationSettings.fullRefundHours} hours notice:</strong>{" "}
+                  {partialRefundLine.replace(`${cancellationSettings.partialRefundHours}-${cancellationSettings.fullRefundHours} hours before check-in: `, "")}
                 </li>
                 <li>
-                  <strong>Less than 24 hours:</strong>{" "}
-                  {CANCELLATION_POLICY_COPY.noRefund.replace(
-                    "Less than 24 hours before check-in: ",
-                    "",
-                  )}
+                  <strong>Less than {cancellationSettings.partialRefundHours} hours:</strong>{" "}
+                  {noRefundLine.replace(`Less than ${cancellationSettings.partialRefundHours} hours before check-in: `, "")}
                 </li>
                 <li>
                   <strong>No-show:</strong>{" "}
-                  {CANCELLATION_POLICY_COPY.noShow.replace("No-show: ", "")}
+                  {noShowLine}
                 </li>
               </ul>
               <p className="mt-4 text-muted-foreground">

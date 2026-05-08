@@ -61,6 +61,12 @@ function getDefaultSettings(): AdminSettings {
       twoPetDiscountPercent: 15,
       threePlusPetsDiscountPercent: 20,
     },
+    cancellationPolicySettings: {
+      fullRefundHours: 48,
+      partialRefundHours: 24,
+      partialRefundPercent: 50,
+      noShowRefundPercent: 0,
+    },
   };
 }
 

@@ -4,7 +4,13 @@
  */
 
 import { prisma, isDatabaseConfigured } from '@/lib/prisma';
-import type { AdminSettings, BusinessHours, AvailabilityRules, PricingSettings } from '@/types/admin';
+import type {
+  AdminSettings,
+  BusinessHours,
+  AvailabilityRules,
+  PricingSettings,
+  CancellationPolicySettings,
+} from '@/types/admin';
 
 const SETTINGS_KEYS: Record<string, string> = {
   AUTO_CONFIRM_BOOKINGS: 'admin.auto_confirm_bookings',
@@ -26,6 +32,8 @@ const SETTINGS_KEYS: Record<string, string> = {
   SEASONAL_PRICING_RULES: 'admin.seasonal_pricing_rules', // JSON array
   // Phase 5: Pricing & Fees Configuration
   PRICING_SETTINGS: 'admin.pricing_settings', // JSON object
+  // Phase 6: Cancellation Policy Configuration
+  CANCELLATION_POLICY_SETTINGS: 'admin.cancellation_policy_settings', // JSON object
 };
 
 /**
@@ -105,6 +113,15 @@ export async function getAdminSettings(): Promise<AdminSettings> {
           return json ? JSON.parse(json) : getDefaultPricingSettings();
         } catch {
           return getDefaultPricingSettings();
+        }
+      })(),
+      // Phase 6: Cancellation Policy Configuration
+      cancellationPolicySettings: (() => {
+        try {
+          const json = settingsMap.get(SETTINGS_KEYS.CANCELLATION_POLICY_SETTINGS);
+          return json ? JSON.parse(json) : getDefaultCancellationPolicySettings();
+        } catch {
+          return getDefaultCancellationPolicySettings();
         }
       })(),
     };
@@ -342,6 +359,20 @@ export async function updateAdminSettings(updates: Partial<AdminSettings>): Prom
       );
     }
 
+    // Phase 6: Cancellation Policy Configuration
+    if (updates.cancellationPolicySettings !== undefined) {
+      updatePromises.push(
+        prisma.settings.upsert({
+          where: { key: SETTINGS_KEYS.CANCELLATION_POLICY_SETTINGS },
+          update: { value: JSON.stringify(updates.cancellationPolicySettings) },
+          create: {
+            key: SETTINGS_KEYS.CANCELLATION_POLICY_SETTINGS,
+            value: JSON.stringify(updates.cancellationPolicySettings),
+          },
+        }),
+      );
+    }
+
     await Promise.all(updatePromises);
 
     // Return updated settings
@@ -395,6 +426,18 @@ function getDefaultPricingSettings(): PricingSettings {
 }
 
 /**
+ * Get default cancellation policy settings
+ */
+function getDefaultCancellationPolicySettings(): CancellationPolicySettings {
+  return {
+    fullRefundHours: 48,
+    partialRefundHours: 24,
+    partialRefundPercent: 50,
+    noShowRefundPercent: 0,
+  };
+}
+
+/**
  * Get default admin settings
  */
 export function getDefaultSettings(): AdminSettings {
@@ -417,5 +460,7 @@ export function getDefaultSettings(): AdminSettings {
     seasonalPricingRules: [],
     // Phase 5: Pricing & Fees Configuration
     pricingSettings: getDefaultPricingSettings(),
+    // Phase 6: Cancellation Policy Configuration
+    cancellationPolicySettings: getDefaultCancellationPolicySettings(),
   };
 }

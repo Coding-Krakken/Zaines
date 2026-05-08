@@ -24,6 +24,7 @@ import { AvailabilityRulesCard } from '@/components/admin/AvailabilityRulesCard'
 import { BlackoutDatesCard } from '@/components/admin/BlackoutDatesCard';
 import { SeasonalPricingCard } from '@/components/admin/SeasonalPricingCard';
 import { PricingSettingsCard } from '@/components/admin/PricingSettingsCard';
+import { CancellationPolicySettingsCard } from '@/components/admin/CancellationPolicySettingsCard';
 
 const businessHoursSchema = z.object({
   openTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
@@ -89,7 +90,20 @@ const settingsFormSchema = z.object({
     twoPetDiscountPercent: z.number().min(0, 'Discount cannot be negative').max(100, 'Discount cannot exceed 100%'),
     threePlusPetsDiscountPercent: z.number().min(0, 'Discount cannot be negative').max(100, 'Discount cannot exceed 100%'),
   }),
-});
+  // Phase 6: Cancellation Policy Configuration
+  cancellationPolicySettings: z.object({
+    fullRefundHours: z.number().int().min(1, 'Must be at least 1 hour'),
+    partialRefundHours: z.number().int().min(0, 'Cannot be negative'),
+    partialRefundPercent: z.number().min(0, 'Cannot be negative').max(100, 'Cannot exceed 100%'),
+    noShowRefundPercent: z.number().min(0, 'Cannot be negative').max(100, 'Cannot exceed 100%'),
+  }),
+}).refine(
+  (data) => data.cancellationPolicySettings.fullRefundHours > data.cancellationPolicySettings.partialRefundHours,
+  {
+    path: ['cancellationPolicySettings', 'fullRefundHours'],
+    message: 'Full refund window must be greater than partial refund window',
+  },
+);
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 
@@ -149,6 +163,13 @@ export default function AdminSettingsPage() {
         taxRatePercent: 10,
         twoPetDiscountPercent: 15,
         threePlusPetsDiscountPercent: 20,
+      },
+      // Phase 6: Cancellation Policy Configuration
+      cancellationPolicySettings: {
+        fullRefundHours: 48,
+        partialRefundHours: 24,
+        partialRefundPercent: 50,
+        noShowRefundPercent: 0,
       },
     },
   });
@@ -530,6 +551,9 @@ export default function AdminSettingsPage() {
 
           {/* Pricing & Fees Card */}
           <PricingSettingsCard />
+
+          {/* Cancellation Policy Card */}
+          <CancellationPolicySettingsCard />
 
           {/* Save Button */}
           <Button type="submit" disabled={isSaving} className="w-full md:w-auto" size="lg">
