@@ -16,6 +16,7 @@ import {
   stepSuitesSchema,
   stepWaiverSchema,
 } from "@/lib/validations/booking-wizard";
+import { typedStorage } from "@/lib/safe-storage";
 
 export type BookingStep =
   | "dates"
@@ -101,9 +102,12 @@ export function useBookingWizard() {
   useEffect(() => {
     const loadAndApplySavedProgress = () => {
       try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          const parsed = JSON.parse(saved);
+        const parsed = typedStorage.getJson<{
+          data: BookingWizardData;
+          currentStep: string;
+        }>(STORAGE_KEY);
+
+        if (parsed) {
           const requestedStep = isBookingStep(parsed.currentStep)
             ? parsed.currentStep
             : "dates";
@@ -117,14 +121,10 @@ export function useBookingWizard() {
           );
         }
       } catch (error) {
-        // Catch SecurityError (private browsing, Tracking Prevention)
-        // and QuotaExceededError (storage full)
-        if (error instanceof Error) {
-          if (error.name === 'SecurityError' || error.name === 'QuotaExceededError') {
-            console.warn("Storage access blocked by browser privacy settings. Progress will not persist.");
-          } else {
-            console.error("Failed to load saved progress:", error);
-          }
+        // Safe storage utilities silently handle all errors,
+        // but log unexpected failures for debugging
+        if (error instanceof Error && error.message !== 'Storage access blocked') {
+          console.error("Failed to load saved progress:", error);
         }
       }
     };
@@ -135,24 +135,17 @@ export function useBookingWizard() {
   // Save progress to localStorage whenever data changes
   const saveProgress = useCallback(
     (data: BookingWizardData, step: BookingStep) => {
-      try {
-        localStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify({
-            data,
-            currentStep: step,
-            savedAt: new Date().toISOString(),
-          }),
-        );
-      } catch (error) {
-        // Catch SecurityError (private browsing, Tracking Prevention)
-        // and QuotaExceededError (storage full)
-        if (error instanceof Error) {
-          if (error.name === 'SecurityError' || error.name === 'QuotaExceededError') {
-            console.warn("Storage access blocked by browser privacy settings. Progress will not persist.");
-          } else {
-            console.error("Failed to save progress:", error);
-          }
+      const success = typedStorage.setJson(STORAGE_KEY, {
+        data,
+        currentStep: step,
+        savedAt: new Date().toISOString(),
+      });
+
+      if (!success) {
+        // Safe storage falls back to in-memory storage automatically
+        // Only log if it's a critical error (not just privacy mode)
+        if (process.env.NODE_ENV === "development") {
+          console.debug("Booking wizard progress saved to memory (storage unavailable)");
         }
       }
     },
@@ -210,7 +203,7 @@ export function useBookingWizard() {
   const resetWizard = useCallback(() => {
     setWizardData({});
     setCurrentStep("dates");
-    localStorage.removeItem(STORAGE_KEY);
+    typedStorage.removeJson(STORAGE_KEY);
   }, []);
 
   // Get current step index (for progress indicator)

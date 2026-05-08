@@ -4,6 +4,7 @@ import { SessionProvider } from "next-auth/react";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { SettingsProvider } from "@/providers/settings-provider";
 import { useMemo } from "react";
+import "@/lib/console-filter"; // Initialize console filtering on client load
 
 export function Providers({ children }: { children: React.ReactNode }) {
   // Create a stable QueryClient instance

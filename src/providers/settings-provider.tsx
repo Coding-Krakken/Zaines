@@ -60,7 +60,7 @@ function getDefaultSettings(): AdminSettings {
  */
 async function fetchSettings(): Promise<AdminSettings> {
   try {
-    const response = await fetch('/api/admin/settings', {
+    const response = await fetch('/api/settings', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

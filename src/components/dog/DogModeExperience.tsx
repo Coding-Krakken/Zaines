@@ -29,6 +29,7 @@ import {
   type DogTelemetrySurface,
 } from "@/lib/telemetry/dog-mode";
 import { cn } from "@/lib/utils";
+import { safeGetItem, safeSetItem, typedStorage } from "@/lib/safe-storage";
 
 type ScheduleItem = {
   id: DogScheduleSlot;
@@ -79,20 +80,17 @@ const schedule: ScheduleItem[] = [
 function useDogTelemetry(surface: DogTelemetrySurface, mode: DogTelemetryMode) {
   const [sessionId] = useState(() => {
     if (typeof window === "undefined") return "dog_0000000000";
-    try {
-      const existing = window.sessionStorage.getItem("dog-mode-session-id");
-      if (existing) return existing;
-      const next = createDogSessionId();
-      window.sessionStorage.setItem("dog-mode-session-id", next);
-      return next;
-    } catch (error) {
-      // Catch SecurityError from private browsing or Tracking Prevention
-      if (error instanceof Error && error.name === 'SecurityError') {
-        console.warn("Storage access blocked by browser privacy settings.");
-        return `dog_${Math.random().toString(36).substr(2, 10)}`;
-      }
-      throw error;
+    
+    // Try to get existing session ID from storage
+    const existing = safeGetItem("dog-mode-session-id", "sessionStorage");
+    if (existing.success && existing.data) {
+      return existing.data;
     }
+    
+    // Create new session ID
+    const next = createDogSessionId();
+    safeSetItem("dog-mode-session-id", next, "sessionStorage");
+    return next;
   });
 
   return (
@@ -109,30 +107,19 @@ function useDogTelemetry(surface: DogTelemetrySurface, mode: DogTelemetryMode) {
     });
     assertDogTelemetryHasNoPii(payload);
 
-    let stored: DogTelemetryEvent[] = [];
-    try {
-      const raw = window.localStorage.getItem("dog-mode-telemetry");
-      const parsed = raw ? JSON.parse(raw) : [];
-      stored = Array.isArray(parsed) ? (parsed as DogTelemetryEvent[]) : [];
-    } catch (error) {
-      // Catch SecurityError and QuotaExceededError
-      if (error instanceof Error && (error.name === 'SecurityError' || error.name === 'QuotaExceededError')) {
-        console.warn("Storage access blocked or quota exceeded. Telemetry will not persist.");
-      } else {
-        console.error("Failed to load telemetry:", error);
-      }
-      stored = [];
-    }
+    // Load existing telemetry events (max 50)
+    const stored = typedStorage.getJson<DogTelemetryEvent[]>(
+      "dog-mode-telemetry",
+      "localStorage",
+    ) || [];
 
+    // Keep last 49 events + new one (50 total)
     const next = [...stored.slice(-49), payload];
-    try {
-      window.localStorage.setItem("dog-mode-telemetry", JSON.stringify(next));
-    } catch (error) {
-      // Silently fail if storage not available (Tracking Prevention, private browsing)
-      if (!(error instanceof Error && (error.name === 'SecurityError' || error.name === 'QuotaExceededError'))) {
-        console.error("Failed to save telemetry:", error);
-      }
-    }
+    
+    // Save back to storage (safe storage handles unavailability gracefully)
+    typedStorage.setJson("dog-mode-telemetry", next, "localStorage");
+
+    // Dispatch custom event for monitoring
     window.dispatchEvent(
       new CustomEvent("dog-mode-telemetry", { detail: payload }),
     );
