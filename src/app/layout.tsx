@@ -79,11 +79,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const localBusinessJsonLd = await localBusinessSchema();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -92,7 +94,7 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(localBusinessSchema()),
+            __html: JSON.stringify(localBusinessJsonLd),
           }}
         />
         <Providers>

@@ -26,6 +26,7 @@ import { SeasonalPricingCard } from '@/components/admin/SeasonalPricingCard';
 import { PricingSettingsCard } from '@/components/admin/PricingSettingsCard';
 import { CancellationPolicySettingsCard } from '@/components/admin/CancellationPolicySettingsCard';
 import { BusinessProfileSettingsCard } from '@/components/admin/BusinessProfileSettingsCard';
+import { WebsiteProfileSettingsCard } from '@/components/admin/WebsiteProfileSettingsCard';
 
 const businessHoursSchema = z.object({
   openTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
@@ -106,6 +107,13 @@ const settingsFormSchema = z.object({
       instagram: z.string().url('Instagram URL must be valid'),
       twitter: z.string().url('X/Twitter URL must be valid'),
     }),
+  }),
+  // Phase 8: Website Profile & Service Area
+  websiteProfileSettings: z.object({
+    siteUrl: z.string().url('Website URL must be valid'),
+    siteDescription: z.string().min(1, 'Site description is required'),
+    ogImageUrl: z.string().url('OG image URL must be valid'),
+    serviceArea: z.array(z.string().min(1)).min(1, 'At least one service area is required'),
   }),
 }).refine(
   (data) => data.cancellationPolicySettings.fullRefundHours > data.cancellationPolicySettings.partialRefundHours,
@@ -189,6 +197,23 @@ export default function AdminSettingsPage() {
           instagram: 'https://instagram.com/zainesstayandplay',
           twitter: 'https://twitter.com/zainesstayandplay',
         },
+      },
+      // Phase 8: Website Profile & Service Area
+      websiteProfileSettings: {
+        siteUrl: 'https://zainesstayandplay.com',
+        siteDescription:
+          'Private, small-capacity dog boarding in Syracuse with owner-on-site care, three suites, and safety-first updates.',
+        ogImageUrl: 'https://zainesstayandplay.com/og.jpg',
+        serviceArea: [
+          'Syracuse',
+          'Liverpool',
+          'Cicero',
+          'Baldwinsville',
+          'Fayetteville',
+          'Manlius',
+          'Clay',
+          'North Syracuse',
+        ],
       },
     },
   });
@@ -576,6 +601,9 @@ export default function AdminSettingsPage() {
 
           {/* Business Profile & Social Links Card */}
           <BusinessProfileSettingsCard />
+
+          {/* Website Profile & Service Area Card */}
+          <WebsiteProfileSettingsCard />
 
           {/* Save Button */}
           <Button type="submit" disabled={isSaving} className="w-full md:w-auto" size="lg">

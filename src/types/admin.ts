@@ -66,6 +66,13 @@ export interface BusinessProfileSettings {
   };
 }
 
+export interface WebsiteProfileSettings {
+  siteUrl: string;
+  siteDescription: string;
+  ogImageUrl: string;
+  serviceArea: string[];
+}
+
 export interface AdminSettings {
   // Operational Preferences
   autoConfirmBookings: boolean;
@@ -97,6 +104,9 @@ export interface AdminSettings {
 
   // Phase 7: Business Profile & Social Links
   businessProfileSettings: BusinessProfileSettings;
+
+  // Phase 8: Website Profile & Service Area
+  websiteProfileSettings: WebsiteProfileSettings;
 }
 
 export interface SettingsRecord {

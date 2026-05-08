@@ -76,6 +76,22 @@ function getDefaultSettings(): AdminSettings {
         twitter: 'https://twitter.com/zainesstayandplay',
       },
     },
+    websiteProfileSettings: {
+      siteUrl: 'https://zainesstayandplay.com',
+      siteDescription:
+        'Private, small-capacity dog boarding in Syracuse with owner-on-site care, three suites, and safety-first updates.',
+      ogImageUrl: 'https://zainesstayandplay.com/og.jpg',
+      serviceArea: [
+        'Syracuse',
+        'Liverpool',
+        'Cicero',
+        'Baldwinsville',
+        'Fayetteville',
+        'Manlius',
+        'Clay',
+        'North Syracuse',
+      ],
+    },
   };
 }
 

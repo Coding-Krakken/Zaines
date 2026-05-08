@@ -1,13 +1,12 @@
 'use client';
 
 import Link from "next/link";
-import { siteConfig } from "@/config/site";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { Facebook, Instagram, Twitter, MapPin, Phone, Mail, Clock } from "lucide-react";
 
 export function SiteFooter() {
   const currentYear = new Date().getFullYear();
-  const { contactInfo, businessHours, businessName, socialLinks } = useSiteSettings();
+  const { contactInfo, businessHours, businessName, socialLinks, websiteProfile } = useSiteSettings();
 
   return (
     <footer className="bg-foreground text-background/70">
@@ -196,7 +195,7 @@ export function SiteFooter() {
                 Serving
               </p>
               <p className="text-xs text-background/50 leading-relaxed">
-                {siteConfig.serviceArea.join(" · ")}
+                {websiteProfile.serviceArea.join(" · ")}
               </p>
             </div>
           </div>

@@ -11,6 +11,7 @@ import type {
   PricingSettings,
   CancellationPolicySettings,
   BusinessProfileSettings,
+  WebsiteProfileSettings,
 } from '@/types/admin';
 import { siteConfig } from '@/config/site';
 
@@ -38,6 +39,8 @@ const SETTINGS_KEYS: Record<string, string> = {
   CANCELLATION_POLICY_SETTINGS: 'admin.cancellation_policy_settings', // JSON object
   // Phase 7: Business Profile & Social Links
   BUSINESS_PROFILE_SETTINGS: 'admin.business_profile_settings', // JSON object
+  // Phase 8: Website Profile & Service Area
+  WEBSITE_PROFILE_SETTINGS: 'admin.website_profile_settings', // JSON object
 };
 
 /**
@@ -135,6 +138,15 @@ export async function getAdminSettings(): Promise<AdminSettings> {
           return json ? JSON.parse(json) : getDefaultBusinessProfileSettings();
         } catch {
           return getDefaultBusinessProfileSettings();
+        }
+      })(),
+      // Phase 8: Website Profile & Service Area
+      websiteProfileSettings: (() => {
+        try {
+          const json = settingsMap.get(SETTINGS_KEYS.WEBSITE_PROFILE_SETTINGS);
+          return json ? JSON.parse(json) : getDefaultWebsiteProfileSettings();
+        } catch {
+          return getDefaultWebsiteProfileSettings();
         }
       })(),
     };
@@ -400,6 +412,20 @@ export async function updateAdminSettings(updates: Partial<AdminSettings>): Prom
       );
     }
 
+    // Phase 8: Website Profile & Service Area
+    if (updates.websiteProfileSettings !== undefined) {
+      updatePromises.push(
+        prisma.settings.upsert({
+          where: { key: SETTINGS_KEYS.WEBSITE_PROFILE_SETTINGS },
+          update: { value: JSON.stringify(updates.websiteProfileSettings) },
+          create: {
+            key: SETTINGS_KEYS.WEBSITE_PROFILE_SETTINGS,
+            value: JSON.stringify(updates.websiteProfileSettings),
+          },
+        }),
+      );
+    }
+
     await Promise.all(updatePromises);
 
     // Return updated settings
@@ -479,6 +505,18 @@ function getDefaultBusinessProfileSettings(): BusinessProfileSettings {
 }
 
 /**
+ * Get default website profile settings
+ */
+function getDefaultWebsiteProfileSettings(): WebsiteProfileSettings {
+  return {
+    siteUrl: siteConfig.url,
+    siteDescription: siteConfig.description,
+    ogImageUrl: siteConfig.ogImage,
+    serviceArea: [...siteConfig.serviceArea],
+  };
+}
+
+/**
  * Get default admin settings
  */
 export function getDefaultSettings(): AdminSettings {
@@ -505,5 +543,7 @@ export function getDefaultSettings(): AdminSettings {
     cancellationPolicySettings: getDefaultCancellationPolicySettings(),
     // Phase 7: Business Profile & Social Links
     businessProfileSettings: getDefaultBusinessProfileSettings(),
+    // Phase 8: Website Profile & Service Area
+    websiteProfileSettings: getDefaultWebsiteProfileSettings(),
   };
 }

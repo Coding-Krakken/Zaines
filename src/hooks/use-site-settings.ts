@@ -23,6 +23,7 @@ interface SiteSettingsHookReturn {
   businessHours: AdminSettings['businessHours'];
   businessName: string;
   socialLinks: AdminSettings['businessProfileSettings']['socialLinks'];
+  websiteProfile: AdminSettings['websiteProfileSettings'];
   isLoading: boolean;
 }
 
@@ -57,6 +58,22 @@ export function useSiteSettings(): SiteSettingsHookReturn {
         'https://www.facebook.com/people/Zaines-Stay-Play/61550036005682/',
       instagram: 'https://instagram.com/zainesstayandplay',
       twitter: 'https://twitter.com/zainesstayandplay',
+    },
+    websiteProfile: settings?.websiteProfileSettings || {
+      siteUrl: 'https://zainesstayandplay.com',
+      siteDescription:
+        'Private, small-capacity dog boarding in Syracuse with owner-on-site care, three suites, and safety-first updates.',
+      ogImageUrl: 'https://zainesstayandplay.com/og.jpg',
+      serviceArea: [
+        'Syracuse',
+        'Liverpool',
+        'Cicero',
+        'Baldwinsville',
+        'Fayetteville',
+        'Manlius',
+        'Clay',
+        'North Syracuse',
+      ],
     },
     isLoading,
   };

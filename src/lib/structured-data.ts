@@ -1,24 +1,30 @@
 import { siteConfig } from "@/config/site";
+import { getAdminSettings } from "@/lib/api/admin-settings";
 
-export function localBusinessSchema() {
+export async function localBusinessSchema() {
+  const settings = await getAdminSettings();
+  const businessName = settings.businessProfileSettings.businessName;
+  const socialLinks = settings.businessProfileSettings.socialLinks;
+  const websiteProfile = settings.websiteProfileSettings;
+
   return {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "@id": `${siteConfig.url}/#business`,
-    name: siteConfig.name,
-    description: siteConfig.description,
-    url: siteConfig.url,
-    telephone: siteConfig.contact.phone,
-    email: siteConfig.contact.email,
+    "@id": `${websiteProfile.siteUrl}/#business`,
+    name: businessName,
+    description: websiteProfile.siteDescription,
+    url: websiteProfile.siteUrl,
+    telephone: settings.contactPhone,
+    email: settings.contactEmail,
     priceRange: "$$",
-    image: siteConfig.ogImage,
-    logo: `${siteConfig.url}/logo.png`,
+    image: websiteProfile.ogImageUrl,
+    logo: `${websiteProfile.siteUrl}/logo.png`,
     address: {
       "@type": "PostalAddress",
-      streetAddress: siteConfig.contact.address,
-      addressLocality: siteConfig.contact.city,
-      addressRegion: siteConfig.contact.state,
-      postalCode: siteConfig.contact.zip,
+      streetAddress: settings.address,
+      addressLocality: settings.city,
+      addressRegion: settings.state,
+      postalCode: settings.zip,
       addressCountry: "US",
     },
     geo: {
@@ -42,12 +48,8 @@ export function localBusinessSchema() {
         closes: "20:00",
       },
     ],
-    sameAs: [
-      siteConfig.links.facebook,
-      siteConfig.links.instagram,
-      siteConfig.links.twitter,
-    ],
-    areaServed: siteConfig.serviceArea.map((city) => ({
+    sameAs: [socialLinks.facebook, socialLinks.instagram, socialLinks.twitter],
+    areaServed: websiteProfile.serviceArea.map((city) => ({
       "@type": "City",
       name: city,
       containedInPlace: {
@@ -56,7 +58,7 @@ export function localBusinessSchema() {
       },
     })),
     hasMap: `https://maps.google.com/?q=${encodeURIComponent(
-      `${siteConfig.contact.address}, ${siteConfig.contact.city}, ${siteConfig.contact.state} ${siteConfig.contact.zip}`
+      `${settings.address}, ${settings.city}, ${settings.state} ${settings.zip}`
     )}`,
     amenityFeature: [
       { "@type": "LocationFeatureSpecification", name: "Private Suites", value: true },
@@ -88,15 +90,20 @@ export function faqSchema(faqs: FaqItem[]) {
   };
 }
 
-export function serviceSchema() {
+export async function serviceSchema() {
+  const settings = await getAdminSettings();
+  const businessName = settings.businessProfileSettings.businessName;
+  const websiteProfile = settings.websiteProfileSettings;
+  const pricing = settings.pricingSettings;
+
   return {
     "@context": "https://schema.org",
     "@type": "Service",
     name: "Private Dog Boarding",
     provider: {
       "@type": "LocalBusiness",
-      name: siteConfig.name,
-      url: siteConfig.url,
+      name: businessName,
+      url: websiteProfile.siteUrl,
     },
     serviceType: "Dog Boarding",
     areaServed: {
@@ -110,22 +117,22 @@ export function serviceSchema() {
       {
         "@type": "Offer",
         name: "Standard Suite",
-        price: "65.00",
-        priceCurrency: "USD",
+        price: pricing.standardNightlyRate.toFixed(2),
+        priceCurrency: pricing.currency,
         unitText: "per night",
       },
       {
         "@type": "Offer",
         name: "Deluxe Suite",
-        price: "85.00",
-        priceCurrency: "USD",
+        price: pricing.deluxeNightlyRate.toFixed(2),
+        priceCurrency: pricing.currency,
         unitText: "per night",
       },
       {
         "@type": "Offer",
         name: "Luxury Suite",
-        price: "120.00",
-        priceCurrency: "USD",
+        price: pricing.luxuryNightlyRate.toFixed(2),
+        priceCurrency: pricing.currency,
         unitText: "per night",
       },
     ],
