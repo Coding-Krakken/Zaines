@@ -16,6 +16,11 @@ const adminSubNavItems: AdminSubNavItem[] = [
     match: (pathname) => pathname === "/admin",
   },
   {
+    href: "/admin/bookings",
+    label: "Bookings",
+    match: (pathname) => pathname.startsWith("/admin/bookings"),
+  },
+  {
     href: "/admin/occupancy",
     label: "Occupancy",
     match: (pathname) => pathname.startsWith("/admin/occupancy"),
@@ -39,6 +44,11 @@ const adminSubNavItems: AdminSubNavItem[] = [
     href: "/admin/messages",
     label: "Customer Messages",
     match: (pathname) => pathname.startsWith("/admin/messages"),
+  },
+  {
+    href: "/admin/settings",
+    label: "Settings",
+    match: (pathname) => pathname.startsWith("/admin/settings"),
   },
 ];
 

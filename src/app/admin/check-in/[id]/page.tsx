@@ -1,10 +1,14 @@
 'use client';
 
-import { use, useState } from 'react';
+import React, { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 
 export default function CheckInPage({
   params,
@@ -15,8 +19,48 @@ export default function CheckInPage({
   const router = useRouter();
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  
+  // Workflow state
+  const [bookingData, setBookingData] = useState<any>(null);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [waiversSigned, setWaiversSigned] = useState(false);
+  const [vaccinesCurrent, setVaccinesCurrent] = useState(false);
+  const [medicationsReviewed, setMedicationsReviewed] = useState(false);
+  const [specialRequestsAcknowledged, setSpecialRequestsAcknowledged] = useState(false);
+
+  // Load booking data on mount
+  React.useEffect(() => {
+    const loadBookingData = async () => {
+      try {
+        const res = await fetch(`/api/admin/bookings/${id}`);
+        if (!res.ok) {
+          setErrorMessage('Booking not found');
+          setIsLoadingData(false);
+          return;
+        }
+        
+        const data = await res.json();
+        setBookingData(data.data || data);
+      } catch (error) {
+        console.error('Error loading booking:', error);
+        setErrorMessage('Failed to load booking details');
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    loadBookingData();
+  }, [id]);
+
+  const allCheckboxesDone =
+    waiversSigned && vaccinesCurrent && medicationsReviewed && specialRequestsAcknowledged;
 
   async function handleCheckIn() {
+    if (!allCheckboxesDone) {
+      setErrorMessage('Please complete all health verification steps');
+      return;
+    }
+
     setStatus('loading');
     setErrorMessage('');
 
@@ -43,45 +87,281 @@ export default function CheckInPage({
     }
   }
 
+  if (isLoadingData) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <Card>
+          <CardContent className="py-12 flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const petNames =
+    bookingData?.bookingPets
+      ?.map((bp: any) => bp.pet?.name)
+      .filter(Boolean)
+      .join(', ') || '—';
+
+  const hasActiveMedications =
+    bookingData?.bookingPets?.some((bp: any) =>
+      bp.pet?.medications?.some((m: any) => !m.endDate || new Date(m.endDate) > new Date()),
+    ) || false;
+
   return (
-    <div className="max-w-md mx-auto">
+    <div className="max-w-2xl mx-auto space-y-6">
+      {/* Booking Info Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Confirm Check-In</CardTitle>
+          <CardTitle>Check-In: {bookingData?.bookingNumber}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Booking ID: <span className="font-mono text-foreground">{id}</span>
-          </p>
-
-          {status === 'success' && (
-            <div className="rounded-md bg-green-50 p-4 text-green-800 text-sm">
-              ✅ Guest successfully checked in.{' '}
-              <Link href="/admin" className="font-medium underline">
-                Back to dashboard
-              </Link>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="text-muted-foreground">Guest</p>
+              <p className="font-medium">{bookingData?.user?.name || bookingData?.user?.email || '—'}</p>
             </div>
-          )}
-
-          {status === 'error' && (
-            <div className="rounded-md bg-red-50 p-4 text-red-800 text-sm">
-              ❌ {errorMessage}
+            <div>
+              <p className="text-muted-foreground">Suite</p>
+              <p className="font-medium">{bookingData?.suite?.name}</p>
             </div>
-          )}
-
-          <div className="flex gap-3">
-            <Button
-              onClick={handleCheckIn}
-              disabled={status === 'loading' || status === 'success'}
-            >
-              {status === 'loading' ? 'Checking in…' : 'Confirm Check-In'}
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/admin">Cancel</Link>
-            </Button>
+            <div>
+              <p className="text-muted-foreground">Pets</p>
+              <p className="font-medium">{petNames}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Check-in Date</p>
+              <p className="font-medium">
+                {new Date(bookingData?.checkInDate).toLocaleDateString()}
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Error Message */}
+      {errorMessage && status !== 'success' && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Success Message */}
+      {status === 'success' && (
+        <Alert className="border-green-500 bg-green-50">
+          <CheckCircle2 className="h-4 w-4 text-green-600" />
+          <AlertDescription className="text-green-900">
+            ✅ Guest successfully checked in. Redirecting...
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Waivers Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Waiver Verification</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Ensure all required waivers are signed before proceeding
+          </p>
+          
+          {bookingData?.waivers && bookingData.waivers.length > 0 ? (
+            <div className="space-y-3">
+              {bookingData.waivers.map((waiver: any) => (
+                <div
+                  key={waiver.id}
+                  className="flex items-start justify-between p-3 border rounded-lg"
+                >
+                  <div className="flex-1">
+                    <p className="font-medium capitalize">
+                      {waiver.type.replace('_', ' ')} Waiver
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {waiver.signedAt
+                        ? `Signed on ${new Date(waiver.signedAt).toLocaleDateString()}`
+                        : 'Not signed'}
+                    </p>
+                  </div>
+                  {waiver.signedAt ? (
+                    <Badge variant="default" className="ml-2">
+                      ✓ Signed
+                    </Badge>
+                  ) : (
+                    <Badge variant="destructive" className="ml-2">
+                      Unsigned
+                    </Badge>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No waivers on file</p>
+          )}
+
+          <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+            <Checkbox
+              id="waivers"
+              checked={waiversSigned}
+              onCheckedChange={(checked) => setWaiversSigned(checked as boolean)}
+            />
+            <label htmlFor="waivers" className="text-sm font-medium cursor-pointer">
+              I confirm all required waivers are signed
+            </label>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Health Verification Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Health Verification</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Verify pet health status before check-in
+          </p>
+
+          <div className="space-y-4">
+            {/* Vaccines */}
+            <div className="flex items-start gap-3 p-3 border rounded-lg">
+              <div className="flex-1">
+                <p className="font-medium">Vaccines Current</p>
+                <p className="text-xs text-muted-foreground">
+                  Check that all pets have current vaccines
+                </p>
+              </div>
+              <Checkbox
+                id="vaccines"
+                checked={vaccinesCurrent}
+                onCheckedChange={(checked) => setVaccinesCurrent(checked as boolean)}
+              />
+            </div>
+
+            {/* Medications */}
+            {hasActiveMedications && (
+              <div className="flex items-start gap-3 p-3 border rounded-lg">
+                <div className="flex-1">
+                  <p className="font-medium">Medications Reviewed</p>
+                  <p className="text-xs text-muted-foreground">
+                    Review any active medications and dosing schedule
+                  </p>
+                </div>
+                <Checkbox
+                  id="medications"
+                  checked={medicationsReviewed}
+                  onCheckedChange={(checked) => setMedicationsReviewed(checked as boolean)}
+                />
+              </div>
+            )}
+
+            {/* Special Requests */}
+            {bookingData?.specialRequests && (
+              <div className="flex items-start gap-3 p-3 border rounded-lg">
+                <div className="flex-1">
+                  <p className="font-medium">Special Requests Acknowledged</p>
+                  <p className="text-xs text-muted-foreground">
+                    "{bookingData.specialRequests}"
+                  </p>
+                </div>
+                <Checkbox
+                  id="special-requests"
+                  checked={specialRequestsAcknowledged}
+                  onCheckedChange={(checked) =>
+                    setSpecialRequestsAcknowledged(checked as boolean)
+                  }
+                />
+              </div>
+            )}
+
+            {!bookingData?.specialRequests && (
+              <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                <div className="flex-1">
+                  <p className="font-medium">No special requests</p>
+                  <p className="text-xs text-muted-foreground">
+                    This booking has no special care requests
+                  </p>
+                </div>
+                <Checkbox
+                  id="special-requests"
+                  checked={specialRequestsAcknowledged}
+                  onCheckedChange={(checked) =>
+                    setSpecialRequestsAcknowledged(checked as boolean)
+                  }
+                />
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Verification Checklist */}
+      <Card className={allCheckboxesDone ? 'border-green-500 bg-green-50/30' : ''}>
+        <CardContent className="pt-6 space-y-3">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              {waiversSigned ? (
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+              ) : (
+                <div className="h-5 w-5 rounded-full border-2 border-muted-foreground" />
+              )}
+              <span className="text-sm">Waivers signed</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {vaccinesCurrent ? (
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+              ) : (
+                <div className="h-5 w-5 rounded-full border-2 border-muted-foreground" />
+              )}
+              <span className="text-sm">Vaccines verified</span>
+            </div>
+            {hasActiveMedications && (
+              <div className="flex items-center gap-2">
+                {medicationsReviewed ? (
+                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+                ) : (
+                  <div className="h-5 w-5 rounded-full border-2 border-muted-foreground" />
+                )}
+                <span className="text-sm">Medications reviewed</span>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              {specialRequestsAcknowledged ? (
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+              ) : (
+                <div className="h-5 w-5 rounded-full border-2 border-muted-foreground" />
+              )}
+              <span className="text-sm">Special requests acknowledged</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3">
+        <Button
+          onClick={handleCheckIn}
+          disabled={status === 'loading' || status === 'success' || !allCheckboxesDone}
+          className="flex-1"
+        >
+          {status === 'loading' ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Checking in…
+            </>
+          ) : allCheckboxesDone ? (
+            'Confirm Check-In'
+          ) : (
+            'Complete verification to check in'
+          )}
+        </Button>
+        <Button variant="outline" asChild>
+          <Link href="/admin">Cancel</Link>
+        </Button>
+      </div>
     </div>
   );
 }
