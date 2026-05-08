@@ -6,6 +6,15 @@ import Link from "next/link";
 
 type Props = { params: { id: string } };
 
+function isSchemaDriftError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  return (
+    error.message.includes("does not exist") ||
+    error.message.includes("P2021") ||
+    error.message.includes("P2022")
+  );
+}
+
 export default async function PetDetail({ params }: Props) {
   const session = await auth();
   if (!session?.user?.id) return redirect("/auth/signin");
@@ -19,10 +28,31 @@ export default async function PetDetail({ params }: Props) {
     );
   }
 
-  const pet = await prisma.pet.findUnique({
-    where: { id: params.id },
-    include: { vaccines: true, medications: true },
-  });
+  let pet;
+  let healthDataCompatibilityMode = false;
+  try {
+    pet = await prisma.pet.findUnique({
+      where: { id: params.id },
+      include: { vaccines: true, medications: true },
+    });
+  } catch (error) {
+    if (!isSchemaDriftError(error)) {
+      throw error;
+    }
+
+    healthDataCompatibilityMode = true;
+    const fallbackPet = await prisma.pet.findUnique({
+      where: { id: params.id },
+    });
+
+    pet = fallbackPet
+      ? {
+          ...fallbackPet,
+          vaccines: [],
+          medications: [],
+        }
+      : null;
+  }
 
   if (!pet || pet.userId !== session.user.id) {
     return (
@@ -43,6 +73,13 @@ export default async function PetDetail({ params }: Props) {
           Edit Profile
         </Link>
       </div>
+
+      {healthDataCompatibilityMode && (
+        <p className="mb-4 text-sm text-amber-700">
+          Health history is temporarily unavailable in compatibility mode. Run database migrations
+          to restore vaccine and medication records.
+        </p>
+      )}
 
       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="p-4 border rounded">
