@@ -22,6 +22,23 @@ import {
   calculateBookingPrice,
 } from "@/lib/booking/pricing";
 
+function isAbsoluteOrRootRelativeUrl(value: string): boolean {
+  if (value.startsWith("/")) {
+    return true;
+  }
+
+  try {
+    new URL(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const vaccineFileUrlSchema = z.string().refine(isAbsoluteOrRootRelativeUrl, {
+  message: "Invalid file URL",
+});
+
 let hasLoggedStripeUnavailableWarning = false;
 const shouldLogBookingDiagnostics = process.env.NODE_ENV !== "test";
 
@@ -130,7 +147,7 @@ const bookingSchema = z.object({
     .array(
       z.object({
         petId: z.string(),
-        fileUrl: z.string().url(),
+        fileUrl: vaccineFileUrlSchema,
         fileName: z.string(),
       }),
     )

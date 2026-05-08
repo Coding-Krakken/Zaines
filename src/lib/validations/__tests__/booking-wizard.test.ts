@@ -73,6 +73,23 @@ describe("Validation Schemas", () => {
     expect(() => stepPetsSchema.parse(invalidData)).toThrow();
   });
 
+  it("accepts root-relative vaccine file URLs", () => {
+    const validData = {
+      selectedPetIds: ["pet-1"],
+      newPets: [],
+      vaccines: [
+        {
+          petId: "pet-1",
+          fileUrl: "/api/vaccines/v-inline-1/document",
+          fileName: "vaccine.pdf",
+          fileSize: 4096,
+        },
+      ],
+    };
+
+    expect(stepPetsSchema.parse(validData)).toEqual(validData);
+  });
+
   it("requires at least one selected or newly added pet", () => {
     expect(() =>
       stepPetsSchema.parse({

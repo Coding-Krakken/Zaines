@@ -4,6 +4,23 @@ import { z } from "zod";
  * Validation schemas for the 6-step booking wizard
  */
 
+function isAbsoluteOrRootRelativeUrl(value: string): boolean {
+  if (value.startsWith("/")) {
+    return true;
+  }
+
+  try {
+    new URL(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const vaccineFileUrlSchema = z.string().refine(isAbsoluteOrRootRelativeUrl, {
+  message: "Invalid file URL",
+});
+
 // Step 1: Date & Service Selection
 export const stepDatesSchema = z
   .object({
@@ -80,7 +97,7 @@ export const stepPetsSchema = z
       .array(
         z.object({
           petId: z.string(),
-          fileUrl: z.string().url("Invalid file URL"),
+          fileUrl: vaccineFileUrlSchema,
           fileName: z.string(),
           fileSize: z.number(),
         }),
