@@ -11,18 +11,22 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { FadeUp, StaggerContainer, StaggerItem } from "@/components/motion";
+import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
 
-export const metadata: Metadata = {
-  title: "Pricing | Luxury Dog Boarding Syracuse NY | Zaine's Stay & Play",
-  description:
-    "Transparent pricing for luxury dog boarding in Syracuse. Standard ($65), Deluxe ($85), and Luxury ($120) suites. No hidden fees, no surprise charges.",
-  keywords: [
-    "dog boarding pricing",
-    "luxury dog boarding rates",
-    "Syracuse dog boarding costs",
-    "pet boarding suites",
-  ],
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return simplePageMetadataFromSettings({
+    title: "Pricing | Luxury Dog Boarding Syracuse NY | Zaine's Stay & Play",
+    description:
+      "Transparent pricing for luxury dog boarding in Syracuse. Standard ($65), Deluxe ($85), and Luxury ($120) suites. No hidden fees, no surprise charges.",
+    keywords: [
+      "dog boarding pricing",
+      "luxury dog boarding rates",
+      "Syracuse dog boarding costs",
+      "pet boarding suites",
+    ],
+    canonicalPath: "/pricing",
+  });
+}
 
 const suites = [
   {

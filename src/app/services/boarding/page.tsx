@@ -17,12 +17,16 @@ import {
   Heart,
 } from "lucide-react";
 import Link from "next/link";
+import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
 
-export const metadata: Metadata = {
-  title: "Dog Boarding Services",
-  description:
-    "Premium overnight dog boarding in Syracuse with luxury suites, 24/7 supervision, webcams, and real-time photo updates. Book your dog&apos;s perfect stay today.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return simplePageMetadataFromSettings({
+    title: "Dog Boarding Services",
+    description:
+      "Premium overnight dog boarding in Syracuse with luxury suites, 24/7 supervision, webcams, and real-time photo updates. Book your dog's perfect stay today.",
+    canonicalPath: "/services/boarding",
+  });
+}
 
 export default function BoardingPage() {
   return (

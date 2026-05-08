@@ -8,12 +8,16 @@ import {
   CANCELLATION_POLICY_COPY,
 } from "@/config/trust-copy";
 import { getAdminSettings } from "@/lib/api/admin-settings";
+import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
 
-export const metadata: Metadata = {
-  title: "Terms of Service | Zaine's Stay & Play",
-  description:
-    "Read our terms of service governing use of Zaine's Stay & Play private boarding services and website.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return simplePageMetadataFromSettings({
+    title: "Terms of Service | Zaine's Stay & Play",
+    description:
+      "Read our terms of service governing use of Zaine's Stay & Play private boarding services and website.",
+    canonicalPath: "/terms",
+  });
+}
 
 export default async function TermsPage() {
   const settings = await getAdminSettings();

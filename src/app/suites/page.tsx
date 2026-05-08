@@ -22,20 +22,24 @@ import {
   Crown,
 } from "lucide-react";
 import { FadeUp, StaggerContainer, StaggerItem } from "@/components/motion";
+import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
 
 // Metadata - note: using 'use client' requires export at module level if needed
-export const metadata: Metadata = {
-  title: "Luxury Dog Boarding Suites Syracuse NY | Zaine's Stay & Play",
-  description:
-    "Discover our premium Standard, Deluxe, and Luxury boarding suites. Each suite features climate control, 24/7 monitoring, and individualized care for your beloved companion.",
-  keywords: [
-    "dog boarding suites",
-    "luxury dog boarding",
-    "private dog suites",
-    "Syracuse NY dog boarding",
-    "climate controlled suites",
-  ],
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return simplePageMetadataFromSettings({
+    title: "Luxury Dog Boarding Suites Syracuse NY | Zaine's Stay & Play",
+    description:
+      "Discover our premium Standard, Deluxe, and Luxury boarding suites. Each suite features climate control, 24/7 monitoring, and individualized care for your beloved companion.",
+    keywords: [
+      "dog boarding suites",
+      "luxury dog boarding",
+      "private dog suites",
+      "Syracuse NY dog boarding",
+      "climate controlled suites",
+    ],
+    canonicalPath: "/suites",
+  });
+}
 
 const suites = [
   {

@@ -6,12 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Lock, Eye, UserCheck, Database, Mail } from "lucide-react";
 import { PRIVACY_SECURITY_DISCLOSURE } from "@/config/trust-copy";
 import { getAdminSettings } from "@/lib/api/admin-settings";
+import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy | Zaine's Stay & Play",
-  description:
-    "Learn how Zaine's Stay & Play collects, uses, and protects your personal information and data.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return simplePageMetadataFromSettings({
+    title: "Privacy Policy | Zaine's Stay & Play",
+    description:
+      "Learn how Zaine's Stay & Play collects, uses, and protects your personal information and data.",
+    canonicalPath: "/privacy",
+  });
+}
 
 export default async function PrivacyPage() {
   const settings = await getAdminSettings();

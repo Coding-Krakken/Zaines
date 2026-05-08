@@ -17,12 +17,16 @@ import {
   SAFETY_STANDARDS_COPY,
 } from "@/config/trust-copy";
 import { getAdminSettings } from "@/lib/api/admin-settings";
+import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
 
-export const metadata: Metadata = {
-  title: "Policies | Zaine's Stay & Play",
-  description:
-    "Read about our private boarding policies, cancellation policy, health requirements, and service terms.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return simplePageMetadataFromSettings({
+    title: "Policies | Zaine's Stay & Play",
+    description:
+      "Read about our private boarding policies, cancellation policy, health requirements, and service terms.",
+    canonicalPath: "/policies",
+  });
+}
 
 export default async function PoliciesPage() {
   const settings = await getAdminSettings();

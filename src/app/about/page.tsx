@@ -12,19 +12,23 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { FadeUp, SlideInLeft, SlideInRight, StaggerContainer, StaggerItem } from "@/components/motion";
+import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
 
-export const metadata: Metadata = {
-  title: "About Zaine's Stay & Play | Luxury Dog Boarding Syracuse NY",
-  description:
-    "Meet the team behind Syracuse's most trusted luxury dog boarding. Certified professionals, owner on-site, 24/7 care. Learn our story and values.",
-  keywords: [
-    "dog boarding owner",
-    "dog care philosophy",
-    "certified pet care",
-    "Syracuse dog boarding",
-    "luxury pet care",
-  ],
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return simplePageMetadataFromSettings({
+    title: "About Zaine's Stay & Play | Luxury Dog Boarding Syracuse NY",
+    description:
+      "Meet the team behind Syracuse's most trusted luxury dog boarding. Certified professionals, owner on-site, 24/7 care. Learn our story and values.",
+    keywords: [
+      "dog boarding owner",
+      "dog care philosophy",
+      "certified pet care",
+      "Syracuse dog boarding",
+      "luxury pet care",
+    ],
+    canonicalPath: "/about",
+  });
+}
 
 const values = [
   {

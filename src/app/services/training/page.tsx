@@ -2,12 +2,16 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
 
-export const metadata: Metadata = {
-  title: "Service Update | Zaine's Stay & Play",
-  description:
-    "Zaine's Stay & Play currently offers private boarding with suite options and approved add-ons.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return simplePageMetadataFromSettings({
+    title: "Service Update | Zaine's Stay & Play",
+    description:
+      "Zaine's Stay & Play currently offers private boarding with suite options and approved add-ons.",
+    canonicalPath: "/services/training",
+  });
+}
 
 export default function TrainingPage() {
   return (

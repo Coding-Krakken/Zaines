@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import robots from "../robots";
 import sitemap from "../sitemap";
 import { generateMetadata as generateHomeMetadata } from "../page";
-import { metadata as aboutMetadata } from "../about/page";
-import { metadata as pricingMetadata } from "../pricing/layout";
-import { metadata as bookMetadata } from "../book/layout";
-import { metadata as contactMetadata } from "../contact/page";
+import { generateMetadata as generateAboutMetadata } from "../about/page";
+import { generateMetadata as generatePricingMetadata } from "../pricing/layout";
+import { generateMetadata as generateBookMetadata } from "../book/layout";
+import { generateMetadata as generateContactMetadata } from "../contact/page";
 import { generateMetadata as generateSyracuseMetadata } from "../dog-boarding-syracuse/page";
 import {
   absoluteUrl,
@@ -82,6 +82,10 @@ describe("SEO metadata routes", () => {
 
   it("enforces unique metadata on required pages", async () => {
     const homeMetadata = await generateHomeMetadata();
+    const aboutMetadata = await generateAboutMetadata();
+    const pricingMetadata = await generatePricingMetadata();
+    const bookMetadata = await generateBookMetadata();
+    const contactMetadata = await generateContactMetadata();
     const syracuseMetadata = await generateSyracuseMetadata();
     const titles = [
       homeMetadata,
@@ -97,6 +101,10 @@ describe("SEO metadata routes", () => {
 
   it("keeps required local-intent keyword alignment", async () => {
     const homeMetadata = await generateHomeMetadata();
+    const aboutMetadata = await generateAboutMetadata();
+    const pricingMetadata = await generatePricingMetadata();
+    const bookMetadata = await generateBookMetadata();
+    const contactMetadata = await generateContactMetadata();
     const syracuseMetadata = await generateSyracuseMetadata();
     const descriptions = [
       homeMetadata,
