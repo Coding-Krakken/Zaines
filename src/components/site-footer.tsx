@@ -1,9 +1,13 @@
+'use client';
+
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 import { Facebook, Instagram, Twitter, MapPin, Phone, Mail, Clock } from "lucide-react";
 
 export function SiteFooter() {
   const currentYear = new Date().getFullYear();
+  const { contactInfo, businessHours } = useSiteSettings();
 
   return (
     <footer className="bg-foreground text-background/70">
@@ -129,17 +133,17 @@ export function SiteFooter() {
                   />
                   <span>
                     <span itemProp="streetAddress">
-                      {siteConfig.contact.address}
+                      {contactInfo.address}
                     </span>
                     <br />
                     <span itemProp="addressLocality">
-                      {siteConfig.contact.city}
+                      {contactInfo.city}
                     </span>
                     ,{" "}
                     <span itemProp="addressRegion">
-                      {siteConfig.contact.state}
+                      {contactInfo.state}
                     </span>{" "}
-                    <span itemProp="postalCode">{siteConfig.contact.zip}</span>
+                    <span itemProp="postalCode">{contactInfo.zip}</span>
                   </span>
                 </address>
               </li>
@@ -149,11 +153,11 @@ export function SiteFooter() {
                   aria-hidden="true"
                 />
                 <a
-                  href={`tel:${siteConfig.contact.phone}`}
+                  href={`tel:${contactInfo.phone}`}
                   className="hover:text-primary transition-colors"
                   itemProp="telephone"
                 >
-                  {siteConfig.contact.phone}
+                  {contactInfo.phone}
                 </a>
               </li>
               <li className="flex items-center gap-2">
@@ -162,11 +166,11 @@ export function SiteFooter() {
                   aria-hidden="true"
                 />
                 <a
-                  href={`mailto:${siteConfig.contact.email}`}
+                  href={`mailto:${contactInfo.email}`}
                   className="hover:text-primary transition-colors break-all"
                   itemProp="email"
                 >
-                  {siteConfig.contact.email}
+                  {contactInfo.email}
                 </a>
               </li>
               <li className="flex items-start gap-2">
@@ -175,10 +179,12 @@ export function SiteFooter() {
                   aria-hidden="true"
                 />
                 <span>
-                  {siteConfig.hours.weekday}
+                  {businessHours.monday.openTime}-{businessHours.monday.closeTime} (Mon-Fri)
+                  <br />
+                  {businessHours.saturday.openTime}-{businessHours.saturday.closeTime} (Sat-Sun)
                   <br />
                   <span className="text-xs text-background/40">
-                    {siteConfig.hours.available}
+                    24/7 Supervision
                   </span>
                 </span>
               </li>

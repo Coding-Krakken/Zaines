@@ -241,7 +241,7 @@ export default function AboutPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10"
+                className="border-primary-foreground/50 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
                 asChild
               >
                 <Link href="/book">Book Your Stay</Link>

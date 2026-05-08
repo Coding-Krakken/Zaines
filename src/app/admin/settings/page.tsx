@@ -17,6 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
+import { useInvalidateSettings } from '@/providers/settings-provider';
 import type { AdminSettings, BusinessHours, AvailabilityRules } from '@/types/admin';
 import { ServiceManagementCard } from '@/components/admin/ServiceManagementCard';
 import { AvailabilityRulesCard } from '@/components/admin/AvailabilityRulesCard';
@@ -94,6 +95,7 @@ const DAYS_OF_WEEK = [
 export default function AdminSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const { invalidate } = useInvalidateSettings();
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsFormSchema),
@@ -175,7 +177,10 @@ export default function AdminSettingsPage() {
         return;
       }
 
-      toast.success('Settings saved successfully!');
+      // Invalidate settings cache so all components update immediately
+      await invalidate();
+
+      toast.success('Settings saved successfully and updated across the site!');
       form.reset(values);
     } catch (error) {
       console.error('Settings save error:', error);

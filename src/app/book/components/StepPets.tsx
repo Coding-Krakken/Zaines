@@ -184,7 +184,10 @@ export function StepPets({
       });
 
       if (!response.ok) {
-        throw new Error("Upload failed");
+        const errorPayload = (await response.json().catch(() => null)) as
+          | { error?: string }
+          | null;
+        throw new Error(errorPayload?.error || "Upload failed");
       }
 
       const result = await response.json();
@@ -216,7 +219,11 @@ export function StepPets({
       toast.success("Vaccine record uploaded");
     } catch (error) {
       console.error("Upload error:", error);
-      toast.error("Failed to upload vaccine record. Please try again.");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to upload vaccine record. Please try again.",
+      );
     } finally {
       setUploadingVaccine(null);
     }

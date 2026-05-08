@@ -1,10 +1,14 @@
+'use client';
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FadeUp } from "@/components/motion";
 import { Phone } from "lucide-react";
-import { siteConfig } from "@/config/site";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 export function BookingCTA() {
+  const { contactInfo } = useSiteSettings();
+
   return (
     <section
       className="section-padding overflow-hidden relative"
@@ -63,9 +67,9 @@ export function BookingCTA() {
                 className="text-base px-10 py-7 h-auto border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 hover:border-primary-foreground hover:-translate-y-0.5 transition-all duration-300"
                 asChild
               >
-                <Link href={`tel:${siteConfig.contact.phone}`}>
+                <Link href={`tel:${contactInfo.phone}`}>
                   <Phone className="h-4 w-4 mr-2" aria-hidden="true" />
-                  {siteConfig.contact.phone}
+                  {contactInfo.phone}
                 </Link>
               </Button>
             </div>
