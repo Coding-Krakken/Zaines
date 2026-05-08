@@ -43,9 +43,9 @@ export default async function DashboardPage() {
     <div className="container mx-auto p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <Link href="/book" className="btn">
-          Book a Stay
-        </Link>
+          <Button asChild>
+            <Link href="/book">Book a Stay</Link>
+          </Button>
       </div>
 
       <section className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
