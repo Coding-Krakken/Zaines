@@ -25,6 +25,7 @@ import { BlackoutDatesCard } from '@/components/admin/BlackoutDatesCard';
 import { SeasonalPricingCard } from '@/components/admin/SeasonalPricingCard';
 import { PricingSettingsCard } from '@/components/admin/PricingSettingsCard';
 import { CancellationPolicySettingsCard } from '@/components/admin/CancellationPolicySettingsCard';
+import { BusinessProfileSettingsCard } from '@/components/admin/BusinessProfileSettingsCard';
 
 const businessHoursSchema = z.object({
   openTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
@@ -96,6 +97,15 @@ const settingsFormSchema = z.object({
     partialRefundHours: z.number().int().min(0, 'Cannot be negative'),
     partialRefundPercent: z.number().min(0, 'Cannot be negative').max(100, 'Cannot exceed 100%'),
     noShowRefundPercent: z.number().min(0, 'Cannot be negative').max(100, 'Cannot exceed 100%'),
+  }),
+  // Phase 7: Business Profile & Social Links
+  businessProfileSettings: z.object({
+    businessName: z.string().min(1, 'Business name is required'),
+    socialLinks: z.object({
+      facebook: z.string().url('Facebook URL must be valid'),
+      instagram: z.string().url('Instagram URL must be valid'),
+      twitter: z.string().url('X/Twitter URL must be valid'),
+    }),
   }),
 }).refine(
   (data) => data.cancellationPolicySettings.fullRefundHours > data.cancellationPolicySettings.partialRefundHours,
@@ -170,6 +180,15 @@ export default function AdminSettingsPage() {
         partialRefundHours: 24,
         partialRefundPercent: 50,
         noShowRefundPercent: 0,
+      },
+      // Phase 7: Business Profile & Social Links
+      businessProfileSettings: {
+        businessName: "Zaine's Stay & Play",
+        socialLinks: {
+          facebook: 'https://www.facebook.com/people/Zaines-Stay-Play/61550036005682/',
+          instagram: 'https://instagram.com/zainesstayandplay',
+          twitter: 'https://twitter.com/zainesstayandplay',
+        },
       },
     },
   });
@@ -554,6 +573,9 @@ export default function AdminSettingsPage() {
 
           {/* Cancellation Policy Card */}
           <CancellationPolicySettingsCard />
+
+          {/* Business Profile & Social Links Card */}
+          <BusinessProfileSettingsCard />
 
           {/* Save Button */}
           <Button type="submit" disabled={isSaving} className="w-full md:w-auto" size="lg">

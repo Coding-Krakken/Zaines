@@ -7,7 +7,7 @@ import { Facebook, Instagram, Twitter, MapPin, Phone, Mail, Clock } from "lucide
 
 export function SiteFooter() {
   const currentYear = new Date().getFullYear();
-  const { contactInfo, businessHours } = useSiteSettings();
+  const { contactInfo, businessHours, businessName, socialLinks } = useSiteSettings();
 
   return (
     <footer className="bg-foreground text-background/70">
@@ -24,7 +24,7 @@ export function SiteFooter() {
                 🐾
               </span>
               <span className="font-display text-lg font-semibold text-background tracking-tight">
-                Zaine&apos;s Stay &amp; Play
+                {businessName}
               </span>
             </Link>
             <p className="text-sm leading-relaxed mb-2 max-w-xs">
@@ -36,7 +36,7 @@ export function SiteFooter() {
             </p>
             <div className="flex gap-4">
               <Link
-                href={siteConfig.links.facebook}
+                href={socialLinks.facebook}
                 aria-label="Zaine's Stay & Play on Facebook"
                 className="text-background/40 hover:text-primary transition-colors"
                 rel="noopener noreferrer"
@@ -45,7 +45,7 @@ export function SiteFooter() {
                 <Facebook className="h-4 w-4" aria-hidden="true" />
               </Link>
               <Link
-                href={siteConfig.links.instagram}
+                href={socialLinks.instagram}
                 aria-label="Zaine's Stay & Play on Instagram"
                 className="text-background/40 hover:text-primary transition-colors"
                 rel="noopener noreferrer"
@@ -54,7 +54,7 @@ export function SiteFooter() {
                 <Instagram className="h-4 w-4" aria-hidden="true" />
               </Link>
               <Link
-                href={siteConfig.links.twitter}
+                href={socialLinks.twitter}
                 aria-label="Zaine's Stay & Play on X (Twitter)"
                 className="text-background/40 hover:text-primary transition-colors"
                 rel="noopener noreferrer"
@@ -205,7 +205,7 @@ export function SiteFooter() {
         {/* Bottom strip */}
         <div className="mt-14 border-t border-background/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-background/35">
           <p>
-            &copy; {currentYear} {siteConfig.name}. All rights reserved.
+            &copy; {currentYear} {businessName}. All rights reserved.
           </p>
           <div className="flex gap-6">
             <Link href="/privacy" className="hover:text-primary transition-colors">

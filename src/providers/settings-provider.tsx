@@ -67,6 +67,15 @@ function getDefaultSettings(): AdminSettings {
       partialRefundPercent: 50,
       noShowRefundPercent: 0,
     },
+    businessProfileSettings: {
+      businessName: "Zaine's Stay & Play",
+      socialLinks: {
+        facebook:
+          'https://www.facebook.com/people/Zaines-Stay-Play/61550036005682/',
+        instagram: 'https://instagram.com/zainesstayandplay',
+        twitter: 'https://twitter.com/zainesstayandplay',
+      },
+    },
   };
 }
 

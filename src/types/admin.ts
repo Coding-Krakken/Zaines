@@ -57,6 +57,15 @@ export interface CancellationPolicySettings {
   noShowRefundPercent: number; // e.g. 0 means no-show gets no refund
 }
 
+export interface BusinessProfileSettings {
+  businessName: string;
+  socialLinks: {
+    facebook: string;
+    instagram: string;
+    twitter: string;
+  };
+}
+
 export interface AdminSettings {
   // Operational Preferences
   autoConfirmBookings: boolean;
@@ -85,6 +94,9 @@ export interface AdminSettings {
 
   // Phase 6: Cancellation Policy Configuration
   cancellationPolicySettings: CancellationPolicySettings;
+
+  // Phase 7: Business Profile & Social Links
+  businessProfileSettings: BusinessProfileSettings;
 }
 
 export interface SettingsRecord {

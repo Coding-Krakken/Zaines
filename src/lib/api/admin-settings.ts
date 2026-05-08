@@ -10,7 +10,9 @@ import type {
   AvailabilityRules,
   PricingSettings,
   CancellationPolicySettings,
+  BusinessProfileSettings,
 } from '@/types/admin';
+import { siteConfig } from '@/config/site';
 
 const SETTINGS_KEYS: Record<string, string> = {
   AUTO_CONFIRM_BOOKINGS: 'admin.auto_confirm_bookings',
@@ -34,6 +36,8 @@ const SETTINGS_KEYS: Record<string, string> = {
   PRICING_SETTINGS: 'admin.pricing_settings', // JSON object
   // Phase 6: Cancellation Policy Configuration
   CANCELLATION_POLICY_SETTINGS: 'admin.cancellation_policy_settings', // JSON object
+  // Phase 7: Business Profile & Social Links
+  BUSINESS_PROFILE_SETTINGS: 'admin.business_profile_settings', // JSON object
 };
 
 /**
@@ -122,6 +126,15 @@ export async function getAdminSettings(): Promise<AdminSettings> {
           return json ? JSON.parse(json) : getDefaultCancellationPolicySettings();
         } catch {
           return getDefaultCancellationPolicySettings();
+        }
+      })(),
+      // Phase 7: Business Profile & Social Links
+      businessProfileSettings: (() => {
+        try {
+          const json = settingsMap.get(SETTINGS_KEYS.BUSINESS_PROFILE_SETTINGS);
+          return json ? JSON.parse(json) : getDefaultBusinessProfileSettings();
+        } catch {
+          return getDefaultBusinessProfileSettings();
         }
       })(),
     };
@@ -373,6 +386,20 @@ export async function updateAdminSettings(updates: Partial<AdminSettings>): Prom
       );
     }
 
+    // Phase 7: Business Profile & Social Links
+    if (updates.businessProfileSettings !== undefined) {
+      updatePromises.push(
+        prisma.settings.upsert({
+          where: { key: SETTINGS_KEYS.BUSINESS_PROFILE_SETTINGS },
+          update: { value: JSON.stringify(updates.businessProfileSettings) },
+          create: {
+            key: SETTINGS_KEYS.BUSINESS_PROFILE_SETTINGS,
+            value: JSON.stringify(updates.businessProfileSettings),
+          },
+        }),
+      );
+    }
+
     await Promise.all(updatePromises);
 
     // Return updated settings
@@ -438,6 +465,20 @@ function getDefaultCancellationPolicySettings(): CancellationPolicySettings {
 }
 
 /**
+ * Get default business profile settings
+ */
+function getDefaultBusinessProfileSettings(): BusinessProfileSettings {
+  return {
+    businessName: siteConfig.name,
+    socialLinks: {
+      facebook: siteConfig.links.facebook,
+      instagram: siteConfig.links.instagram,
+      twitter: siteConfig.links.twitter,
+    },
+  };
+}
+
+/**
  * Get default admin settings
  */
 export function getDefaultSettings(): AdminSettings {
@@ -462,5 +503,7 @@ export function getDefaultSettings(): AdminSettings {
     pricingSettings: getDefaultPricingSettings(),
     // Phase 6: Cancellation Policy Configuration
     cancellationPolicySettings: getDefaultCancellationPolicySettings(),
+    // Phase 7: Business Profile & Social Links
+    businessProfileSettings: getDefaultBusinessProfileSettings(),
   };
 }

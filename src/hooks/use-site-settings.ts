@@ -21,6 +21,8 @@ interface SiteContactInfo {
 interface SiteSettingsHookReturn {
   contactInfo: SiteContactInfo;
   businessHours: AdminSettings['businessHours'];
+  businessName: string;
+  socialLinks: AdminSettings['businessProfileSettings']['socialLinks'];
   isLoading: boolean;
 }
 
@@ -48,6 +50,13 @@ export function useSiteSettings(): SiteSettingsHookReturn {
       friday: { openTime: '06:00', closeTime: '20:00', isClosed: false },
       saturday: { openTime: '08:00', closeTime: '18:00', isClosed: false },
       sunday: { openTime: '08:00', closeTime: '18:00', isClosed: false },
+    },
+    businessName: settings?.businessProfileSettings.businessName || "Zaine's Stay & Play",
+    socialLinks: settings?.businessProfileSettings.socialLinks || {
+      facebook:
+        'https://www.facebook.com/people/Zaines-Stay-Play/61550036005682/',
+      instagram: 'https://instagram.com/zainesstayandplay',
+      twitter: 'https://twitter.com/zainesstayandplay',
     },
     isLoading,
   };
