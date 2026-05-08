@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import {
   stepAccountSchema,
+  stepAccountGuestSchema,
   type StepAccountData,
 } from "@/lib/validations/booking-wizard";
 import { toast } from "sonner";
@@ -201,19 +202,24 @@ export function StepAccount({
   };
 
   const handleContinueAsGuest = () => {
-    const accountData = {
-      firstName: resolvedFirstName.trim(),
-      lastName: resolvedLastName.trim(),
+    const guestData = {
       email: resolvedEmail.trim(),
-      phone: phone.trim(),
     };
 
-    const validation = stepAccountSchema.safeParse(accountData);
+    const validation = stepAccountGuestSchema.safeParse(guestData);
 
     if (!validation.success) {
       toast.error(validation.error.issues[0].message);
       return;
     }
+
+    // Use available data, providing defaults for optional fields
+    const accountData = {
+      firstName: resolvedFirstName || "Guest",
+      lastName: resolvedLastName || "User",
+      email: resolvedEmail.trim(),
+      phone: phone.trim() || "0000000000",
+    };
 
     onUpdate(accountData);
     onNext();
@@ -405,12 +411,7 @@ export function StepAccount({
                 </p>
                 <Button
                   onClick={handleContinueAsGuest}
-                  disabled={
-                    !resolvedEmail ||
-                    !resolvedFirstName ||
-                    !resolvedLastName ||
-                    !phone
-                  }
+                  disabled={!resolvedEmail}
                   variant="secondary"
                   className="w-full"
                 >

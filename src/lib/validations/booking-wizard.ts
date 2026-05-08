@@ -41,6 +41,11 @@ export const stepAccountSchema = z.object({
   phone: z.string().min(10, "Please enter a valid phone number"),
 });
 
+// Step 3: Account for Guest Checkout (minimal validation)
+export const stepAccountGuestSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+});
+
 // Step 4: Pet Profiles
 export const newPetSchema = z.object({
   name: z.string().min(1, "Pet name is required").max(100),
