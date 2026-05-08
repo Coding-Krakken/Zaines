@@ -40,6 +40,16 @@ export interface SeasonalPricingRule {
   isActive: boolean;
 }
 
+export interface PricingSettings {
+  currency: string; // ISO code, e.g. "USD"
+  standardNightlyRate: number;
+  deluxeNightlyRate: number;
+  luxuryNightlyRate: number;
+  taxRatePercent: number; // e.g. 10 for 10%
+  twoPetDiscountPercent: number; // e.g. 15 for 15%
+  threePlusPetsDiscountPercent: number; // e.g. 20 for 20%
+}
+
 export interface AdminSettings {
   // Operational Preferences
   autoConfirmBookings: boolean;
@@ -62,6 +72,9 @@ export interface AdminSettings {
   // Phase 4: Blackout Dates & Seasonal Pricing
   blackoutDates: BlackoutDate[];
   seasonalPricingRules: SeasonalPricingRule[];
+
+  // Phase 5: Pricing & Fees Configuration
+  pricingSettings: PricingSettings;
 }
 
 export interface SettingsRecord {

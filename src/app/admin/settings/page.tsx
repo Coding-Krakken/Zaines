@@ -23,6 +23,7 @@ import { ServiceManagementCard } from '@/components/admin/ServiceManagementCard'
 import { AvailabilityRulesCard } from '@/components/admin/AvailabilityRulesCard';
 import { BlackoutDatesCard } from '@/components/admin/BlackoutDatesCard';
 import { SeasonalPricingCard } from '@/components/admin/SeasonalPricingCard';
+import { PricingSettingsCard } from '@/components/admin/PricingSettingsCard';
 
 const businessHoursSchema = z.object({
   openTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
@@ -78,6 +79,16 @@ const settingsFormSchema = z.object({
       isActive: z.boolean(),
     }),
   ),
+  // Phase 5: Pricing & Fees Configuration
+  pricingSettings: z.object({
+    currency: z.string().length(3, 'Currency must be a 3-letter ISO code'),
+    standardNightlyRate: z.number().min(0, 'Rate cannot be negative'),
+    deluxeNightlyRate: z.number().min(0, 'Rate cannot be negative'),
+    luxuryNightlyRate: z.number().min(0, 'Rate cannot be negative'),
+    taxRatePercent: z.number().min(0, 'Tax cannot be negative').max(100, 'Tax cannot exceed 100%'),
+    twoPetDiscountPercent: z.number().min(0, 'Discount cannot be negative').max(100, 'Discount cannot exceed 100%'),
+    threePlusPetsDiscountPercent: z.number().min(0, 'Discount cannot be negative').max(100, 'Discount cannot exceed 100%'),
+  }),
 });
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
@@ -129,6 +140,16 @@ export default function AdminSettingsPage() {
       // Phase 4: Blackout Dates & Seasonal Pricing
       blackoutDates: [],
       seasonalPricingRules: [],
+      // Phase 5: Pricing & Fees Configuration
+      pricingSettings: {
+        currency: 'USD',
+        standardNightlyRate: 65,
+        deluxeNightlyRate: 85,
+        luxuryNightlyRate: 120,
+        taxRatePercent: 10,
+        twoPetDiscountPercent: 15,
+        threePlusPetsDiscountPercent: 20,
+      },
     },
   });
 
@@ -506,6 +527,9 @@ export default function AdminSettingsPage() {
 
           {/* Seasonal Pricing Card */}
           <SeasonalPricingCard />
+
+          {/* Pricing & Fees Card */}
+          <PricingSettingsCard />
 
           {/* Save Button */}
           <Button type="submit" disabled={isSaving} className="w-full md:w-auto" size="lg">

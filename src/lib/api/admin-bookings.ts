@@ -6,6 +6,7 @@
 import { prisma, isDatabaseConfigured } from '@/lib/prisma';
 import type { AdminBookingFormData, AdminBookingResponse, BookingListFilters } from '@/types/admin';
 import { Prisma } from '@prisma/client';
+import { getAdminSettings } from '@/lib/api/admin-settings';
 
 /**
  * Calculate booking total based on suite price and nights
@@ -29,8 +30,11 @@ export async function calculateBookingPrice(
 
   if (nights < 1) return null;
 
+  const settings = await getAdminSettings();
+  const taxRate = settings.pricingSettings.taxRatePercent / 100;
+
   const subtotal = suite.pricePerNight * nights;
-  const tax = Math.round(subtotal * 0.1 * 100) / 100; // 10% tax
+  const tax = Math.round(subtotal * taxRate * 100) / 100;
   const total = subtotal + tax;
 
   return { subtotal, tax, total };
@@ -86,8 +90,11 @@ export async function createAdminBooking(
       throw new Error('Check-out date must be after check-in date');
     }
 
+    const settings = await getAdminSettings();
+    const taxRate = settings.pricingSettings.taxRatePercent / 100;
+
     const subtotal = suite.pricePerNight * nights;
-    const tax = Math.round(subtotal * 0.1 * 100) / 100;
+    const tax = Math.round(subtotal * taxRate * 100) / 100;
     const total = subtotal + tax;
 
     // Generate booking number

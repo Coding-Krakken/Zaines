@@ -4,7 +4,7 @@
  */
 
 import { prisma, isDatabaseConfigured } from '@/lib/prisma';
-import type { AdminSettings, BusinessHours, AvailabilityRules } from '@/types/admin';
+import type { AdminSettings, BusinessHours, AvailabilityRules, PricingSettings } from '@/types/admin';
 
 const SETTINGS_KEYS: Record<string, string> = {
   AUTO_CONFIRM_BOOKINGS: 'admin.auto_confirm_bookings',
@@ -24,6 +24,8 @@ const SETTINGS_KEYS: Record<string, string> = {
   // Phase 4: Blackout Dates & Seasonal Pricing
   BLACKOUT_DATES: 'admin.blackout_dates', // JSON array
   SEASONAL_PRICING_RULES: 'admin.seasonal_pricing_rules', // JSON array
+  // Phase 5: Pricing & Fees Configuration
+  PRICING_SETTINGS: 'admin.pricing_settings', // JSON object
 };
 
 /**
@@ -94,6 +96,15 @@ export async function getAdminSettings(): Promise<AdminSettings> {
           return json ? JSON.parse(json) : [];
         } catch {
           return [];
+        }
+      })(),
+      // Phase 5: Pricing & Fees Configuration
+      pricingSettings: (() => {
+        try {
+          const json = settingsMap.get(SETTINGS_KEYS.PRICING_SETTINGS);
+          return json ? JSON.parse(json) : getDefaultPricingSettings();
+        } catch {
+          return getDefaultPricingSettings();
         }
       })(),
     };
@@ -317,6 +328,20 @@ export async function updateAdminSettings(updates: Partial<AdminSettings>): Prom
       );
     }
 
+    // Phase 5: Pricing & Fees Configuration
+    if (updates.pricingSettings !== undefined) {
+      updatePromises.push(
+        prisma.settings.upsert({
+          where: { key: SETTINGS_KEYS.PRICING_SETTINGS },
+          update: { value: JSON.stringify(updates.pricingSettings) },
+          create: {
+            key: SETTINGS_KEYS.PRICING_SETTINGS,
+            value: JSON.stringify(updates.pricingSettings),
+          },
+        }),
+      );
+    }
+
     await Promise.all(updatePromises);
 
     // Return updated settings
@@ -355,6 +380,21 @@ function getDefaultAvailabilityRules(): AvailabilityRules {
 }
 
 /**
+ * Get default pricing settings
+ */
+function getDefaultPricingSettings(): PricingSettings {
+  return {
+    currency: 'USD',
+    standardNightlyRate: 65,
+    deluxeNightlyRate: 85,
+    luxuryNightlyRate: 120,
+    taxRatePercent: 10,
+    twoPetDiscountPercent: 15,
+    threePlusPetsDiscountPercent: 20,
+  };
+}
+
+/**
  * Get default admin settings
  */
 export function getDefaultSettings(): AdminSettings {
@@ -375,5 +415,7 @@ export function getDefaultSettings(): AdminSettings {
     // Phase 4: Blackout Dates & Seasonal Pricing
     blackoutDates: [],
     seasonalPricingRules: [],
+    // Phase 5: Pricing & Fees Configuration
+    pricingSettings: getDefaultPricingSettings(),
   };
 }

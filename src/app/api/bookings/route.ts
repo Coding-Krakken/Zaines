@@ -21,6 +21,7 @@ import {
   BOOKING_PRICING_MODEL_LABEL,
   calculateBookingPrice,
 } from "@/lib/booking/pricing";
+import { getAdminSettings } from "@/lib/api/admin-settings";
 
 function isAbsoluteOrRootRelativeUrl(value: string): boolean {
   if (value.startsWith("/")) {
@@ -205,6 +206,7 @@ export async function POST(request: NextRequest) {
     }
 
     const data = validation.data;
+    const adminSettings = await getAdminSettings();
 
     // Calculate pricing
     const pricing = calculateBookingPrice(
@@ -212,6 +214,7 @@ export async function POST(request: NextRequest) {
       data.checkOut,
       data.suiteType,
       data.petCount,
+      adminSettings.pricingSettings,
     );
 
     // Prepare dates and booking number outside transaction
@@ -542,7 +545,7 @@ export async function POST(request: NextRequest) {
           subtotal: responseSubtotal,
           tax: responseTax,
           total: responseTotal,
-          currency: BOOKING_PRICING_CURRENCY,
+          currency: adminSettings.pricingSettings.currency || BOOKING_PRICING_CURRENCY,
           pricingModelLabel: BOOKING_PRICING_MODEL_LABEL,
           disclosure: BOOKING_PRICING_DISCLOSURE,
         },

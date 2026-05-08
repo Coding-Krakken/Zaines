@@ -52,6 +52,15 @@ function getDefaultSettings(): AdminSettings {
     },
     blackoutDates: [],
     seasonalPricingRules: [],
+    pricingSettings: {
+      currency: 'USD',
+      standardNightlyRate: 65,
+      deluxeNightlyRate: 85,
+      luxuryNightlyRate: 120,
+      taxRatePercent: 10,
+      twoPetDiscountPercent: 15,
+      threePlusPetsDiscountPercent: 20,
+    },
   };
 }
 

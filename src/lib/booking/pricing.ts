@@ -1,14 +1,26 @@
 import { PRICING_TRUST_DISCLOSURE } from "@/config/trust-copy";
+import type { PricingSettings } from "@/types/admin";
 
 export const BOOKING_PRICING_CURRENCY = "USD";
 export const BOOKING_PRICING_MODEL_LABEL = "Pre-confirmation estimate";
 export const BOOKING_PRICING_DISCLOSURE = PRICING_TRUST_DISCLOSURE;
+
+export const DEFAULT_PRICING_SETTINGS: PricingSettings = {
+  currency: "USD",
+  standardNightlyRate: 65,
+  deluxeNightlyRate: 85,
+  luxuryNightlyRate: 120,
+  taxRatePercent: 10,
+  twoPetDiscountPercent: 15,
+  threePlusPetsDiscountPercent: 20,
+};
 
 export function calculateBookingPrice(
   checkIn: string,
   checkOut: string,
   suiteType: string,
   petCount: number,
+  pricingSettings: PricingSettings = DEFAULT_PRICING_SETTINGS,
 ): { subtotal: number; tax: number; total: number } {
   const checkInDate = new Date(checkIn);
   const checkOutDate = new Date(checkOut);
@@ -17,9 +29,9 @@ export function calculateBookingPrice(
   );
 
   const prices: Record<string, number> = {
-    standard: 65,
-    deluxe: 85,
-    luxury: 120,
+    standard: pricingSettings.standardNightlyRate,
+    deluxe: pricingSettings.deluxeNightlyRate,
+    luxury: pricingSettings.luxuryNightlyRate,
   };
 
   const nightlyRate = prices[suiteType] || 65;
@@ -27,11 +39,14 @@ export function calculateBookingPrice(
 
   if (petCount > 1) {
     const additionalPets = petCount - 1;
-    const discount = petCount === 2 ? 0.15 : 0.2;
+    const discount =
+      petCount === 2
+        ? pricingSettings.twoPetDiscountPercent / 100
+        : pricingSettings.threePlusPetsDiscountPercent / 100;
     subtotal += nightlyRate * nights * additionalPets * (1 - discount);
   }
 
-  const tax = subtotal * 0.1;
+  const tax = subtotal * (pricingSettings.taxRatePercent / 100);
   const total = subtotal + tax;
 
   return {

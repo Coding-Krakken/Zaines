@@ -12,6 +12,7 @@ import {
   BOOKING_PRICING_MODEL_LABEL,
   calculateBookingPrice,
 } from "@/lib/booking/pricing";
+import { getAdminSettings } from "@/lib/api/admin-settings";
 
 const bookingValidationSchema = z.object({
   checkIn: z.string().min(1),
@@ -85,7 +86,14 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const pricing = calculateBookingPrice(checkIn, checkOut, suiteType, petCount);
+    const settings = await getAdminSettings();
+    const pricing = calculateBookingPrice(
+      checkIn,
+      checkOut,
+      suiteType,
+      petCount,
+      settings.pricingSettings,
+    );
 
     return NextResponse.json(
       {
@@ -94,7 +102,7 @@ export async function POST(request: NextRequest) {
           subtotal: pricing.subtotal,
           tax: pricing.tax,
           total: pricing.total,
-          currency: BOOKING_PRICING_CURRENCY,
+          currency: settings.pricingSettings.currency || BOOKING_PRICING_CURRENCY,
           pricingModelLabel: BOOKING_PRICING_MODEL_LABEL,
           disclosure: BOOKING_PRICING_DISCLOSURE,
         },
