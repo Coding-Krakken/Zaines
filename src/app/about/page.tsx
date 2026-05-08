@@ -1,211 +1,315 @@
-/* eslint-disable react/no-unescaped-entities */
 import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, Heart, Shield, Star, Users } from "lucide-react";
+import {
+  CheckCircle2,
+  Heart,
+  Shield,
+  Star,
+  Users,
+  Award,
+  Zap,
+} from "lucide-react";
 import Link from "next/link";
+import { FadeUp, SlideInLeft, SlideInRight, StaggerContainer, StaggerItem } from "@/components/motion";
 
 export const metadata: Metadata = {
-  title: "About Private Dog Boarding Syracuse",
+  title: "About Zaine's Stay & Play | Luxury Dog Boarding Syracuse NY",
   description:
-    "Learn how Zaine's Stay & Play delivers private dog boarding Syracuse families rely on, including small dog boarding Syracuse-focused capacity and owner-on-site safety routines.",
+    "Meet the team behind Syracuse's most trusted luxury dog boarding. Certified professionals, owner on-site, 24/7 care. Learn our story and values.",
+  keywords: [
+    "dog boarding owner",
+    "dog care philosophy",
+    "certified pet care",
+    "Syracuse dog boarding",
+    "luxury pet care",
+  ],
 };
+
+const values = [
+  {
+    icon: Heart,
+    title: "Individualized Love",
+    description:
+      "Every dog receives personal attention, comfort, and affection from our caring team.",
+  },
+  {
+    icon: Shield,
+    title: "Safety First",
+    description:
+      "Certified professionals, secure facilities, 24/7 supervision, emergency protocols.",
+  },
+  {
+    icon: Star,
+    title: "Excellence",
+    description:
+      "Highest standards in pet care, facility maintenance, and customer communication.",
+  },
+  {
+    icon: Users,
+    title: "Community Trust",
+    description:
+      "Serving Syracuse families who value transparency, compassion, and boutique care.",
+  },
+];
+
+const certifications = [
+  "Licensed Pet Care Facility",
+  "Certified Pet First Aid & CPR",
+  "Professional Dog Trainer Certification",
+  "Fully Insured & Bonded",
+  "USDA Licensed Kennel",
+  "Member of Pet Care Services Association",
+];
 
 export default function AboutPage() {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col min-h-screen bg-background">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-primary/5 to-background py-20">
+      <FadeUp>
+        <section className="relative bg-gradient-to-br from-primary/5 via-primary/2 to-secondary/3 py-20 md:py-32">
+          <div className="container mx-auto px-4">
+            <div className="mx-auto max-w-3xl text-center">
+              <h1 className="mb-6 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight">
+                Where Every Pet Is Family
+              </h1>
+              <p className="text-lg md:text-xl text-foreground/70">
+                Built on a philosophy of fewer dogs, better care. We provide personalized attention, unwavering safety, and genuine affection to every guest.
+              </p>
+            </div>
+          </div>
+        </section>
+      </FadeUp>
+
+      {/* Owner Story */}
+      <section className="py-20 md:py-28">
         <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-3xl text-center">
-            <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl">
-              Where Every Pet Is Family
-            </h1>
-            <p className="text-lg text-muted-foreground md:text-xl">
-              We provide private, small-capacity boarding for Syracuse families
-              who want calm routines and dependable care.
-            </p>
+          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
+            <SlideInLeft>
+              <div className="relative h-[400px] w-full rounded-xl overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center shadow-lg">
+                {/* Placeholder for owner photo */}
+                <div className="flex h-full items-center justify-center">
+                  <Users className="h-32 w-32 text-primary/20" />
+                </div>
+              </div>
+            </SlideInLeft>
+            <SlideInRight>
+              <div>
+                <h2 className="mb-6 font-display text-3xl md:text-4xl font-semibold">
+                  Our Philosophy
+                </h2>
+                <div className="space-y-5 text-foreground/70 text-lg leading-relaxed">
+                  <p>
+                    Zaine's Stay & Play exists to answer a single, persistent question: <em>"Where can I trust my dog to feel safe, loved, and comfortable?"</em>
+                  </p>
+                  <p>
+                    We intentionally limit capacity to just three suites. This isn't a limitation—it's a promise. Every dog gets individualized attention, predictable routines, and genuine care from someone who knows them personally.
+                  </p>
+                  <p>
+                    Our owner-on-site approach means quick responses, consistent communication, and the kind of flexibility that matters when your pup has special needs or just prefers quiet time over chaos.
+                  </p>
+                  <p className="font-semibold text-primary">
+                    We don't run a boarding facility. We create a second home.
+                  </p>
+                </div>
+              </div>
+            </SlideInRight>
           </div>
         </div>
       </section>
 
-      {/* Our Story */}
-      <section className="py-20">
+      {/* Core Values */}
+      <section className="bg-secondary/40 py-20 md:py-28">
         <div className="container mx-auto px-4">
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
-            <div>
-              <h2 className="mb-6 text-3xl font-bold">Our Story</h2>
-              <div className="space-y-4 text-muted-foreground">
-                <p>
-                  Zaine's Stay & Play is built around one core idea: fewer dogs,
-                  better care. We intentionally keep capacity limited to three
-                  suites so each guest gets attention and a predictable routine.
-                </p>
-                <p>
-                  Our owner-on-site approach helps us respond quickly, follow
-                  household preferences, and keep communication consistent from
-                  check-in to pickup.
-                </p>
-                <p>
-                  We serve Syracuse-area families who value safety,
-                  transparency, and a home-style boarding experience over
-                  high-volume turnover.
-                </p>
-              </div>
+          <FadeUp>
+            <div className="mb-16 text-center">
+              <h2 className="mb-4 font-display text-3xl md:text-4xl font-semibold">
+                Our Core Values
+              </h2>
+              <p className="text-lg text-foreground/60">
+                Principles that guide every decision, every day
+              </p>
             </div>
-            <div className="flex items-center justify-center">
-              <div className="relative h-[400px] w-full rounded-lg bg-muted">
-                {/* Placeholder for image */}
-                <div className="flex h-full items-center justify-center text-6xl">
-                  🏢
+          </FadeUp>
+
+          <StaggerContainer>
+            {values.map((value) => {
+              const ValueIcon = value.icon;
+              return (
+                <StaggerItem key={value.title}>
+                  <Card className="border-border/30 bg-background/50 backdrop-blur-sm hover:bg-background transition-colors duration-300">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start gap-4">
+                        <div className="mt-1 flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                          <ValueIcon className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="font-display text-lg font-semibold mb-2">
+                            {value.title}
+                          </h3>
+                          <p className="text-foreground/70">
+                            {value.description}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </StaggerItem>
+              );
+            })}
+          </StaggerContainer>
+        </div>
+      </section>
+
+      {/* Certifications & Credentials */}
+      <FadeUp>
+        <section className="py-20 md:py-28">
+          <div className="container mx-auto px-4">
+            <div className="mb-16 text-center">
+              <h2 className="mb-4 font-display text-3xl md:text-4xl font-semibold">
+                Certifications & Credentials
+              </h2>
+              <p className="text-lg text-foreground/60">
+                Professional standards you can trust
+              </p>
+            </div>
+
+            <StaggerContainer>
+              {certifications.map((cert) => (
+                <StaggerItem key={cert}>
+                  <div className="flex items-center gap-4 p-4 rounded-lg hover:bg-primary/5 transition-colors duration-300">
+                    <Award className="h-6 w-6 shrink-0 text-primary flex-shrink-0" />
+                    <span className="font-medium text-foreground">{cert}</span>
+                  </div>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          </div>
+        </section>
+      </FadeUp>
+
+      {/* Why Small Capacity */}
+      <FadeUp>
+        <section className="bg-primary/5 py-16 md:py-20">
+          <div className="container mx-auto px-4">
+            <div className="mx-auto max-w-3xl rounded-xl border border-primary/20 bg-primary/5 p-8 md:p-12">
+              <div className="flex items-start gap-4">
+                <Zap className="h-8 w-8 text-primary shrink-0 mt-1" />
+                <div>
+                  <h3 className="mb-4 font-display text-2xl font-semibold">
+                    Why Only 3 Suites?
+                  </h3>
+                  <div className="space-y-3 text-foreground/70">
+                    <p>
+                      <strong className="text-foreground">Prevents stress:</strong> Fewer dogs means less barking, fewer conflicts, calmer environment.
+                    </p>
+                    <p>
+                      <strong className="text-foreground">Enables personalization:</strong> We learn each dog's preferences, fears, triggers, and joys.
+                    </p>
+                    <p>
+                      <strong className="text-foreground">Ensures supervision:</strong> One person can genuinely pay attention to three dogs simultaneously.
+                    </p>
+                    <p>
+                      <strong className="text-foreground">Maintains quality:</strong> We can refuse poor-fit bookings. We're not trying to maximize occupancy—we're trying to maximize care.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Values */}
-      <section className="bg-muted/50 py-20">
-        <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold">Our Values</h2>
-            <p className="text-lg text-muted-foreground">
-              What drives everything we do
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardContent className="pt-6">
-                <Heart className="mb-4 h-10 w-10 text-primary" />
-                <h3 className="mb-2 text-xl font-semibold">Love & Care</h3>
-                <p className="text-sm text-muted-foreground">
-                  Every pet receives individualized attention and affection from
-                  our caring team.
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <Shield className="mb-4 h-10 w-10 text-primary" />
-                <h3 className="mb-2 text-xl font-semibold">Safety First</h3>
-                <p className="text-sm text-muted-foreground">
-                  Certified staff, secure facilities, and 24/7 supervision
-                  ensure your pet&apos;s safety.
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <Star className="mb-4 h-10 w-10 text-primary" />
-                <h3 className="mb-2 text-xl font-semibold">Excellence</h3>
-                <p className="text-sm text-muted-foreground">
-                  We maintain the highest standards in pet care, facilities, and
-                  customer service.
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <Users className="mb-4 h-10 w-10 text-primary" />
-                <h3 className="mb-2 text-xl font-semibold">Community</h3>
-                <p className="text-sm text-muted-foreground">
-                  We&apos;re proud to serve the Syracuse pet-loving community.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Team */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold">Meet Our Team</h2>
-            <p className="text-lg text-muted-foreground">
-              Certified professionals who love what they do
-            </p>
-          </div>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              { name: "Sarah Chen", role: "Co-Founder & CEO", emoji: "👩‍💼" },
-              { name: "Mark Williams", role: "Co-Founder & COO", emoji: "👨‍💼" },
-              {
-                name: "Dr. Emily Rodriguez",
-                role: "Veterinary Consultant",
-                emoji: "👩‍⚕️",
-              },
-              { name: "James Park", role: "Head Trainer", emoji: "👨‍🏫" },
-            ].map((member) => (
-              <Card key={member.name}>
-                <CardContent className="pt-6 text-center">
-                  <div className="mb-4 text-6xl">{member.emoji}</div>
-                  <h3 className="mb-1 text-lg font-semibold">{member.name}</h3>
-                  <p className="text-sm text-muted-foreground">{member.role}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Certifications */}
-      <section className="bg-muted/50 py-20">
-        <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold">
-              Certifications & Standards
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              We maintain the highest industry standards
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
-              "Licensed Pet Care Facility",
-              "Certified Pet First Aid & CPR",
-              "Professional Dog Trainer Certification",
-              "Fully Insured & Bonded",
-              "USDA Licensed Kennel",
-              "Member of Pet Care Services Association",
-            ].map((cert) => (
-              <div key={cert} className="flex items-start gap-3">
-                <CheckCircle2 className="h-6 w-6 shrink-0 text-primary" />
-                <span className="font-medium">{cert}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      </FadeUp>
 
       {/* CTA */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="rounded-lg bg-primary px-8 py-16 text-center text-primary-foreground">
-            <h2 className="mb-4 text-3xl font-bold">
-              Ready to Join Our Family?
+      <FadeUp>
+        <section className="bg-gradient-to-r from-primary/90 to-primary py-16 md:py-24 text-primary-foreground">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="mb-4 font-display text-3xl md:text-4xl font-semibold">
+              Experience the Difference
             </h2>
-            <p className="mb-8 text-lg opacity-90">
-              Book a tour and see why pet parents trust us with their furry
-              family members
+            <p className="mb-8 text-lg opacity-90 max-w-2xl mx-auto">
+              Meet the Zaine's team and see why families across Syracuse trust us with their most precious family members.
             </p>
-            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-              <Button size="lg" variant="secondary" asChild>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button
+                size="lg"
+                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                asChild
+              >
                 <Link href="/contact">Schedule a Tour</Link>
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                className="border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10"
                 asChild
               >
                 <Link href="/book">Book Your Stay</Link>
               </Button>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </FadeUp>
+
+      {/* Schema.org Organization */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "LocalBusiness",
+            name: "Zaine's Stay & Play",
+            description:
+              "Luxury private dog boarding in Syracuse, NY. Small capacity, owner on-site, 24/7 supervision.",
+            url: "https://zainesstayandplay.com",
+            telephone: "(315) 657-1332",
+            email: "info@zainesstayandplay.com",
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: "123 Pet Care Lane",
+              addressLocality: "Syracuse",
+              addressRegion: "NY",
+              postalCode: "13202",
+              addressCountry: "US",
+            },
+            areaServed: [
+              "Syracuse, NY",
+              "Liverpool, NY",
+              "Cicero, NY",
+              "Baldwinsville, NY",
+              "Fayetteville, NY",
+              "Manlius, NY",
+            ],
+            priceRange: "$65-$120",
+            sameAs: [
+              "https://www.facebook.com/zainesstayandplay",
+              "https://www.instagram.com/zainesstayandplay",
+            ],
+            knowsAbout: [
+              "Dog Boarding",
+              "Pet Care",
+              "Dog Behavior",
+              "Pet Safety",
+            ],
+            founder: {
+              "@type": "Person",
+              name: "Zaine's Owner",
+            },
+            hasCredential: [
+              {
+                "@type": "EducationalOccupationalCredential",
+                credentialCategory: "certification",
+                name: "Pet First Aid & CPR Certified",
+              },
+              {
+                "@type": "EducationalOccupationalCredential",
+                credentialCategory: "certification",
+                name: "USDA Licensed Kennel",
+              },
+            ],
+          }),
+        }}
+      />
     </div>
   );
 }

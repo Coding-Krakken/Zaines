@@ -1,195 +1,211 @@
-/* eslint-disable react/no-unescaped-entities */
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
-import {
-  Facebook,
-  Instagram,
-  Twitter,
-  MapPin,
-  Phone,
-  Mail,
-  Clock,
-} from "lucide-react";
+import { Facebook, Instagram, Twitter, MapPin, Phone, Mail, Clock } from "lucide-react";
 
 export function SiteFooter() {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="border-t bg-background">
-      <div className="container py-12 md:py-16">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {/* Brand & Social */}
-          <div>
-            <Link href="/" className="flex items-center space-x-2 mb-4">
-              <span className="text-2xl">🐾</span>
-              <span className="font-bold text-lg">Zaine's Stay & Play</span>
+    <footer className="bg-foreground text-background/70">
+      <div className="container py-16 md:py-20">
+        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
+          {/* Brand */}
+          <div className="lg:col-span-2">
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 mb-5 group w-fit"
+              aria-label="Zaine's Stay & Play — Home"
+            >
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-sm">
+                🐾
+              </span>
+              <span className="font-display text-lg font-semibold text-background tracking-tight">
+                Zaine&apos;s Stay &amp; Play
+              </span>
             </Link>
-            <p className="text-sm text-muted-foreground mb-4">
-              Private, safety-first dog boarding in Syracuse with three suite
-              options and owner-led care.
+            <p className="text-sm leading-relaxed mb-2 max-w-xs">
+              Boutique private dog boarding in Syracuse, NY. Three suites,
+              owner always on-site, genuine individualized care.
             </p>
-            <div className="flex gap-3">
+            <p className="text-xs text-background/40 mb-6 max-w-xs italic">
+              &ldquo;Your dog is family. We treat them that way.&rdquo;
+            </p>
+            <div className="flex gap-4">
               <Link
                 href={siteConfig.links.facebook}
                 aria-label="Zaine's Stay & Play on Facebook"
-                className="text-muted-foreground hover:text-foreground"
+                className="text-background/40 hover:text-primary transition-colors"
+                rel="noopener noreferrer"
+                target="_blank"
               >
-                <Facebook className="h-5 w-5" aria-hidden />
+                <Facebook className="h-4 w-4" aria-hidden="true" />
               </Link>
               <Link
                 href={siteConfig.links.instagram}
                 aria-label="Zaine's Stay & Play on Instagram"
-                className="text-muted-foreground hover:text-foreground"
+                className="text-background/40 hover:text-primary transition-colors"
+                rel="noopener noreferrer"
+                target="_blank"
               >
-                <Instagram className="h-5 w-5" aria-hidden />
+                <Instagram className="h-4 w-4" aria-hidden="true" />
               </Link>
               <Link
                 href={siteConfig.links.twitter}
-                aria-label="Zaine's Stay & Play on X"
-                className="text-muted-foreground hover:text-foreground"
+                aria-label="Zaine's Stay & Play on X (Twitter)"
+                className="text-background/40 hover:text-primary transition-colors"
+                rel="noopener noreferrer"
+                target="_blank"
               >
-                <Twitter className="h-5 w-5" aria-hidden />
+                <Twitter className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
           </div>
 
           {/* Boarding */}
           <div>
-            <h2 className="font-semibold mb-4 text-base">Boarding</h2>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  href="/suites"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  Suite Options
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/pricing"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  Pricing
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/dog-boarding-syracuse"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  Dog Boarding Syracuse
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/book"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  Book Now
-                </Link>
-              </li>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-background/40 mb-5">
+              Boarding
+            </h3>
+            <ul className="space-y-3 text-sm">
+              {[
+                ["Suite Options", "/suites"],
+                ["Pricing", "/pricing"],
+                ["Book Now", "/book"],
+                ["Dog Boarding Syracuse", "/dog-boarding-syracuse"],
+              ].map(([label, href]) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className="hover:text-primary transition-colors"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Company */}
           <div>
-            <h2 className="font-semibold mb-4 text-base">Company</h2>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  href="/about"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/reviews"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  Reviews
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/faq"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/policies"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  Policies
-                </Link>
-              </li>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-background/40 mb-5">
+              Company
+            </h3>
+            <ul className="space-y-3 text-sm">
+              {[
+                ["About Us", "/about"],
+                ["Reviews", "/reviews"],
+                ["FAQ", "/faq"],
+                ["Contact", "/contact"],
+                ["Policies", "/policies"],
+              ].map(([label, href]) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className="hover:text-primary transition-colors"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Contact & Service Area */}
           <div>
-            <h2 className="font-semibold mb-4 text-base">Contact</h2>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-background/40 mb-5">
+              Contact
+            </h3>
             <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-2 text-muted-foreground">
-                <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>
-                  {siteConfig.contact.address}
-                  <br />
-                  {siteConfig.contact.city}, {siteConfig.contact.state}{" "}
-                  {siteConfig.contact.zip}
-                </span>
+              <li>
+                <address
+                  className="not-italic flex items-start gap-2"
+                  itemProp="address"
+                  itemScope
+                  itemType="https://schema.org/PostalAddress"
+                >
+                  <MapPin
+                    className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-primary/70"
+                    aria-hidden="true"
+                  />
+                  <span>
+                    <span itemProp="streetAddress">
+                      {siteConfig.contact.address}
+                    </span>
+                    <br />
+                    <span itemProp="addressLocality">
+                      {siteConfig.contact.city}
+                    </span>
+                    ,{" "}
+                    <span itemProp="addressRegion">
+                      {siteConfig.contact.state}
+                    </span>{" "}
+                    <span itemProp="postalCode">{siteConfig.contact.zip}</span>
+                  </span>
+                </address>
               </li>
-              <li className="flex items-center gap-2 text-muted-foreground">
-                <Phone className="h-4 w-4 shrink-0" />
+              <li className="flex items-center gap-2">
+                <Phone
+                  className="h-3.5 w-3.5 flex-shrink-0 text-primary/70"
+                  aria-hidden="true"
+                />
                 <a
                   href={`tel:${siteConfig.contact.phone}`}
-                  className="hover:text-foreground"
+                  className="hover:text-primary transition-colors"
+                  itemProp="telephone"
                 >
                   {siteConfig.contact.phone}
                 </a>
               </li>
-              <li className="flex items-center gap-2 text-muted-foreground">
-                <Mail className="h-4 w-4 shrink-0" />
+              <li className="flex items-center gap-2">
+                <Mail
+                  className="h-3.5 w-3.5 flex-shrink-0 text-primary/70"
+                  aria-hidden="true"
+                />
                 <a
                   href={`mailto:${siteConfig.contact.email}`}
-                  className="hover:text-foreground"
+                  className="hover:text-primary transition-colors break-all"
+                  itemProp="email"
                 >
                   {siteConfig.contact.email}
                 </a>
               </li>
-              <li className="flex items-start gap-2 text-muted-foreground">
-                <Clock className="h-4 w-4 mt-0.5 shrink-0" />
+              <li className="flex items-start gap-2">
+                <Clock
+                  className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-primary/70"
+                  aria-hidden="true"
+                />
                 <span>
                   {siteConfig.hours.weekday}
                   <br />
-                  {siteConfig.hours.available}
+                  <span className="text-xs text-background/40">
+                    {siteConfig.hours.available}
+                  </span>
                 </span>
               </li>
             </ul>
+
+            {/* Service area */}
+            <div className="mt-6">
+              <p className="text-xs font-semibold uppercase tracking-widest text-background/40 mb-2">
+                Serving
+              </p>
+              <p className="text-xs text-background/50 leading-relaxed">
+                {siteConfig.serviceArea.join(" · ")}
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="mt-8 border-t pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+        {/* Bottom strip */}
+        <div className="mt-14 border-t border-background/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-background/35">
           <p>
-            &copy; {new Date().getFullYear()} Zaine's Stay & Play. All rights
-            reserved.
+            &copy; {currentYear} {siteConfig.name}. All rights reserved.
           </p>
-          <div className="flex gap-4">
-            <Link href="/privacy" className="hover:text-foreground">
+          <div className="flex gap-6">
+            <Link href="/privacy" className="hover:text-primary transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="hover:text-foreground">
+            <Link href="/terms" className="hover:text-primary transition-colors">
               Terms of Service
             </Link>
           </div>
@@ -198,3 +214,4 @@ export function SiteFooter() {
     </footer>
   );
 }
+

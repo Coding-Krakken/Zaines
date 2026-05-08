@@ -18,12 +18,23 @@ import {
   Music,
   Thermometer,
   Home,
+  Sparkles,
+  Crown,
 } from "lucide-react";
+import { FadeUp, StaggerContainer, StaggerItem } from "@/components/motion";
 
+// Metadata - note: using 'use client' requires export at module level if needed
 export const metadata: Metadata = {
-  title: "Private Boarding Suites | Zaine's Stay & Play",
+  title: "Luxury Dog Boarding Suites Syracuse NY | Zaine's Stay & Play",
   description:
-    "Choose from our Standard, Deluxe, and Luxury suites for your dog&apos;s perfect home away from home. All suites include 24/7 supervision and daily activities.",
+    "Discover our premium Standard, Deluxe, and Luxury boarding suites. Each suite features climate control, 24/7 monitoring, and individualized care for your beloved companion.",
+  keywords: [
+    "dog boarding suites",
+    "luxury dog boarding",
+    "private dog suites",
+    "Syracuse NY dog boarding",
+    "climate controlled suites",
+  ],
 };
 
 const suites = [
@@ -32,16 +43,18 @@ const suites = [
     price: "$65",
     period: "/ night",
     size: "6' x 8'",
-    image: "/images/suites/standard.jpg",
+    icon: Home,
+    description: "Comfortable, clean, and secure",
     features: [
-      "Comfortable raised bed",
-      "Climate controlled",
-      "Daily cleaning",
-      "2 potty breaks",
+      "Comfortable raised bed with washable linens",
+      "Climate controlled environment",
+      "Daily professional cleaning",
+      "2 supervised potty breaks",
       "2 group play sessions",
       "Meal service (2x daily)",
+      "Basic enrichment toys",
     ],
-    bestFor: "Budget-conscious pet parents",
+    bestFor: "Perfect for dogs who love routine and comfort",
   },
   {
     name: "Deluxe Suite",
@@ -50,17 +63,20 @@ const suites = [
     size: "8' x 10'",
     image: "/images/suites/deluxe.jpg",
     popular: true,
+    icon: Sparkles,
+    description: "Premium comfort with premium care",
     features: [
-      "Premium bedding",
-      "Climate controlled",
-      "Webcam access",
-      "3 potty breaks",
-      "3 group play sessions",
-      "Meal service (3x daily)",
-      "Spotify playlist",
-      "Puzzle toys included",
+      "Luxury orthopedic bedding",
+      "Climate controlled with air purification",
+      "Live webcam access (24/7)",
+      "3 supervised potty breaks",
+      "3 group play sessions + 1 solo enrichment",
+      "Meal service (3x daily, custom options)",
+      "Calming music & ambient sounds",
+      "Premium puzzle toys & Kong collection",
+      "Weekly photo updates",
     ],
-    bestFor: "Most dogs and families",
+    bestFor: "Most dogs & families seeking peace of mind",
   },
   {
     name: "Luxury Suite",
@@ -68,231 +84,313 @@ const suites = [
     period: "/ night",
     size: "10' x 12'",
     image: "/images/suites/luxury.jpg",
+    icon: Crown,
+    description: "VIP experience for VIP pups",
     features: [
-      "Private outdoor patio",
-      "Luxury orthopedic bed",
-      "Climate controlled",
-      "24/7 webcam access",
-      "4 potty breaks",
-      "4 group play sessions",
-      "Meal service (custom schedule)",
-      "TV with calming content",
-      "Premium toys & treats",
-      "Turndown service",
+      "Private outdoor patio with shade structure",
+      "Luxury orthopedic memory foam bed",
+      "Climate controlled with humidity control",
+      "24/7 HD webcam access + live chat",
+      "4 supervised potty breaks + on-demand access",
+      "4 customized play sessions",
+      "Meal service (custom schedule, premium options)",
+      "Dog-friendly TV & calming content",
+      "Premium toy rotation & spa services",
+      "Luxury turndown service & bedtime routine",
+      "Daily video updates & photo album",
+      "Direct access to owner (priority support)",
     ],
-    bestFor: "VIP pups who deserve the best",
+    bestFor: "Discerning pet parents who want the absolute best",
   },
 ];
 
 const amenities = [
   {
     icon: Camera,
-    title: "Live Webcams",
-    description: "Check in on your pet anytime from anywhere",
+    title: "24/7 Live Webcams",
+    description: "Monitor your pup anytime, from anywhere in the world",
   },
   {
     icon: Wifi,
     title: "Smart Monitoring",
-    description: "Temperature and air quality sensors",
+    description: "Real-time temperature, humidity, and air quality sensors",
   },
   {
     icon: Thermometer,
     title: "Climate Control",
-    description: "Perfect temperature year-round",
+    description: "Perfect temperature and humidity year-round for comfort",
   },
   {
     icon: Music,
-    title: "Calming Music",
-    description: "Curated playlists for relaxation",
+    title: "Calming Environment",
+    description: "Curated playlists and ambient sounds for relaxation",
   },
   {
     icon: Bed,
     title: "Premium Bedding",
-    description: "Comfortable, washable, hypoallergenic",
+    description: "Orthopedic beds with hypoallergenic, washable covers",
   },
   {
     icon: Tv,
-    title: "Entertainment",
-    description: "Dog-friendly TV content (Luxury only)",
+    title: "Enrichment Content",
+    description: "Dog-friendly TV programs and calming videos (Deluxe+)",
   },
 ];
 
 export default function SuitesPage() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-50 to-purple-50 py-20">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-3xl text-center">
-            <Badge className="mb-4">Luxury Accommodations</Badge>
-            <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-              Choose Your Pet&apos;s Perfect Suite
-            </h1>
-            <p className="mb-8 text-xl text-muted-foreground">
-              From cozy and comfortable to lavish and luxurious, we have the
-              perfect space for every pet and budget.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Suites Comparison */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold">Compare Our Suites</h2>
-            <p className="text-lg text-muted-foreground">
-              All suites include 24/7 supervision, daily activities, and lots of
-              love
-            </p>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {suites.map((suite) => (
-              <Card
-                key={suite.name}
-                className={`relative flex flex-col ${suite.popular ? "border-primary shadow-lg" : ""}`}
-              >
-                {suite.popular && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    Most Popular
-                  </Badge>
-                )}
-                <CardHeader>
-                  <div className="mb-4 aspect-video w-full overflow-hidden rounded-lg bg-muted">
-                    {/* Placeholder for suite images */}
-                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100">
-                      <Home className="h-20 w-20 text-muted-foreground" />
-                    </div>
-                  </div>
-                  <CardTitle className="text-2xl">{suite.name}</CardTitle>
-                  <CardDescription className="text-sm">
-                    {suite.size} • {suite.bestFor}
-                  </CardDescription>
-                  <div className="mt-4">
-                    <span className="text-4xl font-bold">{suite.price}</span>
-                    <span className="text-muted-foreground">
-                      {suite.period}
-                    </span>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <ul className="space-y-3">
-                    {suite.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-2">
-                        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <Button className="mt-6 w-full" size="lg" asChild>
-                    <Link href="/book">Book This Suite</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Amenities Grid */}
-      <section className="bg-muted/50 py-16">
-        <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold">Suite Amenities</h2>
-            <p className="text-lg text-muted-foreground">
-              Modern comforts and smart technology for your pet&apos;s wellbeing
-            </p>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {amenities.map((amenity) => (
-              <Card key={amenity.title}>
-                <CardHeader>
-                  <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                    <amenity.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-xl">{amenity.title}</CardTitle>
-                  <CardDescription>{amenity.description}</CardDescription>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-3xl">
-            <h2 className="mb-8 text-center text-3xl font-bold">Suite FAQs</h2>
-            <div className="space-y-6">
-              <div>
-                <h3 className="mb-2 text-lg font-semibold">
-                  Can I upgrade my suite after booking?
-                </h3>
-                <p className="text-muted-foreground">
-                  Yes! Subject to availability, you can upgrade to a larger
-                  suite. Contact us before your check-in date.
-                </p>
-              </div>
-              <div>
-                <h3 className="mb-2 text-lg font-semibold">
-                  Can multiple dogs share a suite?
-                </h3>
-                <p className="text-muted-foreground">
-                  Yes, dogs from the same family can share a Deluxe or Luxury
-                  suite. Additional pet fees apply.
-                </p>
-              </div>
-              <div>
-                <h3 className="mb-2 text-lg font-semibold">
-                  How do the webcams work?
-                </h3>
-                <p className="text-muted-foreground">
-                  After booking, you&apos;ll receive secure login credentials to
-                  view your pet&apos;s suite webcam 24/7 through our portal.
-                </p>
-              </div>
-              <div>
-                <h3 className="mb-2 text-lg font-semibold">
-                  What if my dog has special needs?
-                </h3>
-                <p className="text-muted-foreground">
-                  We accommodate special needs including medications, dietary
-                  restrictions, and mobility issues. Let us know during booking.
-                </p>
-              </div>
+      <FadeUp>
+        <section className="relative bg-gradient-to-br from-primary/5 via-primary/2 to-secondary/3 py-20 md:py-32">
+          <div className="container mx-auto px-4">
+            <div className="mx-auto max-w-3xl text-center">
+              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+                Luxury Accommodations
+              </Badge>
+              <h1 className="mb-6 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight">
+                Your Dog&apos;s Home Away From Home
+              </h1>
+              <p className="mb-8 text-lg md:text-xl text-foreground/70">
+                Choose from our thoughtfully designed suites, each offering premium comfort, individualized attention, and the security of knowing your beloved companion is in the best possible hands.
+              </p>
             </div>
           </div>
+        </section>
+      </FadeUp>
+
+      {/* Suites Showcase */}
+      <section className="py-20 md:py-28">
+        <div className="container mx-auto px-4">
+          <FadeUp>
+            <div className="mb-16 text-center">
+              <h2 className="mb-4 font-display text-3xl md:text-4xl font-semibold">
+                Three Levels of Luxury
+              </h2>
+              <p className="text-lg text-foreground/60">
+                All suites include daily activities, professional supervision, and premium amenities
+              </p>
+            </div>
+          </FadeUp>
+
+          <StaggerContainer>
+            {suites.map((suite) => {
+              const SuiteIcon = suite.icon;
+              return (
+                <StaggerItem key={suite.name}>
+                  <div className={`relative group transition-all duration-300 ${
+                    suite.popular ? "md:scale-105" : ""
+                  }`}>
+                    {suite.popular && (
+                      <div className="absolute -inset-1 rounded-xl bg-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    )}
+                    <Card
+                      className={`relative flex flex-col h-full border-border/50 hover:border-primary/30 transition-all duration-300 ${
+                        suite.popular ? "border-primary/50 shadow-lg" : ""
+                      }`}
+                    >
+                      {suite.popular && (
+                        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground shadow-lg">
+                          Most Popular
+                        </Badge>
+                      )}
+                      <CardHeader>
+                        <div className="mb-4 flex items-start justify-between">
+                          <div>
+                            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                              <SuiteIcon className="h-6 w-6 text-primary" />
+                            </div>
+                            <CardTitle className="font-display text-2xl md:text-3xl">
+                              {suite.name}
+                            </CardTitle>
+                            <CardDescription className="text-base mt-2">
+                              {suite.description}
+                            </CardDescription>
+                          </div>
+                        </div>
+                        <div className="flex items-baseline gap-1 mb-4">
+                          <span className="font-display text-4xl font-semibold text-primary">
+                            {suite.price}
+                          </span>
+                          <span className="text-sm text-foreground/60">
+                            {suite.period}
+                          </span>
+                        </div>
+                        <div className="text-sm text-foreground/50 font-medium">
+                          Suite Size: {suite.size}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="flex-1 flex flex-col">
+                        <div className="mb-6 h-40 rounded-lg bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center overflow-hidden">
+                          {/* Placeholder for suite image */}
+                          <SuiteIcon className="h-24 w-24 text-primary/20" />
+                        </div>
+                        <ul className="space-y-3 flex-1">
+                          {suite.features.map((feature) => (
+                            <li
+                              key={feature}
+                              className="flex items-start gap-3"
+                            >
+                              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-primary flex-shrink-0" />
+                              <span className="text-sm text-foreground/70">
+                                {feature}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                        <Button
+                          className="mt-8 w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                          size="lg"
+                          asChild
+                        >
+                          <Link href="/book">Reserve This Suite</Link>
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </StaggerItem>
+              );
+            })}
+          </StaggerContainer>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-primary py-16 text-primary-foreground">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-4 text-3xl font-bold">
-            Ready to Book Your Pet&apos;s Stay?
-          </h2>
-          <p className="mb-8 text-lg opacity-90">
-            Reserve your preferred suite today and give your pet the vacation
-            they deserve
-          </p>
-          <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <Button size="lg" variant="secondary" asChild>
-              <Link href="/book">Book Now</Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary"
-              asChild
-            >
-              <Link href="/contact">Schedule a Tour</Link>
-            </Button>
-          </div>
+      {/* Amenities Section */}
+      <section className="bg-secondary/40 py-20 md:py-28">
+        <div className="container mx-auto px-4">
+          <FadeUp>
+            <div className="mb-16 text-center">
+              <h2 className="mb-4 font-display text-3xl md:text-4xl font-semibold">
+                Thoughtful Amenities
+              </h2>
+              <p className="text-lg text-foreground/60">
+                Premium features designed for your dog&apos;s comfort and well-being
+              </p>
+            </div>
+          </FadeUp>
+
+          <StaggerContainer>
+            {amenities.map((amenity) => (
+              <StaggerItem key={amenity.title}>
+                <Card className="border-border/30 bg-background/50 backdrop-blur-sm hover:bg-background transition-colors duration-300">
+                  <CardHeader>
+                    <div className="flex items-start gap-4">
+                      <div className="mt-1 flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                        <amenity.icon className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <CardTitle className="font-display text-lg">
+                          {amenity.title}
+                        </CardTitle>
+                        <CardDescription className="mt-2">
+                          {amenity.description}
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
         </div>
       </section>
+
+      {/* Trust & Transparency */}
+      <FadeUp>
+        <section className="py-16 md:py-20">
+          <div className="container mx-auto px-4">
+            <div className="mx-auto max-w-3xl rounded-xl border border-primary/20 bg-primary/5 p-8 md:p-12 text-center">
+              <h3 className="mb-4 font-display text-2xl font-semibold">
+                What&apos;s Included in Every Suite
+              </h3>
+              <ul className="space-y-2 text-foreground/70">
+                <li>✓ Professional care from trained, certified staff</li>
+                <li>✓ 24/7 owner on-site supervision</li>
+                <li>✓ Individualized care plans for all dogs</li>
+                <li>✓ Regular communication & photo updates</li>
+                <li>✓ Emergency veterinary care protocol</li>
+                <li>✓ Complete vaccination verification</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </FadeUp>
+
+      {/* CTA Section */}
+      <FadeUp>
+        <section className="bg-gradient-to-r from-primary/90 to-primary py-16 md:py-24 text-primary-foreground">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="mb-4 font-display text-3xl md:text-4xl font-semibold">
+              Only 3 Suites — Book Early
+            </h2>
+            <p className="mb-8 text-lg opacity-90 max-w-2xl mx-auto">
+              Zaine&apos;s maintains an intentionally small capacity to ensure your dog receives the personalized attention they deserve. Availability fills quickly during peak seasons.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button
+                size="lg"
+                variant="secondary"
+                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                asChild
+              >
+                <Link href="/book">Check Availability</Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10"
+                asChild
+              >
+                <Link href="/contact">Schedule a Tour</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      </FadeUp>
+
+      {/* Schema.org Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "Luxury Dog Boarding Suites",
+            description:
+              "Three levels of luxury dog boarding accommodations with 24/7 care and monitoring",
+            mainEntity: suites.map((suite) => ({
+              "@type": "Accommodation",
+              name: suite.name,
+              description: suite.description,
+              priceRange: suite.price,
+              petsAllowed: true,
+              amenityFeature: [
+                {
+                  "@type": "Text",
+                  text: "Climate Control",
+                },
+                {
+                  "@type": "Text",
+                  text: "24/7 Supervision",
+                },
+                {
+                  "@type": "Text",
+                  text: "Premium Bedding",
+                },
+                {
+                  "@type": "Text",
+                  text: "Daily Activities",
+                },
+              ],
+              floorSize: {
+                "@type": "QuantitativeValue",
+                value: suite.size,
+                unitCode: "FTK",
+              },
+            })),
+          }),
+        }}
+      />
     </div>
   );
 }

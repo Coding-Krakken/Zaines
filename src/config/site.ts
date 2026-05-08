@@ -30,6 +30,8 @@ export const siteConfig = {
     "Baldwinsville",
     "Fayetteville",
     "Manlius",
+    "Clay",
+    "North Syracuse",
   ],
 };
 
@@ -78,4 +80,6 @@ export const cities = [
   "Baldwinsville",
   "Fayetteville",
   "Manlius",
+  "Clay",
+  "North Syracuse",
 ];

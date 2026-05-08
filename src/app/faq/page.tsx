@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from "react";
 import Link from "next/link";
@@ -13,7 +13,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, HelpCircle } from "lucide-react";
+import { Search, MessageCircle, PhoneIcon, MapPin } from "lucide-react";
+import { FadeUp, StaggerContainer, StaggerItem } from "@/components/motion";
 
 const faqCategories = {
   general: [
@@ -23,7 +24,7 @@ const faqCategories = {
     },
     {
       q: "What areas do you serve?",
-      a: "We serve Syracuse, Liverpool, Cicero, Baldwinsville, Fayetteville, Manlius, and surrounding areas within 30 miles of our facility.",
+      a: "We serve Syracuse, Liverpool, Cicero, Baldwinsville, Fayetteville, Manlius, Clay, North Syracuse, and surrounding areas within 30 miles of our facility.",
     },
     {
       q: "Do you offer tours of your facility?",
@@ -31,7 +32,7 @@ const faqCategories = {
     },
     {
       q: "Are you licensed and insured?",
-      a: "Yes, we are fully licensed by the Washington State Department of Agriculture and carry comprehensive liability insurance for your peace of mind.",
+      a: "Yes, we are fully licensed by the New York State Department of Agriculture and carry comprehensive liability insurance for your peace of mind.",
     },
   ],
   boarding: [
@@ -60,32 +61,10 @@ const faqCategories = {
       a: "No problem! As long as we have availability, we can extend your stay. Contact us as soon as possible to avoid any scheduling conflicts.",
     },
   ],
-  bookingFlow: [
-    {
-      q: "How does booking progression work?",
-      a: "Select valid check-in/check-out dates, confirm availability, choose a suite, and complete your reservation in sequence.",
-    },
-    {
-      q: "What if availability is temporarily unavailable?",
-      a: "You&apos;ll see a recoverable message with retry guidance. No technical error text is shown in customer-facing flow.",
-    },
-    {
-      q: "What happens if my date range is invalid?",
-      a: "The booking form blocks progression and asks you to correct dates before any availability request is sent.",
-    },
-    {
-      q: "Can I submit contact or review forms more than once?",
-      a: "Yes. The forms support idempotency and retry-safe behavior so duplicate submissions are handled safely.",
-    },
-    {
-      q: "How do reviews appear publicly?",
-      a: "Submitted reviews enter moderation first. Only approved reviews are shown on the public listing.",
-    },
-  ],
-  requirements: [
+  health: [
     {
       q: "What vaccinations are required?",
-      a: "All dogs must be current on: Rabies, DHPP (Distemper/Parvo), and Bordetella (kennel cough). Canine Influenza vaccine is strongly recommended but not required. Proof of vaccination must be provided before the first visit.",
+      a: "All dogs must be current on: Rabies, DHPP (Distemper/Parvo), and Bordetella (kennel cough). Canine Influenza vaccine is strongly recommended. Proof of vaccination must be provided before the first visit.",
     },
     {
       q: "Do you accept puppies?",
@@ -132,202 +111,236 @@ export default function FAQPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("general");
 
-  return (
-    <div className="flex min-h-screen flex-col">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-teal-50 to-blue-50 py-20">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-3xl text-center">
-            <Badge className="mb-4">Help Center</Badge>
-            <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-              Frequently Asked Questions
-            </h1>
-            <p className="mb-8 text-xl text-muted-foreground">
-              Find answers to common questions about our services, policies, and
-              facility
-            </p>
-            <p className="mb-6 text-sm text-muted-foreground md:text-base">
-              We use premium but fair pricing with clear totals before
-              confirmation, no hidden fees, and no surprise add-ons.
-            </p>
+  const allFaqs = Object.values(faqCategories).flat();
 
-            {/* Search */}
-            <div className="relative mx-auto max-w-xl">
-              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search questions..."
-                className="h-14 pl-12 text-lg"
-                aria-label="Search Frequently Asked Questions"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      {/* Hero Section */}
+      <FadeUp>
+        <section className="relative bg-gradient-to-br from-primary/5 via-primary/2 to-secondary/3 py-20 md:py-32">
+          <div className="container mx-auto px-4">
+            <div className="mx-auto max-w-3xl text-center">
+              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+                Help Center
+              </Badge>
+              <h1 className="mb-6 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight">
+                Frequently Asked Questions
+              </h1>
+              <p className="mb-8 text-lg md:text-xl text-foreground/70">
+                Find answers to questions about our boarding services, policies, vaccinations, and booking process
+              </p>
+
+              {/* Search */}
+              <div className="relative mx-auto max-w-xl">
+                <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-foreground/40" />
+                <Input
+                  type="search"
+                  placeholder="Search questions..."
+                  className="h-14 pl-12 text-lg border-border/30 bg-background/50 backdrop-blur-sm"
+                  aria-label="Search Frequently Asked Questions"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </FadeUp>
 
       {/* FAQ Content */}
-      <section className="py-16">
+      <section className="py-20 md:py-28">
         <div className="container mx-auto px-4">
-          <Tabs
-            value={activeCategory}
-            onValueChange={setActiveCategory}
-            className="mx-auto max-w-4xl"
-          >
-            <TabsList className="mb-8 grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-              <TabsTrigger value="general">General</TabsTrigger>
-              <TabsTrigger value="boarding">Boarding</TabsTrigger>
-              <TabsTrigger value="bookingFlow">Booking Flow</TabsTrigger>
-              <TabsTrigger value="requirements">Requirements</TabsTrigger>
-              <TabsTrigger value="payment">Payment</TabsTrigger>
-            </TabsList>
+          <FadeUp>
+            <div className="mx-auto max-w-4xl">
+              <Tabs
+                value={activeCategory}
+                onValueChange={setActiveCategory}
+                className="w-full"
+              >
+                <TabsList className="mb-12 grid w-full grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                  <TabsTrigger value="general" className="text-sm md:text-base">General</TabsTrigger>
+                  <TabsTrigger value="boarding" className="text-sm md:text-base">Boarding</TabsTrigger>
+                  <TabsTrigger value="health" className="text-sm md:text-base">Health</TabsTrigger>
+                  <TabsTrigger value="payment" className="text-sm md:text-base">Payment</TabsTrigger>
+                </TabsList>
 
-            {Object.entries(faqCategories).map(([category, questions]) => (
-              <TabsContent key={category} value={category}>
-                <Accordion type="single" collapsible className="space-y-4">
-                  {questions
-                    .filter((faq) =>
-                      searchQuery
-                        ? faq.q
-                            .toLowerCase()
-                            .includes(searchQuery.toLowerCase()) ||
-                          faq.a
-                            .toLowerCase()
-                            .includes(searchQuery.toLowerCase())
-                        : true,
-                    )
-                    .map((faq, index) => (
-                      <AccordionItem
-                        key={index}
-                        value={`${category}-${index}`}
-                        className="rounded-lg border px-6"
-                      >
-                        <AccordionTrigger className="text-left hover:no-underline">
-                          <span className="font-semibold">{faq.q}</span>
-                        </AccordionTrigger>
-                        <AccordionContent className="text-muted-foreground">
-                          {faq.a}
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                </Accordion>
+                {Object.entries(faqCategories).map(([category, questions]) => (
+                  <TabsContent key={category} value={category}>
+                    <StaggerContainer>
+                      <Accordion type="single" collapsible className="space-y-3">
+                        {questions
+                          .filter((faq) =>
+                            searchQuery
+                              ? faq.q.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                faq.a.toLowerCase().includes(searchQuery.toLowerCase())
+                              : true,
+                          )
+                          .map((faq, index) => (
+                            <StaggerItem key={index}>
+                              <AccordionItem
+                                value={`${category}-${index}`}
+                                className="border border-border/30 rounded-lg px-6 bg-background/50 hover:bg-background transition-colors duration-200 data-[state=open]:bg-background"
+                              >
+                                <AccordionTrigger className="text-left hover:no-underline py-4 font-display font-semibold text-foreground/90 hover:text-foreground">
+                                  <span>{faq.q}</span>
+                                </AccordionTrigger>
+                                <AccordionContent className="text-foreground/70 pb-4 pt-0 leading-relaxed">
+                                  {faq.a}
+                                </AccordionContent>
+                              </AccordionItem>
+                            </StaggerItem>
+                          ))}
+                      </Accordion>
 
-                {questions.filter((faq) =>
-                  searchQuery
-                    ? faq.q.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      faq.a.toLowerCase().includes(searchQuery.toLowerCase())
-                    : true,
-                ).length === 0 && (
-                  <div className="py-12 text-center">
-                    <HelpCircle className="mx-auto mb-4 h-16 w-16 text-muted-foreground" />
-                    <h3 className="mb-2 text-xl font-semibold">
-                      No results found
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Try adjusting your search or browse other categories
-                    </p>
-                  </div>
-                )}
-              </TabsContent>
-            ))}
-          </Tabs>
+                      {questions.filter((faq) =>
+                        searchQuery
+                          ? faq.q.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            faq.a.toLowerCase().includes(searchQuery.toLowerCase())
+                          : true,
+                      ).length === 0 && (
+                        <div className="py-16 text-center">
+                          <Search className="mx-auto mb-4 h-16 w-16 text-foreground/20" />
+                          <h3 className="mb-2 font-display text-xl font-semibold">
+                            No results found
+                          </h3>
+                          <p className="text-foreground/60">
+                            Try adjusting your search or browse other categories
+                          </p>
+                        </div>
+                      )}
+                    </StaggerContainer>
+                  </TabsContent>
+                ))}
+              </Tabs>
+            </div>
+          </FadeUp>
         </div>
       </section>
 
       {/* Quick Links */}
-      <section className="bg-muted/50 py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="mb-8 text-center text-3xl font-bold">
-            Need More Information?
-          </h2>
-          <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-3">
-            <Card className="text-center transition-shadow hover:shadow-lg">
-              <CardContent className="pt-6">
-                <div className="mb-4 flex justify-center">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                    <HelpCircle className="h-8 w-8 text-primary" />
+      <FadeUp>
+        <section className="bg-secondary/40 py-16 md:py-20">
+          <div className="container mx-auto px-4">
+            <h2 className="mb-12 text-center font-display text-3xl md:text-4xl font-semibold">
+              Need More Help?
+            </h2>
+            <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-3">
+              <Card className="border-border/50 hover:border-primary/30 transition-all duration-300">
+                <CardContent className="pt-6">
+                  <div className="mb-4 flex justify-center">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                      <MessageCircle className="h-6 w-6 text-primary" />
+                    </div>
                   </div>
-                </div>
-                <h3 className="mb-2 text-xl font-semibold">
-                  View Our Policies
-                </h3>
-                <p className="mb-4 text-sm text-muted-foreground">
-                  Detailed information about cancellations, health requirements,
-                  and more
-                </p>
-                <Button variant="outline" asChild>
-                  <Link href="/policies">Read Policies</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                  <h3 className="mb-2 text-center font-display font-semibold">
+                    Contact Us
+                  </h3>
+                  <p className="mb-4 text-center text-sm text-foreground/70">
+                    Speak with our team directly for personalized assistance
+                  </p>
+                  <div className="flex justify-center">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href="/contact">Get in Touch</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
 
-            <Card className="text-center transition-shadow hover:shadow-lg">
-              <CardContent className="pt-6">
-                <div className="mb-4 flex justify-center">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                    📞
+              <Card className="border-border/50 hover:border-primary/30 transition-all duration-300">
+                <CardContent className="pt-6">
+                  <div className="mb-4 flex justify-center">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                      <PhoneIcon className="h-6 w-6 text-primary" />
+                    </div>
                   </div>
-                </div>
-                <h3 className="mb-2 text-xl font-semibold">Contact Us</h3>
-                <p className="mb-4 text-sm text-muted-foreground">
-                  Speak with our team directly for personalized assistance
-                </p>
-                <Button variant="outline" asChild>
-                  <Link href="/contact">Get in Touch</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                  <h3 className="mb-2 text-center font-display font-semibold">
+                    Call Us
+                  </h3>
+                  <p className="mb-4 text-center text-sm text-foreground/70">
+                    Mon-Sat 10am-6pm<br />(315) 657-1332
+                  </p>
+                  <div className="flex justify-center">
+                    <Button variant="outline" size="sm" asChild>
+                      <a href="tel:3156571332">Call Now</a>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
 
-            <Card className="text-center transition-shadow hover:shadow-lg">
-              <CardContent className="pt-6">
-                <div className="mb-4 flex justify-center">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                    🏠
+              <Card className="border-border/50 hover:border-primary/30 transition-all duration-300">
+                <CardContent className="pt-6">
+                  <div className="mb-4 flex justify-center">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                      <MapPin className="h-6 w-6 text-primary" />
+                    </div>
                   </div>
-                </div>
-                <h3 className="mb-2 text-xl font-semibold">Schedule a Tour</h3>
-                <p className="mb-4 text-sm text-muted-foreground">
-                  See our facility in person and meet our team
-                </p>
-                <Button variant="outline" asChild>
-                  <Link href="/contact">Book Tour</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                  <h3 className="mb-2 text-center font-display font-semibold">
+                    Schedule a Tour
+                  </h3>
+                  <p className="mb-4 text-center text-sm text-foreground/70">
+                    See our facility in person and meet our team
+                  </p>
+                  <div className="flex justify-center">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href="/contact">Book Tour</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </FadeUp>
 
       {/* CTA */}
-      <section className="bg-primary py-16 text-primary-foreground">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-4 text-3xl font-bold">
-            Ready to Book Your Pet&apos;s Stay?
-          </h2>
-          <p className="mb-8 text-lg opacity-90">
-            We&apos;re here to answer any remaining questions and get your pet
-            scheduled
-          </p>
-          <p className="mb-6 text-sm opacity-90 md:text-base">
-            Premium but fair pricing is shown before confirmation with no hidden
-            fees and no surprise add-ons.
-          </p>
-          <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <Button size="lg" variant="secondary" asChild>
-              <Link href="/book">Book Now</Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary"
-              asChild
-            >
-              <Link href="/contact">Contact Us</Link>
-            </Button>
+      <FadeUp>
+        <section className="bg-gradient-to-r from-primary/90 to-primary py-16 md:py-24 text-primary-foreground">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="mb-4 font-display text-3xl md:text-4xl font-semibold">
+              Ready to Book Your Pet's Stay?
+            </h2>
+            <p className="mb-8 text-lg opacity-90 max-w-2xl mx-auto">
+              We're here to answer any remaining questions and get your dog scheduled for the care they deserve.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button
+                size="lg"
+                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                asChild
+              >
+                <Link href="/book">Check Availability</Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10"
+                asChild
+              >
+                <Link href="/contact">Contact Us</Link>
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </FadeUp>
+
+      {/* Schema.org FAQPage */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: allFaqs.map((faq) => ({
+              "@type": "Question",
+              name: faq.q,
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: faq.a,
+              },
+            })),
+          }),
+        }}
+      />
     </div>
   );
 }
