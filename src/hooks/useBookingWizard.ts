@@ -117,7 +117,15 @@ export function useBookingWizard() {
           );
         }
       } catch (error) {
-        console.error("Failed to load saved progress:", error);
+        // Catch SecurityError (private browsing, Tracking Prevention)
+        // and QuotaExceededError (storage full)
+        if (error instanceof Error) {
+          if (error.name === 'SecurityError' || error.name === 'QuotaExceededError') {
+            console.warn("Storage access blocked by browser privacy settings. Progress will not persist.");
+          } else {
+            console.error("Failed to load saved progress:", error);
+          }
+        }
       }
     };
 
@@ -137,7 +145,15 @@ export function useBookingWizard() {
           }),
         );
       } catch (error) {
-        console.error("Failed to save progress:", error);
+        // Catch SecurityError (private browsing, Tracking Prevention)
+        // and QuotaExceededError (storage full)
+        if (error instanceof Error) {
+          if (error.name === 'SecurityError' || error.name === 'QuotaExceededError') {
+            console.warn("Storage access blocked by browser privacy settings. Progress will not persist.");
+          } else {
+            console.error("Failed to save progress:", error);
+          }
+        }
       }
     },
     [],

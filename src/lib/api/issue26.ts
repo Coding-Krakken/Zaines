@@ -118,6 +118,25 @@ export type ContactSubmissionRecord = {
   message: string;
   createdAt: string;
   status: "open" | "resolved";
+  conversation: ContactConversationMessage[];
+};
+
+export type ContactConversationAttachment = {
+  attachmentId: string;
+  url: string;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  kind: "image" | "video";
+};
+
+export type ContactConversationMessage = {
+  messageId: string;
+  senderType: "customer" | "staff";
+  senderName: string;
+  content: string;
+  createdAt: string;
+  attachments: ContactConversationAttachment[];
 };
 
 export async function persistContactSubmission(
@@ -139,6 +158,14 @@ export async function persistContactSubmission(
 
   const submissionId = randomUUID();
   const submissionRecordKey = `contact:submission:${submissionId}`;
+  const firstMessage: ContactConversationMessage = {
+    messageId: randomUUID(),
+    senderType: "customer",
+    senderName: payload.fullName,
+    content: payload.message,
+    createdAt: new Date().toISOString(),
+    attachments: [],
+  };
 
   await prismaSettings.create({
     data: {
@@ -151,6 +178,7 @@ export async function persistContactSubmission(
         message: payload.message,
         createdAt: new Date().toISOString(),
         status: "open",
+        conversation: [firstMessage],
       }),
     },
   });
@@ -185,6 +213,7 @@ export async function updateContactSubmissionStatus(
   }
 
   const parsed = safeParseStoredValue(existing.value);
+
   await prismaSettings.upsert({
     where: { key: recordKey },
     create: {
@@ -195,6 +224,60 @@ export async function updateContactSubmissionStatus(
       value: JSON.stringify({ ...parsed, status }),
     },
   });
+}
+
+export async function appendContactSubmissionMessage(params: {
+  submissionId: string;
+  senderType: "customer" | "staff";
+  senderName: string;
+  content: string;
+  attachments?: ContactConversationAttachment[];
+}): Promise<ContactSubmissionRecord> {
+  if (!isDatabaseConfigured()) {
+    throw new Error("PERSISTENCE_UNAVAILABLE");
+  }
+
+  const recordKey = `contact:submission:${params.submissionId}`;
+  const existing = await prismaSettings.findUnique({
+    where: { key: recordKey },
+  });
+
+  if (!existing) {
+    throw new Error("SUBMISSION_NOT_FOUND");
+  }
+
+  const parsed = normalizeContactSubmission(safeParseStoredValue(existing.value));
+  if (!parsed) {
+    throw new Error("SUBMISSION_NOT_FOUND");
+  }
+
+  const conversationMessage: ContactConversationMessage = {
+    messageId: randomUUID(),
+    senderType: params.senderType,
+    senderName: params.senderName,
+    content: params.content,
+    createdAt: new Date().toISOString(),
+    attachments: params.attachments ?? [],
+  };
+
+  const updated: ContactSubmissionRecord = {
+    ...parsed,
+    status: "open",
+    conversation: [...parsed.conversation, conversationMessage],
+  };
+
+  await prismaSettings.upsert({
+    where: { key: recordKey },
+    create: {
+      key: recordKey,
+      value: JSON.stringify(updated),
+    },
+    update: {
+      value: JSON.stringify(updated),
+    },
+  });
+
+  return updated;
 }
 
 export async function getRecentContactSubmissions(
@@ -216,23 +299,133 @@ export async function getRecentContactSubmissions(
   });
 
   return records
-    .map((record: { value: string }) => safeParseStoredValue(record.value))
-    .filter(
-      (
-        submission: Record<string, unknown>,
-      ): submission is ContactSubmissionRecord => {
-        return (
-          typeof submission.submissionId === "string" &&
-          typeof submission.fullName === "string" &&
-          typeof submission.email === "string" &&
-          (submission.phone === null || typeof submission.phone === "string") &&
-          typeof submission.message === "string" &&
-          typeof submission.createdAt === "string" &&
-          (submission.status === "open" || submission.status === "resolved")
-        );
-      },
+    .map((record: { value: string }) =>
+      normalizeContactSubmission(safeParseStoredValue(record.value)),
     )
+    .filter((submission): submission is ContactSubmissionRecord => Boolean(submission))
     .slice(0, limit);
+}
+
+function normalizeContactSubmission(
+  submission: Record<string, unknown>,
+): ContactSubmissionRecord | null {
+  if (
+    typeof submission.submissionId !== "string" ||
+    typeof submission.fullName !== "string" ||
+    typeof submission.email !== "string"
+  ) {
+    return null;
+  }
+
+  const status = submission.status === "resolved" ? "resolved" : "open";
+  const messagesFromRecord = Array.isArray(submission.conversation)
+    ? submission.conversation
+    : [];
+
+  const normalizedConversation = messagesFromRecord
+    .map((entry) => {
+      if (!entry || typeof entry !== "object") {
+        return null;
+      }
+
+      const message = entry as Record<string, unknown>;
+      if (
+        typeof message.content !== "string" ||
+        typeof message.senderName !== "string" ||
+        (message.senderType !== "customer" && message.senderType !== "staff") ||
+        typeof message.createdAt !== "string"
+      ) {
+        return null;
+      }
+
+      const attachmentEntries = Array.isArray(message.attachments)
+        ? message.attachments
+        : [];
+
+      const attachments = attachmentEntries
+        .map((attachment) => {
+          if (!attachment || typeof attachment !== "object") {
+            return null;
+          }
+
+          const item = attachment as Record<string, unknown>;
+          if (
+            typeof item.url !== "string" ||
+            typeof item.fileName !== "string" ||
+            typeof item.contentType !== "string" ||
+            typeof item.sizeBytes !== "number" ||
+            (item.kind !== "image" && item.kind !== "video")
+          ) {
+            return null;
+          }
+
+          return {
+            attachmentId:
+              typeof item.attachmentId === "string" ? item.attachmentId : randomUUID(),
+            url: item.url,
+            fileName: item.fileName,
+            contentType: item.contentType,
+            sizeBytes: item.sizeBytes,
+            kind: item.kind,
+          } as ContactConversationAttachment;
+        })
+        .filter((attachment): attachment is ContactConversationAttachment =>
+          Boolean(attachment),
+        );
+
+      return {
+        messageId:
+          typeof message.messageId === "string" ? message.messageId : randomUUID(),
+        senderType: message.senderType,
+        senderName: message.senderName,
+        content: message.content,
+        createdAt: message.createdAt,
+        attachments,
+      } as ContactConversationMessage;
+    })
+    .filter((message): message is ContactConversationMessage => Boolean(message));
+
+  if (normalizedConversation.length === 0) {
+    normalizedConversation.push({
+      messageId: randomUUID(),
+      senderType: "customer",
+      senderName: submission.fullName,
+      content: typeof submission.message === "string" ? submission.message : "",
+      createdAt:
+        typeof submission.createdAt === "string"
+          ? submission.createdAt
+          : new Date().toISOString(),
+      attachments: [],
+    });
+  }
+
+  const fallbackMessage =
+    typeof submission.message === "string"
+      ? submission.message
+      : normalizedConversation[0]?.content || "";
+
+  const fallbackCreatedAt =
+    typeof submission.createdAt === "string"
+      ? submission.createdAt
+      : normalizedConversation[0]?.createdAt || new Date().toISOString();
+
+  const phone =
+    typeof submission.phone === "string"
+      ? submission.phone
+      : submission.phone === null
+        ? null
+        : null;
+
+  return {
+    submissionId: submission.submissionId,
+    fullName: submission.fullName,
+    email: submission.email,
+    phone,
+    message: fallbackMessage,
+    createdAt: fallbackCreatedAt,
+    status,
+    conversation: normalizedConversation,
+  };
 }
 
 export async function persistReviewSubmission(

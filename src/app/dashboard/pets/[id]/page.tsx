@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { HealthTimeline } from "@/components/HealthTimeline";
 import Link from "next/link";
 
-type Props = { params: { id: string } };
+type Props = { params: Promise<{ id: string }> };
 
 function isSchemaDriftError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
@@ -16,6 +16,7 @@ function isSchemaDriftError(error: unknown): boolean {
 }
 
 export default async function PetDetail({ params }: Props) {
+  const { id } = await params;
   const session = await auth();
   if (!session?.user?.id) return redirect("/auth/signin");
 
@@ -32,7 +33,7 @@ export default async function PetDetail({ params }: Props) {
   let healthDataCompatibilityMode = false;
   try {
     pet = await prisma.pet.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { vaccines: true, medications: true },
     });
   } catch (error) {
@@ -42,7 +43,7 @@ export default async function PetDetail({ params }: Props) {
 
     healthDataCompatibilityMode = true;
     const fallbackPet = await prisma.pet.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     pet = fallbackPet

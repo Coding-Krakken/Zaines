@@ -12,7 +12,7 @@ export const siteConfig = {
   },
   contact: {
     phone: "(315) 657-1332",
-    email: "hello@zainesstayandplay.com",
+    email: "jgibbs@zainesstayandplay.com",
     address: "123 Pet Paradise Lane",
     city: "Syracuse",
     state: "NY",
@@ -52,36 +52,6 @@ export const navItems: NavItem[] = [
   {
     title: "Suites",
     href: "/suites",
-  },
-  {
-    title: "Locations",
-    href: "/locations",
-    children: [
-      {
-        title: "Dog Boarding Syracuse",
-        href: "/dog-boarding-syracuse",
-      },
-      {
-        title: "Liverpool Dog Boarding",
-        href: "/locations/liverpool-ny",
-      },
-      {
-        title: "Cicero Dog Boarding",
-        href: "/locations/cicero-ny",
-      },
-      {
-        title: "Baldwinsville Dog Boarding",
-        href: "/locations/baldwinsville-ny",
-      },
-      {
-        title: "Fayetteville Dog Boarding",
-        href: "/locations/fayetteville-ny",
-      },
-      {
-        title: "Manlius Dog Boarding",
-        href: "/locations/manlius-ny",
-      },
-    ],
   },
   {
     title: "Pricing",

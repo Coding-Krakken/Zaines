@@ -89,24 +89,6 @@ export default async function AdminDashboardPage() {
         })}
       </h1>
 
-      <div className="mb-6 flex flex-wrap gap-3">
-        <Link href="/admin/occupancy" className="text-sm font-medium text-primary hover:underline">
-          View Occupancy
-        </Link>
-        <Link href="/admin/activities" className="text-sm font-medium text-primary hover:underline">
-          Log Activity
-        </Link>
-        <Link href="/admin/photos" className="text-sm font-medium text-primary hover:underline">
-          Upload Photo
-        </Link>
-        <Link href="/admin/contacts" className="text-sm font-medium text-primary hover:underline">
-          Emergency Contacts
-        </Link>
-        <Link href="/admin/messages" className="text-sm font-medium text-primary hover:underline">
-          Contact Messages
-        </Link>
-      </div>
-
       {bookings.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">

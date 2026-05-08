@@ -81,14 +81,6 @@ export function SiteFooter() {
               </li>
               <li>
                 <Link
-                  href="/locations"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  Service Areas
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/book"
                   className="text-muted-foreground hover:text-foreground"
                 >

@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AdminNav } from '@/components/admin/AdminNav';
+import { AdminSubNav } from '@/components/admin/AdminSubNav';
 
 export default async function AdminLayout({
   children,
@@ -16,6 +17,7 @@ export default async function AdminLayout({
     return (
       <div className="min-h-screen bg-background">
         <AdminNav />
+        <AdminSubNav />
         <main className="container mx-auto px-6 py-8">{children}</main>
       </div>
     );
@@ -34,6 +36,7 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen bg-background">
       <AdminNav />
+      <AdminSubNav />
       <main className="container mx-auto px-6 py-8">{children}</main>
     </div>
   );

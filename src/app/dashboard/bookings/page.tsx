@@ -3,6 +3,7 @@ import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { CancelBookingButton } from "./[id]/CancelBookingButton";
 
 function statusBadgeVariant(
@@ -45,9 +46,11 @@ export default async function BookingsPage() {
     <div className="container mx-auto p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">My Bookings</h1>
-        <Link href="/book" className="btn">
-          New Booking
-        </Link>
+        <Button asChild size="sm">
+          <Link href="/book">
+            New Booking
+          </Link>
+        </Button>
       </div>
 
       <div className="mt-6 space-y-4">

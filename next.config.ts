@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
           "style-src 'self' 'unsafe-inline'",
           "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://m.stripe.network https://vercel.live",
           "connect-src 'self' https://api.stripe.com https://r.stripe.com https://m.stripe.network https://js.stripe.com",
-          "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://*.stripe.com",
+          "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://*.stripe.com https://vercel.live",
           "form-action 'self'",
         ].join("; "),
       },

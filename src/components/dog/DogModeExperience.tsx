@@ -79,11 +79,20 @@ const schedule: ScheduleItem[] = [
 function useDogTelemetry(surface: DogTelemetrySurface, mode: DogTelemetryMode) {
   const [sessionId] = useState(() => {
     if (typeof window === "undefined") return "dog_0000000000";
-    const existing = window.sessionStorage.getItem("dog-mode-session-id");
-    if (existing) return existing;
-    const next = createDogSessionId();
-    window.sessionStorage.setItem("dog-mode-session-id", next);
-    return next;
+    try {
+      const existing = window.sessionStorage.getItem("dog-mode-session-id");
+      if (existing) return existing;
+      const next = createDogSessionId();
+      window.sessionStorage.setItem("dog-mode-session-id", next);
+      return next;
+    } catch (error) {
+      // Catch SecurityError from private browsing or Tracking Prevention
+      if (error instanceof Error && error.name === 'SecurityError') {
+        console.warn("Storage access blocked by browser privacy settings.");
+        return `dog_${Math.random().toString(36).substr(2, 10)}`;
+      }
+      throw error;
+    }
   });
 
   return (
@@ -105,12 +114,25 @@ function useDogTelemetry(surface: DogTelemetrySurface, mode: DogTelemetryMode) {
       const raw = window.localStorage.getItem("dog-mode-telemetry");
       const parsed = raw ? JSON.parse(raw) : [];
       stored = Array.isArray(parsed) ? (parsed as DogTelemetryEvent[]) : [];
-    } catch {
+    } catch (error) {
+      // Catch SecurityError and QuotaExceededError
+      if (error instanceof Error && (error.name === 'SecurityError' || error.name === 'QuotaExceededError')) {
+        console.warn("Storage access blocked or quota exceeded. Telemetry will not persist.");
+      } else {
+        console.error("Failed to load telemetry:", error);
+      }
       stored = [];
     }
 
     const next = [...stored.slice(-49), payload];
-    window.localStorage.setItem("dog-mode-telemetry", JSON.stringify(next));
+    try {
+      window.localStorage.setItem("dog-mode-telemetry", JSON.stringify(next));
+    } catch (error) {
+      // Silently fail if storage not available (Tracking Prevention, private browsing)
+      if (!(error instanceof Error && (error.name === 'SecurityError' || error.name === 'QuotaExceededError'))) {
+        console.error("Failed to save telemetry:", error);
+      }
+    }
     window.dispatchEvent(
       new CustomEvent("dog-mode-telemetry", { detail: payload }),
     );
