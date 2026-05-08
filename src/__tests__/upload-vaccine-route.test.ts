@@ -132,4 +132,33 @@ describe('POST /api/upload/vaccine', () => {
       }),
     );
   });
+
+  it('uses database-inline fallback when file storage is unavailable for existing pets', async () => {
+    vi.stubEnv('BLOB_READ_WRITE_TOKEN', 'token-present-but-invalid');
+    blobPutMock.mockRejectedValue(new Error('blob failed'));
+    mkdirMock.mockRejectedValue(new Error('read-only filesystem'));
+    authMock.mockResolvedValue({ user: { id: 'user-1' } });
+    prismaMock.pet.findUnique.mockResolvedValue({ userId: 'user-1' });
+    prismaMock.vaccine.create.mockResolvedValue({ id: 'v-inline-1' });
+
+    const response = await POST(makeUploadRequest('vaccines.pdf', 'pet-1'));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual(
+      expect.objectContaining({
+        savedToDatabase: true,
+        storageMode: 'database-inline',
+        url: '/api/vaccines/v-inline-1/document',
+      }),
+    );
+    expect(prismaMock.vaccine.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          petId: 'pet-1',
+          documentUrl: null,
+          notes: expect.stringContaining('__INLINE_VACCINE_DOCUMENT_BASE64__:'),
+        }),
+      }),
+    );
+  });
 });

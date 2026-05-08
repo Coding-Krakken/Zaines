@@ -8,6 +8,7 @@ import { validateFile } from '@/lib/file-upload';
 
 const ALLOWED_PDF_TYPES = ['application/pdf'];
 const PDF_MAX_SIZE = 10 * 1024 * 1024;
+const INLINE_DOCUMENT_NOTE_PREFIX = '__INLINE_VACCINE_DOCUMENT_BASE64__:';
 
 class VaccineUploadStorageError extends Error {
   constructor(
@@ -61,6 +62,38 @@ async function persistUploadedVaccineRecord(params: {
       notes: 'Auto-generated from vaccine document upload.',
     },
   });
+}
+
+async function persistInlineVaccineDocument(params: {
+  petId: string;
+  fileName: string;
+  file: File;
+}): Promise<string> {
+  if (!isDatabaseConfigured()) {
+    throw new VaccineUploadStorageError(
+      'Database not configured for vaccine record persistence.',
+      503,
+    );
+  }
+
+  const administeredDate = new Date();
+  const expiryDate = deriveDefaultExpiryDate(administeredDate);
+  const arrayBuffer = await params.file.arrayBuffer();
+  const base64 = Buffer.from(arrayBuffer).toString('base64');
+
+  const vaccine = await prisma.vaccine.create({
+    data: {
+      petId: params.petId,
+      name: deriveVaccineNameFromFileName(params.fileName),
+      administeredDate,
+      expiryDate,
+      documentUrl: null,
+      notes: `${INLINE_DOCUMENT_NOTE_PREFIX}${base64}`,
+    },
+    select: { id: true },
+  });
+
+  return `/api/vaccines/${vaccine.id}/document`;
 }
 
 async function storeFile(file: File, petId: string): Promise<string> {
@@ -223,28 +256,64 @@ export async function POST(request: NextRequest) {
     }
 
     let url: string;
+    let persistedViaInlineFallback = false;
     try {
       url = await storeFile(file, petId);
     } catch (storageError) {
       if (storageError instanceof VaccineUploadStorageError) {
-        console.warn('Storage error:', storageError.message);
-        return NextResponse.json({ error: storageError.message }, { status: storageError.status });
+        const shouldPersistToDatabase = !isTemporaryPetId(petId);
+        if (!shouldPersistToDatabase) {
+          console.warn('Storage error:', storageError.message);
+          return NextResponse.json(
+            { error: storageError.message },
+            { status: storageError.status },
+          );
+        }
+
+        try {
+          url = await persistInlineVaccineDocument({
+            petId,
+            fileName: file.name,
+            file,
+          });
+          persistedViaInlineFallback = true;
+        } catch (inlinePersistenceError) {
+          console.error('Inline vaccine persistence failed:', {
+            errorName:
+              inlinePersistenceError instanceof Error
+                ? inlinePersistenceError.name
+                : 'Unknown',
+            errorMessage:
+              inlinePersistenceError instanceof Error
+                ? inlinePersistenceError.message
+                : String(inlinePersistenceError),
+            petId,
+            fileName: file.name,
+          });
+
+          return NextResponse.json(
+            { error: storageError.message },
+            { status: storageError.status },
+          );
+        }
+
+        // Inline fallback succeeded; continue with normal success path.
+      } else {
+        console.error('File storage error:', storageError, {
+          errorName: storageError instanceof Error ? storageError.name : 'Unknown',
+          errorMessage: storageError instanceof Error ? storageError.message : String(storageError),
+          petId,
+          fileName: file.name,
+          fileSize: file.size,
+        });
+
+        throw storageError;
       }
-      
-      console.error('File storage error:', storageError, {
-        errorName: storageError instanceof Error ? storageError.name : 'Unknown',
-        errorMessage: storageError instanceof Error ? storageError.message : String(storageError),
-        petId,
-        fileName: file.name,
-        fileSize: file.size,
-      });
-      
-      throw storageError;
     }
 
     const shouldPersistToDatabase = !isTemporaryPetId(petId);
 
-    if (shouldPersistToDatabase) {
+    if (shouldPersistToDatabase && !persistedViaInlineFallback) {
       try {
         await persistUploadedVaccineRecord({
           petId,
@@ -287,6 +356,7 @@ export async function POST(request: NextRequest) {
         fileSize: file.size,
         contentType: file.type,
         savedToDatabase: shouldPersistToDatabase,
+        storageMode: persistedViaInlineFallback ? 'database-inline' : 'file-url',
       },
       { 
         status: 200,
