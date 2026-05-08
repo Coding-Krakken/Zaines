@@ -41,6 +41,7 @@ import {
   type NewPetData,
 } from "@/lib/validations/booking-wizard";
 import { validateFile } from "@/lib/file-upload";
+import { retryFetch } from "@/lib/retry";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -173,21 +174,39 @@ export function StepPets({
     setUploadingVaccine(petId);
 
     try {
-      // Upload via API route
+      // Upload via API route with retry mechanism
       const formData = new FormData();
       formData.append("file", file);
       formData.append("petId", petId);
 
-      const response = await fetch("/api/upload/vaccine", {
+      let attemptCount = 0;
+      const response = await retryFetch("/api/upload/vaccine", {
         method: "POST",
         body: formData,
+      }, {
+        maxAttempts: 3,
+        initialDelayMs: 1000,
+        maxDelayMs: 5000,
+        onAttempt: (attempt, error) => {
+          attemptCount = attempt;
+          if (attempt > 1) {
+            console.warn(`Vaccine upload attempt ${attempt}: ${error.message}`);
+          }
+        },
       });
 
       if (!response.ok) {
         const errorPayload = (await response.json().catch(() => null)) as
           | { error?: string }
           | null;
-        throw new Error(errorPayload?.error || "Upload failed");
+        
+        let errorMessage = errorPayload?.error || "Upload failed";
+        
+        if (attemptCount > 1) {
+          errorMessage += ` (after ${attemptCount} retries)`;
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
