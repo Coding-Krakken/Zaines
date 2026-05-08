@@ -71,11 +71,15 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
 
     try {
       const [bookingsRes, activitiesRes] = await Promise.all([
-        fetch('/api/admin/bookings', { cache: 'no-store' }),
+        fetch('/api/admin/bookings?status=checked_in', { cache: 'no-store' }),
         fetch('/api/admin/activities?limit=30', { cache: 'no-store' }),
       ]);
 
-      const bookingsData = (await bookingsRes.json()) as { bookings?: BookingOption[]; error?: string };
+      const bookingsData = (await bookingsRes.json()) as {
+        bookings?: BookingOption[];
+        data?: BookingOption[];
+        error?: string;
+      };
       const activitiesData = (await activitiesRes.json()) as { activities?: ActivityItem[]; error?: string };
 
       if (!bookingsRes.ok) {
@@ -85,7 +89,7 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
         throw new Error(activitiesData.error ?? 'Unable to load activities');
       }
 
-      const loadedBookings = bookingsData.bookings ?? [];
+      const loadedBookings = bookingsData.bookings ?? bookingsData.data ?? [];
       const loadedActivities = activitiesData.activities ?? [];
 
       setBookings(loadedBookings);
@@ -111,7 +115,6 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialBookingId]);
@@ -161,7 +164,7 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
             <div className="space-y-1">
               <p className="text-sm font-medium">Booking</p>
               <Select value={bookingId} onValueChange={setBookingId}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select checked-in booking" />
                 </SelectTrigger>
                 <SelectContent>
@@ -177,7 +180,7 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
             <div className="space-y-1">
               <p className="text-sm font-medium">Pet</p>
               <Select value={activePetId} onValueChange={setPetId}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select pet" />
                 </SelectTrigger>
                 <SelectContent>
@@ -193,7 +196,7 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
             <div className="space-y-1">
               <p className="text-sm font-medium">Type</p>
               <Select value={type} onValueChange={(value) => setType(value as (typeof ACTIVITY_TYPES)[number])}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

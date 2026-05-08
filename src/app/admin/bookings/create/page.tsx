@@ -65,10 +65,6 @@ export default async function CreateBookingPage() {
         pets={pets}
         suites={suites}
         autoConfirmDefault={settings.autoConfirmBookings}
-        onSuccess={() => {
-          // Redirect to bookings list after successful creation
-          // Note: Client-side redirect happens in the component
-        }}
       />
     </div>
   );

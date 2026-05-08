@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect, useTransition } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 type AdminSubNavItem = {
   href: string;
@@ -54,6 +55,35 @@ const adminSubNavItems: AdminSubNavItem[] = [
 
 export function AdminSubNav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+
+  useEffect(() => {
+    for (const item of adminSubNavItems) {
+      router.prefetch(item.href);
+    }
+  }, [router]);
+
+  const handleNavigate = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    startTransition(() => {
+      router.push(href);
+    });
+  };
 
   return (
     <nav className="border-b bg-muted/30 px-6 py-2">
@@ -65,6 +95,7 @@ export function AdminSubNav() {
             <li key={item.href}>
               <Link
                 href={item.href}
+                onClick={(event) => handleNavigate(event, item.href)}
                 className={`inline-flex rounded-md px-3 py-1.5 text-sm transition-colors ${
                   active
                     ? "bg-primary text-primary-foreground"
