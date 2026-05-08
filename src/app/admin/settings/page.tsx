@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import type { AdminSettings, BusinessHours } from '@/types/admin';
+import { ServiceManagementCard } from '@/components/admin/ServiceManagementCard';
 
 const businessHoursSchema = z.object({
   openTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
@@ -449,6 +450,9 @@ export default function AdminSettingsPage() {
               )}
             </CardContent>
           </Card>
+
+          {/* Services & Pricing Card */}
+          <ServiceManagementCard />
 
           {/* Save Button */}
           <Button type="submit" disabled={isSaving} className="w-full md:w-auto" size="lg">
