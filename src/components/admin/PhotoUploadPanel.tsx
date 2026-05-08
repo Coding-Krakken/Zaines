@@ -39,6 +39,7 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
   const [petId, setPetId] = useState('');
   const [caption, setCaption] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const [notifyOwner, setNotifyOwner] = useState(true);
 
   const activeBookings = useMemo(
     () => bookings.filter((booking) => booking.status === 'checked_in'),
@@ -137,6 +138,7 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
       formData.set('petId', activePetId);
       formData.set('caption', caption);
       formData.set('file', file);
+      formData.set('notifyOwner', String(notifyOwner));
 
       const res = await fetch('/api/admin/photos', {
         method: 'POST',
@@ -148,9 +150,30 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
         throw new Error(data.error ?? 'Unable to upload photo');
       }
 
+      // Queue notification if owner notification is enabled
+      if (notifyOwner && data.photo) {
+        try {
+          await fetch('/api/admin/photo-notifications', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              photoId: data.photo.id,
+              bookingId,
+              petName: selectedPets.find((p) => p.id === activePetId)?.name,
+              ownerEmail: selectedBooking?.user?.email,
+              notifyOwner,
+            }),
+          });
+        } catch (notificationError) {
+          console.error('Error queuing notification:', notificationError);
+          // Continue anyway - photo was uploaded successfully
+        }
+      }
+
       setPhotos((current) => [data.photo as PhotoItem, ...current]);
       setCaption('');
       setFile(null);
+      setNotifyOwner(true);
       setSuccess('Photo uploaded.');
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : 'Unable to upload photo');
@@ -211,6 +234,19 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
             <div className="space-y-1">
               <p className="text-sm font-medium">Caption (optional)</p>
               <Input value={caption} onChange={(event) => setCaption(event.target.value)} placeholder="Quick update for the owner" />
+            </div>
+
+            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+              <input
+                type="checkbox"
+                id="notify-owner"
+                checked={notifyOwner}
+                onChange={(e) => setNotifyOwner(e.target.checked)}
+                className="h-4 w-4"
+              />
+              <label htmlFor="notify-owner" className="text-sm font-medium cursor-pointer">
+                Notify owner of this photo
+              </label>
             </div>
 
             {previewUrl && (

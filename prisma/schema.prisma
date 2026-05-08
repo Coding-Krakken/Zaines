@@ -273,8 +273,8 @@ model Booking {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  user          User           @relation(fields: [userId], references: [id])
-  suite         Suite          @relation(fields: [suiteId], references: [id])
+  user          User                   @relation(fields: [userId], references: [id])
+  suite         Suite                  @relation(fields: [suiteId], references: [id])
   bookingPets   BookingPet[]
   bookingAddOns BookingAddOn[]
   waivers       Waiver[]
@@ -282,6 +282,7 @@ model Booking {
   activities    Activity[]
   photos        PetPhoto[]
   messages      Message[]
+  photoNotifications PhotoNotification[]
 
   @@index([userId])
   @@index([suiteId])
@@ -504,4 +505,29 @@ model Settings {
   updatedAt DateTime @updatedAt
 
   @@map("settings")
+}
+
+// ============================================================================
+// NOTIFICATIONS
+// ============================================================================
+
+model PhotoNotification {
+  id           String   @id @default(cuid())
+  photoId      String
+  bookingId    String
+  ownerEmail   String
+  petName      String
+  type         String // 'instant' | 'daily_batch'
+  scheduledFor DateTime
+  sent         Boolean  @default(false)
+  sentAt       DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([sent])
+  @@index([scheduledFor])
+  @@map("photo_notifications")
 }

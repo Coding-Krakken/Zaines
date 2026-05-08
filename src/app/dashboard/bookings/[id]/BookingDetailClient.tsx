@@ -29,6 +29,40 @@ interface BookingDetailClientProps {
 
 type TabType = "overview" | "timeline" | "gallery" | "messages";
 
+const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+const DATE_TIME_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+  timeZone: "UTC",
+});
+
+function formatDate(dateValue: Date | string): string {
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+
+  return DATE_FORMATTER.format(date);
+}
+
+function formatDateTime(dateValue: Date | string): string {
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+
+  return DATE_TIME_FORMATTER.format(date);
+}
+
 export default function BookingDetailClient({
   booking,
   canCancel,
@@ -52,8 +86,7 @@ export default function BookingDetailClient({
       <div>
         <h1 className="text-3xl font-bold">Booking {booking.bookingNumber}</h1>
         <p className="text-gray-600 mt-2">
-          {new Date(booking.checkInDate).toLocaleDateString()} →{" "}
-          {new Date(booking.checkOutDate).toLocaleDateString()}
+          {formatDate(booking.checkInDate)} → {formatDate(booking.checkOutDate)}
         </p>
       </div>
 
@@ -99,15 +132,11 @@ export default function BookingDetailClient({
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Check-in</p>
-                  <p className="font-medium">
-                    {new Date(booking.checkInDate).toLocaleString()}
-                  </p>
+                  <p className="font-medium">{formatDateTime(booking.checkInDate)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Check-out</p>
-                  <p className="font-medium">
-                    {new Date(booking.checkOutDate).toLocaleString()}
-                  </p>
+                  <p className="font-medium">{formatDateTime(booking.checkOutDate)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Status</p>
