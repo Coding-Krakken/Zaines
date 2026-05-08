@@ -20,13 +20,10 @@ export async function GET(request: NextRequest) {
     }
 
     if (!isDatabaseConfigured()) {
+      const { getDefaultSettings } = await import('@/lib/api/admin-settings');
       return NextResponse.json({
         success: true,
-        data: {
-          autoConfirmBookings: true,
-          photoNotificationType: 'instant',
-          dashboardDateRange: 'today',
-        },
+        data: getDefaultSettings(),
       } as ApiResponse<AdminSettings>);
     }
 

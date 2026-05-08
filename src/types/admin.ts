@@ -7,11 +7,31 @@
 // SETTINGS
 // ============================================================================
 
+export interface BusinessHours {
+  monday: { openTime: string; closeTime: string; isClosed: boolean };
+  tuesday: { openTime: string; closeTime: string; isClosed: boolean };
+  wednesday: { openTime: string; closeTime: string; isClosed: boolean };
+  thursday: { openTime: string; closeTime: string; isClosed: boolean };
+  friday: { openTime: string; closeTime: string; isClosed: boolean };
+  saturday: { openTime: string; closeTime: string; isClosed: boolean };
+  sunday: { openTime: string; closeTime: string; isClosed: boolean };
+}
+
 export interface AdminSettings {
+  // Operational Preferences
   autoConfirmBookings: boolean;
   photoNotificationType: 'instant' | 'daily_batch';
   photoNotificationTime?: string; // HH:mm format, e.g., "17:00"
   dashboardDateRange: 'today' | 'today_tomorrow' | 'this_week';
+  
+  // Phase 1: Business Hours & Contact Info
+  businessHours: BusinessHours;
+  contactPhone: string;
+  contactEmail: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
 }
 
 export interface SettingsRecord {
