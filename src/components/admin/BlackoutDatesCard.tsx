@@ -50,6 +50,9 @@ export function BlackoutDatesCard() {
         <CardDescription>
           Block specific dates when no new bookings are allowed (holidays, staff vacations, etc.)
         </CardDescription>
+        <div className="text-xs text-muted-foreground">
+          <a href="/book#booking-wizard" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect booking wizard</a>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {fields.length === 0 && (

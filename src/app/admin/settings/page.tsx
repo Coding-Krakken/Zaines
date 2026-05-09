@@ -360,6 +360,11 @@ export default function AdminSettingsPage() {
             <CardHeader>
               <CardTitle>Business Hours</CardTitle>
               <CardDescription>Set opening and closing times for each day</CardDescription>
+              <div className="text-xs text-muted-foreground">
+                <a href="/contact#hours-of-operation" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect hours on contact page</a>
+                <span className="mx-2">•</span>
+                <a href="/#site-footer" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect hours in footer</a>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               {DAYS_OF_WEEK.map((day) => (
@@ -428,6 +433,11 @@ export default function AdminSettingsPage() {
             <CardHeader>
               <CardTitle>Contact Information</CardTitle>
               <CardDescription>Update business contact details displayed to customers</CardDescription>
+              <div className="text-xs text-muted-foreground">
+                <a href="/contact#contact-information" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect on contact page</a>
+                <span className="mx-2">•</span>
+                <a href="/#site-footer" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect in footer</a>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField

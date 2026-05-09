@@ -29,6 +29,9 @@ export function AvailabilityRulesCard() {
         <CardDescription>
           Configure booking constraints and scheduling windows
         </CardDescription>
+        <div className="text-xs text-muted-foreground">
+          <a href="/book#booking-wizard" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect booking wizard</a>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Min Nights */}

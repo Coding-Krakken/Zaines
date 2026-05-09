@@ -1,9 +1,12 @@
 import { prisma, isDatabaseConfigured } from '@/lib/prisma';
 import type {
+  FinanceAuditEvent,
   FinanceOverviewResponse,
+  FinanceReconciliationResponse,
   FinanceTransactionsResponse,
   FinanceTransactionStatus,
   FinanceTransactionRow,
+  FinanceTaxSummaryResponse,
 } from '@/types/finance';
 
 type FinanceFilters = {
@@ -12,6 +15,8 @@ type FinanceFilters = {
   status?: string;
   search?: string;
 };
+
+const FINANCE_AUDIT_PREFIX = '[FINANCE_AUDIT]';
 
 const ALLOWED_STATUSES: FinanceTransactionStatus[] = [
   'pending',
@@ -30,6 +35,14 @@ function normalizeStatus(value: string | undefined): FinanceTransactionStatus | 
 
 function roundCurrency(value: number): number {
   return Math.round(value * 100) / 100;
+}
+
+function safeJsonParse(value: string): Record<string, unknown> | null {
+  try {
+    return JSON.parse(value) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
 }
 
 export function getDefaultFinanceRange(): { startDate: Date; endDate: Date } {
@@ -236,5 +249,275 @@ export async function getFinanceTransactions(
       totalRefundAmount: roundCurrency(totalRefundAmount),
     },
     rows: filteredRows,
+  };
+}
+
+export async function appendFinanceAuditEvent(input: {
+  bookingId?: string;
+  actorUserId: string;
+  actorName: string;
+  eventType: string;
+  note: string;
+  payload?: Record<string, unknown>;
+}): Promise<void> {
+  if (!isDatabaseConfigured()) return;
+
+  const payload = {
+    eventType: input.eventType,
+    note: input.note,
+    payload: input.payload ?? {},
+    timestamp: new Date().toISOString(),
+  };
+
+  await prisma.message.create({
+    data: {
+      bookingId: input.bookingId,
+      userId: input.actorUserId,
+      senderType: 'staff',
+      senderName: input.actorName,
+      content: `${FINANCE_AUDIT_PREFIX}${JSON.stringify(payload)}`,
+      isRead: true,
+    },
+  });
+}
+
+export async function getFinanceAuditEvents(filters?: {
+  bookingId?: string;
+  limit?: number;
+}): Promise<FinanceAuditEvent[]> {
+  if (!isDatabaseConfigured()) return [];
+
+  const rows = await prisma.message.findMany({
+    where: {
+      ...(filters?.bookingId ? { bookingId: filters.bookingId } : {}),
+      content: {
+        startsWith: FINANCE_AUDIT_PREFIX,
+      },
+    },
+    orderBy: {
+      sentAt: 'desc',
+    },
+    take: filters?.limit ?? 100,
+  });
+
+  const events: FinanceAuditEvent[] = [];
+
+  for (const row of rows) {
+    const json = safeJsonParse(row.content.slice(FINANCE_AUDIT_PREFIX.length));
+    if (!json) continue;
+
+    events.push({
+      id: row.id,
+      bookingId: row.bookingId,
+      actorName: row.senderName,
+      actorUserId: row.userId,
+      eventType: String(json.eventType ?? 'UNKNOWN'),
+      note: String(json.note ?? ''),
+      payload: (json.payload as Record<string, unknown>) ?? {},
+      createdAt: row.sentAt.toISOString(),
+    });
+  }
+
+  return events;
+}
+
+export async function getFinanceReconciliation(
+  startDate: Date,
+  endDate: Date,
+): Promise<FinanceReconciliationResponse> {
+  if (!isDatabaseConfigured()) {
+    return {
+      range: { startDate: startDate.toISOString(), endDate: endDate.toISOString() },
+      totals: { succeededAmount: 0, refundedAmount: 0, netAmount: 0, transactionCount: 0 },
+      buckets: [],
+    };
+  }
+
+  const payments = await prisma.payment.findMany({
+    where: {
+      createdAt: {
+        gte: startDate,
+        lte: endDate,
+      },
+      status: {
+        in: ['succeeded', 'refunded'],
+      },
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
+
+  const bucketMap: Record<string, {
+    succeededAmount: number;
+    refundedAmount: number;
+    netAmount: number;
+    transactionCount: number;
+    reconciledAt: string | null;
+  }> = {};
+
+  for (const payment of payments) {
+    const sourceDate = payment.paidAt ?? payment.createdAt;
+    const bucketDate = sourceDate.toISOString().slice(0, 10);
+
+    if (!bucketMap[bucketDate]) {
+      bucketMap[bucketDate] = {
+        succeededAmount: 0,
+        refundedAmount: 0,
+        netAmount: 0,
+        transactionCount: 0,
+        reconciledAt: null,
+      };
+    }
+
+    bucketMap[bucketDate].succeededAmount = roundCurrency(
+      bucketMap[bucketDate].succeededAmount + payment.amount,
+    );
+    bucketMap[bucketDate].transactionCount += 1;
+
+    const refundAmount = payment.refundAmount ?? 0;
+    bucketMap[bucketDate].refundedAmount = roundCurrency(
+      bucketMap[bucketDate].refundedAmount + refundAmount,
+    );
+    bucketMap[bucketDate].netAmount = roundCurrency(
+      bucketMap[bucketDate].succeededAmount - bucketMap[bucketDate].refundedAmount,
+    );
+  }
+
+  const auditEvents = await getFinanceAuditEvents({ limit: 200 });
+  for (const event of auditEvents) {
+    if (event.eventType !== 'PAYOUT_RECONCILED') continue;
+    const bucketDate = String(event.payload.bucketDate ?? '');
+    if (!bucketDate || !bucketMap[bucketDate]) continue;
+    bucketMap[bucketDate].reconciledAt = event.createdAt;
+  }
+
+  const bucketDates = Object.keys(bucketMap).sort((a, b) => (a < b ? 1 : -1));
+  const buckets = bucketDates.map((date) => ({
+    date,
+    succeededAmount: bucketMap[date].succeededAmount,
+    refundedAmount: bucketMap[date].refundedAmount,
+    netAmount: bucketMap[date].netAmount,
+    transactionCount: bucketMap[date].transactionCount,
+    status: (bucketMap[date].reconciledAt ? 'reconciled' : 'pending') as
+      | 'pending'
+      | 'reconciled',
+    reconciledAt: bucketMap[date].reconciledAt,
+  }));
+
+  const totals = buckets.reduce(
+    (acc, bucket) => {
+      acc.succeededAmount = roundCurrency(acc.succeededAmount + bucket.succeededAmount);
+      acc.refundedAmount = roundCurrency(acc.refundedAmount + bucket.refundedAmount);
+      acc.netAmount = roundCurrency(acc.netAmount + bucket.netAmount);
+      acc.transactionCount += bucket.transactionCount;
+      return acc;
+    },
+    { succeededAmount: 0, refundedAmount: 0, netAmount: 0, transactionCount: 0 },
+  );
+
+  return {
+    range: { startDate: startDate.toISOString(), endDate: endDate.toISOString() },
+    totals,
+    buckets,
+  };
+}
+
+export async function getFinanceTaxSummary(
+  startDate: Date,
+  endDate: Date,
+): Promise<FinanceTaxSummaryResponse> {
+  if (!isDatabaseConfigured()) {
+    return {
+      range: { startDate: startDate.toISOString(), endDate: endDate.toISOString() },
+      totals: { taxableRevenue: 0, taxCollected: 0, refundedTax: 0, netTaxLiability: 0 },
+      rows: [],
+    };
+  }
+
+  const payments = await prisma.payment.findMany({
+    where: {
+      createdAt: {
+        gte: startDate,
+        lte: endDate,
+      },
+      status: {
+        in: ['succeeded', 'refunded'],
+      },
+    },
+    include: {
+      booking: {
+        select: {
+          total: true,
+          tax: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
+
+  const monthMap: Record<string, {
+    taxableRevenue: number;
+    taxCollected: number;
+    refundedTax: number;
+    netTaxLiability: number;
+  }> = {};
+
+  for (const payment of payments) {
+    const period = payment.createdAt.toISOString().slice(0, 7);
+    if (!monthMap[period]) {
+      monthMap[period] = {
+        taxableRevenue: 0,
+        taxCollected: 0,
+        refundedTax: 0,
+        netTaxLiability: 0,
+      };
+    }
+
+    const bookingTotal = payment.booking.total > 0 ? payment.booking.total : payment.amount;
+    const paymentTaxPortion = roundCurrency(
+      bookingTotal > 0 ? (payment.amount / bookingTotal) * payment.booking.tax : payment.booking.tax,
+    );
+    const refundedTaxPortion = roundCurrency(
+      payment.refundAmount && payment.amount > 0
+        ? (payment.refundAmount / payment.amount) * paymentTaxPortion
+        : 0,
+    );
+
+    monthMap[period].taxableRevenue = roundCurrency(monthMap[period].taxableRevenue + payment.amount);
+    monthMap[period].taxCollected = roundCurrency(monthMap[period].taxCollected + paymentTaxPortion);
+    monthMap[period].refundedTax = roundCurrency(monthMap[period].refundedTax + refundedTaxPortion);
+    monthMap[period].netTaxLiability = roundCurrency(
+      monthMap[period].taxCollected - monthMap[period].refundedTax,
+    );
+  }
+
+  const rows = Object.keys(monthMap)
+    .sort((a, b) => (a < b ? 1 : -1))
+    .map((period) => ({
+      period,
+      taxableRevenue: monthMap[period].taxableRevenue,
+      taxCollected: monthMap[period].taxCollected,
+      refundedTax: monthMap[period].refundedTax,
+      netTaxLiability: monthMap[period].netTaxLiability,
+    }));
+
+  const totals = rows.reduce(
+    (acc, row) => {
+      acc.taxableRevenue = roundCurrency(acc.taxableRevenue + row.taxableRevenue);
+      acc.taxCollected = roundCurrency(acc.taxCollected + row.taxCollected);
+      acc.refundedTax = roundCurrency(acc.refundedTax + row.refundedTax);
+      acc.netTaxLiability = roundCurrency(acc.netTaxLiability + row.netTaxLiability);
+      return acc;
+    },
+    { taxableRevenue: 0, taxCollected: 0, refundedTax: 0, netTaxLiability: 0 },
+  );
+
+  return {
+    range: { startDate: startDate.toISOString(), endDate: endDate.toISOString() },
+    totals,
+    rows,
   };
 }

@@ -55,3 +55,72 @@ export interface FinanceTransactionsResponse {
   };
   rows: FinanceTransactionRow[];
 }
+
+export interface FinanceAuditEvent {
+  id: string;
+  bookingId: string | null;
+  actorName: string;
+  actorUserId: string;
+  eventType: string;
+  note: string;
+  payload: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface FinanceRefundRequest {
+  paymentId: string;
+  refundAmount: number;
+  reason: string;
+}
+
+export interface FinanceAdjustmentRequest {
+  bookingId: string;
+  amount: number;
+  reason: string;
+}
+
+export interface FinanceReconciliationBucket {
+  date: string;
+  succeededAmount: number;
+  refundedAmount: number;
+  netAmount: number;
+  transactionCount: number;
+  status: 'pending' | 'reconciled';
+  reconciledAt: string | null;
+}
+
+export interface FinanceReconciliationResponse {
+  range: {
+    startDate: string;
+    endDate: string;
+  };
+  totals: {
+    succeededAmount: number;
+    refundedAmount: number;
+    netAmount: number;
+    transactionCount: number;
+  };
+  buckets: FinanceReconciliationBucket[];
+}
+
+export interface FinanceTaxSummaryRow {
+  period: string;
+  taxableRevenue: number;
+  taxCollected: number;
+  refundedTax: number;
+  netTaxLiability: number;
+}
+
+export interface FinanceTaxSummaryResponse {
+  range: {
+    startDate: string;
+    endDate: string;
+  };
+  totals: {
+    taxableRevenue: number;
+    taxCollected: number;
+    refundedTax: number;
+    netTaxLiability: number;
+  };
+  rows: FinanceTaxSummaryRow[];
+}

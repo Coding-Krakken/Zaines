@@ -46,6 +46,9 @@ export function SeasonalPricingCard() {
         <CardDescription>
           Apply price multipliers for specific date ranges (e.g., 1.25 = 25% surcharge during holidays)
         </CardDescription>
+        <div className="text-xs text-muted-foreground">
+          <a href="/book#booking-wizard" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect booking wizard</a>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {fields.length === 0 && (

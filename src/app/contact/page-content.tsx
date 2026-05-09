@@ -61,7 +61,7 @@ export default function ContactPageContent() {
         <div className="container mx-auto px-4">
           <div className="grid gap-12 lg:grid-cols-2">
             <div>
-              <h2 className="mb-8 text-3xl font-bold">Contact Information</h2>
+              <h2 id="contact-information" className="mb-8 text-3xl font-bold">Contact Information</h2>
               <div className="space-y-6">
                 <Card>
                   <CardContent className="flex items-start gap-4 pt-6">
@@ -133,7 +133,7 @@ export default function ContactPageContent() {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card id="hours-of-operation">
                   <CardContent className="flex items-start gap-4 pt-6">
                     <Clock className="h-6 w-6 shrink-0 text-primary" />
                     <div>

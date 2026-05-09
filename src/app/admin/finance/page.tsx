@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -177,6 +178,39 @@ export default function AdminFinancePage() {
             </a>
           </Button>
         </div>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Refund Operations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button size="sm" asChild>
+              <Link href="/admin/finance/refunds">Open Refund Console</Link>
+            </Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Payout Reconciliation</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button size="sm" asChild>
+              <Link href="/admin/finance/reconciliation">Open Reconciliation</Link>
+            </Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Tax Liability</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button size="sm" asChild>
+              <Link href="/admin/finance/taxes">Open Tax Summary</Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
