@@ -106,6 +106,22 @@ export interface AddOnsSettings {
   addOns: AddOn[];
 }
 
+export interface TestimonialItem {
+  id: string;
+  author: string;
+  petName: string;
+  rating: number;
+  date: string;
+  text: string;
+  serviceLabel: string;
+  isActive: boolean;
+  displayOrder: number;
+}
+
+export interface TestimonialsSettings {
+  testimonials: TestimonialItem[];
+}
+
 export interface AdminSettings {
   // Operational Preferences
   autoConfirmBookings: boolean;
@@ -147,6 +163,9 @@ export interface AdminSettings {
   // Phase 10: Service Tiers & Add-Ons Configuration
   serviceSettings: ServiceTiersSettings;
   addOnsSettings: AddOnsSettings;
+
+  // Phase 11: Testimonials Configuration
+  testimonialsSettings: TestimonialsSettings;
 }
 
 export interface SettingsRecord {

@@ -80,3 +80,11 @@ export async function PUT(request: NextRequest) {
     );
   }
 }
+
+/**
+ * PATCH /api/admin/settings - Partial update admin settings
+ * Mirrors PUT behavior for compatibility with settings cards that submit partial payloads.
+ */
+export async function PATCH(request: NextRequest) {
+  return PUT(request);
+}

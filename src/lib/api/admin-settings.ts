@@ -15,6 +15,7 @@ import type {
   TrustCopySettings,
   ServiceTiersSettings,
   AddOnsSettings,
+  TestimonialsSettings,
 } from '@/types/admin';
 import { siteConfig } from '@/config/site';
 import {
@@ -55,6 +56,8 @@ const SETTINGS_KEYS: Record<string, string> = {
   // Phase 10: Service Tiers & Add-Ons Configuration
   SERVICE_TIERS_SETTINGS: 'admin.service_tiers_settings', // JSON object
   ADD_ONS_SETTINGS: 'admin.add_ons_settings', // JSON object
+  // Phase 11: Testimonials Configuration
+  TESTIMONIALS_SETTINGS: 'admin.testimonials_settings', // JSON object
 };
 
 /**
@@ -187,6 +190,15 @@ export async function getAdminSettings(): Promise<AdminSettings> {
           return json ? JSON.parse(json) : getDefaultAddOnsSettings();
         } catch {
           return getDefaultAddOnsSettings();
+        }
+      })(),
+      // Phase 11: Testimonials Configuration
+      testimonialsSettings: (() => {
+        try {
+          const json = settingsMap.get(SETTINGS_KEYS.TESTIMONIALS_SETTINGS);
+          return json ? JSON.parse(json) : getDefaultTestimonialsSettings();
+        } catch {
+          return getDefaultTestimonialsSettings();
         }
       })(),
     };
@@ -507,6 +519,20 @@ export async function updateAdminSettings(updates: Partial<AdminSettings>): Prom
       );
     }
 
+    // Phase 11: Testimonials Configuration
+    if (updates.testimonialsSettings !== undefined) {
+      updatePromises.push(
+        prisma.settings.upsert({
+          where: { key: SETTINGS_KEYS.TESTIMONIALS_SETTINGS },
+          update: { value: JSON.stringify(updates.testimonialsSettings) },
+          create: {
+            key: SETTINGS_KEYS.TESTIMONIALS_SETTINGS,
+            value: JSON.stringify(updates.testimonialsSettings),
+          },
+        }),
+      );
+    }
+
     await Promise.all(updatePromises);
 
     // Return updated settings
@@ -678,6 +704,49 @@ function getDefaultAddOnsSettings(): AddOnsSettings {
 }
 
 /**
+ * Get default testimonials settings
+ */
+function getDefaultTestimonialsSettings(): TestimonialsSettings {
+  return {
+    testimonials: [
+      {
+        id: 'testimonial-1',
+        author: 'Sarah M.',
+        petName: 'Max',
+        rating: 5,
+        date: '2 weeks ago',
+        text: 'Max had an amazing stay. The owner sent us photos every day and he looked genuinely happy and relaxed.',
+        serviceLabel: 'Deluxe Suite',
+        isActive: true,
+        displayOrder: 0,
+      },
+      {
+        id: 'testimonial-2',
+        author: 'James T.',
+        petName: 'Luna',
+        rating: 5,
+        date: '1 month ago',
+        text: 'Luna settled in quickly and came home calm and happy. We will absolutely be back.',
+        serviceLabel: 'Standard Suite',
+        isActive: true,
+        displayOrder: 1,
+      },
+      {
+        id: 'testimonial-3',
+        author: 'Emily R.',
+        petName: 'Charlie',
+        rating: 5,
+        date: '1 month ago',
+        text: 'The quiet environment and clear communication made all the difference for Charlie.',
+        serviceLabel: 'Deluxe Suite',
+        isActive: true,
+        displayOrder: 2,
+      },
+    ],
+  };
+}
+
+/**
  * Get default admin settings
  */
 export function getDefaultSettings(): AdminSettings {
@@ -711,5 +780,7 @@ export function getDefaultSettings(): AdminSettings {
     // Phase 10: Service Tiers & Add-Ons Configuration
     serviceSettings: getDefaultServiceTiersSettings(),
     addOnsSettings: getDefaultAddOnsSettings(),
+    // Phase 11: Testimonials Configuration
+    testimonialsSettings: getDefaultTestimonialsSettings(),
   };
 }

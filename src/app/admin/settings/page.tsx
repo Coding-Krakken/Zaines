@@ -29,6 +29,7 @@ import { BusinessProfileSettingsCard } from '@/components/admin/BusinessProfileS
 import { WebsiteProfileSettingsCard } from '@/components/admin/WebsiteProfileSettingsCard';
 import { TrustCopySettingsCard } from '@/components/admin/TrustCopySettingsCard';
 import { ServiceTiersAndAddOnsCard } from '@/components/admin/ServiceTiersAndAddOnsCard';
+import { TestimonialsSettingsCard } from '@/components/admin/TestimonialsSettingsCard';
 
 const businessHoursSchema = z.object({
   openTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
@@ -665,6 +666,9 @@ export default function AdminSettingsPage() {
 
           {/* Service Tiers & Add-Ons Card */}
           <ServiceTiersAndAddOnsCard />
+
+          {/* Testimonials Card */}
+          <TestimonialsSettingsCard />
 
           {/* Save Button */}
           <Button type="submit" disabled={isSaving} className="w-full md:w-auto" size="lg">

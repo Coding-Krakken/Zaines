@@ -29,6 +29,7 @@ interface SiteSettingsHookReturn {
   pricingSettings: AdminSettings['pricingSettings'];
   serviceSettings: AdminSettings['serviceSettings'];
   addOnsSettings: AdminSettings['addOnsSettings'];
+  testimonialsSettings: AdminSettings['testimonialsSettings'];
   isLoading: boolean;
 }
 
@@ -158,6 +159,21 @@ export function useSiteSettings(): SiteSettingsHookReturn {
           price: 50,
           applicableTiers: ['deluxe-suite', 'luxury-suite'],
           isActive: true,
+        },
+      ],
+    },
+    testimonialsSettings: settings?.testimonialsSettings || {
+      testimonials: [
+        {
+          id: 'testimonial-1',
+          author: 'Sarah M.',
+          petName: 'Max',
+          rating: 5,
+          date: '2 weeks ago',
+          text: 'Max had an amazing stay. The owner sent us photos every day and he looked genuinely happy and relaxed.',
+          serviceLabel: 'Deluxe Suite',
+          isActive: true,
+          displayOrder: 0,
         },
       ],
     },

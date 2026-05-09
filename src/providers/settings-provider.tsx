@@ -158,6 +158,32 @@ function getDefaultSettings(): AdminSettings {
         },
       ],
     },
+    testimonialsSettings: {
+      testimonials: [
+        {
+          id: 'testimonial-1',
+          author: 'Sarah M.',
+          petName: 'Max',
+          rating: 5,
+          date: '2 weeks ago',
+          text: 'Max had an amazing stay. The owner sent us photos every day and he looked genuinely happy and relaxed.',
+          serviceLabel: 'Deluxe Suite',
+          isActive: true,
+          displayOrder: 0,
+        },
+        {
+          id: 'testimonial-2',
+          author: 'James T.',
+          petName: 'Luna',
+          rating: 5,
+          date: '1 month ago',
+          text: 'Luna settled in quickly and came home calm and happy. We will absolutely be back.',
+          serviceLabel: 'Standard Suite',
+          isActive: true,
+          displayOrder: 1,
+        },
+      ],
+    },
   };
 }
 
