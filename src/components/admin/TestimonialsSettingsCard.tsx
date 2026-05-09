@@ -85,7 +85,7 @@ export function TestimonialsSettingsCard() {
       }));
 
       const res = await fetch('/api/admin/settings', {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           testimonialsSettings: {

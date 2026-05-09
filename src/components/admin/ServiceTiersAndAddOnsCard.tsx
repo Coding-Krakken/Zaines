@@ -95,7 +95,7 @@ export function ServiceTiersAndAddOnsCard({
     setIsLoadingTiers(true);
     try {
       const response = await fetch('/api/admin/settings', {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           serviceSettings: {
@@ -123,7 +123,7 @@ export function ServiceTiersAndAddOnsCard({
     setIsLoadingAddOns(true);
     try {
       const response = await fetch('/api/admin/settings', {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           addOnsSettings: {

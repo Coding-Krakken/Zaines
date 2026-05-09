@@ -350,7 +350,7 @@ export default function AdminSettingsPage() {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-6">
           {/* Business Hours Card */}
           <Card>
             <CardHeader>
@@ -671,7 +671,13 @@ export default function AdminSettingsPage() {
           <TestimonialsSettingsCard />
 
           {/* Save Button */}
-          <Button type="submit" disabled={isSaving} className="w-full md:w-auto" size="lg">
+          <Button
+            type="button"
+            onClick={form.handleSubmit(onSubmit)}
+            disabled={isSaving}
+            className="w-full md:w-auto"
+            size="lg"
+          >
             {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -684,7 +690,7 @@ export default function AdminSettingsPage() {
               </>
             )}
           </Button>
-        </form>
+        </div>
       </Form>
     </div>
   );
