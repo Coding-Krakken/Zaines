@@ -207,6 +207,50 @@ export async function POST(request: NextRequest) {
 
     const data = validation.data;
     const adminSettings = await getAdminSettings();
+    const minNights = Math.max(
+      1,
+      adminSettings.availabilityRules.minNightsPerBooking,
+    );
+    const maxNights = Math.max(
+      minNights,
+      adminSettings.availabilityRules.maxNightsPerBooking,
+    );
+
+    const checkInDate = new Date(data.checkIn);
+    const checkOutDate = new Date(data.checkOut);
+    const totalNights = Math.ceil(
+      (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
+    if (!Number.isFinite(totalNights) || totalNights < 1) {
+      return errorResponse({
+        status: 400,
+        errorCode: "INVALID_DATE_RANGE",
+        message: "Check-out must be after check-in.",
+        retryable: false,
+        correlationId,
+      });
+    }
+
+    if (totalNights < minNights) {
+      return errorResponse({
+        status: 400,
+        errorCode: "INVALID_STAY_LENGTH",
+        message: `Minimum stay is ${minNights} night${minNights === 1 ? "" : "s"}.`,
+        retryable: false,
+        correlationId,
+      });
+    }
+
+    if (totalNights > maxNights) {
+      return errorResponse({
+        status: 400,
+        errorCode: "INVALID_STAY_LENGTH",
+        message: `Maximum stay is ${maxNights} night${maxNights === 1 ? "" : "s"}.`,
+        retryable: false,
+        correlationId,
+      });
+    }
 
     // Calculate pricing
     const pricing = calculateBookingPrice(
@@ -217,22 +261,13 @@ export async function POST(request: NextRequest) {
       adminSettings.pricingSettings,
     );
 
-    // Prepare dates and booking number outside transaction
-    const checkInDate = new Date(data.checkIn);
-    const checkOutDate = new Date(data.checkOut);
+    // Prepare booking number outside transaction
     const today = new Date();
     const dateStr = today.toISOString().split("T")[0].replace(/-/g, "");
     const randomNum = Math.floor(Math.random() * 10000)
       .toString()
       .padStart(4, "0");
     const bookingNumber = `PB-${dateStr}-${randomNum}`;
-    const totalNights = Math.max(
-      1,
-      Math.ceil(
-        (checkOutDate.getTime() - checkInDate.getTime()) /
-          (1000 * 60 * 60 * 24),
-      ),
-    );
 
     // Suite capacity configuration
     const capacity = {

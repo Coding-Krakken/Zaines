@@ -87,6 +87,42 @@ export async function POST(request: NextRequest) {
 
   try {
     const settings = await getAdminSettings();
+    const totalNights = Math.ceil(
+      (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
+    const minNights = Math.max(
+      1,
+      settings.availabilityRules.minNightsPerBooking,
+    );
+    const maxNights = Math.max(
+      minNights,
+      settings.availabilityRules.maxNightsPerBooking,
+    );
+
+    if (totalNights < minNights) {
+      return NextResponse.json(
+        createPublicErrorEnvelope({
+          errorCode: "INVALID_STAY_LENGTH",
+          message: `Minimum stay is ${minNights} night${minNights === 1 ? "" : "s"}.`,
+          retryable: false,
+          correlationId,
+        }),
+        { status: 400 },
+      );
+    }
+
+    if (totalNights > maxNights) {
+      return NextResponse.json(
+        createPublicErrorEnvelope({
+          errorCode: "INVALID_STAY_LENGTH",
+          message: `Maximum stay is ${maxNights} night${maxNights === 1 ? "" : "s"}.`,
+          retryable: false,
+          correlationId,
+        }),
+        { status: 400 },
+      );
+    }
+
     const pricing = calculateBookingPrice(
       checkIn,
       checkOut,

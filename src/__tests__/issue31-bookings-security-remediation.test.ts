@@ -101,6 +101,15 @@ vi.mock("@/lib/stripe", () => ({
   isStripeConfigured: vi.fn(() => false),
 }));
 
+vi.mock("@/lib/api/admin-settings", () => ({
+  getAdminSettings: vi.fn(async () => ({
+    availabilityRules: {
+      minNightsPerBooking: 10,
+      maxNightsPerBooking: 365,
+    },
+  })),
+}));
+
 import { POST as createBooking } from "@/app/api/bookings/route";
 
 describe("Issue #31 CP2 booking security remediation", () => {
@@ -137,5 +146,45 @@ describe("Issue #31 CP2 booking security remediation", () => {
     );
     expect(payload.details).not.toHaveProperty("issues");
     expect(payload.details).not.toHaveProperty("name");
+  });
+
+  it("rejects bookings shorter than configured minimum nights", async () => {
+    const request = new Request("http://localhost:3000/api/bookings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-correlation-id": "issue31-min-night-correlation",
+      },
+      body: JSON.stringify({
+        checkIn: "2026-03-10",
+        checkOut: "2026-03-12",
+        suiteType: "luxury",
+        petCount: 1,
+        firstName: "Morgan",
+        lastName: "Lee",
+        email: "morgan@example.com",
+        phone: "3155551234",
+        petNames: "Scout",
+        waiver: {
+          liabilityAccepted: true,
+          medicalAuthorizationAccepted: true,
+          photoReleaseAccepted: true,
+          policyAcknowledgmentAccepted: true,
+          signature: "Morgan Lee",
+        },
+      }),
+    });
+
+    const response = await createBooking(request as NextRequest);
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toEqual(
+      expect.objectContaining({
+        code: "INVALID_STAY_LENGTH",
+        error: "Minimum stay is 10 nights.",
+        correlationId: "issue31-min-night-correlation",
+      }),
+    );
   });
 });
