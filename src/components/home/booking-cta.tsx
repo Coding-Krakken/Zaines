@@ -7,7 +7,7 @@ import { Phone } from "lucide-react";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 
 export function BookingCTA() {
-  const { contactInfo } = useSiteSettings();
+  const { contactInfo, trustCopy } = useSiteSettings();
 
   return (
     <section
@@ -77,8 +77,7 @@ export function BookingCTA() {
 
           <FadeUp delay={0.4}>
             <p className="text-sm text-primary-foreground/60">
-              No payment required to check availability · Clear pricing before
-              you confirm · No hidden fees
+              {trustCopy.pricingDisclosure}
             </p>
           </FadeUp>
         </div>

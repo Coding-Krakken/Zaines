@@ -1,70 +1,30 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FadeUp, StaggerContainer, StaggerItem } from "@/components/motion";
 import { CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
-const suites = [
-  {
-    name: "Standard Suite",
-    price: "$65",
-    period: "per night",
-    size: "6&prime; × 8&prime;",
-    description:
-      "Comfortable private accommodations with everything your dog needs for a great stay.",
-    features: [
-      "Premium raised orthopedic bed",
-      "Climate-controlled environment",
-      "2 structured potty breaks",
-      "Daily cleaning & sanitation",
-      "Meal service (owner-provided food)",
-      "Daily photo update",
-    ],
-    href: "/suites#standard",
-    color: "border-border",
-    badge: null,
-  },
-  {
-    name: "Deluxe Suite",
-    price: "$85",
-    period: "per night",
-    size: "8&prime; × 10&prime;",
-    description:
-      "More space, more enrichment, and webcam access so you can check in anytime.",
-    features: [
-      "Everything in Standard, plus:",
-      "Larger private space",
-      "Webcam access for you",
-      "3 structured potty breaks",
-      "Curated Spotify playlist",
-      "Extra enrichment activities",
-    ],
-    href: "/suites#deluxe",
-    color: "border-primary",
-    badge: "Most Popular",
-  },
-  {
-    name: "Luxury Suite",
-    price: "$120",
-    period: "per night",
-    size: "10&prime; × 12&prime;",
-    description:
-      "Our premier experience — maximum space, individual attention, and premium everything.",
-    features: [
-      "Everything in Deluxe, plus:",
-      "Our largest private suite",
-      "Individual 1-on-1 enrichment",
-      "Premium bedding & amenities",
-      "Priority scheduling",
-      "Extended evening check-ins",
-    ],
-    href: "/suites#luxury",
-    color: "border-border",
-    badge: null,
-  },
-];
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 export function SuiteShowcase() {
+  const { serviceSettings, pricingSettings } = useSiteSettings();
+
+  const activeSuites = serviceSettings.serviceTiers
+    .filter((suite) => suite.isActive)
+    .sort((a, b) => a.displayOrder - b.displayOrder);
+
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: pricingSettings.currency || "USD",
+    maximumFractionDigits: 0,
+  });
+
+  const suiteCountLabel =
+    activeSuites.length === 1
+      ? "One Private Suite."
+      : `${activeSuites.length} Private Suites.`;
+
   return (
     <section
       className="section-padding bg-background"
@@ -80,7 +40,7 @@ export function SuiteShowcase() {
               id="suites-heading"
               className="font-display text-4xl md:text-5xl font-semibold text-foreground mb-4 text-balance"
             >
-              Three Private Suites.
+              {suiteCountLabel}
               <br />
               <em className="text-primary not-italic">Zero Overcrowding.</em>
             </h2>
@@ -91,16 +51,21 @@ export function SuiteShowcase() {
           </div>
         </FadeUp>
 
+        {activeSuites.length === 0 ? (
+          <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
+            No active service types are currently configured. Update Services & Pricing in Admin Settings.
+          </div>
+        ) : (
         <StaggerContainer className="grid gap-8 md:grid-cols-3">
-          {suites.map((suite) => (
+          {activeSuites.map((suite, index) => (
             <StaggerItem key={suite.name}>
               <div
-                className={`relative flex flex-col h-full rounded-2xl border-2 ${suite.color} bg-card p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-1`}
+                className={`relative flex flex-col h-full rounded-2xl border-2 ${index === 1 ? "border-primary" : "border-border"} bg-card p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-1`}
               >
-                {suite.badge && (
+                {index === 1 && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <Badge className="bg-primary text-primary-foreground px-4 py-1 text-xs tracking-wider uppercase">
-                      {suite.badge}
+                      Most Popular
                     </Badge>
                   </div>
                 )}
@@ -116,8 +81,7 @@ export function SuiteShowcase() {
 
                 <div className="mb-2">
                   <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-                    {/* size rendered from HTML entity string — use dangerouslySetInnerHTML inline */}
-                    Private Suite · {suite.size.replace("&prime;", "′")}
+                    Private Suite · Configured in Admin
                   </p>
                   <h3 className="font-display text-2xl font-semibold text-foreground">
                     {suite.name}
@@ -125,8 +89,10 @@ export function SuiteShowcase() {
                 </div>
 
                 <div className="flex items-baseline gap-1 mb-3">
-                  <span className="text-3xl font-bold text-primary">{suite.price}</span>
-                  <span className="text-sm text-muted-foreground">{suite.period}</span>
+                  <span className="text-3xl font-bold text-primary">
+                    {formatter.format(suite.baseNightlyRate)}
+                  </span>
+                  <span className="text-sm text-muted-foreground">per night</span>
                 </div>
 
                 <p className="text-sm text-muted-foreground leading-relaxed mb-6">
@@ -134,7 +100,12 @@ export function SuiteShowcase() {
                 </p>
 
                 <ul className="space-y-2.5 mb-8 flex-1">
-                  {suite.features.map((feature) => (
+                  {[
+                    "Private suite environment",
+                    "Structured care and routines",
+                    "Daily updates during stay",
+                    "Configured and managed in real time",
+                  ].map((feature) => (
                     <li key={feature} className="flex items-start gap-2.5 text-sm">
                       <CheckCircle2
                         className="h-4 w-4 text-primary flex-shrink-0 mt-0.5"
@@ -146,16 +117,17 @@ export function SuiteShowcase() {
                 </ul>
 
                 <Button
-                  variant={suite.badge ? "default" : "outline"}
+                  variant={index === 1 ? "default" : "outline"}
                   className="w-full"
                   asChild
                 >
-                  <Link href={suite.href}>Learn About This Suite</Link>
+                  <Link href={`/suites#${suite.id}`}>Learn About This Suite</Link>
                 </Button>
               </div>
             </StaggerItem>
           ))}
         </StaggerContainer>
+        )}
 
         <FadeUp delay={0.2}>
           <p className="text-center text-sm text-muted-foreground mt-10">
@@ -163,7 +135,7 @@ export function SuiteShowcase() {
             <Link href="/pricing" className="text-primary hover:underline font-medium">
               View our multi-dog discounts
             </Link>{" "}
-            — 15% off the second dog, 20% off the third.
+            — {pricingSettings.twoPetDiscountPercent}% off the second dog, {pricingSettings.threePlusPetsDiscountPercent}% off the third.
           </p>
         </FadeUp>
       </div>

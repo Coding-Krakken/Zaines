@@ -1,5 +1,8 @@
+"use client";
+
 import { SlideInLeft, SlideInRight } from "@/components/motion";
 import { X, Check } from "lucide-react";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 const differentiators = [
   {
@@ -21,6 +24,8 @@ const differentiators = [
 ];
 
 export function PositioningSection() {
+  const { businessName } = useSiteSettings();
+
   return (
     <section
       className="bg-foreground section-padding overflow-hidden"
@@ -48,7 +53,7 @@ export function PositioningSection() {
                 individuals.
               </p>
               <p>
-                Zaine&apos;s Stay &amp; Play was built from the opposite
+                {businessName} was built from the opposite
                 philosophy. We intentionally limit capacity to three suites so
                 that every guest receives focused attention, a consistent routine,
                 and genuine care.

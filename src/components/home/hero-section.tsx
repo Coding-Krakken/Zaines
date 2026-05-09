@@ -1,9 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FadeUp } from "@/components/motion";
 import { Shield, Camera, Home } from "lucide-react";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 export function HeroSection() {
+  const { websiteProfile, trustCopy } = useSiteSettings();
+  const primaryArea = websiteProfile.serviceArea[0] || "Syracuse";
+
   return (
     <section
       className="relative min-h-[92vh] flex items-center overflow-hidden"
@@ -41,7 +47,7 @@ export function HeroSection() {
           {/* Eyebrow */}
           <FadeUp delay={0}>
             <p className="text-sm uppercase tracking-[0.3em] text-primary font-semibold mb-8">
-              Private Boutique Dog Boarding · Syracuse, NY
+              Private Boutique Dog Boarding · {primaryArea}, NY
             </p>
           </FadeUp>
 
@@ -89,7 +95,7 @@ export function HeroSection() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Home className="h-4 w-4 text-primary flex-shrink-0" aria-hidden="true" />
-                <span>Only 3 private suites</span>
+                <span>{trustCopy.trustEvidenceClaim.includes("Only 3 private suites") ? "Only 3 private suites" : "Private suites"}</span>
               </div>
               <div className="hidden sm:block w-1 h-1 rounded-full bg-border" />
               <div className="flex items-center gap-2">

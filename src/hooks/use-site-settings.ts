@@ -25,6 +25,10 @@ interface SiteSettingsHookReturn {
   socialLinks: AdminSettings['businessProfileSettings']['socialLinks'];
   websiteProfile: AdminSettings['websiteProfileSettings'];
   trustCopy: AdminSettings['trustCopySettings'];
+  availabilityRules: AdminSettings['availabilityRules'];
+  pricingSettings: AdminSettings['pricingSettings'];
+  serviceSettings: AdminSettings['serviceSettings'];
+  addOnsSettings: AdminSettings['addOnsSettings'];
   isLoading: boolean;
 }
 
@@ -85,6 +89,77 @@ export function useSiteSettings(): SiteSettingsHookReturn {
         "Payment details are processed by Stripe; Zaine's Stay & Play does not store card numbers on our servers. We use access controls and secure transmission for booking, account, pet health, and message data.",
       trustEvidenceClaim:
         'Only 3 private suites, owner onsite, camera-monitored safety, no harsh chemicals, and same-family dogs can stay together when approved.',
+    },
+    availabilityRules: settings?.availabilityRules || {
+      minNightsPerBooking: 1,
+      maxNightsPerBooking: 365,
+      advanceBookingWindowDays: 365,
+      minimumLeadTimeDays: 0,
+    },
+    pricingSettings: settings?.pricingSettings || {
+      currency: 'USD',
+      standardNightlyRate: 65,
+      deluxeNightlyRate: 85,
+      luxuryNightlyRate: 120,
+      taxRatePercent: 10,
+      twoPetDiscountPercent: 15,
+      threePlusPetsDiscountPercent: 20,
+    },
+    serviceSettings: settings?.serviceSettings || {
+      serviceTiers: [
+        {
+          id: 'standard-suite',
+          name: 'Standard Suite',
+          description: 'Comfortable and cozy suite with basic amenities',
+          baseNightlyRate: 65,
+          isActive: true,
+          displayOrder: 1,
+        },
+        {
+          id: 'deluxe-suite',
+          name: 'Deluxe Suite',
+          description: 'Premium suite with enhanced comfort and features',
+          baseNightlyRate: 85,
+          isActive: true,
+          displayOrder: 2,
+        },
+        {
+          id: 'luxury-suite',
+          name: 'Luxury Suite',
+          description: 'Exclusive luxury experience with top-tier amenities',
+          baseNightlyRate: 120,
+          isActive: true,
+          displayOrder: 3,
+        },
+      ],
+    },
+    addOnsSettings: settings?.addOnsSettings || {
+      addOns: [
+        {
+          id: 'premium-treats',
+          name: 'Premium Treats Package',
+          description: 'Special premium treats and snacks throughout stay',
+          price: 15,
+          applicableTiers: ['standard-suite', 'deluxe-suite', 'luxury-suite'],
+          isActive: true,
+        },
+        {
+          id: 'extra-playtime',
+          name: 'Extra Playtime Session',
+          description: 'Additional supervised playtime session',
+          price: 25,
+          applicableTiers: ['standard-suite', 'deluxe-suite', 'luxury-suite'],
+          isActive: true,
+        },
+        {
+          id: 'training-session',
+          name: 'Training Session',
+          description: 'Professional training session during stay',
+          price: 50,
+          applicableTiers: ['deluxe-suite', 'luxury-suite'],
+          isActive: true,
+        },
+      ],
     },
     isLoading,
   };
