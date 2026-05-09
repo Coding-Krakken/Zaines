@@ -9,9 +9,14 @@ function escapeCsv(value: string): string {
   return value;
 }
 
-function parseDate(value: string | null): Date | undefined {
+function parseDate(value: string | null, boundary: 'start' | 'end'): Date | undefined {
   if (!value) return undefined;
-  const parsed = new Date(value);
+
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
+  const parsed = dateOnly
+    ? new Date(`${value}T${boundary === 'start' ? '00:00:00.000' : '23:59:59.999'}Z`)
+    : new Date(value);
+
   if (Number.isNaN(parsed.getTime())) return undefined;
   return parsed;
 }
@@ -23,8 +28,8 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const payload = await getFinanceTransactions({
-      startDate: parseDate(searchParams.get('startDate')),
-      endDate: parseDate(searchParams.get('endDate')),
+      startDate: parseDate(searchParams.get('startDate'), 'start'),
+      endDate: parseDate(searchParams.get('endDate'), 'end'),
       status: searchParams.get('status') ?? undefined,
       search: searchParams.get('search') ?? undefined,
     });

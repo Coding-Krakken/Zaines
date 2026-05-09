@@ -4,13 +4,13 @@ import { requireFinanceAccess } from '@/lib/api/admin-finance-auth';
 
 function parseDate(value: string | null, boundary: 'start' | 'end'): Date | undefined {
   if (!value) return undefined;
-  const parsed = new Date(value);
+
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
+  const parsed = dateOnly
+    ? new Date(`${value}T${boundary === 'start' ? '00:00:00.000' : '23:59:59.999'}Z`)
+    : new Date(value);
+
   if (Number.isNaN(parsed.getTime())) return undefined;
-  if (boundary === 'start') {
-    parsed.setHours(0, 0, 0, 0);
-  } else {
-    parsed.setHours(23, 59, 59, 999);
-  }
   return parsed;
 }
 

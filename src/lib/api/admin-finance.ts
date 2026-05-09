@@ -79,28 +79,45 @@ export async function getFinanceOverview(
     };
   }
 
-  const payments = await prisma.payment.findMany({
-    where: {
-      booking: {
+  const [payments, unpaidBookings] = await Promise.all([
+    prisma.payment.findMany({
+      where: {
+        booking: {
+          checkInDate: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+      },
+      include: {
+        booking: {
+          select: {
+            id: true,
+            tax: true,
+            bookingNumber: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    }),
+    prisma.booking.findMany({
+      where: {
         checkInDate: {
           gte: startDate,
           lte: endDate,
         },
-      },
-    },
-    include: {
-      booking: {
-        select: {
-          id: true,
-          tax: true,
-          bookingNumber: true,
+        payments: {
+          none: {},
         },
       },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+      select: {
+        id: true,
+        total: true,
+      },
+    }),
+  ]);
 
   let grossRevenue = 0;
   let refunds = 0;
@@ -134,6 +151,12 @@ export async function getFinanceOverview(
     }
   }
 
+  for (const booking of unpaidBookings) {
+    statusMap.pending.count += 1;
+    statusMap.pending.amount = roundCurrency(statusMap.pending.amount + booking.total);
+    outstandingPending = roundCurrency(outstandingPending + booking.total);
+  }
+
   const netRevenue = roundCurrency(grossRevenue - refunds);
 
   return {
@@ -147,7 +170,7 @@ export async function getFinanceOverview(
       netRevenue,
       taxesCollected,
       outstandingPending,
-      transactionCount: payments.length,
+      transactionCount: payments.length + unpaidBookings.length,
     },
     byStatus: ALLOWED_STATUSES.map((status) => ({
       status,
@@ -192,35 +215,62 @@ export async function getFinanceTransactions(
 
   const status = normalizeStatus(filters.status);
 
-  const payments = await prisma.payment.findMany({
-    where: {
-      booking: {
-        checkInDate: {
-          gte: startDate,
-          lte: endDate,
+  const [payments, unpaidBookings] = await Promise.all([
+    prisma.payment.findMany({
+      where: {
+        booking: {
+          checkInDate: {
+            gte: startDate,
+            lte: endDate,
+          },
         },
+        ...(status ? { status } : {}),
       },
-      ...(status ? { status } : {}),
-    },
-    include: {
-      booking: {
-        include: {
-          user: {
-            select: {
-              name: true,
-              email: true,
+      include: {
+        booking: {
+          include: {
+            user: {
+              select: {
+                name: true,
+                email: true,
+              },
             },
           },
         },
       },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-    take: 300,
-  });
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 300,
+    }),
+    !status || status === 'pending'
+      ? prisma.booking.findMany({
+          where: {
+            checkInDate: {
+              gte: startDate,
+              lte: endDate,
+            },
+            payments: {
+              none: {},
+            },
+          },
+          include: {
+            user: {
+              select: {
+                name: true,
+                email: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 300,
+        })
+      : Promise.resolve([]),
+  ]);
 
-  const rows: FinanceTransactionRow[] = payments.map((payment) => ({
+  const paymentRows: FinanceTransactionRow[] = payments.map((payment) => ({
     id: payment.id,
     bookingId: payment.bookingId,
     bookingNumber: payment.booking.bookingNumber,
@@ -236,6 +286,29 @@ export async function getFinanceTransactions(
     paidAt: payment.paidAt ? payment.paidAt.toISOString() : null,
     refundedAt: payment.refundedAt ? payment.refundedAt.toISOString() : null,
   }));
+
+  const unpaidRows: FinanceTransactionRow[] = unpaidBookings.map((booking) => ({
+    id: `booking-unpaid-${booking.id}`,
+    bookingId: booking.id,
+    bookingNumber: booking.bookingNumber,
+    customerName: booking.user.name ?? 'Unknown',
+    customerEmail: booking.user.email ?? 'Unknown',
+    amount: booking.total,
+    refundAmount: 0,
+    currency: 'USD',
+    status: 'pending',
+    paymentMethod: 'unpaid',
+    stripePaymentId: null,
+    createdAt: booking.createdAt.toISOString(),
+    paidAt: null,
+    refundedAt: null,
+  }));
+
+  const rows = [...paymentRows, ...unpaidRows].sort((a, b) => {
+    const left = new Date(a.createdAt).getTime();
+    const right = new Date(b.createdAt).getTime();
+    return right - left;
+  });
 
   const filteredRows = filters.search
     ? rows.filter((row) => matchesSearch(row, filters.search as string))
