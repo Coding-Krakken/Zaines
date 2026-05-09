@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { prisma, isDatabaseConfigured } from '@/lib/prisma';
 import { appendFinanceAuditEvent } from '@/lib/api/admin-finance';
+import { requireFinanceAccess } from '@/lib/api/admin-finance-auth';
 import type { FinanceAdjustmentRequest } from '@/types/finance';
 
 function roundCurrency(value: number): number {
@@ -10,15 +10,9 @@ function roundCurrency(value: number): number {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const role = (session.user as { role?: string; name?: string }).role;
-    if (role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const access = await requireFinanceAccess('write');
+    if (access.response) return access.response;
+    const session = access.session;
 
     if (!isDatabaseConfigured()) {
       return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
@@ -57,7 +51,7 @@ export async function POST(request: NextRequest) {
     await appendFinanceAuditEvent({
       bookingId: booking.id,
       actorUserId: session.user.id,
-      actorName: (session.user as { name?: string }).name ?? 'Admin',
+      actorName: session.user.name ?? 'Admin',
       eventType: 'MANUAL_ADJUSTMENT_APPLIED',
       note: body.reason,
       payload: {

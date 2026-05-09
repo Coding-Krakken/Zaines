@@ -1,0 +1,311 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { NextRequest } from 'next/server';
+
+type SessionLike = { user: { id: string; role?: string; name?: string } } | null;
+
+const {
+  authMock,
+  prismaMock,
+  isDbConfiguredMock,
+  getDefaultFinanceRangeMock,
+  getFinanceOverviewMock,
+  getFinanceReconciliationMock,
+  getFinanceTransactionsMock,
+  getFinanceTaxSummaryMock,
+  getFinanceAuditEventsMock,
+  appendFinanceAuditEventMock,
+  stripeRefundCreateMock,
+  isStripeConfiguredMock,
+} = vi.hoisted(() => ({
+  authMock: vi.fn<() => Promise<SessionLike>>(async () => null),
+  prismaMock: {
+    payment: {
+      findUnique: vi.fn<() => Promise<Record<string, unknown> | null>>(async () => null),
+      update: vi.fn(async () => ({ id: 'payment-1' })),
+    },
+    credit: {
+      create: vi.fn(async () => ({ id: 'credit-1' })),
+    },
+    booking: {
+      findUnique: vi.fn<() => Promise<Record<string, unknown> | null>>(async () => null),
+    },
+  },
+  isDbConfiguredMock: vi.fn(() => true),
+  getDefaultFinanceRangeMock: vi.fn(() => {
+    const endDate = new Date('2026-05-08T23:59:59.999Z');
+    const startDate = new Date('2026-04-08T00:00:00.000Z');
+    return { startDate, endDate };
+  }),
+  getFinanceOverviewMock: vi.fn(async () => ({
+    range: { startDate: new Date().toISOString(), endDate: new Date().toISOString() },
+    totals: {
+      grossRevenue: 1,
+      refunds: 0,
+      netRevenue: 1,
+      taxesCollected: 0,
+      outstandingPending: 0,
+      transactionCount: 1,
+    },
+    byStatus: [],
+  })),
+  getFinanceReconciliationMock: vi.fn(async () => ({
+    range: { startDate: new Date().toISOString(), endDate: new Date().toISOString() },
+    totals: {
+      succeededAmount: 100,
+      refundedAmount: 0,
+      netAmount: 100,
+      transactionCount: 1,
+    },
+    buckets: [
+      {
+        date: '2026-05-08',
+        succeededAmount: 100,
+        refundedAmount: 0,
+        netAmount: 100,
+        transactionCount: 1,
+        status: 'pending',
+        reconciledAt: null,
+      },
+    ],
+  })),
+  getFinanceTransactionsMock: vi.fn(async () => ({
+    range: { startDate: new Date().toISOString(), endDate: new Date().toISOString() },
+    summary: {
+      totalTransactions: 1,
+      filteredTransactions: 1,
+      totalAmount: 100,
+      totalRefundAmount: 0,
+    },
+    rows: [
+      {
+        id: 'payment-1',
+        bookingId: 'booking-1',
+        bookingNumber: 'PB-001',
+        customerName: 'Alice',
+        customerEmail: 'alice@example.com',
+        amount: 100,
+        refundAmount: 0,
+        currency: 'USD',
+        status: 'succeeded',
+        paymentMethod: 'card',
+        stripePaymentId: 'pi_1',
+        createdAt: new Date().toISOString(),
+        paidAt: new Date().toISOString(),
+        refundedAt: null,
+      },
+    ],
+  })),
+  getFinanceTaxSummaryMock: vi.fn(async () => ({
+    range: { startDate: new Date().toISOString(), endDate: new Date().toISOString() },
+    totals: {
+      taxableRevenue: 100,
+      taxCollected: 10,
+      refundedTax: 0,
+      netTaxLiability: 10,
+    },
+    rows: [
+      {
+        period: '2026-05',
+        taxableRevenue: 100,
+        taxCollected: 10,
+        refundedTax: 0,
+        netTaxLiability: 10,
+      },
+    ],
+  })),
+  getFinanceAuditEventsMock: vi.fn(async () => []),
+  appendFinanceAuditEventMock: vi.fn(async () => undefined),
+  stripeRefundCreateMock: vi.fn(async () => ({ id: 're_1' })),
+  isStripeConfiguredMock: vi.fn(() => false),
+}));
+
+vi.mock('@/lib/auth', () => ({ auth: authMock }));
+
+vi.mock('@/lib/prisma', () => ({
+  prisma: prismaMock,
+  isDatabaseConfigured: isDbConfiguredMock,
+}));
+
+vi.mock('@/lib/api/admin-finance', () => ({
+  getDefaultFinanceRange: getDefaultFinanceRangeMock,
+  getFinanceOverview: getFinanceOverviewMock,
+  getFinanceReconciliation: getFinanceReconciliationMock,
+  getFinanceTransactions: getFinanceTransactionsMock,
+  getFinanceTaxSummary: getFinanceTaxSummaryMock,
+  getFinanceAuditEvents: getFinanceAuditEventsMock,
+  appendFinanceAuditEvent: appendFinanceAuditEventMock,
+}));
+
+vi.mock('@/lib/stripe', () => ({
+  stripe: {
+    refunds: {
+      create: stripeRefundCreateMock,
+    },
+  },
+  isStripeConfigured: isStripeConfiguredMock,
+  formatAmountForStripe: vi.fn((amount: number) => Math.round(amount * 100)),
+}));
+
+import { GET as getFinanceOverviewRoute } from '@/app/api/admin/finance/overview/route';
+import { GET as getFinanceTransactionsRoute } from '@/app/api/admin/finance/transactions/route';
+import { GET as getFinanceRefundsRoute, POST as postFinanceRefundRoute } from '@/app/api/admin/finance/refunds/route';
+import { POST as postFinanceAdjustmentRoute } from '@/app/api/admin/finance/adjustments/route';
+import { GET as getFinanceAuditRoute } from '@/app/api/admin/finance/audit/route';
+import { GET as getFinanceReconciliationRoute, POST as postFinanceReconciliationRoute } from '@/app/api/admin/finance/reconciliation/route';
+import { GET as getFinanceTaxesRoute } from '@/app/api/admin/finance/taxes/route';
+import { GET as getFinanceTaxesExportRoute } from '@/app/api/admin/finance/taxes/export/route';
+
+const staffSession = { user: { id: 'staff-1', role: 'staff', name: 'Staff User' } };
+const adminSession = { user: { id: 'admin-1', role: 'admin', name: 'Admin User' } };
+const customerSession = { user: { id: 'customer-1', role: 'customer', name: 'Customer User' } };
+
+function makeJsonRequest(url: string, body: Record<string, unknown>): NextRequest {
+  return new NextRequest(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+describe('admin finance route authz', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    isDbConfiguredMock.mockReturnValue(true);
+    isStripeConfiguredMock.mockReturnValue(false);
+    prismaMock.payment.findUnique.mockResolvedValue({
+      id: 'payment-1',
+      bookingId: 'booking-1',
+      amount: 100,
+      status: 'succeeded',
+      refundAmount: 0,
+      stripePaymentId: 'pi_1',
+      booking: {
+        user: { id: 'customer-1' },
+      },
+    });
+    prismaMock.booking.findUnique.mockResolvedValue({
+      id: 'booking-1',
+      bookingNumber: 'PB-001',
+      user: { id: 'customer-1' },
+    });
+  });
+
+  it('blocks unauthenticated users from finance overview', async () => {
+    authMock.mockResolvedValue(null);
+    const res = await getFinanceOverviewRoute(new NextRequest('http://localhost/api/admin/finance/overview'));
+    expect(res.status).toBe(401);
+  });
+
+  it('allows staff users to read finance overview', async () => {
+    authMock.mockResolvedValue(staffSession);
+    const res = await getFinanceOverviewRoute(new NextRequest('http://localhost/api/admin/finance/overview'));
+    expect(res.status).toBe(200);
+    expect(getFinanceOverviewMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows staff users to read finance transactions and refunds queue', async () => {
+    authMock.mockResolvedValue(staffSession);
+    const txRes = await getFinanceTransactionsRoute(new NextRequest('http://localhost/api/admin/finance/transactions'));
+    const refundRes = await getFinanceRefundsRoute(new NextRequest('http://localhost/api/admin/finance/refunds'));
+    expect(txRes.status).toBe(200);
+    expect(refundRes.status).toBe(200);
+  });
+
+  it('blocks staff users from refund mutation', async () => {
+    authMock.mockResolvedValue(staffSession);
+    const res = await postFinanceRefundRoute(
+      makeJsonRequest('http://localhost/api/admin/finance/refunds', {
+        paymentId: 'payment-1',
+        refundAmount: 10,
+        reason: 'customer requested',
+      }),
+    );
+    expect(res.status).toBe(403);
+    expect(prismaMock.payment.update).not.toHaveBeenCalled();
+  });
+
+  it('allows admin users to apply refund mutation and writes audit event', async () => {
+    authMock.mockResolvedValue(adminSession);
+    const res = await postFinanceRefundRoute(
+      makeJsonRequest('http://localhost/api/admin/finance/refunds', {
+        paymentId: 'payment-1',
+        refundAmount: 10,
+        reason: 'customer requested',
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(prismaMock.payment.update).toHaveBeenCalledTimes(1);
+    expect(appendFinanceAuditEventMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'REFUND_APPLIED',
+      }),
+    );
+  });
+
+  it('blocks non-admin users from manual adjustment mutation', async () => {
+    authMock.mockResolvedValue(customerSession);
+    const res = await postFinanceAdjustmentRoute(
+      makeJsonRequest('http://localhost/api/admin/finance/adjustments', {
+        bookingId: 'booking-1',
+        amount: 5,
+        reason: 'manual adjustment',
+      }),
+    );
+    expect(res.status).toBe(403);
+  });
+
+  it('allows admin users to create manual adjustment and writes audit event', async () => {
+    authMock.mockResolvedValue(adminSession);
+    const res = await postFinanceAdjustmentRoute(
+      makeJsonRequest('http://localhost/api/admin/finance/adjustments', {
+        bookingId: 'booking-1',
+        amount: 5,
+        reason: 'manual adjustment',
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(prismaMock.credit.create).toHaveBeenCalledTimes(1);
+    expect(appendFinanceAuditEventMock).toHaveBeenCalledWith(
+      expect.objectContaining({ eventType: 'MANUAL_ADJUSTMENT_APPLIED' }),
+    );
+  });
+
+  it('allows staff users to read finance audit and taxes', async () => {
+    authMock.mockResolvedValue(staffSession);
+    const auditRes = await getFinanceAuditRoute(new NextRequest('http://localhost/api/admin/finance/audit'));
+    const taxesRes = await getFinanceTaxesRoute(new NextRequest('http://localhost/api/admin/finance/taxes'));
+    expect(auditRes.status).toBe(200);
+    expect(taxesRes.status).toBe(200);
+  });
+
+  it('blocks staff users from reconciliation mutation', async () => {
+    authMock.mockResolvedValue(staffSession);
+    const res = await postFinanceReconciliationRoute(
+      makeJsonRequest('http://localhost/api/admin/finance/reconciliation', {
+        bucketDate: '2026-05-08',
+      }),
+    );
+    expect(res.status).toBe(403);
+  });
+
+  it('allows admin users to mark reconciliation', async () => {
+    authMock.mockResolvedValue(adminSession);
+    const res = await postFinanceReconciliationRoute(
+      makeJsonRequest('http://localhost/api/admin/finance/reconciliation', {
+        bucketDate: '2026-05-08',
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(appendFinanceAuditEventMock).toHaveBeenCalledWith(
+      expect.objectContaining({ eventType: 'PAYOUT_RECONCILED' }),
+    );
+  });
+
+  it('allows staff users to read reconciliation and tax export CSV', async () => {
+    authMock.mockResolvedValue(staffSession);
+    const reconRes = await getFinanceReconciliationRoute(new NextRequest('http://localhost/api/admin/finance/reconciliation'));
+    const exportRes = await getFinanceTaxesExportRoute(new NextRequest('http://localhost/api/admin/finance/taxes/export'));
+    expect(reconRes.status).toBe(200);
+    expect(exportRes.status).toBe(200);
+  });
+});

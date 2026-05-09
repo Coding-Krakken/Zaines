@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { FadeUp } from "@/components/motion";
 import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,10 +23,29 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
+// Inner component that reads search params — must be wrapped in Suspense
+function TestimonialsSearchParamSync({
+  safeTestimonials,
+  setCurrent,
+}: {
+  safeTestimonials: Array<{ id: string }>;
+  setCurrent: (idx: number) => void;
+}) {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const targetId = searchParams.get('testimonial');
+    if (!targetId) return;
+    const idx = safeTestimonials.findIndex((item) => item.id === targetId);
+    if (idx >= 0) setCurrent(idx);
+  }, [searchParams, safeTestimonials, setCurrent]);
+
+  return null;
+}
+
 export function Testimonials() {
   const [current, setCurrent] = useState(0);
   const { testimonialsSettings } = useSiteSettings();
-  const searchParams = useSearchParams();
   const testimonials = testimonialsSettings.testimonials
     .filter((item) => item.isActive)
     .sort((a, b) => a.displayOrder - b.displayOrder);
@@ -53,18 +72,18 @@ export function Testimonials() {
 
   const t = safeTestimonials[current];
 
-  useEffect(() => {
-    const targetId = searchParams.get('testimonial');
-    if (!targetId) return;
-    const idx = safeTestimonials.findIndex((item) => item.id === targetId);
-    if (idx >= 0) setCurrent(idx);
-  }, [searchParams, safeTestimonials]);
-
   return (
     <section
       className="section-padding bg-foreground overflow-hidden"
       aria-labelledby="testimonials-heading"
     >
+      {/* Reads ?testimonial= query param to deep-link to a specific item */}
+      <Suspense fallback={null}>
+        <TestimonialsSearchParamSync
+          safeTestimonials={safeTestimonials}
+          setCurrent={setCurrent}
+        />
+      </Suspense>
       <div className="container mx-auto px-4">
         <FadeUp>
           <div className="text-center mb-16">

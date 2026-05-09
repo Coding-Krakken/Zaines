@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { getFinanceAuditEvents } from '@/lib/api/admin-finance';
+import { requireFinanceAccess } from '@/lib/api/admin-finance-auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const role = (session.user as { role?: string }).role;
-    if (!role || !['staff', 'admin'].includes(role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const access = await requireFinanceAccess('read');
+    if (access.response) return access.response;
 
     const { searchParams } = new URL(request.url);
     const bookingId = searchParams.get('bookingId') ?? undefined;

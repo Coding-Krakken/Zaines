@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import {
   appendFinanceAuditEvent,
   getDefaultFinanceRange,
   getFinanceReconciliation,
 } from '@/lib/api/admin-finance';
+import { requireFinanceAccess } from '@/lib/api/admin-finance-auth';
 
 function parseDate(value: string | null): Date | undefined {
   if (!value) return undefined;
@@ -15,15 +15,8 @@ function parseDate(value: string | null): Date | undefined {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const role = (session.user as { role?: string }).role;
-    if (!role || !['staff', 'admin'].includes(role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const access = await requireFinanceAccess('read');
+    if (access.response) return access.response;
 
     const { searchParams } = new URL(request.url);
     const defaults = getDefaultFinanceRange();
@@ -41,15 +34,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const role = (session.user as { role?: string; name?: string }).role;
-    if (role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const access = await requireFinanceAccess('write');
+    if (access.response) return access.response;
+    const session = access.session;
 
     const body = (await request.json()) as { bucketDate?: string; note?: string };
     if (!body.bucketDate) {
@@ -58,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     await appendFinanceAuditEvent({
       actorUserId: session.user.id,
-      actorName: (session.user as { name?: string }).name ?? 'Admin',
+      actorName: session.user.name ?? 'Admin',
       eventType: 'PAYOUT_RECONCILED',
       note: body.note ?? 'Marked as reconciled in admin finance workspace.',
       payload: {

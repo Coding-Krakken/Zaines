@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { getFinanceTransactions } from '@/lib/api/admin-finance';
+import { requireFinanceAccess } from '@/lib/api/admin-finance-auth';
 
 function escapeCsv(value: string): string {
   if (value.includes(',') || value.includes('"') || value.includes('\n')) {
@@ -18,15 +18,8 @@ function parseDate(value: string | null): Date | undefined {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const role = (session.user as { role?: string }).role;
-    if (!role || !['staff', 'admin'].includes(role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const access = await requireFinanceAccess('read');
+    if (access.response) return access.response;
 
     const { searchParams } = new URL(request.url);
     const payload = await getFinanceTransactions({
