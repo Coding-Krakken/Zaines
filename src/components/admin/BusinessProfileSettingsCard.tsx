@@ -27,6 +27,9 @@ export function BusinessProfileSettingsCard() {
         <CardDescription>
           Configure branding and social channels displayed across the site
         </CardDescription>
+        <div className="text-xs text-muted-foreground">
+          <a href="/#site-footer" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect in footer</a>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <FormField

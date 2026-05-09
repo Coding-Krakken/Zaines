@@ -21,6 +21,7 @@ const serviceTierSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
   description: z.string().min(1, 'Description is required').max(500),
   baseNightlyRate: z.number().min(0, 'Price must be positive'),
+  imageUrl: z.string().min(1, 'Image URL is required'),
   isActive: z.boolean(),
   displayOrder: z.number().min(0, 'Order must be non-negative'),
 });
@@ -155,6 +156,7 @@ export function ServiceTiersAndAddOnsCard({
       name: '',
       description: '',
       baseNightlyRate: 0,
+      imageUrl: '/images/suites/standard-placeholder.svg',
       isActive: true,
       displayOrder: tierFields.length,
     });
@@ -193,15 +195,25 @@ export function ServiceTiersAndAddOnsCard({
                     <div key={field.id} className="border rounded-lg p-4 space-y-3 bg-muted/30">
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium">Service Tier {index + 1}</h4>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => removeTier(index)}
-                          disabled={tierFields.length === 1}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={`/#suite-${tiersForm.watch(`serviceTiers.${index}.id`)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-xs text-primary underline underline-offset-2"
+                          >
+                            Inspect on site
+                          </a>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => removeTier(index)}
+                            disabled={tierFields.length === 1}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
@@ -251,6 +263,20 @@ export function ServiceTiersAndAddOnsCard({
                                 placeholder="Describe this service tier"
                                 {...field}
                               />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={tiersForm.control}
+                        name={`serviceTiers.${index}.imageUrl`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Image URL</FormLabel>
+                            <FormControl>
+                              <Input placeholder="/images/suites/deluxe-placeholder.svg" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>

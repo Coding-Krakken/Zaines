@@ -9,7 +9,7 @@ export function SiteFooter() {
   const { contactInfo, businessHours, businessName, socialLinks, websiteProfile } = useSiteSettings();
 
   return (
-    <footer className="bg-foreground text-background/70">
+    <footer id="site-footer" className="bg-foreground text-background/70">
       <div className="container py-16 md:py-20">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
           {/* Brand */}
@@ -19,9 +19,17 @@ export function SiteFooter() {
               className="flex items-center gap-2.5 mb-5 group w-fit"
               aria-label="Zaine's Stay & Play — Home"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-sm">
-                🐾
-              </span>
+              {websiteProfile.logoImageUrl ? (
+                <img
+                  src={websiteProfile.logoImageUrl}
+                  alt="Site logo"
+                  className="h-8 w-8 rounded-full object-cover"
+                />
+              ) : (
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-sm">
+                  🐾
+                </span>
+              )}
               <span className="font-display text-lg font-semibold text-background tracking-tight">
                 {businessName}
               </span>

@@ -28,6 +28,9 @@ export function PricingSettingsCard() {
         <CardDescription>
           Configure nightly rates, tax, and multi-pet discounts used in booking quotes
         </CardDescription>
+        <div className="text-xs text-muted-foreground">
+          <a href="/pricing" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect on pricing page</a>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

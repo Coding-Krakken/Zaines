@@ -70,6 +70,8 @@ export interface WebsiteProfileSettings {
   siteUrl: string;
   siteDescription: string;
   ogImageUrl: string;
+  ownerImageUrl: string;
+  logoImageUrl: string;
   serviceArea: string[];
 }
 
@@ -85,6 +87,7 @@ export interface ServiceTier {
   name: string; // e.g., "Standard Suite", "Deluxe Suite", "Luxury Suite"
   description: string;
   baseNightlyRate: number; // Base price per night for this tier
+  imageUrl: string; // Public URL for suite/service image
   isActive: boolean;
   displayOrder: number; // For sorting in UI
 }

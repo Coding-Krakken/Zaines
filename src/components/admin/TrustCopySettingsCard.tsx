@@ -27,6 +27,13 @@ export function TrustCopySettingsCard() {
         <CardDescription>
           Configure customer-facing disclosure copy with required compliance language
         </CardDescription>
+        <div className="text-xs text-muted-foreground">
+          <a href="/book" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect booking page</a>
+          <span className="mx-2">•</span>
+          <a href="/policies" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect policies page</a>
+          <span className="mx-2">•</span>
+          <a href="/privacy" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect privacy page</a>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <FormField

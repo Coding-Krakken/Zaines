@@ -116,6 +116,8 @@ const settingsFormSchema = z.object({
     siteUrl: z.string().url('Website URL must be valid'),
     siteDescription: z.string().min(1, 'Site description is required'),
     ogImageUrl: z.string().url('OG image URL must be valid'),
+    ownerImageUrl: z.string().url('Owner image URL must be valid'),
+    logoImageUrl: z.string().url('Logo image URL must be valid'),
     serviceArea: z.array(z.string().min(1)).min(1, 'At least one service area is required'),
   }),
   // Phase 9: Trust Copy Settings
@@ -248,7 +250,9 @@ export default function AdminSettingsPage() {
         siteUrl: 'https://zainesstayandplay.com',
         siteDescription:
           'Private, small-capacity dog boarding in Syracuse with owner-on-site care, three suites, and safety-first updates.',
-        ogImageUrl: 'https://zainesstayandplay.com/og.jpg',
+        ogImageUrl: 'https://zainesstayandplay.com/og-default.svg',
+        ownerImageUrl: 'https://zainesstayandplay.com/images/owner-placeholder.svg',
+        logoImageUrl: 'https://zainesstayandplay.com/logo.png',
         serviceArea: [
           'Syracuse',
           'Liverpool',

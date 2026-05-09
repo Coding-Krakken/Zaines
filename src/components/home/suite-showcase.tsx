@@ -60,6 +60,7 @@ export function SuiteShowcase() {
           {activeSuites.map((suite, index) => (
             <StaggerItem key={suite.name}>
               <div
+                id={`suite-${suite.id}`}
                 className={`relative flex flex-col h-full rounded-2xl border-2 ${index === 1 ? "border-primary" : "border-border"} bg-card p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-1`}
               >
                 {index === 1 && (
@@ -70,13 +71,12 @@ export function SuiteShowcase() {
                   </div>
                 )}
 
-                {/* Photo placeholder */}
                 <div className="relative mb-6 h-48 w-full rounded-xl overflow-hidden bg-gradient-to-br from-muted to-accent flex items-center justify-center">
-                  <div className="text-center text-muted-foreground/60">
-                    <div className="text-4xl mb-2">🐾</div>
-                    <p className="text-xs">Suite photo coming soon</p>
-                  </div>
-                  {/* TODO: Replace with next/image once real photos are at /public/images/suites/ */}
+                  <img
+                    src={suite.imageUrl || '/images/suites/placeholder.svg'}
+                    alt={`${suite.name} preview`}
+                    className="h-full w-full object-cover"
+                  />
                 </div>
 
                 <div className="mb-2">

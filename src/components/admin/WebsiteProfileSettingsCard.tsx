@@ -28,6 +28,13 @@ export function WebsiteProfileSettingsCard() {
         <CardDescription>
           Configure core website metadata and the service areas shown across the site
         </CardDescription>
+        <div className="text-xs text-muted-foreground space-y-1">
+          <a href="/" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect homepage</a>
+          <span className="mx-2">•</span>
+          <a href="/#owner-section" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect owner section</a>
+          <span className="mx-2">•</span>
+          <a href="/#site-footer" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect footer</a>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <FormField
@@ -50,8 +57,42 @@ export function WebsiteProfileSettingsCard() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Open Graph Image URL</FormLabel>
+              <FormDescription>
+                Used when your site link is shared on social platforms (Facebook, X, LinkedIn, iMessage) to show the preview image.
+              </FormDescription>
               <FormControl>
                 <Input type="url" placeholder="https://example.com/og.jpg" {...field} />
+              </FormControl>
+              <div className="text-xs">
+                <a href={field.value || '#'} target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Preview OG image URL</a>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="websiteProfileSettings.ownerImageUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Owner Section Image URL</FormLabel>
+              <FormControl>
+                <Input type="url" placeholder="https://example.com/images/owner.jpg" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="websiteProfileSettings.logoImageUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Logo Image URL</FormLabel>
+              <FormControl>
+                <Input type="url" placeholder="https://example.com/logo.png" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

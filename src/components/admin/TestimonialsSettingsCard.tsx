@@ -143,6 +143,9 @@ export function TestimonialsSettingsCard() {
       <CardHeader>
         <CardTitle>Testimonials</CardTitle>
         <CardDescription>Manage homepage testimonial content and visibility</CardDescription>
+        <div className="text-xs text-muted-foreground">
+          <a href="/#testimonials-heading" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect testimonials section</a>
+        </div>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -152,16 +155,26 @@ export function TestimonialsSettingsCard() {
                 <div key={field.id} className="rounded-lg border p-4 space-y-4">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium">Testimonial {index + 1}</p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={fields.length <= 1}
-                      onClick={() => remove(index)}
-                    >
-                      <Trash2 className="mr-1 h-4 w-4" />
-                      Remove
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={`/?testimonial=${encodeURIComponent(form.watch(`testimonials.${index}.id`))}#testimonials-heading`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-primary underline underline-offset-2"
+                      >
+                        Inspect on site
+                      </a>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={fields.length <= 1}
+                        onClick={() => remove(index)}
+                      >
+                        <Trash2 className="mr-1 h-4 w-4" />
+                        Remove
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

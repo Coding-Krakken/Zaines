@@ -179,7 +179,14 @@ export async function getAdminSettings(): Promise<AdminSettings> {
       serviceSettings: (() => {
         try {
           const json = settingsMap.get(SETTINGS_KEYS.SERVICE_TIERS_SETTINGS);
-          return json ? JSON.parse(json) : getDefaultServiceTiersSettings();
+          if (!json) return getDefaultServiceTiersSettings();
+          const parsed = JSON.parse(json) as ServiceTiersSettings;
+          return {
+            serviceTiers: (parsed.serviceTiers || []).map((tier, index) => ({
+              ...tier,
+              imageUrl: tier.imageUrl || '/images/suites/standard-placeholder.svg',
+            })),
+          };
         } catch {
           return getDefaultServiceTiersSettings();
         }
@@ -619,6 +626,8 @@ function getDefaultWebsiteProfileSettings(): WebsiteProfileSettings {
     siteUrl: siteConfig.url,
     siteDescription: siteConfig.description,
     ogImageUrl: siteConfig.ogImage,
+    ownerImageUrl: `${siteConfig.url}/images/owner-placeholder.svg`,
+    logoImageUrl: `${siteConfig.url}/logo.png`,
     serviceArea: [...siteConfig.serviceArea],
   };
 }
@@ -646,6 +655,7 @@ function getDefaultServiceTiersSettings(): ServiceTiersSettings {
         name: 'Standard Suite',
         description: 'Comfortable and cozy suite with basic amenities',
         baseNightlyRate: 65,
+        imageUrl: '/images/suites/standard-placeholder.svg',
         isActive: true,
         displayOrder: 1,
       },
@@ -654,6 +664,7 @@ function getDefaultServiceTiersSettings(): ServiceTiersSettings {
         name: 'Deluxe Suite',
         description: 'Premium suite with enhanced comfort and features',
         baseNightlyRate: 85,
+        imageUrl: '/images/suites/deluxe-placeholder.svg',
         isActive: true,
         displayOrder: 2,
       },
@@ -662,6 +673,7 @@ function getDefaultServiceTiersSettings(): ServiceTiersSettings {
         name: 'Luxury Suite',
         description: 'Exclusive luxury experience with top-tier amenities',
         baseNightlyRate: 120,
+        imageUrl: '/images/suites/luxury-placeholder.svg',
         isActive: true,
         displayOrder: 3,
       },

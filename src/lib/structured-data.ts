@@ -18,7 +18,7 @@ export async function localBusinessSchema() {
     email: settings.contactEmail,
     priceRange: "$$",
     image: websiteProfile.ogImageUrl,
-    logo: `${websiteProfile.siteUrl}/logo.png`,
+    logo: websiteProfile.logoImageUrl || `${websiteProfile.siteUrl}/logo.png`,
     address: {
       "@type": "PostalAddress",
       streetAddress: settings.address,

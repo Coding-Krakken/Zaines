@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { FadeUp, StaggerContainer, StaggerItem } from "@/components/motion";
 import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
+import { getAdminSettings } from "@/lib/api/admin-settings";
 
 // Metadata - note: using 'use client' requires export at module level if needed
 export async function generateMetadata(): Promise<Metadata> {
@@ -141,7 +142,12 @@ const amenities = [
   },
 ];
 
-export default function SuitesPage() {
+export default async function SuitesPage() {
+  const settings = await getAdminSettings();
+  const configuredServiceMap = new Map(
+    settings.serviceSettings.serviceTiers.map((tier) => [tier.name, tier]),
+  );
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Hero Section */}
@@ -180,6 +186,14 @@ export default function SuitesPage() {
           <StaggerContainer>
             {suites.map((suite) => {
               const SuiteIcon = suite.icon;
+              const configuredSuite = configuredServiceMap.get(suite.name);
+              const displayPrice = configuredSuite
+                ? `$${configuredSuite.baseNightlyRate}`
+                : suite.price;
+              const imageUrl =
+                configuredSuite?.imageUrl ||
+                suite.image ||
+                "/images/suites/standard-placeholder.svg";
               return (
                 <StaggerItem key={suite.name}>
                   <div className={`relative group transition-all duration-300 ${
@@ -214,7 +228,7 @@ export default function SuitesPage() {
                         </div>
                         <div className="flex items-baseline gap-1 mb-4">
                           <span className="font-display text-4xl font-semibold text-primary">
-                            {suite.price}
+                            {displayPrice}
                           </span>
                           <span className="text-sm text-foreground/60">
                             {suite.period}
@@ -226,8 +240,11 @@ export default function SuitesPage() {
                       </CardHeader>
                       <CardContent className="flex-1 flex flex-col">
                         <div className="mb-6 h-40 rounded-lg bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center overflow-hidden">
-                          {/* Placeholder for suite image */}
-                          <SuiteIcon className="h-24 w-24 text-primary/20" />
+                          <img
+                            src={imageUrl}
+                            alt={`${suite.name} suite image`}
+                            className="h-full w-full object-cover"
+                          />
                         </div>
                         <ul className="space-y-3 flex-1">
                           {suite.features.map((feature) => (

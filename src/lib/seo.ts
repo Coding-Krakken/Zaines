@@ -43,8 +43,15 @@ export async function getSeoRuntimeConfig(): Promise<SeoRuntimeConfig> {
   try {
     const settings = await getAdminSettings();
     const siteUrl = settings.websiteProfileSettings.siteUrl || siteConfig.url;
+    const configuredOgImage = settings.websiteProfileSettings.ogImageUrl || '';
+    const legacyBrokenOgPattern = /\/og\.jpg$/i;
+    const normalizedConfiguredOg = configuredOgImage.startsWith('/')
+      ? absoluteUrlFromBase(siteUrl, configuredOgImage)
+      : configuredOgImage;
     const ogImageUrl =
-      settings.websiteProfileSettings.ogImageUrl || siteConfig.ogImage;
+      !configuredOgImage || legacyBrokenOgPattern.test(configuredOgImage)
+        ? siteConfig.ogImage
+        : normalizedConfiguredOg;
 
     return {
       siteName: settings.businessProfileSettings.businessName || siteConfig.name,

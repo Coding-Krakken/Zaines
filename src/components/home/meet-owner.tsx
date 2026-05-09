@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { SlideInLeft, SlideInRight } from "@/components/motion";
 import { Button } from "@/components/ui/button";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 const stats = [
   { value: "3", label: "Private suites — intentionally" },
@@ -9,22 +12,24 @@ const stats = [
 ];
 
 export function MeetOwner() {
+  const { websiteProfile } = useSiteSettings();
+
   return (
     <section
+      id="owner-section"
       className="section-padding bg-background overflow-hidden"
       aria-labelledby="owner-heading"
     >
       <div className="container mx-auto px-4">
         <div className="grid gap-16 lg:grid-cols-2 lg:gap-20 items-center max-w-6xl mx-auto">
-          {/* Photo placeholder */}
           <SlideInLeft>
             <div className="relative">
               <div className="relative h-[520px] w-full rounded-2xl overflow-hidden bg-gradient-to-br from-muted to-accent flex items-center justify-center">
-                <div className="text-center text-muted-foreground/60 px-8">
-                  <div className="text-6xl mb-4">👤</div>
-                  <p className="text-sm">Owner photo coming soon</p>
-                </div>
-                {/* TODO: Replace with next/image once real photo is at /public/images/owner.jpg */}
+                <img
+                  src={websiteProfile.ownerImageUrl || '/images/owner-placeholder.svg'}
+                  alt="Owner portrait"
+                  className="h-full w-full object-cover"
+                />
               </div>
               {/* Decorative amber accent */}
               <div className="absolute -bottom-4 -right-4 h-32 w-32 rounded-2xl bg-primary/15 -z-10" />

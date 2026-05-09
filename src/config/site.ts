@@ -3,7 +3,7 @@ export const siteConfig = {
   description:
     "Private, small-capacity dog boarding in Syracuse with owner-on-site care, three suites, and safety-first updates.",
   url: "https://zainesstayandplay.com",
-  ogImage: "https://zainesstayandplay.com/og.jpg",
+  ogImage: "https://zainesstayandplay.com/og-default.svg",
   links: {
     facebook:
       "https://www.facebook.com/people/Zaines-Stay-Play/61550036005682/",

@@ -34,6 +34,7 @@ const serviceUpdateSchema = z.object({
       name: z.string().min(1, 'Service type is required'),
       description: z.string().min(1, 'Description is required'),
       baseNightlyRate: z.number().min(0, 'Price must be positive'),
+      imageUrl: z.string().min(1, 'Image URL is required'),
       isActive: z.boolean(),
       displayOrder: z.number().int().min(0),
     }),
@@ -147,6 +148,7 @@ export function ServiceManagementCard({
       name: '',
       description: '',
       baseNightlyRate: 0,
+      imageUrl: '/images/suites/standard-placeholder.svg',
       isActive: true,
       displayOrder: fields.length,
     });
@@ -177,6 +179,9 @@ export function ServiceManagementCard({
         <CardDescription>
           Manage service types, pricing, and availability
         </CardDescription>
+        <div className="text-xs text-muted-foreground">
+          <a href="/#suites-heading" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect suites section</a>
+        </div>
       </CardHeader>
       <CardContent>
         {fetchError && (
@@ -193,16 +198,26 @@ export function ServiceManagementCard({
                 <div key={field.id} className="rounded-lg border p-4 space-y-4">
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-medium">Service Type {index + 1}</p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => remove(index)}
-                      disabled={fields.length <= 1}
-                    >
-                      <Trash2 className="mr-1 h-4 w-4" />
-                      Remove
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={`/#suite-${form.watch(`serviceTiers.${index}.id`)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-primary underline underline-offset-2"
+                      >
+                        Inspect on site
+                      </a>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => remove(index)}
+                        disabled={fields.length <= 1}
+                      >
+                        <Trash2 className="mr-1 h-4 w-4" />
+                        Remove
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -249,6 +264,20 @@ export function ServiceManagementCard({
                         <FormLabel>Description</FormLabel>
                         <FormControl>
                           <Input placeholder="Premium suite with enhanced comfort" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`serviceTiers.${index}.imageUrl`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Image URL</FormLabel>
+                        <FormControl>
+                          <Input placeholder="/images/suites/deluxe-placeholder.svg" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

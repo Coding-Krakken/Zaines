@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FadeUp } from "@/components/motion";
 import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSiteSettings } from "@/hooks/use-site-settings";
+import { useSearchParams } from "next/navigation";
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -25,6 +26,7 @@ function StarRating({ rating }: { rating: number }) {
 export function Testimonials() {
   const [current, setCurrent] = useState(0);
   const { testimonialsSettings } = useSiteSettings();
+  const searchParams = useSearchParams();
   const testimonials = testimonialsSettings.testimonials
     .filter((item) => item.isActive)
     .sort((a, b) => a.displayOrder - b.displayOrder);
@@ -51,6 +53,13 @@ export function Testimonials() {
 
   const t = safeTestimonials[current];
 
+  useEffect(() => {
+    const targetId = searchParams.get('testimonial');
+    if (!targetId) return;
+    const idx = safeTestimonials.findIndex((item) => item.id === targetId);
+    if (idx >= 0) setCurrent(idx);
+  }, [searchParams, safeTestimonials]);
+
   return (
     <section
       className="section-padding bg-foreground overflow-hidden"
@@ -76,6 +85,7 @@ export function Testimonials() {
         {/* Carousel */}
         <div className="max-w-3xl mx-auto">
           <div
+            id={`testimonial-${t.id}`}
             className="bg-background/5 border border-background/10 rounded-2xl p-10 md:p-14 relative"
             aria-live="polite"
             aria-atomic="true"

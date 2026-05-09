@@ -28,6 +28,9 @@ export function CancellationPolicySettingsCard() {
         <CardDescription>
           Configure refund windows and percentages used when customers cancel bookings
         </CardDescription>
+        <div className="text-xs text-muted-foreground">
+          <a href="/policies" target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">Inspect on policies page</a>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
