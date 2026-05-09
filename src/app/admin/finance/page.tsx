@@ -94,7 +94,7 @@ function severityBadgeVariant(severity: 'info' | 'warning' | 'critical'): 'defau
 function defaultDateRange(): { startDate: string; endDate: string } {
   const endDate = new Date();
   const startDate = new Date();
-  startDate.setDate(startDate.getDate() - 30);
+  startDate.setDate(startDate.getDate() - 120);
 
   return {
     startDate: startDate.toISOString().slice(0, 10),
@@ -248,6 +248,12 @@ export default function AdminFinancePage() {
     return `/api/admin/finance/export?${params}`;
   }, [endDate, search, startDate, status]);
 
+  const appliedRangeLabel = useMemo(() => {
+    const normalizedStartDate = normalizeDateForApi(startDate);
+    const normalizedEndDate = normalizeDateForApi(endDate);
+    return `${normalizedStartDate || 'unset'} to ${normalizedEndDate || 'unset'}`;
+  }, [endDate, startDate]);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -344,6 +350,9 @@ export default function AdminFinancePage() {
             <Button onClick={() => void loadData()} disabled={state.loading}>
               Apply Filters
             </Button>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Applied range: {appliedRangeLabel} (by booking check-in date)
+            </p>
           </div>
         </CardContent>
       </Card>
