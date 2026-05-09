@@ -64,7 +64,7 @@ export function BookingCTA() {
               <Button
                 size="lg"
                 variant="outline"
-                className="text-base px-10 py-7 h-auto border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 hover:border-primary-foreground hover:-translate-y-0.5 transition-all duration-300"
+                className="text-base px-10 py-7 h-auto bg-transparent border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 hover:border-primary-foreground hover:-translate-y-0.5 transition-all duration-300"
                 asChild
               >
                 <Link href={`tel:${contactInfo.phone}`}>
