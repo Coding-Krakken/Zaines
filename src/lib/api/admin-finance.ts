@@ -81,9 +81,11 @@ export async function getFinanceOverview(
 
   const payments = await prisma.payment.findMany({
     where: {
-      createdAt: {
-        gte: startDate,
-        lte: endDate,
+      booking: {
+        checkInDate: {
+          gte: startDate,
+          lte: endDate,
+        },
       },
     },
     include: {
@@ -192,9 +194,11 @@ export async function getFinanceTransactions(
 
   const payments = await prisma.payment.findMany({
     where: {
-      createdAt: {
-        gte: startDate,
-        lte: endDate,
+      booking: {
+        checkInDate: {
+          gte: startDate,
+          lte: endDate,
+        },
       },
       ...(status ? { status } : {}),
     },
