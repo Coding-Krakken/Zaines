@@ -14,7 +14,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -22,20 +21,23 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, Save, AlertCircle } from 'lucide-react';
+import { Loader2, Save, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import type { AdminSettings } from '@/types/admin';
+import { useInvalidateSettings } from '@/providers/settings-provider';
 
 const serviceUpdateSchema = z.object({
-  services: z.array(
+  serviceTiers: z.array(
     z.object({
       id: z.string(),
-      price: z.number().min(0, 'Price must be positive'),
+      name: z.string().min(1, 'Service type is required'),
+      description: z.string().min(1, 'Description is required'),
+      baseNightlyRate: z.number().min(0, 'Price must be positive'),
       isActive: z.boolean(),
-      name: z.string(),
-      serviceTypeName: z.string(),
+      displayOrder: z.number().int().min(0),
     }),
-  ),
+  ).min(1, 'At least one service type is required'),
 });
 
 type ServiceUpdateFormValues = z.infer<typeof serviceUpdateSchema>;
@@ -50,75 +52,52 @@ export function ServiceManagementCard({
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const { invalidate } = useInvalidateSettings();
 
   const form = useForm<ServiceUpdateFormValues>({
     resolver: zodResolver(serviceUpdateSchema),
     defaultValues: {
-      services: [],
+      serviceTiers: [],
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: 'services',
+    name: 'serviceTiers',
   });
 
-  // Load services on mount
+  // Load service settings on mount
   useEffect(() => {
-    const loadServices = async () => {
+    const loadServiceSettings = async () => {
       try {
         setFetchError(null);
-        const res = await fetch('/api/admin/services');
+        const res = await fetch('/api/admin/settings');
         const data = (await res.json()) as {
           success?: boolean;
-          data?: {
-            serviceTypes: Array<{
-              id: string;
-              name: string;
-              services: Array<{
-                id: string;
-                name: string;
-                price: number;
-                isActive: boolean;
-              }>;
-            }>;
-          };
+          data?: AdminSettings;
           error?: string;
         };
 
         if (!res.ok) {
-          setFetchError(data.error || 'Failed to load services');
+          setFetchError(data.error || 'Failed to load service settings');
           setIsLoading(false);
           return;
         }
 
-        if (data.data?.serviceTypes) {
-          const allServices: ServiceUpdateFormValues['services'] = [];
-
-          for (const serviceType of data.data.serviceTypes) {
-            for (const service of serviceType.services) {
-              allServices.push({
-                id: service.id,
-                name: service.name,
-                price: service.price,
-                isActive: service.isActive,
-                serviceTypeName: serviceType.name,
-              });
-            }
-          }
-
-          // Reset field array and re-populate
-          form.reset({ services: allServices });
+        if (data.data?.serviceSettings?.serviceTiers) {
+          form.reset({
+            serviceTiers: data.data.serviceSettings.serviceTiers,
+          });
         }
       } catch (error) {
-        console.error('Error loading services:', error);
-        setFetchError('Failed to load services');
+        console.error('Error loading service settings:', error);
+        setFetchError('Failed to load service settings');
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadServices();
+    loadServiceSettings();
   }, [form]);
 
   async function onSubmit(values: ServiceUpdateFormValues) {
@@ -126,15 +105,18 @@ export function ServiceManagementCard({
     setFetchError(null);
 
     try {
-      const res = await fetch('/api/admin/services', {
-        method: 'PUT',
+      const normalizedTiers = values.serviceTiers.map((tier, index) => ({
+        ...tier,
+        displayOrder: index,
+      }));
+
+      const res = await fetch('/api/admin/settings', {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          services: values.services.map((s) => ({
-            id: s.id,
-            price: s.price,
-            isActive: s.isActive,
-          })),
+          serviceSettings: {
+            serviceTiers: normalizedTiers,
+          },
         }),
       });
 
@@ -144,18 +126,30 @@ export function ServiceManagementCard({
       };
 
       if (!res.ok) {
-        toast.error(data.error || 'Failed to save services');
+        toast.error(data.error || 'Failed to save service settings');
         return;
       }
 
-      toast.success('Services updated successfully!');
+      await invalidate();
+      toast.success('Services & pricing updated successfully!');
       onSave?.();
     } catch (error) {
-      console.error('Services save error:', error);
-      toast.error('Failed to save services');
+      console.error('Service settings save error:', error);
+      toast.error('Failed to save service settings');
     } finally {
       setIsSaving(false);
     }
+  }
+
+  function addServiceType() {
+    append({
+      id: `tier-${Date.now()}`,
+      name: '',
+      description: '',
+      baseNightlyRate: 0,
+      isActive: true,
+      displayOrder: fields.length,
+    });
   }
 
   if (isLoading) {
@@ -192,98 +186,118 @@ export function ServiceManagementCard({
           </Alert>
         )}
 
-        {fields.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>No services configured</p>
-          </div>
-        ) : (
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Services List */}
-              <div className="space-y-4">
-                {fields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="flex flex-col sm:flex-row sm:items-end gap-4 p-4 rounded-lg border"
-                  >
-                    {/* Service Type & Name */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-muted-foreground">
-                        {form.watch(`services.${index}.serviceTypeName`)}
-                      </p>
-                      <p className="font-medium text-sm">
-                        {form.watch(`services.${index}.name`)}
-                      </p>
-                    </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="space-y-4">
+              {fields.map((field, index) => (
+                <div key={field.id} className="rounded-lg border p-4 space-y-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-medium">Service Type {index + 1}</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => remove(index)}
+                      disabled={fields.length <= 1}
+                    >
+                      <Trash2 className="mr-1 h-4 w-4" />
+                      Remove
+                    </Button>
+                  </div>
 
-                    {/* Price Input */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name={`services.${index}.price`}
+                      name={`serviceTiers.${index}.name`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs">Price</FormLabel>
+                          <FormLabel>Service Type</FormLabel>
                           <FormControl>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm">$</span>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(parseFloat(e.target.value))
-                                }
-                                className="w-24"
-                              />
-                            </div>
+                            <Input placeholder="Deluxe Suite" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
-                    {/* Active Toggle */}
                     <FormField
                       control={form.control}
-                      name={`services.${index}.isActive`}
+                      name={`serviceTiers.${index}.baseNightlyRate`}
                       render={({ field }) => (
-                        <FormItem className="flex items-center gap-2">
+                        <FormItem>
+                          <FormLabel>Nightly Price</FormLabel>
                           <FormControl>
-                            <input
-                              type="checkbox"
-                              checked={field.value}
-                              onChange={field.onChange}
-                              className="h-4 w-4"
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={field.value ?? 0}
+                              onChange={(e) => field.onChange(Number(e.target.value))}
                             />
                           </FormControl>
-                          <FormLabel className="text-sm font-normal cursor-pointer">
-                            Active
-                          </FormLabel>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
                   </div>
-                ))}
-              </div>
 
-              {/* Save Button */}
-              <Button type="submit" disabled={isSaving} className="w-full">
-                {isSaving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Services
-                  </>
-                )}
-              </Button>
-            </form>
-          </Form>
-        )}
+                  <FormField
+                    control={form.control}
+                    name={`serviceTiers.${index}.description`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Premium suite with enhanced comfort" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`serviceTiers.${index}.isActive`}
+                    render={({ field }) => (
+                      <FormItem className="flex items-center gap-2">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal cursor-pointer">
+                          Available for booking
+                        </FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <Button type="button" variant="outline" onClick={addServiceType} className="w-full">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Service Type
+            </Button>
+
+            <Button type="submit" disabled={isSaving} className="w-full">
+              {isSaving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Services & Pricing
+                </>
+              )}
+            </Button>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );
