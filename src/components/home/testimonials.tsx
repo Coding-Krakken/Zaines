@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FadeUp } from "@/components/motion";
 import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 const testimonials = [
   {
@@ -13,7 +14,6 @@ const testimonials = [
     rating: 5,
     date: "2 weeks ago",
     text: "Max had an amazing stay. The owner sent us photos every day — real ones, not stock images — and he looked genuinely happy and relaxed. The small-capacity setup made all the difference. I felt totally at ease the entire time we were away.",
-    service: "Deluxe Suite",
   },
   {
     id: 2,
@@ -22,7 +22,6 @@ const testimonials = [
     rating: 5,
     date: "1 month ago",
     text: "Luna settled in within an hour. The updates were clear and on time, pickup was smooth, and she came home calm and happy — not exhausted and overwhelmed like she has been from other boarding places. We won't go anywhere else.",
-    service: "Standard Suite",
   },
   {
     id: 3,
@@ -31,7 +30,6 @@ const testimonials = [
     rating: 5,
     date: "1 month ago",
     text: "Charlie is anxious in new environments, so I was nervous. But the quiet, small environment helped him relax almost immediately. The communication was excellent — I knew exactly how he was doing throughout the entire stay.",
-    service: "Deluxe Suite",
   },
   {
     id: 4,
@@ -40,7 +38,6 @@ const testimonials = [
     rating: 5,
     date: "2 months ago",
     text: "First time boarding Bella and I was a wreck about it. The owner reassured me from the very first conversation. When we picked her up, she didn't want to leave — which says everything. Completely converted.",
-    service: "Luxury Suite",
   },
   {
     id: 5,
@@ -49,7 +46,6 @@ const testimonials = [
     rating: 5,
     date: "3 months ago",
     text: "We've tried three different boarding options in Syracuse. This is the only one where we came back without our dog smelling like stress, loud facilities, or chemical cleaner. Cooper actually enjoys going now. That's remarkable.",
-    service: "Standard Suite",
   },
 ];
 
@@ -71,12 +67,22 @@ function StarRating({ rating }: { rating: number }) {
 
 export function Testimonials() {
   const [current, setCurrent] = useState(0);
+  const { serviceSettings } = useSiteSettings();
+
+  const activeServiceNames = serviceSettings.serviceTiers
+    .filter((tier) => tier.isActive)
+    .sort((a, b) => a.displayOrder - b.displayOrder)
+    .map((tier) => tier.name);
 
   const prev = () =>
     setCurrent((c) => (c - 1 + testimonials.length) % testimonials.length);
   const next = () => setCurrent((c) => (c + 1) % testimonials.length);
 
   const t = testimonials[current];
+  const displayService =
+    activeServiceNames.length > 0
+      ? activeServiceNames[current % activeServiceNames.length]
+      : "Configured Service";
 
   return (
     <section
@@ -126,7 +132,7 @@ export function Testimonials() {
                   {t.author}
                 </p>
                 <p className="text-xs text-background/50 mt-0.5">
-                  {t.petName}&apos;s parent · {t.service} · {t.date}
+                  {t.petName}&apos;s parent · {displayService} · {t.date}
                 </p>
               </div>
               <div className="flex gap-2">
