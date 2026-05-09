@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Plus, Save, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useInvalidateSettings } from '@/providers/settings-provider';
@@ -34,6 +35,7 @@ type TestimonialsFormValues = z.infer<typeof testimonialsFormSchema>;
 export function TestimonialsSettingsCard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [serviceOptions, setServiceOptions] = useState<string[]>([]);
   const { invalidate } = useInvalidateSettings();
 
   const form = useForm<TestimonialsFormValues>({
@@ -53,6 +55,13 @@ export function TestimonialsSettingsCard() {
       try {
         const res = await fetch('/api/admin/settings');
         const data = (await res.json()) as { success?: boolean; data?: AdminSettings };
+        if (data.data?.serviceSettings?.serviceTiers) {
+          const options = data.data.serviceSettings.serviceTiers
+            .filter((tier) => tier.isActive)
+            .sort((a, b) => a.displayOrder - b.displayOrder)
+            .map((tier) => tier.name);
+          setServiceOptions(options);
+        }
         if (data.data?.testimonialsSettings?.testimonials) {
           form.reset({ testimonials: data.data.testimonialsSettings.testimonials });
         }
@@ -107,7 +116,7 @@ export function TestimonialsSettingsCard() {
       rating: 5,
       date: 'Recently',
       text: '',
-      serviceLabel: 'Configured Service',
+      serviceLabel: serviceOptions[0] ?? 'Configured Service',
       isActive: true,
       displayOrder: fields.length,
     });
@@ -192,9 +201,23 @@ export function TestimonialsSettingsCard() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Service Label</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Deluxe Suite" {...field} />
-                          </FormControl>
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a service type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {serviceOptions.map((serviceName) => (
+                                <SelectItem key={serviceName} value={serviceName}>
+                                  {serviceName}
+                                </SelectItem>
+                              ))}
+                              {!serviceOptions.includes(field.value) && field.value ? (
+                                <SelectItem value={field.value}>{field.value}</SelectItem>
+                              ) : null}
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
