@@ -94,7 +94,20 @@ export async function serviceSchema() {
   const settings = await getAdminSettings();
   const businessName = settings.businessProfileSettings.businessName;
   const websiteProfile = settings.websiteProfileSettings;
+  const serviceTiers = settings.serviceSettings.serviceTiers.filter((t) => t.isActive);
   const pricing = settings.pricingSettings;
+
+  // Build offers from configured service tiers, sorted by display order
+  const offers = serviceTiers
+    .sort((a, b) => a.displayOrder - b.displayOrder)
+    .map((tier) => ({
+      "@type": "Offer",
+      name: tier.name,
+      description: tier.description,
+      price: tier.baseNightlyRate.toFixed(2),
+      priceCurrency: pricing.currency,
+      unitText: "per night",
+    }));
 
   return {
     "@context": "https://schema.org",
@@ -113,28 +126,6 @@ export async function serviceSchema() {
     },
     description:
       "Boutique private dog boarding with only 3 suites, owner always on-site, camera monitoring, and daily photo updates. Serving Syracuse and surrounding areas.",
-    offers: [
-      {
-        "@type": "Offer",
-        name: "Standard Suite",
-        price: pricing.standardNightlyRate.toFixed(2),
-        priceCurrency: pricing.currency,
-        unitText: "per night",
-      },
-      {
-        "@type": "Offer",
-        name: "Deluxe Suite",
-        price: pricing.deluxeNightlyRate.toFixed(2),
-        priceCurrency: pricing.currency,
-        unitText: "per night",
-      },
-      {
-        "@type": "Offer",
-        name: "Luxury Suite",
-        price: pricing.luxuryNightlyRate.toFixed(2),
-        priceCurrency: pricing.currency,
-        unitText: "per night",
-      },
-    ],
+    offers,
   };
 }

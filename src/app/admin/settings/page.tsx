@@ -28,6 +28,7 @@ import { CancellationPolicySettingsCard } from '@/components/admin/CancellationP
 import { BusinessProfileSettingsCard } from '@/components/admin/BusinessProfileSettingsCard';
 import { WebsiteProfileSettingsCard } from '@/components/admin/WebsiteProfileSettingsCard';
 import { TrustCopySettingsCard } from '@/components/admin/TrustCopySettingsCard';
+import { ServiceTiersAndAddOnsCard } from '@/components/admin/ServiceTiersAndAddOnsCard';
 
 const businessHoursSchema = z.object({
   openTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
@@ -661,6 +662,9 @@ export default function AdminSettingsPage() {
 
           {/* Trust Copy Card */}
           <TrustCopySettingsCard />
+
+          {/* Service Tiers & Add-Ons Card */}
+          <ServiceTiersAndAddOnsCard />
 
           {/* Save Button */}
           <Button type="submit" disabled={isSaving} className="w-full md:w-auto" size="lg">

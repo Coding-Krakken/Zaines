@@ -80,6 +80,32 @@ export interface TrustCopySettings {
   trustEvidenceClaim: string;
 }
 
+export interface ServiceTier {
+  id: string; // UUID, generated client-side
+  name: string; // e.g., "Standard Suite", "Deluxe Suite", "Luxury Suite"
+  description: string;
+  baseNightlyRate: number; // Base price per night for this tier
+  isActive: boolean;
+  displayOrder: number; // For sorting in UI
+}
+
+export interface AddOn {
+  id: string; // UUID, generated client-side
+  name: string; // e.g., "Premium Treats", "Extra Playtime", "Training Session"
+  description: string;
+  price: number; // Price per occurrence or per booking
+  applicableTiers: string[]; // Array of service tier IDs this add-on applies to
+  isActive: boolean;
+}
+
+export interface ServiceTiersSettings {
+  serviceTiers: ServiceTier[];
+}
+
+export interface AddOnsSettings {
+  addOns: AddOn[];
+}
+
 export interface AdminSettings {
   // Operational Preferences
   autoConfirmBookings: boolean;
@@ -117,6 +143,10 @@ export interface AdminSettings {
 
   // Phase 9: Trust Copy Settings
   trustCopySettings: TrustCopySettings;
+
+  // Phase 10: Service Tiers & Add-Ons Configuration
+  serviceSettings: ServiceTiersSettings;
+  addOnsSettings: AddOnsSettings;
 }
 
 export interface SettingsRecord {

@@ -1,5 +1,5 @@
 import { PRICING_TRUST_DISCLOSURE } from "@/config/trust-copy";
-import type { PricingSettings } from "@/types/admin";
+import type { PricingSettings, ServiceTier } from "@/types/admin";
 
 export const BOOKING_PRICING_CURRENCY = "USD";
 export const BOOKING_PRICING_MODEL_LABEL = "Pre-confirmation estimate";
@@ -15,12 +15,41 @@ export const DEFAULT_PRICING_SETTINGS: PricingSettings = {
   threePlusPetsDiscountPercent: 20,
 };
 
+/**
+ * Get the nightly rate for a service tier
+ * Falls back to default pricing if tier not found in service tiers
+ */
+export function getNightlyRate(
+  suiteType: string,
+  serviceTiers?: ServiceTier[],
+  pricingSettings: PricingSettings = DEFAULT_PRICING_SETTINGS,
+): number {
+  if (serviceTiers && serviceTiers.length > 0) {
+    const tier = serviceTiers.find(
+      (t) => t.id === suiteType || t.name.toLowerCase() === suiteType.toLowerCase()
+    );
+    if (tier) {
+      return tier.baseNightlyRate;
+    }
+  }
+
+  // Fallback to legacy pricing settings
+  const prices: Record<string, number> = {
+    standard: pricingSettings.standardNightlyRate,
+    deluxe: pricingSettings.deluxeNightlyRate,
+    luxury: pricingSettings.luxuryNightlyRate,
+  };
+
+  return prices[suiteType] || 65;
+}
+
 export function calculateBookingPrice(
   checkIn: string,
   checkOut: string,
   suiteType: string,
   petCount: number,
   pricingSettings: PricingSettings = DEFAULT_PRICING_SETTINGS,
+  serviceTiers?: ServiceTier[],
 ): { subtotal: number; tax: number; total: number } {
   const checkInDate = new Date(checkIn);
   const checkOutDate = new Date(checkOut);
@@ -28,13 +57,7 @@ export function calculateBookingPrice(
     (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24),
   );
 
-  const prices: Record<string, number> = {
-    standard: pricingSettings.standardNightlyRate,
-    deluxe: pricingSettings.deluxeNightlyRate,
-    luxury: pricingSettings.luxuryNightlyRate,
-  };
-
-  const nightlyRate = prices[suiteType] || 65;
+  const nightlyRate = getNightlyRate(suiteType, serviceTiers, pricingSettings);
   let subtotal = nightlyRate * Math.max(1, nights);
 
   if (petCount > 1) {

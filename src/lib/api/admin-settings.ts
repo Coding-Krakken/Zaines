@@ -13,6 +13,8 @@ import type {
   BusinessProfileSettings,
   WebsiteProfileSettings,
   TrustCopySettings,
+  ServiceTiersSettings,
+  AddOnsSettings,
 } from '@/types/admin';
 import { siteConfig } from '@/config/site';
 import {
@@ -50,6 +52,9 @@ const SETTINGS_KEYS: Record<string, string> = {
   WEBSITE_PROFILE_SETTINGS: 'admin.website_profile_settings', // JSON object
   // Phase 9: Trust Copy Settings
   TRUST_COPY_SETTINGS: 'admin.trust_copy_settings', // JSON object
+  // Phase 10: Service Tiers & Add-Ons Configuration
+  SERVICE_TIERS_SETTINGS: 'admin.service_tiers_settings', // JSON object
+  ADD_ONS_SETTINGS: 'admin.add_ons_settings', // JSON object
 };
 
 /**
@@ -165,6 +170,23 @@ export async function getAdminSettings(): Promise<AdminSettings> {
           return json ? JSON.parse(json) : getDefaultTrustCopySettings();
         } catch {
           return getDefaultTrustCopySettings();
+        }
+      })(),
+      // Phase 10: Service Tiers & Add-Ons Configuration
+      serviceSettings: (() => {
+        try {
+          const json = settingsMap.get(SETTINGS_KEYS.SERVICE_TIERS_SETTINGS);
+          return json ? JSON.parse(json) : getDefaultServiceTiersSettings();
+        } catch {
+          return getDefaultServiceTiersSettings();
+        }
+      })(),
+      addOnsSettings: (() => {
+        try {
+          const json = settingsMap.get(SETTINGS_KEYS.ADD_ONS_SETTINGS);
+          return json ? JSON.parse(json) : getDefaultAddOnsSettings();
+        } catch {
+          return getDefaultAddOnsSettings();
         }
       })(),
     };
@@ -458,6 +480,33 @@ export async function updateAdminSettings(updates: Partial<AdminSettings>): Prom
       );
     }
 
+    // Phase 10: Service Tiers & Add-Ons Configuration
+    if (updates.serviceSettings !== undefined) {
+      updatePromises.push(
+        prisma.settings.upsert({
+          where: { key: SETTINGS_KEYS.SERVICE_TIERS_SETTINGS },
+          update: { value: JSON.stringify(updates.serviceSettings) },
+          create: {
+            key: SETTINGS_KEYS.SERVICE_TIERS_SETTINGS,
+            value: JSON.stringify(updates.serviceSettings),
+          },
+        }),
+      );
+    }
+
+    if (updates.addOnsSettings !== undefined) {
+      updatePromises.push(
+        prisma.settings.upsert({
+          where: { key: SETTINGS_KEYS.ADD_ONS_SETTINGS },
+          update: { value: JSON.stringify(updates.addOnsSettings) },
+          create: {
+            key: SETTINGS_KEYS.ADD_ONS_SETTINGS,
+            value: JSON.stringify(updates.addOnsSettings),
+          },
+        }),
+      );
+    }
+
     await Promise.all(updatePromises);
 
     // Return updated settings
@@ -561,6 +610,74 @@ function getDefaultTrustCopySettings(): TrustCopySettings {
 }
 
 /**
+ * Get default service tiers settings
+ */
+function getDefaultServiceTiersSettings(): ServiceTiersSettings {
+  return {
+    serviceTiers: [
+      {
+        id: 'standard-suite',
+        name: 'Standard Suite',
+        description: 'Comfortable and cozy suite with basic amenities',
+        baseNightlyRate: 65,
+        isActive: true,
+        displayOrder: 1,
+      },
+      {
+        id: 'deluxe-suite',
+        name: 'Deluxe Suite',
+        description: 'Premium suite with enhanced comfort and features',
+        baseNightlyRate: 85,
+        isActive: true,
+        displayOrder: 2,
+      },
+      {
+        id: 'luxury-suite',
+        name: 'Luxury Suite',
+        description: 'Exclusive luxury experience with top-tier amenities',
+        baseNightlyRate: 120,
+        isActive: true,
+        displayOrder: 3,
+      },
+    ],
+  };
+}
+
+/**
+ * Get default add-ons settings
+ */
+function getDefaultAddOnsSettings(): AddOnsSettings {
+  return {
+    addOns: [
+      {
+        id: 'premium-treats',
+        name: 'Premium Treats Package',
+        description: 'Special premium treats and snacks throughout stay',
+        price: 15,
+        applicableTiers: ['standard-suite', 'deluxe-suite', 'luxury-suite'],
+        isActive: true,
+      },
+      {
+        id: 'extra-playtime',
+        name: 'Extra Playtime Session',
+        description: 'Additional supervised playtime session',
+        price: 25,
+        applicableTiers: ['standard-suite', 'deluxe-suite', 'luxury-suite'],
+        isActive: true,
+      },
+      {
+        id: 'training-session',
+        name: 'Training Session',
+        description: 'Professional training session during stay',
+        price: 50,
+        applicableTiers: ['deluxe-suite', 'luxury-suite'],
+        isActive: true,
+      },
+    ],
+  };
+}
+
+/**
  * Get default admin settings
  */
 export function getDefaultSettings(): AdminSettings {
@@ -591,5 +708,8 @@ export function getDefaultSettings(): AdminSettings {
     websiteProfileSettings: getDefaultWebsiteProfileSettings(),
     // Phase 9: Trust Copy Settings
     trustCopySettings: getDefaultTrustCopySettings(),
+    // Phase 10: Service Tiers & Add-Ons Configuration
+    serviceSettings: getDefaultServiceTiersSettings(),
+    addOnsSettings: getDefaultAddOnsSettings(),
   };
 }

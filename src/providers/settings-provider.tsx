@@ -102,6 +102,62 @@ function getDefaultSettings(): AdminSettings {
       trustEvidenceClaim:
         'Only 3 private suites, owner onsite, camera-monitored safety, no harsh chemicals, and same-family dogs can stay together when approved.',
     },
+    serviceSettings: {
+      serviceTiers: [
+        {
+          id: 'standard-suite',
+          name: 'Standard Suite',
+          description: 'Comfortable and cozy suite with basic amenities',
+          baseNightlyRate: 65,
+          isActive: true,
+          displayOrder: 1,
+        },
+        {
+          id: 'deluxe-suite',
+          name: 'Deluxe Suite',
+          description: 'Premium suite with enhanced comfort and features',
+          baseNightlyRate: 85,
+          isActive: true,
+          displayOrder: 2,
+        },
+        {
+          id: 'luxury-suite',
+          name: 'Luxury Suite',
+          description: 'Exclusive luxury experience with top-tier amenities',
+          baseNightlyRate: 120,
+          isActive: true,
+          displayOrder: 3,
+        },
+      ],
+    },
+    addOnsSettings: {
+      addOns: [
+        {
+          id: 'premium-treats',
+          name: 'Premium Treats Package',
+          description: 'Special premium treats and snacks throughout stay',
+          price: 15,
+          applicableTiers: ['standard-suite', 'deluxe-suite', 'luxury-suite'],
+          isActive: true,
+        },
+        {
+          id: 'extra-playtime',
+          name: 'Extra Playtime Session',
+          description: 'Additional supervised playtime session',
+          price: 25,
+          applicableTiers: ['standard-suite', 'deluxe-suite', 'luxury-suite'],
+          isActive: true,
+        },
+        {
+          id: 'training-session',
+          name: 'Training Session',
+          description: 'Professional training session during stay',
+          price: 50,
+          applicableTiers: ['deluxe-suite', 'luxury-suite'],
+          isActive: true,
+        },
+      ],
+    },
   };
 }
 
