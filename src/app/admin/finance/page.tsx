@@ -102,6 +102,30 @@ function defaultDateRange(): { startDate: string; endDate: string } {
   };
 }
 
+function normalizeDateForApi(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return trimmed;
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  const usMatch = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (usMatch) {
+    const month = usMatch[1].padStart(2, '0');
+    const day = usMatch[2].padStart(2, '0');
+    const year = usMatch[3];
+    return `${year}-${month}-${day}`;
+  }
+
+  const parsed = new Date(trimmed);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toISOString().slice(0, 10);
+  }
+
+  return trimmed;
+}
+
 export default function AdminFinancePage() {
   const defaults = useMemo(() => defaultDateRange(), []);
   const [startDate, setStartDate] = useState(defaults.startDate);
@@ -120,10 +144,16 @@ export default function AdminFinancePage() {
     setState({ loading: true, error: '' });
 
     try {
-      const params = new URLSearchParams({ startDate, endDate });
+      const normalizedStartDate = normalizeDateForApi(startDate);
+      const normalizedEndDate = normalizeDateForApi(endDate);
+
+      const params = new URLSearchParams({
+        startDate: normalizedStartDate,
+        endDate: normalizedEndDate,
+      });
       const txParams = new URLSearchParams({
-        startDate,
-        endDate,
+        startDate: normalizedStartDate,
+        endDate: normalizedEndDate,
         ...(status !== 'all' ? { status } : {}),
         ...(search.trim() ? { search: search.trim() } : {}),
       });
@@ -206,9 +236,12 @@ export default function AdminFinancePage() {
   }, []);
 
   const exportHref = useMemo(() => {
+    const normalizedStartDate = normalizeDateForApi(startDate);
+    const normalizedEndDate = normalizeDateForApi(endDate);
+
     const params = new URLSearchParams({
-      startDate,
-      endDate,
+      startDate: normalizedStartDate,
+      endDate: normalizedEndDate,
       ...(status !== 'all' ? { status } : {}),
       ...(search.trim() ? { search: search.trim() } : {}),
     });
