@@ -37,6 +37,7 @@ import {
   AvailabilitySuccessResponse,
   calculateNights,
 } from "@/app/book/components/step-dates-contract";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 interface StepDatesProps {
   data: Partial<StepDatesData>;
@@ -45,6 +46,9 @@ interface StepDatesProps {
 }
 
 export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
+  const { availabilityRules } = useSiteSettings();
+  const minNights = Math.max(1, availabilityRules.minNightsPerBooking || 1);
+
   const [availabilityState, setAvailabilityState] =
     useState<AvailabilityState>("idle");
   const [availabilityResult, setAvailabilityResult] = useState<{
@@ -72,6 +76,16 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
         setAvailabilityResult(null);
         setAvailabilityMessage("Check-out must be after check-in.");
       }
+      return;
+    }
+
+    const selectedNights = calculateNights(data.checkIn!, data.checkOut!);
+    if (selectedNights < minNights) {
+      setAvailabilityState("invalid_input");
+      setAvailabilityResult(null);
+      setAvailabilityMessage(
+        `Minimum stay is ${minNights} night${minNights === 1 ? "" : "s"}.`,
+      );
       return;
     }
 
@@ -142,7 +156,7 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
         "Availability is temporarily unavailable. Please retry.",
       );
     }
-  }, [data.checkIn, data.checkOut, data.serviceType, data.petCount]);
+  }, [data.checkIn, data.checkOut, data.serviceType, data.petCount, minNights]);
 
   useEffect(() => {
     if (!data.petCount) {
@@ -186,6 +200,15 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
       const firstError = validation.error.issues[0];
       setAvailabilityState("invalid_input");
       setAvailabilityMessage(firstError.message);
+      return;
+    }
+
+    const selectedNights = calculateNights(data.checkIn!, data.checkOut!);
+    if (selectedNights < minNights) {
+      setAvailabilityState("invalid_input");
+      setAvailabilityMessage(
+        `Minimum stay is ${minNights} night${minNights === 1 ? "" : "s"}.`,
+      );
       return;
     }
 
@@ -267,6 +290,9 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
           Choose your check-in/check-out dates and number of pets for private
           boarding. Use calendar picker or enter dates as MM/DD/YYYY
         </CardDescription>
+        <p className="text-sm text-muted-foreground">
+          Minimum stay: {minNights} night{minNights === 1 ? "" : "s"}
+        </p>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2">
