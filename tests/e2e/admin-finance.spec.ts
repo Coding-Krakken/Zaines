@@ -91,6 +91,88 @@ test.describe('Admin finance workflows', () => {
       });
     });
 
+    await page.route('**/api/admin/finance/alerts**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: {
+            generatedAt: new Date().toISOString(),
+            alerts: [
+              {
+                id: 'failed-payments',
+                severity: 'warning',
+                title: 'Failed payments detected',
+                description: '2 failed payment(s) were detected in the last 30 days.',
+                metricValue: 2,
+                actionHref: '/admin/finance?status=failed',
+                actionLabel: 'Review failures',
+              },
+            ],
+          },
+        }),
+      });
+    });
+
+    await page.route('**/api/admin/finance/exceptions**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: {
+            generatedAt: new Date().toISOString(),
+            totalExceptions: 1,
+            items: [
+              {
+                id: 'payment-ex-1',
+                type: 'failed_payment',
+                bookingId: 'booking-1',
+                bookingNumber: 'PB-001',
+                customerName: 'Alice',
+                customerEmail: 'alice@example.com',
+                amount: 300,
+                ageDays: 3,
+                reason: 'Payment failed and needs follow-up.',
+                createdAt: new Date().toISOString(),
+                actionHref: '/admin/finance?status=failed',
+              },
+            ],
+          },
+        }),
+      });
+    });
+
+    await page.route('**/api/admin/finance/forecast**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: {
+            generatedAt: new Date().toISOString(),
+            range: { startDate: new Date().toISOString(), endDate: new Date().toISOString() },
+            totals: {
+              expectedCashIn: 1400,
+              expectedRefunds: 120,
+              expectedNet: 1280,
+              bookingCount: 4,
+            },
+            days: [
+              { date: '2026-05-09', expectedCashIn: 300, expectedRefunds: 20, expectedNet: 280, bookingCount: 1 },
+              { date: '2026-05-10', expectedCashIn: 0, expectedRefunds: 0, expectedNet: 0, bookingCount: 0 },
+              { date: '2026-05-11', expectedCashIn: 250, expectedRefunds: 20, expectedNet: 230, bookingCount: 1 },
+              { date: '2026-05-12', expectedCashIn: 450, expectedRefunds: 40, expectedNet: 410, bookingCount: 1 },
+              { date: '2026-05-13', expectedCashIn: 0, expectedRefunds: 0, expectedNet: 0, bookingCount: 0 },
+              { date: '2026-05-14', expectedCashIn: 0, expectedRefunds: 0, expectedNet: 0, bookingCount: 0 },
+              { date: '2026-05-15', expectedCashIn: 400, expectedRefunds: 40, expectedNet: 360, bookingCount: 1 },
+            ],
+          },
+        }),
+      });
+    });
+
     await page.route('**/api/admin/finance/refunds**', async (route) => {
       if (route.request().method() === 'POST') {
         auditEvents.unshift({
@@ -233,9 +315,19 @@ test.describe('Admin finance workflows', () => {
     await page.goto('/admin/finance', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('networkidle');
     await expect(page.getByRole('heading', { name: 'Finance' })).toBeVisible();
+    await expect(page.getByText('Owner Command Center')).toBeVisible();
+    await expect(page.getByText('Actionable Alerts')).toBeVisible();
+    await expect(page.getByText('Failed payments detected')).toBeVisible();
+    await expect(page.getByText('Exception Queue')).toBeVisible();
+    await expect(page.getByText('30-Day Expected Cash In')).toBeVisible();
+    await expect(page.getByText('7-Day Forecast Snapshot')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Review failures' })).toBeVisible();
     await expect(page.getByText('Gross Revenue')).toBeVisible();
 
-    await page.getByRole('link', { name: 'Open Refund Console' }).click();
+    await Promise.all([
+      page.waitForURL('**/admin/finance/refunds'),
+      page.getByRole('link', { name: 'Open Refund Console' }).click(),
+    ]);
     await expect(page.getByRole('heading', { name: 'Refund Console' })).toBeVisible();
     await page.locator('input[placeholder="0.00"]').first().fill('10');
     await page.locator('input[placeholder="Reason"]').first().fill('Customer requested');
@@ -248,13 +340,25 @@ test.describe('Admin finance workflows', () => {
     await page.getByRole('button', { name: 'Apply Adjustment' }).click();
     await expect(page.getByText('Manual adjustment recorded successfully.')).toBeVisible();
 
-    await page.getByRole('link', { name: 'Back to Finance' }).click();
-    await page.getByRole('link', { name: 'Open Reconciliation' }).click();
+    await Promise.all([
+      page.waitForURL('**/admin/finance'),
+      page.getByRole('link', { name: 'Back to Finance' }).click(),
+    ]);
+    await Promise.all([
+      page.waitForURL('**/admin/finance/reconciliation'),
+      page.getByRole('link', { name: 'Open Reconciliation' }).click(),
+    ]);
     await expect(page.getByRole('heading', { name: 'Payout Reconciliation' })).toBeVisible();
     await page.getByRole('button', { name: 'Mark Reconciled' }).click();
 
-    await page.getByRole('link', { name: 'Back to Finance' }).click();
-    await page.getByRole('link', { name: 'Open Tax Summary' }).click();
+    await Promise.all([
+      page.waitForURL('**/admin/finance'),
+      page.getByRole('link', { name: 'Back to Finance' }).click(),
+    ]);
+    await Promise.all([
+      page.waitForURL('**/admin/finance/taxes'),
+      page.getByRole('link', { name: 'Open Tax Summary' }).click(),
+    ]);
     await expect(page.getByRole('heading', { name: 'Tax Liability' })).toBeVisible();
 
     const exportLink = page.getByRole('link', { name: 'Export CSV' });

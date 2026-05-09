@@ -1,6 +1,9 @@
 import { prisma, isDatabaseConfigured } from '@/lib/prisma';
 import type {
+  FinanceAlertsResponse,
   FinanceAuditEvent,
+  FinanceCashForecastResponse,
+  FinanceExceptionsResponse,
   FinanceOverviewResponse,
   FinanceReconciliationResponse,
   FinanceTransactionsResponse,
@@ -519,5 +522,355 @@ export async function getFinanceTaxSummary(
     range: { startDate: startDate.toISOString(), endDate: endDate.toISOString() },
     totals,
     rows,
+  };
+}
+
+export async function getFinanceAlerts(): Promise<FinanceAlertsResponse> {
+  const now = new Date();
+
+  if (!isDatabaseConfigured()) {
+    return {
+      generatedAt: now.toISOString(),
+      alerts: [],
+    };
+  }
+
+  const windowStart = new Date();
+  windowStart.setDate(windowStart.getDate() - 30);
+
+  const [recentPayments, reconciliation] = await Promise.all([
+    prisma.payment.findMany({
+      where: {
+        createdAt: {
+          gte: windowStart,
+        },
+      },
+      select: {
+        id: true,
+        status: true,
+        amount: true,
+        refundAmount: true,
+        createdAt: true,
+      },
+    }),
+    getFinanceReconciliation(windowStart, now),
+  ]);
+
+  const pendingAged = recentPayments.filter((payment) => {
+    if (payment.status !== 'pending') return false;
+    const ageMs = now.getTime() - payment.createdAt.getTime();
+    return ageMs > 2 * 24 * 60 * 60 * 1000;
+  });
+
+  const failedPayments = recentPayments.filter((payment) => payment.status === 'failed');
+  const refundedPayments = recentPayments.filter((payment) => payment.status === 'refunded');
+  const succeededOrRefunded = recentPayments.filter((payment) =>
+    ['succeeded', 'refunded'].includes(payment.status),
+  );
+
+  const refundRate =
+    succeededOrRefunded.length > 0
+      ? refundedPayments.length / succeededOrRefunded.length
+      : 0;
+
+  const unreconciledBuckets = reconciliation.buckets.filter((bucket) => bucket.status === 'pending');
+
+  const alerts = [] as FinanceAlertsResponse['alerts'];
+
+  if (pendingAged.length > 0) {
+    alerts.push({
+      id: 'pending-aged',
+      severity: 'warning',
+      title: 'Pending settlements require review',
+      description: `${pendingAged.length} payment(s) are pending for more than 48 hours.`,
+      metricValue: pendingAged.length,
+      actionHref: '/admin/finance/refunds',
+      actionLabel: 'Open exceptions',
+    });
+  }
+
+  if (failedPayments.length > 0) {
+    alerts.push({
+      id: 'failed-payments',
+      severity: failedPayments.length >= 3 ? 'critical' : 'warning',
+      title: 'Failed payments detected',
+      description: `${failedPayments.length} failed payment(s) were detected in the last 30 days.`,
+      metricValue: failedPayments.length,
+      actionHref: '/admin/finance?status=failed',
+      actionLabel: 'Review failures',
+    });
+  }
+
+  if (refundRate >= 0.2) {
+    alerts.push({
+      id: 'refund-rate-spike',
+      severity: 'critical',
+      title: 'Refund rate spike',
+      description: `Refund rate is ${(refundRate * 100).toFixed(1)}% over the last 30 days.`,
+      metricValue: roundCurrency(refundRate * 100),
+      actionHref: '/admin/finance/refunds',
+      actionLabel: 'Investigate refunds',
+    });
+  }
+
+  if (unreconciledBuckets.length > 0) {
+    alerts.push({
+      id: 'unreconciled-buckets',
+      severity: unreconciledBuckets.length >= 3 ? 'critical' : 'warning',
+      title: 'Unreconciled payout buckets',
+      description: `${unreconciledBuckets.length} daily payout bucket(s) still need reconciliation.`,
+      metricValue: unreconciledBuckets.length,
+      actionHref: '/admin/finance/reconciliation',
+      actionLabel: 'Reconcile now',
+    });
+  }
+
+  const currentDay = now.getDate();
+  if (currentDay >= 20) {
+    alerts.push({
+      id: 'tax-deadline-window',
+      severity: 'info',
+      title: 'Tax filing window reminder',
+      description: 'You are in the monthly filing window. Validate tax liability and export records.',
+      actionHref: '/admin/finance/taxes',
+      actionLabel: 'Review tax liability',
+    });
+  }
+
+  return {
+    generatedAt: now.toISOString(),
+    alerts,
+  };
+}
+
+export async function getFinanceExceptions(): Promise<FinanceExceptionsResponse> {
+  const now = new Date();
+
+  if (!isDatabaseConfigured()) {
+    return {
+      generatedAt: now.toISOString(),
+      totalExceptions: 0,
+      items: [],
+    };
+  }
+
+  const windowStart = new Date();
+  windowStart.setDate(windowStart.getDate() - 45);
+
+  const payments = await prisma.payment.findMany({
+    where: {
+      createdAt: {
+        gte: windowStart,
+      },
+      status: {
+        in: ['pending', 'failed', 'refunded'],
+      },
+    },
+    include: {
+      booking: {
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    take: 200,
+  });
+
+  const items = payments
+    .map((payment) => {
+      const ageDays = Math.floor((now.getTime() - payment.createdAt.getTime()) / (24 * 60 * 60 * 1000));
+
+      if (payment.status === 'pending' && ageDays >= 2) {
+        return {
+          id: payment.id,
+          type: 'pending_settlement' as const,
+          bookingId: payment.bookingId,
+          bookingNumber: payment.booking.bookingNumber,
+          customerName: payment.booking.user.name ?? 'Unknown',
+          customerEmail: payment.booking.user.email ?? 'Unknown',
+          amount: payment.amount,
+          ageDays,
+          reason: 'Settlement pending beyond 48 hours.',
+          createdAt: payment.createdAt.toISOString(),
+          actionHref: '/admin/finance/refunds',
+        };
+      }
+
+      if (payment.status === 'failed') {
+        return {
+          id: payment.id,
+          type: 'failed_payment' as const,
+          bookingId: payment.bookingId,
+          bookingNumber: payment.booking.bookingNumber,
+          customerName: payment.booking.user.name ?? 'Unknown',
+          customerEmail: payment.booking.user.email ?? 'Unknown',
+          amount: payment.amount,
+          ageDays,
+          reason: 'Payment failed and needs follow-up.',
+          createdAt: payment.createdAt.toISOString(),
+          actionHref: '/admin/finance?status=failed',
+        };
+      }
+
+      if (payment.status === 'refunded') {
+        return {
+          id: payment.id,
+          type: 'refund_activity' as const,
+          bookingId: payment.bookingId,
+          bookingNumber: payment.booking.bookingNumber,
+          customerName: payment.booking.user.name ?? 'Unknown',
+          customerEmail: payment.booking.user.email ?? 'Unknown',
+          amount: payment.refundAmount ?? payment.amount,
+          ageDays,
+          reason: 'Refund activity recorded, verify reason and notes.',
+          createdAt: payment.createdAt.toISOString(),
+          actionHref: '/admin/finance/refunds',
+        };
+      }
+
+      return null;
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item))
+    .slice(0, 100);
+
+  return {
+    generatedAt: now.toISOString(),
+    totalExceptions: items.length,
+    items,
+  };
+}
+
+export async function getFinanceCashForecast(days = 30): Promise<FinanceCashForecastResponse> {
+  const now = new Date();
+  const startDate = new Date();
+  startDate.setHours(0, 0, 0, 0);
+
+  const endDate = new Date(startDate);
+  endDate.setDate(endDate.getDate() + Math.max(1, Math.min(days, 90)) - 1);
+  endDate.setHours(23, 59, 59, 999);
+
+  if (!isDatabaseConfigured()) {
+    return {
+      generatedAt: now.toISOString(),
+      range: {
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+      },
+      totals: {
+        expectedCashIn: 0,
+        expectedRefunds: 0,
+        expectedNet: 0,
+        bookingCount: 0,
+      },
+      days: [],
+    };
+  }
+
+  const [upcomingBookings, recentPayments] = await Promise.all([
+    prisma.booking.findMany({
+      where: {
+        checkInDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+        status: {
+          in: ['pending', 'confirmed'],
+        },
+      },
+      select: {
+        id: true,
+        checkInDate: true,
+        total: true,
+      },
+      orderBy: {
+        checkInDate: 'asc',
+      },
+    }),
+    prisma.payment.findMany({
+      where: {
+        createdAt: {
+          gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
+        },
+        status: {
+          in: ['succeeded', 'refunded'],
+        },
+      },
+      select: {
+        status: true,
+      },
+    }),
+  ]);
+
+  const refundedCount = recentPayments.filter((p) => p.status === 'refunded').length;
+  const succeededOrRefundedCount = recentPayments.length;
+  const refundRate = succeededOrRefundedCount > 0 ? refundedCount / succeededOrRefundedCount : 0.05;
+
+  const forecastMap: Record<string, {
+    expectedCashIn: number;
+    expectedRefunds: number;
+    expectedNet: number;
+    bookingCount: number;
+  }> = {};
+
+  for (let i = 0; i < days; i += 1) {
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + i);
+    const key = date.toISOString().slice(0, 10);
+    forecastMap[key] = {
+      expectedCashIn: 0,
+      expectedRefunds: 0,
+      expectedNet: 0,
+      bookingCount: 0,
+    };
+  }
+
+  for (const booking of upcomingBookings) {
+    const key = booking.checkInDate.toISOString().slice(0, 10);
+    if (!forecastMap[key]) continue;
+
+    forecastMap[key].expectedCashIn = roundCurrency(forecastMap[key].expectedCashIn + booking.total);
+    forecastMap[key].bookingCount += 1;
+  }
+
+  for (const key of Object.keys(forecastMap)) {
+    forecastMap[key].expectedRefunds = roundCurrency(forecastMap[key].expectedCashIn * refundRate);
+    forecastMap[key].expectedNet = roundCurrency(
+      forecastMap[key].expectedCashIn - forecastMap[key].expectedRefunds,
+    );
+  }
+
+  const dayKeys = Object.keys(forecastMap).sort((a, b) => (a < b ? -1 : 1));
+  const dayRows = dayKeys.map((date) => ({
+    date,
+    ...forecastMap[date],
+  }));
+
+  const totals = dayRows.reduce(
+    (acc, row) => {
+      acc.expectedCashIn = roundCurrency(acc.expectedCashIn + row.expectedCashIn);
+      acc.expectedRefunds = roundCurrency(acc.expectedRefunds + row.expectedRefunds);
+      acc.expectedNet = roundCurrency(acc.expectedNet + row.expectedNet);
+      acc.bookingCount += row.bookingCount;
+      return acc;
+    },
+    { expectedCashIn: 0, expectedRefunds: 0, expectedNet: 0, bookingCount: 0 },
+  );
+
+  return {
+    generatedAt: now.toISOString(),
+    range: {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    },
+    totals,
+    days: dayRows,
   };
 }

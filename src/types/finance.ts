@@ -124,3 +124,63 @@ export interface FinanceTaxSummaryResponse {
   };
   rows: FinanceTaxSummaryRow[];
 }
+
+export type FinanceAlertSeverity = 'info' | 'warning' | 'critical';
+
+export interface FinanceAlertItem {
+  id: string;
+  severity: FinanceAlertSeverity;
+  title: string;
+  description: string;
+  metricValue?: number;
+  actionHref: string;
+  actionLabel: string;
+}
+
+export interface FinanceAlertsResponse {
+  generatedAt: string;
+  alerts: FinanceAlertItem[];
+}
+
+export interface FinanceExceptionItem {
+  id: string;
+  type: 'pending_settlement' | 'failed_payment' | 'refund_activity';
+  bookingId: string;
+  bookingNumber: string;
+  customerName: string;
+  customerEmail: string;
+  amount: number;
+  ageDays: number;
+  reason: string;
+  createdAt: string;
+  actionHref: string;
+}
+
+export interface FinanceExceptionsResponse {
+  generatedAt: string;
+  totalExceptions: number;
+  items: FinanceExceptionItem[];
+}
+
+export interface FinanceCashForecastDay {
+  date: string;
+  expectedCashIn: number;
+  expectedRefunds: number;
+  expectedNet: number;
+  bookingCount: number;
+}
+
+export interface FinanceCashForecastResponse {
+  generatedAt: string;
+  range: {
+    startDate: string;
+    endDate: string;
+  };
+  totals: {
+    expectedCashIn: number;
+    expectedRefunds: number;
+    expectedNet: number;
+    bookingCount: number;
+  };
+  days: FinanceCashForecastDay[];
+}

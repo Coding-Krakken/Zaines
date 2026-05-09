@@ -13,6 +13,9 @@ const {
   getFinanceTransactionsMock,
   getFinanceTaxSummaryMock,
   getFinanceAuditEventsMock,
+  getFinanceAlertsMock,
+  getFinanceCashForecastMock,
+  getFinanceExceptionsMock,
   appendFinanceAuditEventMock,
   stripeRefundCreateMock,
   isStripeConfiguredMock,
@@ -114,6 +117,26 @@ const {
     ],
   })),
   getFinanceAuditEventsMock: vi.fn(async () => []),
+  getFinanceAlertsMock: vi.fn(async () => ({
+    generatedAt: new Date().toISOString(),
+    alerts: [],
+  })),
+  getFinanceExceptionsMock: vi.fn(async () => ({
+    generatedAt: new Date().toISOString(),
+    totalExceptions: 0,
+    items: [],
+  })),
+  getFinanceCashForecastMock: vi.fn(async () => ({
+    generatedAt: new Date().toISOString(),
+    range: { startDate: new Date().toISOString(), endDate: new Date().toISOString() },
+    totals: {
+      expectedCashIn: 100,
+      expectedRefunds: 5,
+      expectedNet: 95,
+      bookingCount: 1,
+    },
+    days: [],
+  })),
   appendFinanceAuditEventMock: vi.fn(async () => undefined),
   stripeRefundCreateMock: vi.fn(async () => ({ id: 're_1' })),
   isStripeConfiguredMock: vi.fn(() => false),
@@ -133,6 +156,9 @@ vi.mock('@/lib/api/admin-finance', () => ({
   getFinanceTransactions: getFinanceTransactionsMock,
   getFinanceTaxSummary: getFinanceTaxSummaryMock,
   getFinanceAuditEvents: getFinanceAuditEventsMock,
+  getFinanceAlerts: getFinanceAlertsMock,
+  getFinanceExceptions: getFinanceExceptionsMock,
+  getFinanceCashForecast: getFinanceCashForecastMock,
   appendFinanceAuditEvent: appendFinanceAuditEventMock,
 }));
 
@@ -154,6 +180,9 @@ import { GET as getFinanceAuditRoute } from '@/app/api/admin/finance/audit/route
 import { GET as getFinanceReconciliationRoute, POST as postFinanceReconciliationRoute } from '@/app/api/admin/finance/reconciliation/route';
 import { GET as getFinanceTaxesRoute } from '@/app/api/admin/finance/taxes/route';
 import { GET as getFinanceTaxesExportRoute } from '@/app/api/admin/finance/taxes/export/route';
+import { GET as getFinanceAlertsRoute } from '@/app/api/admin/finance/alerts/route';
+import { GET as getFinanceExceptionsRoute } from '@/app/api/admin/finance/exceptions/route';
+import { GET as getFinanceForecastRoute } from '@/app/api/admin/finance/forecast/route';
 
 const staffSession = { user: { id: 'staff-1', role: 'staff', name: 'Staff User' } };
 const adminSession = { user: { id: 'admin-1', role: 'admin', name: 'Admin User' } };
@@ -307,5 +336,16 @@ describe('admin finance route authz', () => {
     const exportRes = await getFinanceTaxesExportRoute(new NextRequest('http://localhost/api/admin/finance/taxes/export'));
     expect(reconRes.status).toBe(200);
     expect(exportRes.status).toBe(200);
+  });
+
+  it('allows staff users to read owner command center endpoints', async () => {
+    authMock.mockResolvedValue(staffSession);
+    const alertsRes = await getFinanceAlertsRoute(new NextRequest('http://localhost/api/admin/finance/alerts'));
+    const exceptionsRes = await getFinanceExceptionsRoute(new NextRequest('http://localhost/api/admin/finance/exceptions'));
+    const forecastRes = await getFinanceForecastRoute(new NextRequest('http://localhost/api/admin/finance/forecast?days=30'));
+
+    expect(alertsRes.status).toBe(200);
+    expect(exceptionsRes.status).toBe(200);
+    expect(forecastRes.status).toBe(200);
   });
 });

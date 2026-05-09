@@ -23,6 +23,9 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Download, Loader2, RefreshCw } from 'lucide-react';
 import type {
+  FinanceAlertsResponse,
+  FinanceCashForecastResponse,
+  FinanceExceptionsResponse,
   FinanceOverviewResponse,
   FinanceTransactionStatus,
   FinanceTransactionsResponse,
@@ -72,6 +75,22 @@ function formatDate(value: string): string {
   return new Date(value).toLocaleString();
 }
 
+function formatShortDate(value: string): string {
+  return new Date(value).toLocaleDateString();
+}
+
+function severityBadgeVariant(severity: 'info' | 'warning' | 'critical'): 'default' | 'secondary' | 'destructive' {
+  switch (severity) {
+    case 'critical':
+      return 'destructive';
+    case 'warning':
+      return 'secondary';
+    case 'info':
+    default:
+      return 'default';
+  }
+}
+
 function defaultDateRange(): { startDate: string; endDate: string } {
   const endDate = new Date();
   const startDate = new Date();
@@ -92,6 +111,9 @@ export default function AdminFinancePage() {
 
   const [overview, setOverview] = useState<FinanceOverviewResponse | null>(null);
   const [transactions, setTransactions] = useState<FinanceTransactionsResponse | null>(null);
+  const [alerts, setAlerts] = useState<FinanceAlertsResponse | null>(null);
+  const [exceptions, setExceptions] = useState<FinanceExceptionsResponse | null>(null);
+  const [forecast, setForecast] = useState<FinanceCashForecastResponse | null>(null);
   const [state, setState] = useState<FetchState>({ loading: true, error: '' });
 
   async function loadData() {
@@ -106,9 +128,12 @@ export default function AdminFinancePage() {
         ...(search.trim() ? { search: search.trim() } : {}),
       });
 
-      const [overviewRes, txRes] = await Promise.all([
+      const [overviewRes, txRes, alertsRes, exceptionsRes, forecastRes] = await Promise.all([
         fetch(`/api/admin/finance/overview?${params}`, { cache: 'no-store' }),
         fetch(`/api/admin/finance/transactions?${txParams}`, { cache: 'no-store' }),
+        fetch('/api/admin/finance/alerts', { cache: 'no-store' }),
+        fetch('/api/admin/finance/exceptions', { cache: 'no-store' }),
+        fetch('/api/admin/finance/forecast?days=30', { cache: 'no-store' }),
       ]);
 
       const overviewJson = (await overviewRes.json()) as {
@@ -121,6 +146,21 @@ export default function AdminFinancePage() {
         data?: FinanceTransactionsResponse;
         error?: string;
       };
+      const alertsJson = (await alertsRes.json()) as {
+        success?: boolean;
+        data?: FinanceAlertsResponse;
+        error?: string;
+      };
+      const exceptionsJson = (await exceptionsRes.json()) as {
+        success?: boolean;
+        data?: FinanceExceptionsResponse;
+        error?: string;
+      };
+      const forecastJson = (await forecastRes.json()) as {
+        success?: boolean;
+        data?: FinanceCashForecastResponse;
+        error?: string;
+      };
 
       if (!overviewRes.ok || !overviewJson.data) {
         throw new Error(overviewJson.error ?? 'Failed loading finance overview');
@@ -130,12 +170,30 @@ export default function AdminFinancePage() {
         throw new Error(txJson.error ?? 'Failed loading finance transactions');
       }
 
+      if (!alertsRes.ok || !alertsJson.data) {
+        throw new Error(alertsJson.error ?? 'Failed loading finance alerts');
+      }
+
+      if (!exceptionsRes.ok || !exceptionsJson.data) {
+        throw new Error(exceptionsJson.error ?? 'Failed loading finance exceptions');
+      }
+
+      if (!forecastRes.ok || !forecastJson.data) {
+        throw new Error(forecastJson.error ?? 'Failed loading finance forecast');
+      }
+
       setOverview(overviewJson.data);
       setTransactions(txJson.data);
+      setAlerts(alertsJson.data);
+      setExceptions(exceptionsJson.data);
+      setForecast(forecastJson.data);
       setState({ loading: false, error: '' });
     } catch (error) {
       setOverview(null);
       setTransactions(null);
+      setAlerts(null);
+      setExceptions(null);
+      setForecast(null);
       setState({
         loading: false,
         error: error instanceof Error ? error.message : 'Failed loading finance data',
@@ -265,8 +323,120 @@ export default function AdminFinancePage() {
 
       {state.error && <p className="text-sm text-red-700">{state.error}</p>}
 
-      {!state.loading && !state.error && overview && transactions && (
+      {!state.loading && !state.error && overview && transactions && alerts && exceptions && forecast && (
         <>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Owner Command Center</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-sm font-medium">Actionable Alerts</p>
+                  <p className="text-xs text-muted-foreground">{alerts.alerts.length} active</p>
+                </div>
+                {alerts.alerts.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No active owner alerts right now.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {alerts.alerts.map((alert) => (
+                      <div key={alert.id} className="flex flex-col gap-2 rounded-md border p-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <div className="mb-1 flex items-center gap-2">
+                            <Badge variant={severityBadgeVariant(alert.severity)}>{alert.severity}</Badge>
+                            <p className="font-medium">{alert.title}</p>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{alert.description}</p>
+                        </div>
+                        <Button size="sm" variant="outline" asChild>
+                          <Link href={alert.actionHref}>{alert.actionLabel}</Link>
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-3">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">30-Day Expected Cash In</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-2xl font-semibold">{formatCurrency(forecast.totals.expectedCashIn)}</CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Projected Refunds</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-2xl font-semibold">{formatCurrency(forecast.totals.expectedRefunds)}</CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Expected Net Cash</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-2xl font-semibold">{formatCurrency(forecast.totals.expectedNet)}</CardContent>
+                </Card>
+              </div>
+
+              <div>
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-sm font-medium">Exception Queue</p>
+                  <p className="text-xs text-muted-foreground">{exceptions.totalExceptions} total</p>
+                </div>
+                {exceptions.items.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No exceptions in the queue.</p>
+                ) : (
+                  <div className="overflow-x-auto rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Booking</TableHead>
+                          <TableHead>Customer</TableHead>
+                          <TableHead>Amount</TableHead>
+                          <TableHead>Age</TableHead>
+                          <TableHead>Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {exceptions.items.slice(0, 8).map((item) => (
+                          <TableRow key={item.id}>
+                            <TableCell className="capitalize">{item.type.replaceAll('_', ' ')}</TableCell>
+                            <TableCell>{item.bookingNumber}</TableCell>
+                            <TableCell>
+                              <p>{item.customerName}</p>
+                              <p className="text-xs text-muted-foreground">{item.customerEmail}</p>
+                            </TableCell>
+                            <TableCell>{formatCurrency(item.amount)}</TableCell>
+                            <TableCell>{item.ageDays}d</TableCell>
+                            <TableCell>
+                              <Button size="sm" variant="ghost" asChild>
+                                <Link href={item.actionHref}>Open</Link>
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <p className="mb-3 text-sm font-medium">7-Day Forecast Snapshot</p>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-7">
+                  {forecast.days.slice(0, 7).map((day) => (
+                    <div key={day.date} className="rounded-md border p-2">
+                      <p className="text-xs text-muted-foreground">{formatShortDate(day.date)}</p>
+                      <p className="text-sm font-medium">{formatCurrency(day.expectedNet)}</p>
+                      <p className="text-xs text-muted-foreground">{day.bookingCount} booking(s)</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <Card>
               <CardHeader className="pb-2">
