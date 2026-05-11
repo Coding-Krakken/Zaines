@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Download, Loader2, RefreshCw } from 'lucide-react';
+import { Download, Loader2, RefreshCw, TrendingUp, TrendingDown, DollarSign, CreditCard, AlertTriangle, ExternalLink, FileText, BarChart3 } from 'lucide-react';
 import type {
   FinanceAlertsResponse,
   FinanceCashForecastResponse,
@@ -30,6 +30,8 @@ import type {
   FinanceTransactionStatus,
   FinanceTransactionsResponse,
 } from '@/types/finance';
+import { TransactionDetailModal } from '@/components/admin/TransactionDetailModal';
+import { getStripeChargeUrl, getStripeSigmaUrl, getStripeReconciliationReportUrl } from '@/lib/stripe-links';
 
 type FetchState = {
   loading: boolean;
@@ -139,6 +141,7 @@ export default function AdminFinancePage() {
   const [exceptions, setExceptions] = useState<FinanceExceptionsResponse | null>(null);
   const [forecast, setForecast] = useState<FinanceCashForecastResponse | null>(null);
   const [state, setState] = useState<FetchState>({ loading: true, error: '' });
+  const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
 
   async function loadData() {
     setState({ loading: true, error: '' });
@@ -277,38 +280,78 @@ export default function AdminFinancePage() {
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Refund Operations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button size="sm" asChild>
-              <Link href="/admin/finance/refunds">Open Refund Console</Link>
-            </Button>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Payout Reconciliation</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button size="sm" asChild>
-              <Link href="/admin/finance/reconciliation">Open Reconciliation</Link>
-            </Button>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Tax Liability</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button size="sm" asChild>
-              <Link href="/admin/finance/taxes">Open Tax Summary</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Quick Actions</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Button variant="outline" className="h-auto flex-col items-start gap-2 p-4" asChild>
+            <Link href="/admin/finance/refunds">
+              <CreditCard className="h-5 w-5" />
+              <div className="text-left">
+                <div className="font-semibold">Refund Console</div>
+                <div className="text-xs text-muted-foreground">Process manual refunds</div>
+              </div>
+            </Link>
+          </Button>
+          <Button variant="outline" className="h-auto flex-col items-start gap-2 p-4" asChild>
+            <Link href="/admin/finance/reconciliation">
+              <BarChart3 className="h-5 w-5" />
+              <div className="text-left">
+                <div className="font-semibold">Reconciliation</div>
+                <div className="text-xs text-muted-foreground">Match payouts to transactions</div>
+              </div>
+            </Link>
+          </Button>
+          <Button variant="outline" className="h-auto flex-col items-start gap-2 p-4" asChild>
+            <Link href="/admin/finance/payouts">
+              <DollarSign className="h-5 w-5" />
+              <div className="text-left">
+                <div className="font-semibold">Payouts</div>
+                <div className="text-xs text-muted-foreground">View Stripe payouts</div>
+              </div>
+            </Link>
+          </Button>
+          <Button variant="outline" className="h-auto flex-col items-start gap-2 p-4" asChild>
+            <Link href="/admin/finance/taxes">
+              <FileText className="h-5 w-5" />
+              <div className="text-left">
+                <div className="font-semibold">Tax Summary</div>
+                <div className="text-xs text-muted-foreground">Review tax liability</div>
+              </div>
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <ExternalLink className="h-4 w-4" />
+            Stripe Sigma Reports
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-2 sm:grid-cols-3">
+          <Button variant="outline" size="sm" asChild>
+            <a href={getStripeReconciliationReportUrl('payout')} target="_blank" rel="noopener noreferrer">
+              Payout Reconciliation
+              <ExternalLink className="ml-2 h-3 w-3" />
+            </a>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <a href={getStripeReconciliationReportUrl('balance')} target="_blank" rel="noopener noreferrer">
+              Balance Change Report
+              <ExternalLink className="ml-2 h-3 w-3" />
+            </a>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <a href={getStripeSigmaUrl()} target="_blank" rel="noopener noreferrer">
+              All Sigma Queries
+              <ExternalLink className="ml-2 h-3 w-3" />
+            </a>
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -482,33 +525,63 @@ export default function AdminFinancePage() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Gross Revenue</CardTitle>
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-green-600" />
+                  Gross Revenue
+                </CardTitle>
               </CardHeader>
-              <CardContent className="text-2xl font-semibold">{formatCurrency(overview.totals.grossRevenue)}</CardContent>
+              <CardContent>
+                <div className="text-2xl font-semibold">{formatCurrency(overview.totals.grossRevenue)}</div>
+                <div className="text-xs text-muted-foreground mt-1">Before refunds</div>
+              </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Refunds</CardTitle>
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <TrendingDown className="h-4 w-4 text-red-600" />
+                  Refunds
+                </CardTitle>
               </CardHeader>
-              <CardContent className="text-2xl font-semibold">{formatCurrency(overview.totals.refunds)}</CardContent>
+              <CardContent>
+                <div className="text-2xl font-semibold">{formatCurrency(overview.totals.refunds)}</div>
+                <div className="text-xs text-muted-foreground mt-1">Total refunded</div>
+              </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Net Revenue</CardTitle>
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-blue-600" />
+                  Net Revenue
+                </CardTitle>
               </CardHeader>
-              <CardContent className="text-2xl font-semibold">{formatCurrency(overview.totals.netRevenue)}</CardContent>
+              <CardContent>
+                <div className="text-2xl font-semibold">{formatCurrency(overview.totals.netRevenue)}</div>
+                <div className="text-xs text-muted-foreground mt-1">After refunds</div>
+              </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Tax Collected</CardTitle>
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-purple-600" />
+                  Tax Collected
+                </CardTitle>
               </CardHeader>
-              <CardContent className="text-2xl font-semibold">{formatCurrency(overview.totals.taxesCollected)}</CardContent>
+              <CardContent>
+                <div className="text-2xl font-semibold">{formatCurrency(overview.totals.taxesCollected)}</div>
+                <div className="text-xs text-muted-foreground mt-1">Sales tax liability</div>
+              </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Pending Balance</CardTitle>
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-orange-600" />
+                  Pending Balance
+                </CardTitle>
               </CardHeader>
-              <CardContent className="text-2xl font-semibold">{formatCurrency(overview.totals.outstandingPending)}</CardContent>
+              <CardContent>
+                <div className="text-2xl font-semibold">{formatCurrency(overview.totals.outstandingPending)}</div>
+                <div className="text-xs text-muted-foreground mt-1">Awaiting settlement</div>
+              </CardContent>
             </Card>
           </div>
 
@@ -552,7 +625,11 @@ export default function AdminFinancePage() {
                     </TableHeader>
                     <TableBody>
                       {transactions.rows.map((row) => (
-                        <TableRow key={row.id}>
+                        <TableRow 
+                          key={row.id}
+                          className="cursor-pointer hover:bg-gray-50"
+                          onClick={() => setSelectedPaymentId(row.id)}
+                        >
                           <TableCell>
                             <p className="font-medium">{row.bookingNumber}</p>
                             <p className="text-xs text-muted-foreground">{row.stripePaymentId ?? 'no processor id'}</p>
@@ -578,6 +655,13 @@ export default function AdminFinancePage() {
           </Card>
         </>
       )}
+
+      {/* Transaction Detail Modal */}
+      <TransactionDetailModal
+        paymentId={selectedPaymentId ?? ''}
+        isOpen={!!selectedPaymentId}
+        onClose={() => setSelectedPaymentId(null)}
+      />
     </div>
   );
 }

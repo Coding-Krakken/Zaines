@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, ExternalLink } from 'lucide-react';
+import { Loader2, ExternalLink, Trash2, CheckSquare, Square } from 'lucide-react';
 import type { FinanceAuditEvent, FinanceTransactionsResponse, FinanceTransactionStatus } from '@/types/finance';
 import { TransactionDetailModal } from '@/components/admin/TransactionDetailModal';
 import { getStripeChargeUrl } from '@/lib/stripe-links';
@@ -44,6 +44,10 @@ export default function FinanceRefundsPage() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [batchReason, setBatchReason] = useState('');
+  const [batchAmount, setBatchAmount] = useState('');
+  const [processingBatch, setProcessingBatch] = useState(false);
 
   async function loadData() {
     setLoading(true);
@@ -177,6 +181,107 @@ export default function FinanceRefundsPage() {
     }
   }
 
+  function toggleSelection(paymentId: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(paymentId)) {
+        next.delete(paymentId);
+      } else {
+        next.add(paymentId);
+      }
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    if (selectedIds.size === rows.length && rows.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(rows.map((r) => r.id)));
+    }
+  }
+
+  async function handleBatchRefund() {
+    if (selectedIds.size === 0) {
+      setError('No transactions selected for batch refund.');
+      return;
+    }
+
+    const amount = batchAmount.trim() ? Number.parseFloat(batchAmount) : null;
+    const reason = batchReason.trim();
+
+    if (!reason) {
+      setError('Batch refund reason is required.');
+      return;
+    }
+
+    if (amount !== null && (!Number.isFinite(amount) || amount <= 0)) {
+      setError('Invalid refund amount.');
+      return;
+    }
+
+    // Confirm if more than 5 transactions
+    if (selectedIds.size > 5) {
+      const confirmed = window.confirm(
+        `You are about to refund ${selectedIds.size} transactions. This cannot be undone. Continue?`
+      );
+      if (!confirmed) return;
+    }
+
+    setProcessingBatch(true);
+    setError('');
+    setMessage('');
+
+    const results: Array<{ id: string; success: boolean; error?: string }> = [];
+
+    for (const paymentId of selectedIds) {
+      const row = rows.find((r) => r.id === paymentId);
+      if (!row) continue;
+
+      const refundAmount = amount ?? row.amount;
+
+      try {
+        const res = await fetch('/api/admin/finance/refunds', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentId, refundAmount, reason }),
+        });
+
+        const payload = (await res.json()) as { error?: string };
+
+        if (!res.ok) {
+          results.push({ id: paymentId, success: false, error: payload.error ?? 'Refund failed' });
+        } else {
+          results.push({ id: paymentId, success: true });
+        }
+      } catch (refundError) {
+        results.push({
+          id: paymentId,
+          success: false,
+          error: refundError instanceof Error ? refundError.message : 'Unknown error',
+        });
+      }
+    }
+
+    const successCount = results.filter((r) => r.success).length;
+    const failCount = results.filter((r) => !r.success).length;
+
+    if (failCount > 0) {
+      const failedIds = results.filter((r) => !r.success).map((r) => r.id);
+      setError(`Batch refund completed with errors. ${successCount} succeeded, ${failCount} failed. Failed IDs: ${failedIds.join(', ')}`);
+    } else {
+      setMessage(`Batch refund completed successfully. ${successCount} transaction(s) refunded.`);
+    }
+
+    setSelectedIds(new Set());
+    setBatchReason('');
+    setBatchAmount('');
+    setProcessingBatch(false);
+    await loadData();
+  }
+
+  const rows = useMemo(() => data?.rows ?? [], [data]);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -236,9 +341,89 @@ export default function FinanceRefundsPage() {
 
       {!loading && data && (
         <>
+          {/* Batch Action Bar */}
+          {selectedIds.size > 0 && (
+            <Card className="border-blue-200 bg-blue-50">
+              <CardContent className="pt-6">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-blue-900">
+                      {selectedIds.size} transaction(s) selected
+                    </p>
+                    <p className="text-xs text-blue-700">
+                      Ready for batch refund processing
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+                    <Input
+                      placeholder="Refund amount (optional, uses full amount)"
+                      value={batchAmount}
+                      onChange={(e) => setBatchAmount(e.target.value)}
+                      className="w-full sm:w-48"
+                      type="number"
+                      step="0.01"
+                    />
+                    <Input
+                      placeholder="Reason for batch refund"
+                      value={batchReason}
+                      onChange={(e) => setBatchReason(e.target.value)}
+                      className="w-full sm:w-64"
+                    />
+                    <Button
+                      onClick={() => void handleBatchRefund()}
+                      disabled={processingBatch || !batchReason.trim()}
+                      variant="destructive"
+                    >
+                      {processingBatch ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Batch Refund
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setSelectedIds(new Set())}
+                      disabled={processingBatch}
+                    >
+                      Clear Selection
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Eligible Transactions ({rows.length})</CardTitle>
+              <CardTitle className="text-base flex items-center gap-2">
+                Eligible Transactions ({rows.length})
+                {rows.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={toggleSelectAll}
+                    className="ml-2"
+                  >
+                    {selectedIds.size === rows.length ? (
+                      <>
+                        <CheckSquare className="mr-1 h-4 w-4" />
+                        Deselect All
+                      </>
+                    ) : (
+                      <>
+                        <Square className="mr-1 h-4 w-4" />
+                        Select All
+                      </>
+                    )}
+                  </Button>
+                )}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {rows.length === 0 ? (
@@ -248,6 +433,7 @@ export default function FinanceRefundsPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-10"></TableHead>
                         <TableHead>Booking</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Payment Method</TableHead>
@@ -263,14 +449,30 @@ export default function FinanceRefundsPage() {
                       {rows.map((row) => (
                         <TableRow 
                           key={row.id}
-                          className="cursor-pointer hover:bg-gray-50"
-                          onClick={() => setSelectedPaymentId(row.id)}
+                          className="hover:bg-gray-50"
                         >
-                          <TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              onClick={() => toggleSelection(row.id)}
+                            >
+                              {selectedIds.has(row.id) ? (
+                                <CheckSquare className="h-4 w-4 text-blue-600" />
+                              ) : (
+                                <Square className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </TableCell>
+                          <TableCell 
+                            className="cursor-pointer"
+                            onClick={() => setSelectedPaymentId(row.id)}
+                          >
                             <p className="font-medium">{row.bookingNumber}</p>
                             <p className="text-xs text-muted-foreground">{row.customerName}</p>
                           </TableCell>
-                          <TableCell>
+                          <TableCell onClick={() => setSelectedPaymentId(row.id)} className="cursor-pointer">
                             <Badge variant={row.status === 'succeeded' ? 'default' : 'outline'}>{row.status}</Badge>
                           </TableCell>
                           <TableCell>
