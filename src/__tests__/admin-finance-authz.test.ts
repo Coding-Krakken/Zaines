@@ -13,6 +13,7 @@ const {
   getFinanceReconciliationMock,
   getFinanceTransactionsMock,
   getFinanceTaxSummaryMock,
+  getFinanceWebhookHealthMock,
   getFinanceAuditEventsMock,
   getFinanceAlertsMock,
   getFinanceCashForecastMock,
@@ -138,6 +139,17 @@ const {
       },
     ],
   })),
+  getFinanceWebhookHealthMock: vi.fn(async () => ({
+    generatedAt: new Date().toISOString(),
+    summary: {
+      pendingCount: 0,
+      failedCount: 0,
+      processedLastHour: 2,
+      avgProcessingLagSeconds: 10,
+      oldestPendingAgeSeconds: null,
+    },
+    recentEvents: [],
+  })),
   getFinanceAuditEventsMock: vi.fn(async () => []),
   getFinanceAlertsMock: vi.fn(async () => ({
     generatedAt: new Date().toISOString(),
@@ -178,6 +190,7 @@ vi.mock('@/lib/api/admin-finance', () => ({
   getFinanceReconciliation: getFinanceReconciliationMock,
   getFinanceTransactions: getFinanceTransactionsMock,
   getFinanceTaxSummary: getFinanceTaxSummaryMock,
+  getFinanceWebhookHealth: getFinanceWebhookHealthMock,
   getFinanceAuditEvents: getFinanceAuditEventsMock,
   getFinanceAlerts: getFinanceAlertsMock,
   getFinanceExceptions: getFinanceExceptionsMock,
@@ -205,6 +218,7 @@ import { GET as getFinanceReconciliationRoute, POST as postFinanceReconciliation
 import { GET as getFinanceTaxesRoute } from '@/app/api/admin/finance/taxes/route';
 import { GET as getFinanceTaxesExportRoute } from '@/app/api/admin/finance/taxes/export/route';
 import { GET as getFinanceExportRoute } from '@/app/api/admin/finance/export/route';
+import { GET as getFinanceWebhooksRoute } from '@/app/api/admin/finance/webhooks/route';
 import { GET as getFinanceAlertsRoute } from '@/app/api/admin/finance/alerts/route';
 import { GET as getFinanceExceptionsRoute } from '@/app/api/admin/finance/exceptions/route';
 import { GET as getFinanceForecastRoute } from '@/app/api/admin/finance/forecast/route';
@@ -272,6 +286,13 @@ describe('admin finance route authz', () => {
     const refundRes = await getFinanceRefundsRoute(new NextRequest('http://localhost/api/admin/finance/refunds'));
     expect(txRes.status).toBe(200);
     expect(refundRes.status).toBe(200);
+  });
+
+  it('allows staff users to read webhook health', async () => {
+    authMock.mockResolvedValue(staffSession);
+    const res = await getFinanceWebhooksRoute(new NextRequest('http://localhost/api/admin/finance/webhooks'));
+    expect(res.status).toBe(200);
+    expect(getFinanceWebhookHealthMock).toHaveBeenCalledTimes(1);
   });
 
   it('blocks staff users from refund mutation', async () => {

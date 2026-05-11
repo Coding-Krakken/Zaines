@@ -17,12 +17,15 @@ interface ProfileFormProps {
     state: string | null;
     zip: string | null;
   };
+  billingPortalEnabled?: boolean;
 }
 
-export function ProfileForm({ user }: ProfileFormProps) {
+export function ProfileForm({ user, billingPortalEnabled = false }: ProfileFormProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isOpeningPortal, setIsOpeningPortal] = useState(false);
+  const [portalError, setPortalError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: user.name || '',
@@ -77,6 +80,39 @@ export function ProfileForm({ user }: ProfileFormProps) {
     });
     setIsEditing(false);
     setError(null);
+  };
+
+  const handleOpenBillingPortal = async () => {
+    setIsOpeningPortal(true);
+    setPortalError(null);
+
+    try {
+      const response = await fetch('/api/payments/customer-portal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ returnPath: '/dashboard/settings' }),
+      });
+
+      const payload = (await response.json()) as { url?: string; message?: string; error?: string };
+
+      if (!response.ok || !payload.url) {
+        throw new Error(
+          payload.message || payload.error || 'Unable to open billing portal right now.',
+        );
+      }
+
+      window.location.assign(payload.url);
+    } catch (portalErr) {
+      setPortalError(
+        portalErr instanceof Error
+          ? portalErr.message
+          : 'Unable to open billing portal right now.',
+      );
+    } finally {
+      setIsOpeningPortal(false);
+    }
   };
 
   return (
@@ -212,6 +248,30 @@ export function ProfileForm({ user }: ProfileFormProps) {
             <Button onClick={handleCancel} variant="outline" disabled={isSaving}>
               Cancel
             </Button>
+          </div>
+        )}
+
+        {billingPortalEnabled && (
+          <div className="pt-4 border-t">
+            <p className="text-sm font-medium">Billing and Subscriptions</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Open Stripe&apos;s secure customer billing portal to manage payment methods and subscription settings.
+            </p>
+            {portalError && (
+              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+                {portalError}
+              </div>
+            )}
+            <div className="mt-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleOpenBillingPortal}
+                disabled={isOpeningPortal}
+              >
+                {isOpeningPortal ? 'Opening portal...' : 'Open Billing Portal'}
+              </Button>
+            </div>
           </div>
         )}
       </div>

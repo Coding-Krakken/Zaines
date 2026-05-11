@@ -47,6 +47,7 @@ async function markWebhookEventProcessed(event: Stripe.Event): Promise<void> {
 // POST /api/payments/webhook - Handle Stripe webhook events
 export async function POST(request: NextRequest) {
   const correlationId = getCorrelationId(request);
+  const startedAt = Date.now();
 
   try {
     // Check if Stripe is configured
@@ -118,13 +119,29 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    logSecurityEvent({
+      route: "/api/payments/webhook",
+      event: "WEBHOOK_EVENT_RECEIVED",
+      correlationId,
+      context: {
+        eventId: event.id,
+        eventType: event.type,
+        livemode: event.livemode,
+        apiVersion: event.api_version,
+      },
+    });
+
     const shouldProcess = await reserveWebhookEvent(event);
     if (!shouldProcess) {
       logSecurityEvent({
         route: "/api/payments/webhook",
         event: "WEBHOOK_EVENT_REPLAY_SKIPPED",
         correlationId,
-        context: { eventId: event.id, eventType: event.type },
+        context: {
+          eventId: event.id,
+          eventType: event.type,
+          processingMs: Date.now() - startedAt,
+        },
       });
       return NextResponse.json({ received: true, deduplicated: true });
     }
@@ -171,6 +188,17 @@ export async function POST(request: NextRequest) {
     }
 
     await markWebhookEventProcessed(event);
+
+    logSecurityEvent({
+      route: "/api/payments/webhook",
+      event: "WEBHOOK_EVENT_PROCESSED",
+      correlationId,
+      context: {
+        eventId: event.id,
+        eventType: event.type,
+        processingMs: Date.now() - startedAt,
+      },
+    });
 
     return NextResponse.json({ received: true });
   } catch (error) {

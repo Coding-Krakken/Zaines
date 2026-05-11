@@ -11,6 +11,7 @@ import type {
   FinanceTransactionStatus,
   FinanceTransactionRow,
   FinanceTaxSummaryResponse,
+  FinanceWebhookHealthResponse,
 } from '@/types/finance';
 
 type FinanceFilters = {
@@ -780,7 +781,7 @@ export async function getFinanceAlerts(): Promise<FinanceAlertsResponse> {
   const windowStart = new Date();
   windowStart.setDate(windowStart.getDate() - 30);
 
-  const [recentPayments, reconciliation] = await Promise.all([
+  const [recentPayments, reconciliation, webhookHealth] = await Promise.all([
     prisma.payment.findMany({
       where: {
         createdAt: {
@@ -796,6 +797,7 @@ export async function getFinanceAlerts(): Promise<FinanceAlertsResponse> {
       },
     }),
     getFinanceReconciliation(windowStart, now),
+    getFinanceWebhookHealth(),
   ]);
 
   const pendingAged = recentPayments.filter((payment) => {
@@ -864,6 +866,36 @@ export async function getFinanceAlerts(): Promise<FinanceAlertsResponse> {
       metricValue: unreconciledBuckets.length,
       actionHref: '/admin/finance/reconciliation',
       actionLabel: 'Reconcile now',
+    });
+  }
+
+  if (webhookHealth.summary.pendingCount > 0) {
+    alerts.push({
+      id: 'webhook-pending-backlog',
+      severity: webhookHealth.summary.pendingCount >= 5 ? 'critical' : 'warning',
+      title: 'Webhook processing backlog',
+      description: `${webhookHealth.summary.pendingCount} webhook event(s) are still pending processing in the last 24 hours.`,
+      metricValue: webhookHealth.summary.pendingCount,
+      actionHref: '/admin/finance',
+      actionLabel: 'Review webhook health',
+    });
+  }
+
+  if (
+    webhookHealth.summary.avgProcessingLagSeconds !== null &&
+    webhookHealth.summary.avgProcessingLagSeconds >= 120
+  ) {
+    alerts.push({
+      id: 'webhook-processing-lag',
+      severity:
+        webhookHealth.summary.avgProcessingLagSeconds >= 300
+          ? 'critical'
+          : 'warning',
+      title: 'Webhook processing latency elevated',
+      description: `Average webhook processing lag is ${webhookHealth.summary.avgProcessingLagSeconds}s over the last 24 hours.`,
+      metricValue: webhookHealth.summary.avgProcessingLagSeconds,
+      actionHref: '/admin/finance',
+      actionLabel: 'Inspect webhook telemetry',
     });
   }
 
@@ -987,6 +1019,115 @@ export async function getFinanceExceptions(): Promise<FinanceExceptionsResponse>
     generatedAt: now.toISOString(),
     totalExceptions: items.length,
     items,
+  };
+}
+
+export async function getFinanceWebhookHealth(): Promise<FinanceWebhookHealthResponse> {
+  const now = new Date();
+  const generatedAt = now.toISOString();
+
+  if (!isDatabaseConfigured()) {
+    return {
+      generatedAt,
+      summary: {
+        receivedLast24h: 0,
+        processedLast24h: 0,
+        pendingCount: 0,
+        processedRatePercent: 0,
+        avgProcessingLagSeconds: null,
+        lastProcessedAt: null,
+      },
+      recentEvents: [],
+    };
+  }
+
+  const dayAgo = new Date(now);
+  dayAgo.setHours(dayAgo.getHours() - 24);
+
+  const [last24hEvents, recentEventsRaw] = await Promise.all([
+    prisma.stripeEvent.findMany({
+      where: {
+        createdAt: { gte: dayAgo },
+      },
+      select: {
+        eventId: true,
+        eventType: true,
+        processed: true,
+        createdAt: true,
+        processedAt: true,
+      },
+    }),
+    prisma.stripeEvent.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 12,
+      select: {
+        eventId: true,
+        eventType: true,
+        processed: true,
+        createdAt: true,
+        processedAt: true,
+      },
+    }),
+  ]);
+
+  const receivedLast24h = last24hEvents.length;
+  const processedEvents = last24hEvents.filter((evt) => evt.processed);
+  const processedLast24h = processedEvents.length;
+  const pendingCount = last24hEvents.filter((evt) => !evt.processed).length;
+  const processedRatePercent =
+    receivedLast24h > 0
+      ? roundCurrency((processedLast24h / receivedLast24h) * 100)
+      : 0;
+
+  const processedLagSeconds = processedEvents
+    .filter((evt) => evt.processedAt)
+    .map((evt) => {
+      const lagMs = evt.processedAt!.getTime() - evt.createdAt.getTime();
+      return Math.max(0, Math.round(lagMs / 1000));
+    });
+
+  const avgProcessingLagSeconds =
+    processedLagSeconds.length > 0
+      ? roundCurrency(
+          processedLagSeconds.reduce((sum, value) => sum + value, 0) /
+            processedLagSeconds.length,
+        )
+      : null;
+
+  const lastProcessedAt = processedEvents
+    .sort((a, b) => {
+      const left = a.processedAt?.getTime() ?? 0;
+      const right = b.processedAt?.getTime() ?? 0;
+      return right - left;
+    })[0]?.processedAt;
+
+  const recentEvents = recentEventsRaw.map((evt) => {
+    const lagMs = evt.processedAt
+      ? evt.processedAt.getTime() - evt.createdAt.getTime()
+      : null;
+
+    return {
+      eventId: evt.eventId,
+      eventType: evt.eventType,
+      createdAt: evt.createdAt.toISOString(),
+      processedAt: evt.processedAt ? evt.processedAt.toISOString() : null,
+      status: evt.processed ? 'processed' : 'pending',
+      processingLagSeconds:
+        lagMs === null ? null : Math.max(0, Math.round(lagMs / 1000)),
+    };
+  });
+
+  return {
+    generatedAt,
+    summary: {
+      receivedLast24h,
+      processedLast24h,
+      pendingCount,
+      processedRatePercent,
+      avgProcessingLagSeconds,
+      lastProcessedAt: lastProcessedAt ? lastProcessedAt.toISOString() : null,
+    },
+    recentEvents,
   };
 }
 

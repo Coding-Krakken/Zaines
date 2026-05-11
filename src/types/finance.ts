@@ -239,3 +239,25 @@ export interface FinanceCashForecastResponse {
   };
   days: FinanceCashForecastDay[];
 }
+
+export interface FinanceWebhookHealthEvent {
+  eventId: string;
+  eventType: string;
+  createdAt: string;
+  processedAt: string | null;
+  status: 'processed' | 'pending';
+  processingLagSeconds: number | null;
+}
+
+export interface FinanceWebhookHealthResponse {
+  generatedAt: string;
+  summary: {
+    receivedLast24h: number;
+    processedLast24h: number;
+    pendingCount: number;
+    processedRatePercent: number;
+    avgProcessingLagSeconds: number | null;
+    lastProcessedAt: string | null;
+  };
+  recentEvents: FinanceWebhookHealthEvent[];
+}

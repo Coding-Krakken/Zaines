@@ -79,7 +79,7 @@ type BookingsApiPrisma = {
   payment: {
     findFirst: (args: {
       where: { bookingId: string };
-    }) => Promise<{ id: string } | null>;
+    }) => Promise<{ id: string; stripePaymentId: string | null } | null>;
     create: (args: {
       data: {
         bookingId: string;
@@ -728,6 +728,8 @@ export async function POST(request: NextRequest) {
                 description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
                 receipt_email: data.email,
               },
+            }, {
+              idempotencyKey: `booking:${booking.id}:mode:embedded_checkout`,
             });
 
             await bookingsPrisma.payment.create({
@@ -760,6 +762,8 @@ export async function POST(request: NextRequest) {
               },
               description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
               receipt_email: data.email,
+            }, {
+              idempotencyKey: `booking:${booking.id}:mode:payment_element`,
             });
 
             await bookingsPrisma.payment.create({
@@ -780,6 +784,20 @@ export async function POST(request: NextRequest) {
             });
 
             clientSecret = paymentIntent.client_secret || undefined;
+          }
+        } else if (existingPayment.stripePaymentId) {
+          if (existingPayment.stripePaymentId.startsWith("cs_")) {
+            const existingSession = await stripe.checkout.sessions.retrieve(
+              existingPayment.stripePaymentId,
+            );
+            paymentMode = "embedded_checkout";
+            clientSecret = existingSession.client_secret || undefined;
+          } else if (existingPayment.stripePaymentId.startsWith("pi_")) {
+            const existingIntent = await stripe.paymentIntents.retrieve(
+              existingPayment.stripePaymentId,
+            );
+            paymentMode = "payment_element";
+            clientSecret = existingIntent.client_secret || undefined;
           }
         }
       } catch (error) {

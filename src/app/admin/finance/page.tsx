@@ -31,14 +31,37 @@ import type {
   FinanceRevenueRecognitionSummaryResponse,
   FinanceTransactionStatus,
   FinanceTransactionsResponse,
+  FinanceWebhookHealthResponse,
 } from '@/types/finance';
+import type { StripeCapabilityFlags } from '@/types/admin';
 import { TransactionDetailModal } from '@/components/admin/TransactionDetailModal';
-import { getStripeSigmaUrl, getStripeReconciliationReportUrl } from '@/lib/stripe-links';
+import {
+  getStripeSigmaUrl,
+  getStripeReconciliationReportUrl,
+  getStripeBillingSubscriptionsUrl,
+  getStripeCustomerPortalConfigUrl,
+} from '@/lib/stripe-links';
 
 type FetchState = {
   loading: boolean;
   error: string;
 };
+
+function defaultStripeCapabilityFlags(): StripeCapabilityFlags {
+  return {
+    billingSubscriptionsEnabled: false,
+    customerPortalEnabled: false,
+    taxEnabled: false,
+    disputesEnabled: false,
+    radarReviewEnabled: false,
+    connectEnabled: false,
+    treasuryEnabled: false,
+    issuingEnabled: false,
+    financialConnectionsEnabled: false,
+    identityEnabled: false,
+    terminalEnabled: false,
+  };
+}
 
 const STATUS_OPTIONS: Array<{ label: string; value: 'all' | FinanceTransactionStatus }> = [
   { label: 'All statuses', value: 'all' },
@@ -162,6 +185,10 @@ export default function AdminFinancePage() {
   const [alerts, setAlerts] = useState<FinanceAlertsResponse | null>(null);
   const [exceptions, setExceptions] = useState<FinanceExceptionsResponse | null>(null);
   const [forecast, setForecast] = useState<FinanceCashForecastResponse | null>(null);
+  const [webhookHealth, setWebhookHealth] = useState<FinanceWebhookHealthResponse | null>(null);
+  const [stripeCapabilityFlags, setStripeCapabilityFlags] = useState<StripeCapabilityFlags>(
+    defaultStripeCapabilityFlags(),
+  );
   const [evaluatedAt, setEvaluatedAt] = useState<number | null>(null);
   const [state, setState] = useState<FetchState>({ loading: true, error: '' });
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
@@ -184,13 +211,15 @@ export default function AdminFinancePage() {
         ...(search.trim() ? { search: search.trim() } : {}),
       });
 
-      const [overviewRes, revRecRes, txRes, alertsRes, exceptionsRes, forecastRes] = await Promise.all([
+      const [overviewRes, revRecRes, txRes, alertsRes, exceptionsRes, forecastRes, webhookRes, settingsRes] = await Promise.all([
         fetch(`/api/admin/finance/overview?${params}`, { cache: 'no-store' }),
         fetch(`/api/admin/finance/revenue-recognition?${params}`, { cache: 'no-store' }),
         fetch(`/api/admin/finance/transactions?${txParams}`, { cache: 'no-store' }),
         fetch('/api/admin/finance/alerts', { cache: 'no-store' }),
         fetch('/api/admin/finance/exceptions', { cache: 'no-store' }),
         fetch('/api/admin/finance/forecast?days=30', { cache: 'no-store' }),
+        fetch('/api/admin/finance/webhooks', { cache: 'no-store' }),
+        fetch('/api/admin/settings', { cache: 'no-store' }),
       ]);
 
       const overviewJson = (await overviewRes.json()) as {
@@ -223,6 +252,15 @@ export default function AdminFinancePage() {
         data?: FinanceCashForecastResponse;
         error?: string;
       };
+      const settingsJson = (await settingsRes.json()) as {
+        success?: boolean;
+        data?: { stripeCapabilityFlags?: StripeCapabilityFlags };
+      };
+      const webhookJson = (await webhookRes.json()) as {
+        success?: boolean;
+        data?: FinanceWebhookHealthResponse;
+        error?: string;
+      };
 
       if (!overviewRes.ok || !overviewJson.data) {
         throw new Error(overviewJson.error ?? 'Failed loading finance overview');
@@ -248,12 +286,20 @@ export default function AdminFinancePage() {
         throw new Error(forecastJson.error ?? 'Failed loading finance forecast');
       }
 
+      if (!webhookRes.ok || !webhookJson.data) {
+        throw new Error(webhookJson.error ?? 'Failed loading webhook health');
+      }
+
       setOverview(overviewJson.data);
       setRevenueRecognition(revRecJson.data);
       setTransactions(txJson.data);
       setAlerts(alertsJson.data);
       setExceptions(exceptionsJson.data);
       setForecast(forecastJson.data);
+      setWebhookHealth(webhookJson.data);
+      setStripeCapabilityFlags(
+        settingsJson.data?.stripeCapabilityFlags ?? defaultStripeCapabilityFlags(),
+      );
       setEvaluatedAt(Date.now());
       setState({ loading: false, error: '' });
     } catch (error) {
@@ -263,6 +309,8 @@ export default function AdminFinancePage() {
       setAlerts(null);
       setExceptions(null);
       setForecast(null);
+      setWebhookHealth(null);
+      setStripeCapabilityFlags(defaultStripeCapabilityFlags());
       setEvaluatedAt(Date.now());
       setState({
         loading: false,
@@ -321,6 +369,18 @@ export default function AdminFinancePage() {
   }, [latestDataGeneratedAt, evaluatedAt]);
 
   const dataIsStale = (dataAgeMinutes ?? 0) >= 10;
+  const stripeOpsEnabled =
+    stripeCapabilityFlags.billingSubscriptionsEnabled ||
+    stripeCapabilityFlags.customerPortalEnabled ||
+    stripeCapabilityFlags.taxEnabled ||
+    stripeCapabilityFlags.disputesEnabled ||
+    stripeCapabilityFlags.radarReviewEnabled ||
+    stripeCapabilityFlags.connectEnabled ||
+    stripeCapabilityFlags.treasuryEnabled ||
+    stripeCapabilityFlags.issuingEnabled ||
+    stripeCapabilityFlags.financialConnectionsEnabled ||
+    stripeCapabilityFlags.identityEnabled ||
+    stripeCapabilityFlags.terminalEnabled;
 
   return (
     <div className="space-y-6">
@@ -377,15 +437,66 @@ export default function AdminFinancePage() {
               </div>
             </Link>
           </Button>
-          <Button variant="outline" className="h-auto flex-col items-start gap-2 p-4" asChild>
-            <Link href="/admin/finance/taxes">
-              <FileText className="h-5 w-5" />
-              <div className="text-left">
-                <div className="font-semibold">Tax Summary</div>
-                <div className="text-xs text-muted-foreground">Review tax liability</div>
-              </div>
-            </Link>
-          </Button>
+          {stripeCapabilityFlags.taxEnabled ? (
+            <Button variant="outline" className="h-auto flex-col items-start gap-2 p-4" asChild>
+              <Link href="/admin/finance/taxes">
+                <FileText className="h-5 w-5" />
+                <div className="text-left">
+                  <div className="font-semibold">Tax Summary</div>
+                  <div className="text-xs text-muted-foreground">Review tax liability</div>
+                </div>
+              </Link>
+            </Button>
+          ) : (
+            <Button variant="outline" className="h-auto flex-col items-start gap-2 p-4" asChild>
+              <Link href="/admin/settings">
+                <FileText className="h-5 w-5" />
+                <div className="text-left">
+                  <div className="font-semibold">Enable Tax Summary</div>
+                  <div className="text-xs text-muted-foreground">Stripe Tax capability is disabled</div>
+                </div>
+              </Link>
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Billing & Customer Portal</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3 sm:grid-cols-2">
+          {stripeCapabilityFlags.billingSubscriptionsEnabled ? (
+            <Button variant="outline" className="h-auto flex-col items-start gap-2 p-4" asChild>
+              <a href={getStripeBillingSubscriptionsUrl()} target="_blank" rel="noopener noreferrer">
+                <div className="font-semibold">Subscriptions Console</div>
+                <div className="text-xs text-muted-foreground">Manage recurring billing and lifecycle changes</div>
+              </a>
+            </Button>
+          ) : (
+            <Button variant="outline" className="h-auto flex-col items-start gap-2 p-4" asChild>
+              <Link href="/admin/settings">
+                <div className="font-semibold">Enable Subscriptions</div>
+                <div className="text-xs text-muted-foreground">Billing subscriptions capability is disabled</div>
+              </Link>
+            </Button>
+          )}
+
+          {stripeCapabilityFlags.customerPortalEnabled ? (
+            <Button variant="outline" className="h-auto flex-col items-start gap-2 p-4" asChild>
+              <a href={getStripeCustomerPortalConfigUrl()} target="_blank" rel="noopener noreferrer">
+                <div className="font-semibold">Customer Portal Config</div>
+                <div className="text-xs text-muted-foreground">Review self-service portal settings and policy text</div>
+              </a>
+            </Button>
+          ) : (
+            <Button variant="outline" className="h-auto flex-col items-start gap-2 p-4" asChild>
+              <Link href="/admin/settings">
+                <div className="font-semibold">Enable Customer Portal</div>
+                <div className="text-xs text-muted-foreground">Customer portal capability is disabled</div>
+              </Link>
+            </Button>
+          )}
         </CardContent>
       </Card>
 
@@ -415,6 +526,83 @@ export default function AdminFinancePage() {
         </CardContent>
       </Card>
 
+      {webhookHealth && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Webhook Operations Health</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Events (24h)</p>
+                <p className="text-xl font-semibold">{webhookHealth.summary.receivedLast24h}</p>
+              </div>
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Processed (24h)</p>
+                <p className="text-xl font-semibold">{webhookHealth.summary.processedLast24h}</p>
+              </div>
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Pending</p>
+                <p className="text-xl font-semibold">{webhookHealth.summary.pendingCount}</p>
+              </div>
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Processed Rate</p>
+                <p className="text-xl font-semibold">{webhookHealth.summary.processedRatePercent}%</p>
+              </div>
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Avg Lag</p>
+                <p className="text-xl font-semibold">
+                  {webhookHealth.summary.avgProcessingLagSeconds === null
+                    ? '—'
+                    : `${webhookHealth.summary.avgProcessingLagSeconds}s`}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <p className="mb-2 text-sm font-medium">Recent Events</p>
+              {webhookHealth.recentEvents.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No webhook events recorded yet.</p>
+              ) : (
+                <div className="overflow-x-auto rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Event</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Created</TableHead>
+                        <TableHead>Processed</TableHead>
+                        <TableHead>Lag</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {webhookHealth.recentEvents.map((evt) => (
+                        <TableRow key={evt.eventId}>
+                          <TableCell>
+                            <p className="font-medium">{evt.eventType}</p>
+                            <p className="text-xs text-muted-foreground">{evt.eventId}</p>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={evt.status === 'processed' ? 'default' : 'secondary'}>
+                              {evt.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{formatDate(evt.createdAt)}</TableCell>
+                          <TableCell>{evt.processedAt ? formatDate(evt.processedAt) : '—'}</TableCell>
+                          <TableCell>
+                            {evt.processingLagSeconds === null ? '—' : `${evt.processingLagSeconds}s`}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
@@ -422,25 +610,38 @@ export default function AdminFinancePage() {
             Stripe Sigma Reports
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-2 sm:grid-cols-3">
-          <Button variant="outline" size="sm" asChild>
-            <a href={getStripeReconciliationReportUrl('payout')} target="_blank" rel="noopener noreferrer">
-              Payout Reconciliation
-              <ExternalLink className="ml-2 h-3 w-3" />
-            </a>
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <a href={getStripeReconciliationReportUrl('balance')} target="_blank" rel="noopener noreferrer">
-              Balance Change Report
-              <ExternalLink className="ml-2 h-3 w-3" />
-            </a>
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <a href={getStripeSigmaUrl()} target="_blank" rel="noopener noreferrer">
-              All Sigma Queries
-              <ExternalLink className="ml-2 h-3 w-3" />
-            </a>
-          </Button>
+        <CardContent className="space-y-3">
+          {!stripeOpsEnabled ? (
+            <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+              Stripe advanced capabilities are currently disabled. Enable capabilities in settings to unlock Sigma report shortcuts.
+              <div className="mt-2">
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/admin/settings">Open Settings</Link>
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-2 sm:grid-cols-3">
+              <Button variant="outline" size="sm" asChild>
+                <a href={getStripeReconciliationReportUrl('payout')} target="_blank" rel="noopener noreferrer">
+                  Payout Reconciliation
+                  <ExternalLink className="ml-2 h-3 w-3" />
+                </a>
+              </Button>
+              <Button variant="outline" size="sm" asChild>
+                <a href={getStripeReconciliationReportUrl('balance')} target="_blank" rel="noopener noreferrer">
+                  Balance Change Report
+                  <ExternalLink className="ml-2 h-3 w-3" />
+                </a>
+              </Button>
+              <Button variant="outline" size="sm" asChild>
+                <a href={getStripeSigmaUrl()} target="_blank" rel="noopener noreferrer">
+                  All Sigma Queries
+                  <ExternalLink className="ml-2 h-3 w-3" />
+                </a>
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import { getAdminSettings } from "@/lib/api/admin-settings";
 import { ProfileForm } from "./ProfileForm";
 
 export const metadata = {
@@ -49,10 +50,18 @@ export default async function SettingsPage() {
     return redirect("/auth/signin");
   }
 
+  let billingPortalEnabled = false;
+  try {
+    const settings = await getAdminSettings();
+    billingPortalEnabled = settings.stripeCapabilityFlags.customerPortalEnabled;
+  } catch {
+    billingPortalEnabled = false;
+  }
+
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-semibold mb-6">Settings</h1>
-      <ProfileForm user={user} />
+      <ProfileForm user={user} billingPortalEnabled={billingPortalEnabled} />
     </div>
   );
 }

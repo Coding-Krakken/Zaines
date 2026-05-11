@@ -199,6 +199,22 @@ export function getStripeSigmaUrl(testMode = false): string {
 }
 
 /**
+ * Generate URL to Stripe billing subscriptions dashboard
+ */
+export function getStripeBillingSubscriptionsUrl(testMode = false): string {
+  const base = testMode ? `${STRIPE_DASHBOARD_BASE}/test` : STRIPE_DASHBOARD_BASE;
+  return `${base}/subscriptions`;
+}
+
+/**
+ * Generate URL to Stripe customer portal configuration
+ */
+export function getStripeCustomerPortalConfigUrl(testMode = false): string {
+  const base = testMode ? `${STRIPE_DASHBOARD_BASE}/test` : STRIPE_DASHBOARD_BASE;
+  return `${base}/settings/billing/portal`;
+}
+
+/**
  * Generate URL to a specific Stripe Sigma query
  * @param queryId - Sigma query ID
  * @param testMode - Whether to link to test mode dashboard
