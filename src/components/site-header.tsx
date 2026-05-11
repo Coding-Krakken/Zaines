@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import { AdminCameraCapture } from "@/components/admin/AdminCameraCapture";
 import { MobileNav } from "@/components/mobile-nav";
 import { UserNav } from "@/components/user-nav";
 import { cn } from "@/lib/utils";
@@ -12,6 +14,9 @@ import { navItems } from "@/config/site";
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const { data: session, status } = useSession();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  const showAdminCamera = status === "authenticated" && role === "admin";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -77,6 +82,7 @@ export function SiteHeader() {
           >
             <Link href="/book">Reserve a Suite</Link>
           </Button>
+          {showAdminCamera ? <AdminCameraCapture /> : null}
           <UserNav />
           <MobileNav />
         </div>

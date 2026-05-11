@@ -8,6 +8,20 @@ import { prisma, isDatabaseConfigured } from '@/lib/prisma';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/jpg'];
 const IMAGE_MAX_SIZE = 5 * 1024 * 1024;
+const ALLOWED_BORDER_STYLES = new Set(['none', 'polaroid', 'gold', 'paw']);
+
+function normalizeTextField(value: FormDataEntryValue | null, maxLength: number): string {
+  if (typeof value !== 'string') {
+    return '';
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  return trimmed.slice(0, maxLength);
+}
 
 async function requireStaffSession() {
   const session = await auth();
@@ -111,6 +125,10 @@ export async function POST(request: NextRequest) {
   const bookingId = formData?.get('bookingId');
   const petId = formData?.get('petId');
   const caption = formData?.get('caption');
+  const message = formData?.get('message');
+  const sendMessage = formData?.get('sendMessage');
+  const decorativeBorder = formData?.get('decorativeBorder');
+  const decorativeEmoji = formData?.get('decorativeEmoji');
   const file = formData?.get('file');
 
   if (!petId || typeof petId !== 'string') {
@@ -124,6 +142,16 @@ export async function POST(request: NextRequest) {
   if (!validation.valid) {
     return NextResponse.json({ error: validation.error ?? 'Invalid file' }, { status: 400 });
   }
+
+  const normalizedBorder =
+    typeof decorativeBorder === 'string' && ALLOWED_BORDER_STYLES.has(decorativeBorder)
+      ? decorativeBorder
+      : 'none';
+  const normalizedEmoji = normalizeTextField(decorativeEmoji ?? null, 8);
+  const normalizedCaption = normalizeTextField(caption ?? null, 200);
+  const normalizedMessage = normalizeTextField(message ?? null, 5000);
+  const shouldCreateMessage =
+    typeof sendMessage === 'string' ? sendMessage === 'true' : Boolean(normalizedMessage);
 
   const resolvedBookingId = typeof bookingId === 'string' && bookingId.trim() ? bookingId.trim() : null;
 
@@ -174,21 +202,59 @@ export async function POST(request: NextRequest) {
   const storageFolderKey = resolvedBookingId ?? `account-${ownerUserId}`;
   const imageUrl = await storeFile(file, storageFolderKey);
   const uploadedBy = session.user!.name ?? session.user!.email ?? session.user!.id;
+  const decoratedCaption = [normalizedEmoji, normalizedCaption].filter(Boolean).join(' ');
 
-  const photo = await prisma.petPhoto.create({
-    data: {
-      bookingId: resolvedBookingId,
-      userId: ownerUserId,
-      petId,
-      imageUrl,
-      caption: typeof caption === 'string' ? caption.trim() || null : null,
-      uploadedBy,
-    },
-    include: {
-      pet: { select: { id: true, name: true, breed: true } },
-      booking: { select: { id: true, bookingNumber: true, status: true } },
-    },
+  let messageContent = [normalizedEmoji, normalizedMessage].filter(Boolean).join(' ');
+  if (shouldCreateMessage && !messageContent && decoratedCaption) {
+    messageContent = `New photo update: ${decoratedCaption}`;
+  }
+
+  if (shouldCreateMessage && normalizedBorder !== 'none') {
+    const borderSuffix = `(Frame: ${normalizedBorder})`;
+    messageContent = messageContent ? `${messageContent} ${borderSuffix}` : borderSuffix;
+  }
+  const [photo, createdMessage] = await prisma.$transaction(async (tx) => {
+    const createdPhoto = await tx.petPhoto.create({
+      data: {
+        bookingId: resolvedBookingId,
+        userId: ownerUserId,
+        petId,
+        imageUrl,
+        caption: decoratedCaption || null,
+        uploadedBy,
+      },
+      include: {
+        pet: { select: { id: true, name: true, breed: true } },
+        booking: { select: { id: true, bookingNumber: true, status: true } },
+      },
+    });
+
+    if (!shouldCreateMessage || !messageContent) {
+      return [createdPhoto, null] as const;
+    }
+
+    const newMessage = await tx.message.create({
+      data: {
+        bookingId: resolvedBookingId,
+        userId: ownerUserId,
+        senderType: 'staff',
+        senderName: uploadedBy,
+        content: messageContent,
+        isRead: false,
+        sentAt: new Date(),
+      },
+      select: {
+        id: true,
+        content: true,
+        senderType: true,
+        senderName: true,
+        sentAt: true,
+        isRead: true,
+      },
+    });
+
+    return [createdPhoto, newMessage] as const;
   });
 
-  return NextResponse.json({ photo }, { status: 201 });
+  return NextResponse.json({ photo, message: createdMessage }, { status: 201 });
 }
