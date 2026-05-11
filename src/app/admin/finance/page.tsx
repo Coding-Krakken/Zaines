@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,7 +32,7 @@ import type {
   FinanceTransactionsResponse,
 } from '@/types/finance';
 import { TransactionDetailModal } from '@/components/admin/TransactionDetailModal';
-import { getStripeChargeUrl, getStripeSigmaUrl, getStripeReconciliationReportUrl } from '@/lib/stripe-links';
+import { getStripeSigmaUrl, getStripeReconciliationReportUrl } from '@/lib/stripe-links';
 
 type FetchState = {
   loading: boolean;
@@ -164,7 +164,7 @@ export default function AdminFinancePage() {
   const [state, setState] = useState<FetchState>({ loading: true, error: '' });
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setState({ loading: true, error: '' });
 
     try {
@@ -265,11 +265,12 @@ export default function AdminFinancePage() {
         error: error instanceof Error ? error.message : 'Failed loading finance data',
       });
     }
-  }
+  }, [endDate, search, startDate, status]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadData();
-  }, []);
+  }, [loadData]);
 
   const exportHref = useMemo(() => {
     const normalizedStartDate = normalizeDateForApi(startDate);
@@ -718,6 +719,7 @@ export default function AdminFinancePage() {
                         <TableHead>Amount</TableHead>
                         <TableHead>Refund</TableHead>
                         <TableHead>Method</TableHead>
+                        <TableHead>Flow</TableHead>
                         <TableHead>Created</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -742,6 +744,16 @@ export default function AdminFinancePage() {
                           <TableCell>{formatCurrency(row.amount)}</TableCell>
                           <TableCell>{formatCurrency(row.refundAmount)}</TableCell>
                           <TableCell className="capitalize">{row.paymentMethod.replace('_', ' ')}</TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <Badge variant="outline" className="capitalize">
+                                {row.paymentMode.replace('_', ' ')}
+                              </Badge>
+                              <p className="text-xs text-muted-foreground">
+                                {row.stripeSourceType.replace('_', ' ')}
+                              </p>
+                            </div>
+                          </TableCell>
                           <TableCell>{formatDate(row.createdAt)}</TableCell>
                         </TableRow>
                       ))}

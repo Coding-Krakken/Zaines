@@ -250,6 +250,7 @@ export function StepPayment({
   );
   const [bookingError, setBookingError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecoveringPayment, setIsRecoveringPayment] = useState(false);
   const hasAutoInitAttempted = useRef(Boolean(data.bookingId));
   const subtotal = Math.round((pricingQuote?.subtotal || 0) * 100) / 100;
   const tax = Math.round((pricingQuote?.tax || 0) * 100) / 100;
@@ -394,6 +395,57 @@ export function StepPayment({
     }
   }, [bookingPayload, onUpdate, pricingQuote]);
 
+  const setupPaymentForExistingBooking = useCallback(async () => {
+    if (!bookingId) return;
+
+    setIsRecoveringPayment(true);
+    setBookingError("");
+
+    try {
+      const response = await fetch("/api/payments/setup-booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bookingId,
+          preferredFlow: paymentMode,
+        }),
+      });
+
+      const payload = (await response.json().catch(() => ({}))) as {
+        clientSecret?: string;
+        paymentMode?: "payment_element" | "embedded_checkout";
+        message?: string;
+        error?: string;
+      };
+
+      if (!response.ok || !payload.clientSecret) {
+        throw new Error(
+          payload.error ||
+            payload.message ||
+            "Unable to initialize booking payment. Please retry.",
+        );
+      }
+
+      const nextMode = payload.paymentMode || paymentMode;
+      setClientSecret(payload.clientSecret);
+      setPaymentMode(nextMode);
+      onUpdate({
+        bookingId,
+        clientSecret: payload.clientSecret,
+        paymentMode: nextMode,
+      });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to initialize booking payment. Please retry.";
+      setBookingError(message);
+      toast.error(message);
+    } finally {
+      setIsRecoveringPayment(false);
+    }
+  }, [bookingId, onUpdate, paymentMode]);
+
   useEffect(() => {
     if (
       bookingId ||
@@ -466,18 +518,38 @@ export function StepPayment({
             Your booking has been created. Payment processing is currently
             unavailable, and your reservation remains pending confirmation.
           </p>
+          {bookingError ? (
+            <p className="text-sm text-destructive">{bookingError}</p>
+          ) : null}
           <div className="flex justify-between pt-4">
             <Button type="button" variant="outline" onClick={onBack}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>
-            <Button
-              onClick={finalizeBooking}
-              disabled={!pricingDisclosureAccepted}
-            >
-              Complete Booking
-              <CheckCircle2 className="ml-2 h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={setupPaymentForExistingBooking}
+                disabled={!pricingDisclosureAccepted || isRecoveringPayment}
+              >
+                {isRecoveringPayment ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Retrying
+                  </>
+                ) : (
+                  "Retry Payment"
+                )}
+              </Button>
+              <Button
+                onClick={finalizeBooking}
+                disabled={!pricingDisclosureAccepted || isRecoveringPayment}
+              >
+                Complete Booking
+                <CheckCircle2 className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

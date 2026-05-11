@@ -318,6 +318,24 @@ function matchesSearch(row: FinanceTransactionRow, search: string): boolean {
   );
 }
 
+function inferStripeSourceType(
+  stripePaymentId: string | null,
+): FinanceTransactionRow['stripeSourceType'] {
+  if (!stripePaymentId) return 'none';
+  if (stripePaymentId.startsWith('pi_')) return 'payment_intent';
+  if (stripePaymentId.startsWith('cs_')) return 'checkout_session';
+  return 'unknown';
+}
+
+function inferPaymentMode(
+  stripePaymentId: string | null,
+): FinanceTransactionRow['paymentMode'] {
+  if (!stripePaymentId) return 'unknown';
+  if (stripePaymentId.startsWith('pi_')) return 'payment_element';
+  if (stripePaymentId.startsWith('cs_')) return 'embedded_checkout';
+  return 'unknown';
+}
+
 export async function getFinanceTransactions(
   filters: FinanceFilters,
 ): Promise<FinanceTransactionsResponse> {
@@ -410,6 +428,8 @@ export async function getFinanceTransactions(
     status: normalizeStatus(payment.status) ?? 'pending',
     paymentMethod: payment.paymentMethod ?? 'unknown',
     stripePaymentId: payment.stripePaymentId,
+    paymentMode: inferPaymentMode(payment.stripePaymentId),
+    stripeSourceType: inferStripeSourceType(payment.stripePaymentId),
     stripeChargeId: payment.stripeChargeId ?? undefined,
     cardBrand: payment.cardBrand ?? undefined,
     cardLastFour: payment.cardLastFour ?? undefined,
@@ -431,6 +451,8 @@ export async function getFinanceTransactions(
     status: 'pending',
     paymentMethod: 'unpaid',
     stripePaymentId: null,
+    paymentMode: 'unknown',
+    stripeSourceType: 'none',
     createdAt: booking.createdAt.toISOString(),
     paidAt: null,
     refundedAt: null,

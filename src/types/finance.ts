@@ -37,6 +37,8 @@ export interface FinanceTransactionRow {
   status: FinanceTransactionStatus;
   paymentMethod: string;
   stripePaymentId: string | null;
+  paymentMode: 'payment_element' | 'embedded_checkout' | 'unknown';
+  stripeSourceType: 'payment_intent' | 'checkout_session' | 'none' | 'unknown';
   stripeChargeId?: string | null;
   cardBrand?: string | null;
   cardLastFour?: string | null;

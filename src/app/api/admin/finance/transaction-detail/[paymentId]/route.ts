@@ -3,10 +3,9 @@ import { requireFinanceAccess } from '@/lib/api/admin-finance-auth';
 import { prisma } from '@/lib/prisma';
 import {
   getStripeChargeUrl,
+  getStripeCheckoutSessionUrl,
   getStripePaymentIntentUrl,
-  getStripeRefundUrl,
   getStripePayoutUrl,
-  getStripeCustomerUrl,
   getStripeBalanceTransactionUrl,
 } from '@/lib/stripe-links';
 
@@ -182,16 +181,24 @@ export async function GET(
     if (payment.stripeChargeId) {
       try {
         stripeLinks.charge = getStripeChargeUrl(payment.stripeChargeId);
-      } catch (e) {
+      } catch {
         console.warn('Invalid charge ID:', payment.stripeChargeId);
       }
     }
 
     if (payment.stripePaymentId) {
       try {
-        stripeLinks.paymentIntent = getStripePaymentIntentUrl(payment.stripePaymentId);
-      } catch (e) {
-        console.warn('Invalid payment intent ID:', payment.stripePaymentId);
+        if (payment.stripePaymentId.startsWith('pi_')) {
+          stripeLinks.paymentIntent = getStripePaymentIntentUrl(
+            payment.stripePaymentId,
+          );
+        } else if (payment.stripePaymentId.startsWith('cs_')) {
+          stripeLinks.checkoutSession = getStripeCheckoutSessionUrl(
+            payment.stripePaymentId,
+          );
+        }
+      } catch {
+        console.warn('Invalid stripe payment object ID:', payment.stripePaymentId);
       }
     }
 
@@ -200,7 +207,7 @@ export async function GET(
         stripeLinks.balanceTransaction = getStripeBalanceTransactionUrl(
           payment.stripeBalanceTransactionId
         );
-      } catch (e) {
+      } catch {
         console.warn('Invalid balance transaction ID:', payment.stripeBalanceTransactionId);
       }
     }
@@ -214,7 +221,7 @@ export async function GET(
     if (matchedPayout?.payout?.stripePayoutId) {
       try {
         stripeLinks.payout = getStripePayoutUrl(matchedPayout.payout.stripePayoutId);
-      } catch (e) {
+      } catch {
         console.warn('Invalid payout ID:', matchedPayout.payout.stripePayoutId);
       }
     }

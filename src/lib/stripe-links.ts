@@ -58,6 +58,19 @@ export function getStripePaymentIntentUrl(paymentIntentId: string): string {
 }
 
 /**
+ * Generate URL to a specific Stripe Checkout Session
+ * @param sessionId - Stripe checkout session ID (cs_xxx)
+ * @returns Direct URL to checkout session detail page
+ */
+export function getStripeCheckoutSessionUrl(sessionId: string): string {
+  if (!sessionId || !sessionId.startsWith('cs_')) {
+    throw new Error(`Invalid checkout session ID: ${sessionId}`);
+  }
+  const base = getDashboardBase(sessionId);
+  return `${base}/checkout/sessions/${sessionId}`;
+}
+
+/**
  * Generate URL to a specific Stripe refund
  * @param refundId - Stripe refund ID (re_xxx)
  * @returns Direct URL to refund detail page
