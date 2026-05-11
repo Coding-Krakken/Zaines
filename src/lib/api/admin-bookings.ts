@@ -91,17 +91,6 @@ export async function createAdminBooking(
     }
 
     const settings = await getAdminSettings();
-    const minNights = Math.max(1, settings.availabilityRules.minNightsPerBooking);
-    const maxNights = Math.max(minNights, settings.availabilityRules.maxNightsPerBooking);
-
-    if (nights < minNights) {
-      throw new Error(`Minimum stay is ${minNights} night${minNights === 1 ? '' : 's'}.`);
-    }
-
-    if (nights > maxNights) {
-      throw new Error(`Maximum stay is ${maxNights} night${maxNights === 1 ? '' : 's'}.`);
-    }
-
     const taxRate = settings.pricingSettings.taxRatePercent / 100;
 
     const subtotal = suite.pricePerNight * nights;

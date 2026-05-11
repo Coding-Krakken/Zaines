@@ -259,13 +259,25 @@ export default async function SuitesPage() {
                             </li>
                           ))}
                         </ul>
-                        <Button
-                          className="mt-8 w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                          size="lg"
-                          asChild
-                        >
-                          <Link href="/book">Reserve This Suite</Link>
-                        </Button>
+                        <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                          <Button
+                            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                            size="lg"
+                            asChild
+                          >
+                            <Link href="/book">Reserve This Suite</Link>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="w-full"
+                            size="lg"
+                            asChild
+                          >
+                            <Link href={`/checkout/${suite.name.split(" ")[0].toLowerCase()}`}>
+                              Pay with Stripe
+                            </Link>
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
