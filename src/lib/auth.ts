@@ -152,6 +152,11 @@ export const authConfig: NextAuthConfig = {
             session.user.role = normalizeRole(token.role);
           }
         }
+        
+        // Ensure role is always defined (fallback to customer if all else fails)
+        if (!session.user.role) {
+          session.user.role = "customer";
+        }
       }
       return session;
     },
