@@ -65,6 +65,7 @@ interface Pet {
     administeredDate: string;
     expiryDate: string;
     documentUrl: string | null;
+    notes?: string | null;
   }>;
   medications: Array<{
     id: string;
@@ -81,7 +82,10 @@ interface VaccinationRecord {
   fileName: string;
   fileSize: number;
   sourceType: 'existing' | 'uploaded';
+  vaccineId?: string;
 }
+
+const INLINE_DOCUMENT_NOTE_PREFIX = '__INLINE_VACCINE_DOCUMENT_BASE64__:';
 
 export function StepPets({
   data,
@@ -112,11 +116,73 @@ export function StepPets({
     temperament: "friendly",
   });
 
-  // Fetch existing pets and any valid records if authenticated
-  const fetchRecords = async () => {
-    try {
-      const response = await fetch("/api/account-records");
-      if (response.ok) {
+  const syncVaccinesToWizard = (
+    nextVaccines: VaccinationRecord[],
+    overrideSelectedPetIds?: string[],
+    overrideNewPets?: NewPetData[],
+  ) => {
+    onUpdate({
+      selectedPetIds: overrideSelectedPetIds ?? selectedPetIds,
+      newPets: overrideNewPets ?? newPets,
+      vaccines: nextVaccines.map((record) => ({
+        petId: record.petId,
+        fileUrl: record.fileUrl,
+        fileName: record.fileName,
+        fileSize: record.fileSize,
+      })),
+    });
+  };
+
+  const getAvailableVaccineOptions = (pet: Pet) => {
+    const now = new Date();
+    return pet.vaccines.filter((vaccine) => {
+      if (new Date(vaccine.expiryDate) <= now) {
+        return false;
+      }
+
+      if (vaccine.documentUrl) {
+        return true;
+      }
+
+      return Boolean(vaccine.notes?.startsWith(INLINE_DOCUMENT_NOTE_PREFIX));
+    });
+  };
+
+  const applyExistingVaccineForPet = (pet: Pet, vaccineId: string) => {
+    const selected = getAvailableVaccineOptions(pet).find((vaccine) => vaccine.id === vaccineId);
+    if (!selected) {
+      return;
+    }
+
+    const fileUrl = selected.documentUrl || `/api/vaccines/${selected.id}/document`;
+    const nextVaccines = [
+      ...vaccines.filter((record) => record.petId !== pet.id),
+      {
+        petId: pet.id,
+        fileUrl,
+        fileName: `${selected.name}.pdf`,
+        fileSize: 0,
+        sourceType: 'existing' as const,
+        vaccineId: selected.id,
+      },
+    ];
+
+    setVaccines(nextVaccines);
+    syncVaccinesToWizard(nextVaccines);
+  };
+
+  useEffect(() => {
+    if (!session?.user?.id) {
+      return;
+    }
+
+    const loadRecords = async () => {
+      try {
+        const response = await fetch("/api/account-records");
+        if (!response.ok) {
+          return;
+        }
+
         const records = (await response.json()) as {
           pets?: Pet[];
         };
@@ -124,67 +190,47 @@ export function StepPets({
         const petsFromApi = records.pets || [];
         setExistingPets(petsFromApi);
 
-        const now = new Date();
         const preloadedVaccines = petsFromApi.flatMap((pet) => {
-          const currentVaccine = pet.vaccines
-            .filter((vaccine) => new Date(vaccine.expiryDate) > now)
-            .sort(
-              (left, right) =>
-                new Date(right.expiryDate).getTime() -
-                new Date(left.expiryDate).getTime(),
-            )[0];
+          const currentVaccine = getAvailableVaccineOptions(pet).sort(
+            (left, right) =>
+              new Date(right.expiryDate).getTime() -
+              new Date(left.expiryDate).getTime(),
+          )[0];
 
-          if (!currentVaccine?.documentUrl) {
+          if (!currentVaccine) {
             return [];
           }
+
+          const currentFileUrl =
+            currentVaccine.documentUrl || `/api/vaccines/${currentVaccine.id}/document`;
 
           return [
             {
               petId: pet.id,
-              fileUrl: currentVaccine.documentUrl,
-              fileName:
-                currentVaccine.documentUrl.split("/").pop() ||
-                `${pet.name}-vaccine.pdf`,
+              fileUrl: currentFileUrl,
+              fileName: `${currentVaccine.name}.pdf`,
               fileSize: 0,
-              sourceType: 'existing' as const,
+              sourceType: "existing" as const,
+              vaccineId: currentVaccine.id,
             },
           ];
         });
 
         setVaccines((currentVaccines) => {
-          const preserved = currentVaccines.filter((record) => record.sourceType === 'uploaded');
+          const preserved = currentVaccines.filter((record) => record.sourceType === "uploaded");
           const merged = [
             ...preloadedVaccines.filter(
               (record) => !preserved.some((existing) => existing.petId === record.petId),
             ),
             ...preserved,
           ];
-
-          onUpdate({
-            selectedPetIds,
-            newPets,
-            vaccines: merged.map((record) => ({
-              petId: record.petId,
-              fileUrl: record.fileUrl,
-              fileName: record.fileName,
-              fileSize: record.fileSize,
-            })),
-          });
-
           return merged;
         });
+      } catch (error) {
+        console.error("Failed to fetch records:", error);
       }
-    } catch (error) {
-      console.error("Failed to fetch records:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (session?.user?.id) {
-      (async () => {
-        await fetchRecords();
-      })();
-    }
+    };
+    void loadRecords();
   }, [session]);
 
   
@@ -231,15 +277,7 @@ export function StepPets({
       const existingPetVaccines = prev.filter((v) => !v.petId.startsWith("new-"));
       const nextVaccines = [...existingPetVaccines];
 
-      onUpdate({
-        newPets: updated,
-        vaccines: nextVaccines.map((v) => ({
-          petId: v.petId,
-          fileUrl: v.fileUrl || "",
-          fileName: v.fileName,
-          fileSize: v.fileSize,
-        })),
-      });
+      syncVaccinesToWizard(nextVaccines, selectedPetIds, updated);
 
       return nextVaccines;
     });
@@ -306,16 +344,7 @@ export function StepPets({
       ];
 
       setVaccines(updatedVaccines);
-
-      // Update wizard data
-      const vaccineData = updatedVaccines.map((v) => ({
-        petId: v.petId,
-        fileUrl: v.fileUrl || "",
-        fileName: v.fileName,
-        fileSize: v.fileSize,
-      }));
-
-      onUpdate({ vaccines: vaccineData });
+      syncVaccinesToWizard(updatedVaccines);
 
       toast.success("Vaccine record uploaded");
     } catch (error) {
@@ -362,6 +391,8 @@ export function StepPets({
       return;
     }
 
+    syncVaccinesToWizard(vaccines, selectedPetIds, newPets);
+
     onNext();
   };
 
@@ -386,6 +417,8 @@ export function StepPets({
               {existingPets.map((pet) => {
                 const isSelected = selectedPetIds.includes(pet.id);
                 const hasVaccine = vaccines.some((v) => v.petId === pet.id);
+                const selectedVaccineRecord = vaccines.find((v) => v.petId === pet.id);
+                const availableVaccineOptions = getAvailableVaccineOptions(pet);
 
                 return (
                   <div
@@ -421,38 +454,63 @@ export function StepPets({
 
                       {/* Vaccine Upload */}
                       {isSelected && (
-                        <div className="mt-2">
-                          <label
-                            htmlFor={`vaccine-${pet.id}`}
-                            className="inline-flex cursor-pointer items-center gap-2 text-sm text-primary hover:underline"
-                          >
-                            {uploadingVaccine === pet.id ? (
-                              <>
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Uploading...
-                              </>
-                            ) : hasVaccine ? (
-                              <>
-                                <FileText className="h-4 w-4" />
-                                Vaccine on file • Click to replace
-                              </>
-                            ) : (
-                              <>
-                                <Upload className="h-4 w-4" />
-                                Upload vaccine record (PDF)
-                              </>
-                            )}
-                          </label>
-                          <input
-                            id={`vaccine-${pet.id}`}
-                            type="file"
-                            accept="application/pdf"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleVaccineUpload(pet.id, file);
-                            }}
-                          />
+                        <div className="mt-2 space-y-2 rounded-md border border-dashed p-3">
+                          {availableVaccineOptions.length > 0 && (
+                            <div className="space-y-1">
+                              <Label className="text-xs text-muted-foreground">
+                                Select Existing Vaccine Record
+                              </Label>
+                              <Select
+                                value={selectedVaccineRecord?.vaccineId || ""}
+                                onValueChange={(value) => applyExistingVaccineForPet(pet, value)}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Choose a saved vaccine record" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {availableVaccineOptions.map((option) => (
+                                    <SelectItem key={option.id} value={option.id}>
+                                      {option.name} (expires {new Date(option.expiryDate).toLocaleDateString()})
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+
+                          <div>
+                            <label
+                              htmlFor={`vaccine-${pet.id}`}
+                              className="inline-flex cursor-pointer items-center gap-2 text-sm text-primary hover:underline"
+                            >
+                              {uploadingVaccine === pet.id ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  Uploading...
+                                </>
+                              ) : hasVaccine ? (
+                                <>
+                                  <FileText className="h-4 w-4" />
+                                  Vaccine selected • Click to upload a replacement
+                                </>
+                              ) : (
+                                <>
+                                  <Upload className="h-4 w-4" />
+                                  Upload vaccine record (PDF)
+                                </>
+                              )}
+                            </label>
+                            <input
+                              id={`vaccine-${pet.id}`}
+                              type="file"
+                              accept="application/pdf"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleVaccineUpload(pet.id, file);
+                              }}
+                            />
+                          </div>
                         </div>
                       )}
                     </div>
