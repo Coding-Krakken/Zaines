@@ -6,6 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import {
+  AdminEmptyState,
+  AdminErrorState,
+  AdminLoadingState,
+} from '@/components/admin/AdminAsyncState';
 
 type OccupancyBooking = {
   id: string;
@@ -102,13 +107,21 @@ export function OccupancyGrid() {
         </Button>
       </div>
 
-      {error && <p className="text-sm text-red-700">{error}</p>}
-      {loading && <p className="text-sm text-muted-foreground">Loading suite occupancy…</p>}
+      {error && (
+        <AdminErrorState
+          message={error}
+          action={{ label: 'Retry', onAction: () => void loadData() }}
+        />
+      )}
 
-      {!loading && data.suites.length === 0 && (
-        <Card>
-          <CardContent className="py-8 text-sm text-muted-foreground">No suite data available.</CardContent>
-        </Card>
+      {loading && <AdminLoadingState message="Loading suite occupancy…" />}
+
+      {!loading && !error && data.suites.length === 0 && (
+        <AdminEmptyState
+          title="No active suite data"
+          message="No checked-in bookings were found. Create or check in a booking to populate occupancy."
+          action={{ label: 'View Bookings', href: '/admin/bookings?status=confirmed' }}
+        />
       )}
 
       <div className="grid gap-4 md:grid-cols-2">

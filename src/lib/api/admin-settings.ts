@@ -627,7 +627,7 @@ function getDefaultWebsiteProfileSettings(): WebsiteProfileSettings {
     siteDescription: siteConfig.description,
     ogImageUrl: siteConfig.ogImage,
     ownerImageUrl: `${siteConfig.url}/images/owner-placeholder.svg`,
-    logoImageUrl: `${siteConfig.url}/logo.png`,
+    logoImageUrl: `${siteConfig.url}/logo.svg`,
     serviceArea: [...siteConfig.serviceArea],
   };
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useTransition } from "react";
+import { useTransition } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -63,12 +63,6 @@ export function AdminSubNav() {
   const router = useRouter();
   const [, startTransition] = useTransition();
 
-  useEffect(() => {
-    for (const item of adminSubNavItems) {
-      router.prefetch(item.href);
-    }
-  }, [router]);
-
   const handleNavigate = (
     event: React.MouseEvent<HTMLAnchorElement>,
     href: string,
@@ -90,6 +84,10 @@ export function AdminSubNav() {
     });
   };
 
+  const handlePrefetch = (href: string) => {
+    router.prefetch(href);
+  };
+
   return (
     <nav className="border-b bg-muted/30 px-6 py-2">
       <ul className="flex flex-wrap gap-2">
@@ -101,6 +99,8 @@ export function AdminSubNav() {
               <Link
                 href={item.href}
                 onClick={(event) => handleNavigate(event, item.href)}
+                onMouseEnter={() => handlePrefetch(item.href)}
+                onFocus={() => handlePrefetch(item.href)}
                 className={`inline-flex rounded-md px-3 py-1.5 text-sm transition-colors ${
                   active
                     ? "bg-primary text-primary-foreground"

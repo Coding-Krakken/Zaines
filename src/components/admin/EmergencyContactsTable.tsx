@@ -5,6 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  AdminEmptyState,
+  AdminErrorState,
+  AdminLoadingState,
+} from '@/components/admin/AdminAsyncState';
 
 type ContactRow = {
   id: string;
@@ -90,11 +95,22 @@ export function EmergencyContactsTable() {
         />
       </CardHeader>
       <CardContent>
-        {error && <p className="mb-3 text-sm text-red-700">{error}</p>}
+        {error && (
+          <div className="mb-3">
+            <AdminErrorState
+              message={error}
+              action={{ label: 'Retry', onAction: () => void loadData() }}
+            />
+          </div>
+        )}
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading contacts…</p>
+          <AdminLoadingState message="Loading contacts…" />
         ) : filteredContacts.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No active emergency contacts found.</p>
+          <AdminEmptyState
+            title="No active emergency contacts"
+            message="Emergency contacts appear when bookings are checked in and owners have contact records."
+            action={{ label: 'View Checked-In Bookings', href: '/admin/bookings?status=checked_in' }}
+          />
         ) : (
           <Table>
             <TableHeader>

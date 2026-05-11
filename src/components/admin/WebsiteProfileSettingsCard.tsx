@@ -92,7 +92,7 @@ export function WebsiteProfileSettingsCard() {
             <FormItem>
               <FormLabel>Logo Image URL</FormLabel>
               <FormControl>
-                <Input type="url" placeholder="https://example.com/logo.png" {...field} />
+                <Input type="url" placeholder="https://example.com/logo.svg" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

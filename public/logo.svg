@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Zaine's Stay and Play Logo</title>
+  <desc id="desc">Simple paw icon logo in warm neutral colors.</desc>
+  <rect width="512" height="512" rx="96" fill="#f5efe5"/>
+  <g fill="#7c4a2d">
+    <circle cx="170" cy="180" r="42"/>
+    <circle cx="342" cy="180" r="42"/>
+    <circle cx="132" cy="278" r="38"/>
+    <circle cx="380" cy="278" r="38"/>
+    <path d="M256 206c-46 0-84 35-84 78 0 53 39 88 84 88s84-35 84-88c0-43-38-78-84-78z"/>
+  </g>
+</svg>

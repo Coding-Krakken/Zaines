@@ -215,6 +215,12 @@ export async function rootMetadataFromSettings(): Promise<Metadata> {
       description: rootDescription,
       images: [seo.ogImageUrl],
     },
+    icons: {
+      icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+      apple: [{ url: "/icon.svg" }],
+      shortcut: ["/icon.svg"],
+    },
+    manifest: "/manifest.webmanifest",
     robots: {
       index: true,
       follow: true,

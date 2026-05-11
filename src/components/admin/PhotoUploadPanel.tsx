@@ -7,6 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import {
+  AdminEmptyState,
+  AdminErrorState,
+  AdminLoadingState,
+} from '@/components/admin/AdminAsyncState';
 
 type BookingOption = {
   id: string;
@@ -72,9 +77,12 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
     return selectedPets.some((p) => p.id === petId) ? petId : (selectedPets[0]?.id ?? '');
   }, [petId, selectedPets]);
 
-  async function loadData() {
-    setLoading(true);
-    setError('');
+  async function loadData(options?: { resetLoading?: boolean }) {
+    const shouldResetLoading = options?.resetLoading ?? true;
+    if (shouldResetLoading) {
+      setLoading(true);
+      setError('');
+    }
 
     try {
       const [bookingsRes, photosRes] = await Promise.all([
@@ -120,7 +128,8 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
   }
 
   useEffect(() => {
-    void loadData();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadData({ resetLoading: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialBookingId]);
 
@@ -207,6 +216,11 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
                   ))}
                 </SelectContent>
               </Select>
+              {!loading && activeBookings.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  No checked-in bookings are available yet.
+                </p>
+              )}
             </div>
 
             <div className="space-y-1">
@@ -258,7 +272,12 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
               </div>
             )}
 
-            {error && <p className="text-sm text-red-700">{error}</p>}
+            {error && !loading && (
+              <AdminErrorState
+                message={error}
+                action={{ label: 'Retry', onAction: () => void loadData() }}
+              />
+            )}
             {success && <p className="text-sm text-green-700">{success}</p>}
 
             <Button type="submit" className="w-full" disabled={saving || !bookingId || !activePetId || !file || loading}>
@@ -277,9 +296,18 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-sm text-muted-foreground">Loading photos…</p>
+            <AdminLoadingState message="Loading photos…" />
+          ) : error ? (
+            <AdminErrorState
+              message={error}
+              action={{ label: 'Retry', onAction: () => void loadData() }}
+            />
           ) : photos.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No photos uploaded yet.</p>
+            <AdminEmptyState
+              title="No photos uploaded"
+              message="Upload a photo after check-in to start building owner updates."
+              action={{ label: 'View Checked-In Bookings', href: '/admin/bookings?status=checked_in' }}
+            />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {photos.map((photo) => (

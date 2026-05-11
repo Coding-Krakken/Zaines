@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import Stripe from "stripe";
+import { Prisma } from "@prisma/client";
 import { stripe, isStripeConfigured } from "@/lib/stripe";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { sendPaymentNotification } from "@/lib/notifications";
@@ -101,6 +102,12 @@ export async function POST(request: NextRequest) {
         break;
       }
 
+      case "checkout.session.completed": {
+        const session = event.data.object as Stripe.Checkout.Session;
+        await handleCheckoutSessionCompleted(session, event.id, correlationId);
+        break;
+      }
+
       case "charge.refunded": {
         const charge = event.data.object as Stripe.Charge;
         await handleRefund(charge, event.id, correlationId);
@@ -138,8 +145,9 @@ async function handlePaymentSuccess(
   paymentIntent: Stripe.PaymentIntent,
   eventId: string,
   correlationId: string,
+  fallbackBookingId?: string,
 ) {
-  const bookingId = paymentIntent.metadata.bookingId;
+  const bookingId = paymentIntent.metadata.bookingId || fallbackBookingId;
 
   if (!bookingId) {
     logServerFailure(
@@ -163,7 +171,7 @@ async function handlePaymentSuccess(
     }
 
     // Fetch charge to get card and fee details
-    let chargeData: Partial<{
+    const chargeData: Partial<{
       cardBrand: string;
       cardLastFour: string;
       stripeFeeAmount: number;
@@ -215,7 +223,7 @@ async function handlePaymentSuccess(
           eventId,
           eventType: "payment_intent.succeeded",
           paymentId: existingPayment?.id || null,
-          payload: paymentIntent as any,
+          payload: paymentIntent as unknown as Prisma.InputJsonValue,
           processed: true,
           processedAt: new Date(),
         },
@@ -259,6 +267,48 @@ async function handlePaymentSuccess(
     logServerFailure(
       "/api/payments/webhook",
       "PAYMENT_SUCCESS_HANDLER_FAILED",
+      correlationId,
+      error,
+    );
+  }
+}
+
+async function handleCheckoutSessionCompleted(
+  session: Stripe.Checkout.Session,
+  eventId: string,
+  correlationId: string,
+) {
+  if (session.payment_status !== "paid") {
+    return;
+  }
+
+  const paymentIntentRef = session.payment_intent;
+  if (!paymentIntentRef) {
+    logServerFailure(
+      "/api/payments/webhook",
+      "CHECKOUT_SESSION_PAYMENT_INTENT_MISSING",
+      correlationId,
+      new Error(`No payment_intent found for checkout session ${session.id}`),
+    );
+    return;
+  }
+
+  try {
+    const paymentIntent =
+      typeof paymentIntentRef === "string"
+        ? await stripe.paymentIntents.retrieve(paymentIntentRef)
+        : paymentIntentRef;
+
+    await handlePaymentSuccess(
+      paymentIntent,
+      eventId,
+      correlationId,
+      session.metadata?.bookingId,
+    );
+  } catch (error) {
+    logServerFailure(
+      "/api/payments/webhook",
+      "CHECKOUT_SESSION_COMPLETE_HANDLER_FAILED",
       correlationId,
       error,
     );

@@ -71,7 +71,7 @@ export function useSiteSettings(): SiteSettingsHookReturn {
         'Private, small-capacity dog boarding in Syracuse with owner-on-site care, three suites, and safety-first updates.',
       ogImageUrl: 'https://zainesstayandplay.com/og-default.svg',
       ownerImageUrl: 'https://zainesstayandplay.com/images/owner-placeholder.svg',
-      logoImageUrl: 'https://zainesstayandplay.com/logo.png',
+      logoImageUrl: 'https://zainesstayandplay.com/logo.svg',
       serviceArea: [
         'Syracuse',
         'Liverpool',
