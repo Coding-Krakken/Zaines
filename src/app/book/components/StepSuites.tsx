@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import {
   Card,
   CardContent,
@@ -117,32 +117,32 @@ export function StepSuites({
   onBack,
   nights = 1,
 }: StepSuitesProps) {
+  const [, startTransition] = useTransition();
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>(
     data.addOns?.map((a) => a.id) || [],
   );
 
   const handleSuiteSelect = (suiteValue: "standard" | "deluxe" | "luxury") => {
-    onUpdate({ suiteType: suiteValue });
+    // Defer the parent state update so the selected style paints first
+    startTransition(() => {
+      onUpdate({ suiteType: suiteValue });
+    });
   };
 
   const handleAddOnToggle = (addOnId: string, checked: boolean) => {
-    let newSelectedAddOns: string[];
+    const newSelectedAddOns = checked
+      ? [...selectedAddOns, addOnId]
+      : selectedAddOns.filter((id) => id !== addOnId);
 
-    if (checked) {
-      newSelectedAddOns = [...selectedAddOns, addOnId];
-    } else {
-      newSelectedAddOns = selectedAddOns.filter((id) => id !== addOnId);
-    }
-
+    // Update local state immediately for visual feedback
     setSelectedAddOns(newSelectedAddOns);
 
-    // Update wizard data with add-on objects
-    const addOnObjects = newSelectedAddOns.map((id) => ({
-      id,
-      quantity: 1, // Default quantity
-    }));
-
-    onUpdate({ addOns: addOnObjects });
+    // Defer the expensive parent update (triggers wizard re-render + useMemo)
+    startTransition(() => {
+      onUpdate({
+        addOns: newSelectedAddOns.map((id) => ({ id, quantity: 1 })),
+      });
+    });
   };
 
   const calculateTotal = () => {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
+import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
@@ -40,6 +41,38 @@ export default async function RootLayout({
       <body
         className={`${cormorant.variable} ${dmSans.variable} font-sans antialiased`}
       >
+        <Script id="console-filter-early" strategy="beforeInteractive">
+          {`(function(){
+  try {
+    var warn = console.warn;
+    var error = console.error;
+    var patterns = [
+      /Default export is deprecated.*zustand/i,
+      /import.*create.*from.*zustand/i,
+      /\[DEPRECATED\].*zustand/i,
+      /E353.*csPostMessage.*timeout/i,
+      /csPostMessage.*timeout/i
+    ];
+    function shouldSuppress(message){
+      var text = String(message || "");
+      for (var i = 0; i < patterns.length; i += 1) {
+        if (patterns[i].test(text)) return true;
+      }
+      return false;
+    }
+    console.warn = function(message){
+      if (shouldSuppress(message)) return;
+      return warn.apply(console, arguments);
+    };
+    console.error = function(message){
+      if (shouldSuppress(message)) return;
+      return error.apply(console, arguments);
+    };
+  } catch (e) {
+    // noop
+  }
+})();`}
+        </Script>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

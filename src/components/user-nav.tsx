@@ -53,6 +53,10 @@ export function UserNav() {
         .join("")
         .toUpperCase()
     : user?.email?.[0].toUpperCase() || "U";
+  const avatarSrc =
+    user?.image && !/googleusercontent\.com/i.test(user.image)
+      ? user.image
+      : undefined;
 
   return (
     <DropdownMenu>
@@ -60,7 +64,7 @@ export function UserNav() {
         <Button variant="ghost" className="relative h-9 w-9 rounded-full">
           <Avatar className="h-9 w-9">
             <AvatarImage
-              src={user?.image || undefined}
+              src={avatarSrc}
               alt={user?.name || "User"}
             />
             <AvatarFallback>{initials}</AvatarFallback>

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { isDatabaseConfigured, prisma } from "@/lib/prisma";
 import {
@@ -37,6 +38,90 @@ type TimelinePhoto = {
     name: string;
   };
 };
+
+function isMissingPhotoUserIdError(error: unknown): boolean {
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === "P2022") {
+      const column = String(error.meta?.column ?? "");
+      return column.includes("userId") || column.includes("pet_photos");
+    }
+  }
+
+  if (error instanceof Error) {
+    return /pet_photos.*userId|column.*userId/i.test(error.message);
+  }
+
+  return false;
+}
+
+async function fetchTimelinePhotosWithFallback(
+  userId: string,
+  limit: number,
+): Promise<TimelinePhoto[]> {
+  try {
+    return await prisma.petPhoto.findMany({
+      where: {
+        userId,
+      },
+      select: {
+        id: true,
+        imageUrl: true,
+        caption: true,
+        uploadedBy: true,
+        uploadedAt: true,
+        booking: {
+          select: {
+            id: true,
+            bookingNumber: true,
+          },
+        },
+        pet: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: { uploadedAt: "desc" },
+      take: limit,
+    });
+  } catch (error) {
+    if (!isMissingPhotoUserIdError(error)) {
+      throw error;
+    }
+
+    // Backward compatibility for environments where the migration adding
+    // pet_photos.userId has not been applied yet.
+    return await prisma.petPhoto.findMany({
+      where: {
+        booking: {
+          userId,
+        },
+      },
+      select: {
+        id: true,
+        imageUrl: true,
+        caption: true,
+        uploadedBy: true,
+        uploadedAt: true,
+        booking: {
+          select: {
+            id: true,
+            bookingNumber: true,
+          },
+        },
+        pet: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: { uploadedAt: "desc" },
+      take: limit,
+    });
+  }
+}
 
 export async function GET(request: NextRequest) {
   const correlationId = getCorrelationId(request);
@@ -117,32 +202,7 @@ export async function GET(request: NextRequest) {
           })
         : Promise.resolve([] as TimelineMessage[]),
       includePhotos
-        ? prisma.petPhoto.findMany({
-            where: {
-              userId: session.user.id,
-            },
-            select: {
-              id: true,
-              imageUrl: true,
-              caption: true,
-              uploadedBy: true,
-              uploadedAt: true,
-              booking: {
-                select: {
-                  id: true,
-                  bookingNumber: true,
-                },
-              },
-              pet: {
-                select: {
-                  id: true,
-                  name: true,
-                },
-              },
-            },
-            orderBy: { uploadedAt: "desc" },
-            take: limit,
-          })
+        ? fetchTimelinePhotosWithFallback(session.user.id, limit)
         : Promise.resolve([] as TimelinePhoto[]),
       prisma.booking.findMany({
         where: {

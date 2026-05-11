@@ -25,23 +25,49 @@ export function MessageThread({ bookingId, bookingNumber }: MessageThreadProps) 
 
   const [messageInput, setMessageInput] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const prevLastMessageIdRef = useRef<string | null>(null);
+  const shouldAutoScrollRef = useRef(true);
 
-  // Auto-scroll to bottom on new messages
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // Keep scrolling local to the message list so the page itself never jumps.
+  const scrollToBottom = (behavior: ScrollBehavior = "auto") => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior,
+    });
   };
 
   useEffect(() => {
-    scrollToBottom();
+    const lastMessageId = messages[messages.length - 1]?.id ?? null;
+    const isInitialLoad = prevLastMessageIdRef.current === null;
+    const hasNewMessage =
+      lastMessageId !== null && lastMessageId !== prevLastMessageIdRef.current;
+
+    if ((isInitialLoad || hasNewMessage) && shouldAutoScrollRef.current) {
+      scrollToBottom(isInitialLoad ? "auto" : "smooth");
+    }
+
+    prevLastMessageIdRef.current = lastMessageId;
   }, [messages]);
+
+  const handleContainerScroll = () => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
+    shouldAutoScrollRef.current = distanceFromBottom <= 48;
+  };
 
   // Handle send message
   const handleSendMessage = async () => {
     if (!messageInput.trim()) return;
 
     setSendError(null);
+    shouldAutoScrollRef.current = true;
     const trimmedMessage = messageInput.trim();
     setMessageInput("");
 
@@ -78,6 +104,7 @@ export function MessageThread({ bookingId, bookingNumber }: MessageThreadProps) 
       <div
         ref={messagesContainerRef}
         className="flex-1 overflow-y-auto p-4 space-y-3"
+        onScroll={handleContainerScroll}
         role="log"
         aria-live="polite"
         aria-label="Messages"
@@ -161,8 +188,6 @@ export function MessageThread({ bookingId, bookingNumber }: MessageThreadProps) 
             </div>
           );
         })}
-
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input area */}

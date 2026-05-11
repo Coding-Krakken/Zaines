@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type {
   StepDatesData,
   StepSuitesData,
@@ -132,71 +132,62 @@ export function useBookingWizard() {
     loadAndApplySavedProgress();
   }, []);
 
-  // Save progress to localStorage whenever data changes
-  const saveProgress = useCallback(
-    (data: BookingWizardData, step: BookingStep) => {
-      const success = typedStorage.setJson(STORAGE_KEY, {
-        data,
-        currentStep: step,
-        savedAt: new Date().toISOString(),
-      });
+  // Persist to localStorage AFTER React paints, never during event handlers.
+  // We skip the very first effect run (initial mount) so we don't overwrite
+  // saved data with the empty default state before the load effect has run.
+  const isFirstPersistRun = useRef(true);
 
-      if (!success) {
-        // Safe storage falls back to in-memory storage automatically
-        // Only log if it's a critical error (not just privacy mode)
-        if (process.env.NODE_ENV === "development") {
-          console.debug("Booking wizard progress saved to memory (storage unavailable)");
-        }
-      }
-    },
-    [],
-  );
+  useEffect(() => {
+    if (isFirstPersistRun.current) {
+      isFirstPersistRun.current = false;
+      return;
+    }
+    const success = typedStorage.setJson(STORAGE_KEY, {
+      data: wizardData,
+      currentStep,
+      savedAt: new Date().toISOString(),
+    });
+    if (!success && process.env.NODE_ENV === "development") {
+      console.debug("Booking wizard progress saved to memory (storage unavailable)");
+    }
+  }, [wizardData, currentStep]);
 
-  // Update step data
+  // Update step data — no side effects in the state setter
   const updateStepData = useCallback(
     (
       step: BookingStep,
       data: Partial<BookingWizardData[keyof BookingWizardData]>,
     ) => {
-      setWizardData((prev) => {
-        const updated = {
-          ...prev,
-          [step]: { ...prev[step as keyof BookingWizardData], ...data },
-        };
-        saveProgress(updated, currentStep);
-        return updated;
-      });
+      setWizardData((prev) => ({
+        ...prev,
+        [step]: { ...prev[step as keyof BookingWizardData], ...data },
+      }));
     },
-    [currentStep, saveProgress],
+    [],
   );
 
   // Navigate to next step
   const nextStep = useCallback(() => {
     const currentIndex = STEPS.indexOf(currentStep);
     if (currentIndex < STEPS.length - 1) {
-      const nextStep = STEPS[currentIndex + 1];
-      setCurrentStep(nextStep);
-      saveProgress(wizardData, nextStep);
+      setCurrentStep(STEPS[currentIndex + 1]);
     }
-  }, [currentStep, wizardData, saveProgress]);
+  }, [currentStep]);
 
   // Navigate to previous step
   const prevStep = useCallback(() => {
     const currentIndex = STEPS.indexOf(currentStep);
     if (currentIndex > 0) {
-      const prevStep = STEPS[currentIndex - 1];
-      setCurrentStep(prevStep);
-      saveProgress(wizardData, prevStep);
+      setCurrentStep(STEPS[currentIndex - 1]);
     }
-  }, [currentStep, wizardData, saveProgress]);
+  }, [currentStep]);
 
   // Go to specific step
   const goToStep = useCallback(
     (step: BookingStep) => {
       setCurrentStep(step);
-      saveProgress(wizardData, step);
     },
-    [wizardData, saveProgress],
+    [],
   );
 
   // Clear all data and start over
