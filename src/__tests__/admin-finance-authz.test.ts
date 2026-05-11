@@ -290,7 +290,7 @@ describe('admin finance route authz', () => {
 
   it('allows staff users to read webhook health', async () => {
     authMock.mockResolvedValue(staffSession);
-    const res = await getFinanceWebhooksRoute(new NextRequest('http://localhost/api/admin/finance/webhooks'));
+    const res = await getFinanceWebhooksRoute();
     expect(res.status).toBe(200);
     expect(getFinanceWebhookHealthMock).toHaveBeenCalledTimes(1);
   });

@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case "payment_intent.succeeded": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        await handlePaymentSuccess(paymentIntent, correlationId);
+        await handlePaymentSuccess(paymentIntent, event.id, correlationId);
         break;
       }
 
@@ -220,6 +220,7 @@ export async function POST(request: NextRequest) {
 
 async function handlePaymentSuccess(
   paymentIntent: Stripe.PaymentIntent,
+  eventId: string,
   correlationId: string,
   fallbackBookingId?: string,
 ) {
@@ -378,6 +379,7 @@ async function handleCheckoutSessionCompleted(
 
     await handlePaymentSuccess(
       paymentIntent,
+      eventId,
       correlationId,
       session.metadata?.bookingId,
     );

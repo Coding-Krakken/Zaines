@@ -1101,7 +1101,7 @@ export async function getFinanceWebhookHealth(): Promise<FinanceWebhookHealthRes
       return right - left;
     })[0]?.processedAt;
 
-  const recentEvents = recentEventsRaw.map((evt) => {
+  const recentEvents: FinanceWebhookHealthResponse['recentEvents'] = recentEventsRaw.map((evt) => {
     const lagMs = evt.processedAt
       ? evt.processedAt.getTime() - evt.createdAt.getTime()
       : null;
