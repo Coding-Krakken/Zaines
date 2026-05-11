@@ -3,6 +3,7 @@ import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { HealthTimeline } from "@/components/HealthTimeline";
 import Link from "next/link";
+import { PetRecordsManager } from "./PetRecordsManager";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -126,6 +127,22 @@ export default async function PetDetail({ params }: Props) {
             </ul>
           </div>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <PetRecordsManager
+          petId={pet.id}
+          petName={pet.name}
+          initialVaccines={pet.vaccines.map((v) => ({
+            id: v.id,
+            name: v.name,
+            administeredDate: v.administeredDate.toISOString(),
+            expiryDate: v.expiryDate.toISOString(),
+            veterinarian: v.veterinarian ?? null,
+            documentUrl: v.documentUrl ?? null,
+            notes: v.notes ?? null,
+          }))}
+        />
       </div>
 
       {/* Health Timeline for this pet */}

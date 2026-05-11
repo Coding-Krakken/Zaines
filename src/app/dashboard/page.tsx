@@ -217,6 +217,9 @@ export default async function DashboardPage() {
                 <Link href="/dashboard/messages">Open Messages</Link>
               </Button>
               <Button asChild variant="outline" size="sm">
+                <Link href="/dashboard/records">Manage Records</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
                 <Link href="/dashboard/settings">Update Account Settings</Link>
               </Button>
             </div>
