@@ -4,6 +4,9 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { WaiverReviewDialog } from './WaiverReviewDialog';
+import { MedicalRecordsForm } from './MedicalRecordsForm';
+import { WAIVER_CONTENT_BY_TYPE } from '@/lib/waiver-content';
 
 type AccountWaiver = {
   id: string;
@@ -40,6 +43,12 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
   const [isSigning, setIsSigning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [reviewingWaiverType, setReviewingWaiverType] = useState<
+    'liability' | 'medical' | 'photo_release' | null
+  >(null);
+  const [waiverAcknowledged, setWaiverAcknowledged] = useState<{
+    [key in 'liability' | 'medical' | 'photo_release']?: boolean;
+  }>({});
 
   const activeWaivers = useMemo(
     () =>
@@ -50,6 +59,21 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
   );
 
   const waiverHealth = activeWaivers.length === 3;
+
+  const handleReviewWaiver = (type: 'liability' | 'medical' | 'photo_release') => {
+    setReviewingWaiverType(type);
+    setWaiverAcknowledged((prev) => ({ ...prev, [type]: false }));
+  };
+
+  const handleCloseReview = () => {
+    setReviewingWaiverType(null);
+  };
+
+  const handleAcknowledgeWaiver = () => {
+    if (reviewingWaiverType) {
+      setWaiverAcknowledged((prev) => ({ ...prev, [reviewingWaiverType]: true }));
+    }
+  };
 
   const handleSignWaivers = async () => {
     setError(null);
@@ -89,6 +113,16 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
 
   return (
     <div className="space-y-6">
+      {reviewingWaiverType && (
+        <WaiverReviewDialog
+          waiverType={reviewingWaiverType}
+          waiverContent={WAIVER_CONTENT_BY_TYPE[reviewingWaiverType]}
+          isAcknowledged={waiverAcknowledged[reviewingWaiverType] || false}
+          onAcknowledge={handleAcknowledgeWaiver}
+          onClose={handleCloseReview}
+        />
+      )}
+
       <section className="rounded-lg border p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -124,9 +158,27 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
                         ? `Expires ${new Date(active.expiresAt).toLocaleDateString()}`
                         : 'No expiry'}
                     </p>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="mt-2 h-auto p-0 text-xs"
+                      onClick={() => handleReviewWaiver(type)}
+                    >
+                      View Waiver
+                    </Button>
                   </>
                 ) : (
-                  <p className="mt-1 text-xs text-amber-700">No active waiver on file</p>
+                  <>
+                    <p className="mt-1 text-xs text-amber-700">No active waiver on file</p>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="mt-2 h-auto p-0 text-xs"
+                      onClick={() => handleReviewWaiver(type)}
+                    >
+                      Review & Sign
+                    </Button>
+                  </>
                 )}
               </div>
             );
@@ -166,7 +218,15 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
       </section>
 
       <section className="rounded-lg border p-4">
-        <h2 className="text-lg font-semibold">Pet Medical Records</h2>
+        <h2 className="text-lg font-semibold">Medical Records</h2>
+        <p className="text-sm text-muted-foreground">
+          Track medications and other medical information for each pet.
+        </p>
+        <MedicalRecordsForm pets={pets} />
+      </section>
+
+      <section className="rounded-lg border p-4">
+        <h2 className="text-lg font-semibold">Pet Vaccination Records</h2>
         <p className="text-sm text-muted-foreground">
           Persistent, pet-specific vaccination records available during booking.
         </p>
