@@ -5,7 +5,7 @@ import type { NextRequest } from 'next/server';
 // cannot be verified in the Edge runtime (no Prisma). We gate on the presence
 // of the session cookie; the actual admin routes re-verify with auth() on the
 // server side, so this is defence-in-depth only.
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const isAdminRoute =
     req.nextUrl.pathname.startsWith('/admin') ||
     req.nextUrl.pathname.startsWith('/api/admin');
