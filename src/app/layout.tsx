@@ -47,25 +47,31 @@ export default async function RootLayout({
     var warn = console.warn;
     var error = console.error;
     var patterns = [
+      /\[DEPRECATED\].*Default export is deprecated/i,
+      /Default export is deprecated/i,
       /Default export is deprecated.*zustand/i,
       /import.*create.*from.*zustand/i,
+      /import\s*\{\s*create\s*\}\s*from\s*['\"]zustand['\"]/i,
       /\[DEPRECATED\].*zustand/i,
       /E353.*csPostMessage.*timeout/i,
-      /csPostMessage.*timeout/i
+      /csPostMessage.*timeout/i,
+      /preloaded using link preload but not used within a few seconds/i
     ];
-    function shouldSuppress(message){
-      var text = String(message || "");
+    function shouldSuppress(args){
+      var text = Array.prototype.map.call(args, function(part){
+        return String(part == null ? "" : part);
+      }).join(" ");
       for (var i = 0; i < patterns.length; i += 1) {
         if (patterns[i].test(text)) return true;
       }
       return false;
     }
-    console.warn = function(message){
-      if (shouldSuppress(message)) return;
+    console.warn = function(){
+      if (shouldSuppress(arguments)) return;
       return warn.apply(console, arguments);
     };
-    console.error = function(message){
-      if (shouldSuppress(message)) return;
+    console.error = function(){
+      if (shouldSuppress(arguments)) return;
       return error.apply(console, arguments);
     };
   } catch (e) {

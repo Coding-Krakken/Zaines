@@ -19,12 +19,18 @@ const originalError = console.error;
 // Patterns to suppress
 const suppressionPatterns = [
   // Zustand deprecation from Vercel instrumentation
+  /\[DEPRECATED\].*Default export is deprecated/i,
+  /Default export is deprecated/i,
   /Default export is deprecated.*zustand/i,
   /import.*create.*from.*zustand/i,
+  /import\s*\{\s*create\s*\}\s*from\s*['\"]zustand['\"]/i,
 
   // Vercel csPostMessage timeout (harmless cross-frame communication)
   /E353.*csPostMessage.*timeout/i,
   /csPostMessage.*timeout/i,
+
+  // Browser/framework preload noise
+  /preloaded using link preload but not used within a few seconds/i,
 
   // Tracking Prevention messages (expected behavior)
   // Note: These are from browser, not our console, so won't be caught here
@@ -35,8 +41,11 @@ const suppressionPatterns = [
  */
 function createFilteredMethod(originalMethod: ConsoleMethod): ConsoleMethod {
   return function (message?: any, ...optionalParams: any[]): void {
-    // Convert message to string for pattern matching
-    const messageStr = String(message || "");
+    // Join all args to catch format-string warnings where key text lives
+    // outside the first argument.
+    const messageStr = [message, ...optionalParams]
+      .map((part) => String(part ?? ""))
+      .join(" ");
     
     // Check if this matches any suppression pattern
     const shouldSuppress = suppressionPatterns.some((pattern) =>

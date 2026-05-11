@@ -1,21 +1,28 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function CheckOutPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function CheckOutPage() {
+  const params = useParams<{ id?: string | string[] }>();
+  const bookingIdParam = params?.id;
+  const bookingId = Array.isArray(bookingIdParam)
+    ? bookingIdParam[0] ?? ''
+    : bookingIdParam ?? '';
   const router = useRouter();
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
   async function handleCheckOut() {
+    if (!bookingId) {
+      setStatus('error');
+      setErrorMessage('Booking ID is missing. Please return to bookings and try again.');
+      return;
+    }
+
     setStatus('loading');
     setErrorMessage('');
 
@@ -23,7 +30,7 @@ export default function CheckOutPage({
       const res = await fetch('/api/admin/check-out', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId: params.id }),
+        body: JSON.stringify({ bookingId }),
       });
 
       const data = (await res.json()) as { error?: string };
@@ -50,7 +57,7 @@ export default function CheckOutPage({
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Booking ID: <span className="font-mono text-foreground">{params.id}</span>
+            Booking ID: <span className="font-mono text-foreground">{bookingId || '—'}</span>
           </p>
 
           {status === 'success' && (
