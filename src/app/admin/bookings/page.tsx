@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +36,6 @@ export default function BookingsPage() {
   const [bookings, setBookings] = useState<AdminBookingResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredBookings, setFilteredBookings] = useState<AdminBookingResponse[]>([]);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -50,11 +49,9 @@ export default function BookingsPage() {
 
         const bookingList = data.data || data.bookings || [];
         setBookings(bookingList);
-        setFilteredBookings(bookingList);
       } catch (error) {
         console.error('Error fetching bookings:', error);
         setBookings([]);
-        setFilteredBookings([]);
       } finally {
         setIsLoading(false);
       }
@@ -63,23 +60,20 @@ export default function BookingsPage() {
     fetchBookings();
   }, []);
 
-  // Filter bookings based on search term
-  useEffect(() => {
+  const filteredBookings = useMemo(() => {
     if (!searchTerm.trim()) {
-      setFilteredBookings(bookings);
-    } else {
-      const term = searchTerm.toLowerCase();
-      setFilteredBookings(
-        bookings.filter(
-          (booking) =>
-            booking.bookingNumber.toLowerCase().includes(term) ||
-            booking.user?.name?.toLowerCase().includes(term) ||
-            booking.user?.email?.toLowerCase().includes(term) ||
-            booking.suite?.name.toLowerCase().includes(term),
-        ),
-      );
+      return bookings;
     }
-  }, [searchTerm, bookings]);
+
+    const term = searchTerm.toLowerCase();
+    return bookings.filter(
+      (booking) =>
+        booking.bookingNumber.toLowerCase().includes(term) ||
+        booking.user?.name?.toLowerCase().includes(term) ||
+        booking.user?.email?.toLowerCase().includes(term) ||
+        booking.suite?.name.toLowerCase().includes(term),
+    );
+  }, [bookings, searchTerm]);
 
   if (isLoading) {
     return (
@@ -199,6 +193,13 @@ export default function BookingsPage() {
                             <Button asChild size="sm" variant="outline">
                               <Link href={`/admin/check-out/${booking.id}`}>
                                 Check-out
+                              </Link>
+                            </Button>
+                          )}
+                          {(booking.status === 'pending' || booking.status === 'confirmed') && (
+                            <Button asChild size="sm" variant="outline">
+                              <Link href={`/admin/bookings/${booking.id}#payment-recovery`}>
+                                Recover Payment
                               </Link>
                             </Button>
                           )}

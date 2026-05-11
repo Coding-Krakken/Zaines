@@ -2,10 +2,11 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { getAdminBooking } from '@/lib/api/admin-bookings';
-import { isDatabaseConfigured } from '@/lib/prisma';
+import { isDatabaseConfigured, prisma } from '@/lib/prisma';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BookingPaymentRecoveryCard } from '@/components/admin/BookingPaymentRecoveryCard';
 
 const DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
   month: 'short',
@@ -38,6 +39,13 @@ function formatDate(dateValue: Date | string): string {
   return DATE_FORMATTER.format(date);
 }
 
+function inferPaymentFlow(stripePaymentId: string | null): string {
+  if (!stripePaymentId) return 'unknown';
+  if (stripePaymentId.startsWith('pi_')) return 'payment element';
+  if (stripePaymentId.startsWith('cs_')) return 'embedded checkout';
+  return 'unknown';
+}
+
 export default async function AdminBookingDetailPage({
   params,
 }: {
@@ -68,6 +76,12 @@ export default async function AdminBookingDetailPage({
   if (!booking) {
     notFound();
   }
+
+  const recentPayments = await prisma.payment.findMany({
+    where: { bookingId: id },
+    orderBy: { createdAt: 'desc' },
+    take: 3,
+  });
 
   const petNames = booking.bookingPets
     .map((bookingPet) => bookingPet.pet?.name)
@@ -126,6 +140,40 @@ export default async function AdminBookingDetailPage({
           <p>{petNames || 'No pets attached to this booking.'}</p>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Payments</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {recentPayments.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No payment records exist for this booking yet.</p>
+          ) : (
+            recentPayments.map((payment) => (
+              <div key={payment.id} className="rounded-md border p-3 text-sm">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant={statusBadgeVariant(payment.status)}>
+                    {payment.status.replace('_', ' ')}
+                  </Badge>
+                  <span className="font-medium">${payment.amount.toFixed(2)}</span>
+                </div>
+                <p className="mt-1 text-muted-foreground">
+                  Flow: {inferPaymentFlow(payment.stripePaymentId)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Processor ID: {payment.stripePaymentId ?? 'none'}
+                </p>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      {(booking.status === 'pending' || booking.status === 'confirmed') && (
+        <div id="payment-recovery">
+          <BookingPaymentRecoveryCard bookingId={booking.id} />
+        </div>
+      )}
 
       <div className="flex gap-3">
         {booking.status === 'confirmed' && (

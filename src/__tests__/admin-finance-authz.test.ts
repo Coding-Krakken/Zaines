@@ -111,6 +111,8 @@ const {
         currency: 'USD',
         status: 'succeeded',
         paymentMethod: 'card',
+        paymentMode: 'payment_element',
+        stripeSourceType: 'payment_intent',
         stripePaymentId: 'pi_1',
         createdAt: new Date().toISOString(),
         paidAt: new Date().toISOString(),
@@ -202,6 +204,7 @@ import { GET as getFinanceAuditRoute } from '@/app/api/admin/finance/audit/route
 import { GET as getFinanceReconciliationRoute, POST as postFinanceReconciliationRoute } from '@/app/api/admin/finance/reconciliation/route';
 import { GET as getFinanceTaxesRoute } from '@/app/api/admin/finance/taxes/route';
 import { GET as getFinanceTaxesExportRoute } from '@/app/api/admin/finance/taxes/export/route';
+import { GET as getFinanceExportRoute } from '@/app/api/admin/finance/export/route';
 import { GET as getFinanceAlertsRoute } from '@/app/api/admin/finance/alerts/route';
 import { GET as getFinanceExceptionsRoute } from '@/app/api/admin/finance/exceptions/route';
 import { GET as getFinanceForecastRoute } from '@/app/api/admin/finance/forecast/route';
@@ -378,5 +381,20 @@ describe('admin finance route authz', () => {
     expect(alertsRes.status).toBe(200);
     expect(exceptionsRes.status).toBe(200);
     expect(forecastRes.status).toBe(200);
+  });
+
+  it('includes payment flow metadata in finance transaction CSV export', async () => {
+    authMock.mockResolvedValue(staffSession);
+
+    const res = await getFinanceExportRoute(
+      new NextRequest('http://localhost/api/admin/finance/export'),
+    );
+
+    expect(res.status).toBe(200);
+    const csv = await res.text();
+    expect(csv).toContain('paymentMode');
+    expect(csv).toContain('stripeSourceType');
+    expect(csv).toContain('payment_element');
+    expect(csv).toContain('payment_intent');
   });
 });

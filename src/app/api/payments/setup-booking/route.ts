@@ -218,6 +218,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const role = (session.user as { id: string; role?: string }).role;
+    const isStaffOrAdmin = !!role && ["staff", "admin"].includes(role);
+
     const body = await request.json();
     const validation = setupSchema.safeParse(body);
     if (!validation.success) {
@@ -246,7 +249,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    if (booking.userId !== session.user.id) {
+    if (booking.userId !== session.user.id && !isStaffOrAdmin) {
       return errorResponse({
         status: 403,
         errorCode: "BOOKING_ACCESS_DENIED",
