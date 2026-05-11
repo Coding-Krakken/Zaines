@@ -7,6 +7,7 @@ import {
   logServerFailure,
   parseDate,
 } from "@/lib/api/issue26";
+import { ensureDefaultSuites } from "@/lib/booking/default-suites";
 import { rateLimitedResponse } from "@/lib/security/api";
 
 type BookingPrisma = {
@@ -82,48 +83,42 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const [activeSuites, overlappingBookings] = await Promise.all([
-      bookingPrisma.suite.count({
-        where: {
-          isActive: true,
+    const activeSuites = await ensureDefaultSuites();
+    const overlappingBookings = await bookingPrisma.booking.count({
+      where: {
+        status: {
+          in: ["confirmed", "checked_in"],
         },
-      }),
-      bookingPrisma.booking.count({
-        where: {
-          status: {
-            in: ["confirmed", "checked_in"],
+        OR: [
+          {
+            checkInDate: {
+              gte: checkInDate,
+              lt: checkOutDate,
+            },
           },
-          OR: [
-            {
-              checkInDate: {
-                gte: checkInDate,
-                lt: checkOutDate,
-              },
+          {
+            checkOutDate: {
+              gt: checkInDate,
+              lte: checkOutDate,
             },
-            {
-              checkOutDate: {
-                gt: checkInDate,
-                lte: checkOutDate,
-              },
-            },
-            {
-              AND: [
-                {
-                  checkInDate: {
-                    lte: checkInDate,
-                  },
+          },
+          {
+            AND: [
+              {
+                checkInDate: {
+                  lte: checkInDate,
                 },
-                {
-                  checkOutDate: {
-                    gte: checkOutDate,
-                  },
+              },
+              {
+                checkOutDate: {
+                  gte: checkOutDate,
                 },
-              ],
-            },
-          ],
-        },
-      }),
-    ]);
+              },
+            ],
+          },
+        ],
+      },
+    });
 
     const availableCapacity = Math.max(0, activeSuites - overlappingBookings);
     const isAvailable = availableCapacity >= parsed.data.partySize;

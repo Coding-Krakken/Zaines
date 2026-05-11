@@ -1,13 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { POST } from "../route";
+import { DEFAULT_SUITES } from "@/lib/booking/default-suites";
 
 let suiteCount = 3;
 let bookingCount = 0;
+const { upsertSuite } = vi.hoisted(() => ({
+  upsertSuite: vi.fn(async () => ({})),
+}));
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
-    suite: { count: vi.fn(async () => suiteCount) },
+    suite: {
+      count: vi.fn(async () => suiteCount),
+      upsert: upsertSuite,
+    },
     booking: { count: vi.fn(async () => bookingCount) },
     settings: {
       findUnique: vi.fn(),
@@ -24,6 +31,7 @@ describe("POST /api/booking/availability", () => {
     vi.clearAllMocks();
     suiteCount = 3;
     bookingCount = 0;
+    upsertSuite.mockClear();
   });
 
   it("returns INVALID_DATE_RANGE for invalid date ordering", async () => {
@@ -70,5 +78,29 @@ describe("POST /api/booking/availability", () => {
     expect(response.status).toBe(200);
     expect(data.isAvailable).toBe(false);
     expect(data.reasonCode).toBe("NO_CAPACITY");
+  });
+
+  it("bootstraps default suites when suite inventory is empty", async () => {
+    suiteCount = 0;
+
+    const request = new NextRequest(
+      "http://localhost:3000/api/booking/availability",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          checkIn: "2026-03-10",
+          checkOut: "2026-03-12",
+          serviceType: "boarding",
+          partySize: 1,
+        }),
+      },
+    );
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data.isAvailable).toBe(true);
+    expect(upsertSuite).toHaveBeenCalledTimes(DEFAULT_SUITES.length);
   });
 });

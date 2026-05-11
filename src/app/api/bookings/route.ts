@@ -21,6 +21,7 @@ import {
   BOOKING_PRICING_MODEL_LABEL,
   calculateBookingPrice,
 } from "@/lib/booking/pricing";
+import { ensureDefaultSuites } from "@/lib/booking/default-suites";
 import { getAdminSettings } from "@/lib/api/admin-settings";
 import {
   WAIVER_CONTENT_BY_TYPE,
@@ -30,6 +31,8 @@ import {
 } from "@/lib/health-records";
 
 function isAbsoluteOrRootRelativeUrl(value: string): boolean {
+  await ensureDefaultSuites();
+
   if (value.startsWith("/")) {
     return true;
   }
