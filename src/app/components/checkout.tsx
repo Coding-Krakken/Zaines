@@ -14,7 +14,15 @@ const stripePromise = loadStripe(
 
 export default function Checkout({ productId }: { productId: string }) {
   const startCheckoutSessionForProduct = useCallback(
-    () => startCheckoutSession(productId),
+    async () => {
+      const clientSecret = await startCheckoutSession(productId);
+
+      if (!clientSecret) {
+        throw new Error("Failed to get client secret");
+      }
+
+      return clientSecret;
+    },
     [productId],
   );
 
@@ -22,7 +30,7 @@ export default function Checkout({ productId }: { productId: string }) {
     <div id="checkout">
       <EmbeddedCheckoutProvider
         stripe={stripePromise}
-        options={{ fetchClientSecret: async () => { const secret = await startCheckoutSessionForProduct(); if (secret === null) throw new Error("Failed to get client secret"); return secret; } }}
+        options={{ fetchClientSecret: startCheckoutSessionForProduct }}
       >
         <EmbeddedCheckout />
       </EmbeddedCheckoutProvider>

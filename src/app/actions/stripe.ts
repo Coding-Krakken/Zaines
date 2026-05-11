@@ -1,7 +1,8 @@
 "use server";
 
-import { headers } from "next/headers";
 import { stripe } from "@/lib/stripe";
+import { getAdminSettings } from "@/lib/api/admin-settings";
+import { getNightlyRate } from "@/lib/booking/pricing";
 
 type CheckoutProduct = {
   id: string;
@@ -11,10 +12,35 @@ type CheckoutProduct = {
 };
 
 async function getProduct(productId: string): Promise<CheckoutProduct> {
-  void headers();
+  const normalizedId = productId.trim().toLowerCase();
+  const adminSettings = await getAdminSettings();
+  const serviceTier = adminSettings.serviceSettings.serviceTiers.find((tier) => {
+    const tierId = tier.id.trim().toLowerCase();
+    const tierName = tier.name.trim().toLowerCase();
 
-  // TODO: Replace this placeholder with a real product catalog lookup.
-  throw new Error(`Product lookup is not implemented for productId: ${productId}`);
+    return (
+      tierId === normalizedId ||
+      tierName === normalizedId ||
+      tierName.includes(normalizedId)
+    );
+  });
+
+  if (!serviceTier) {
+    throw new Error(`Unknown productId: ${productId}`);
+  }
+
+  const nightlyRate = getNightlyRate(
+    serviceTier.id,
+    adminSettings.serviceSettings.serviceTiers,
+    adminSettings.pricingSettings,
+  );
+
+  return {
+    id: serviceTier.id,
+    name: serviceTier.name,
+    description: `${serviceTier.name} at Zaine's Stay & Play`,
+    priceInCents: Math.round(nightlyRate * 100),
+  };
 }
 
 export async function startCheckoutSession(productId: string) {
