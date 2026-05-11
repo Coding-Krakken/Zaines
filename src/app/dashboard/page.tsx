@@ -58,7 +58,14 @@ export default async function DashboardPage() {
     );
   }
 
-  const [upcomingBookings, recentBookings, pets, unreadStaffMessages] = await Promise.all([
+  const [
+    upcomingBookings,
+    recentBookings,
+    pets,
+    activeVaccinePets,
+    accountWaivers,
+    unreadStaffMessages,
+  ] = await Promise.all([
     prisma.booking.findMany({
       where: {
         userId: session.user.id,
@@ -75,6 +82,24 @@ export default async function DashboardPage() {
       include: { suite: true, bookingPets: { include: { pet: true } } },
     }),
     prisma.pet.findMany({ where: { userId: session.user.id }, take: 6 }),
+    prisma.vaccine.findMany({
+      where: {
+        pet: { userId: session.user.id },
+        expiryDate: { gt: new Date() },
+      },
+      select: { petId: true },
+      distinct: ["petId"],
+    }),
+    prisma.accountWaiver.findMany({
+      where: {
+        userId: session.user.id,
+        OR: [
+          { expiresAt: null },
+          { expiresAt: { gt: new Date() } },
+        ],
+      },
+      select: { type: true },
+    }),
     prisma.message.count({
       where: {
         userId: session.user.id,
@@ -95,13 +120,24 @@ export default async function DashboardPage() {
 
   const nextStay = upcomingBookings[0];
   const daysToNextStay = nextStay ? daysUntil(nextStay.checkInDate) : null;
-  const profileReadiness = pets.length === 0
-    ? 0
-    : Math.round(
-        (pets.filter((pet) => Boolean(pet.microchipId) && Boolean(pet.healthNotes)).length /
-          pets.length) *
-          100,
-      );
+  const activeVaccinePetIds = new Set(activeVaccinePets.map((record) => record.petId));
+  const hasAllActiveWaivers =
+    new Set(accountWaivers.map((waiver) => waiver.type)).size >= 3;
+  const petsWithActiveVaccine = pets.filter((pet) => activeVaccinePetIds.has(pet.id)).length;
+  const petsWithProfileDetails = pets.filter(
+    (pet) => Boolean(pet.microchipId) || Boolean(pet.healthNotes),
+  ).length;
+
+  const vaccineCoverage =
+    pets.length === 0 ? 0 : petsWithActiveVaccine / pets.length;
+  const detailsCoverage =
+    pets.length === 0 ? 0 : petsWithProfileDetails / pets.length;
+
+  // Readiness weights: 40% waivers, 40% vaccine coverage, 20% profile details.
+  const profileReadiness = Math.round(
+    ((hasAllActiveWaivers ? 1 : 0) * 0.4 + vaccineCoverage * 0.4 + detailsCoverage * 0.2) *
+      100,
+  );
   const firstName = session.user.name?.split(" ")[0] ?? "there";
 
   return (
@@ -235,7 +271,7 @@ export default async function DashboardPage() {
               />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              Readiness improves when pets include both microchip ID and health notes.
+              Readiness improves with active waivers, current vaccine records, and complete pet details.
             </p>
             <Link href="/dashboard/pets" className="mt-3 inline-block text-sm text-primary">
               Review pet profiles
