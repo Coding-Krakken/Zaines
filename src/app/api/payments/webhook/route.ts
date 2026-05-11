@@ -34,7 +34,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    const webhookSecret =
+      process.env.STRIPE_WEBHOOK_SECRET_SNAPSHOT ??
+      process.env.STRIPE_WEBHOOK_SECRET;
 
     if (!webhookSecret) {
       return errorResponse({
