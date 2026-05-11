@@ -5,6 +5,38 @@ import Link from "next/link";
 import { HealthTimeline } from "@/components/HealthTimeline";
 import { Button } from "@/components/ui/button";
 
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+function daysUntil(date: Date): number {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const target = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  return Math.ceil((target - start) / (1000 * 60 * 60 * 24));
+}
+
+function statusClasses(status: string): string {
+  switch (status) {
+    case "confirmed":
+      return "bg-emerald-100 text-emerald-800";
+    case "pending":
+      return "bg-amber-100 text-amber-800";
+    case "checked_in":
+      return "bg-sky-100 text-sky-800";
+    case "completed":
+      return "bg-slate-100 text-slate-800";
+    case "cancelled":
+      return "bg-rose-100 text-rose-800";
+    default:
+      return "bg-muted text-foreground";
+  }
+}
+
 export default async function DashboardPage() {
   const session = await auth();
 
@@ -26,106 +58,253 @@ export default async function DashboardPage() {
     );
   }
 
-  // Fetch a few items for dashboard
-  const [upcomingBookings, pets] = await Promise.all([
+  const [upcomingBookings, recentBookings, pets, unreadStaffMessages] = await Promise.all([
     prisma.booking.findMany({
       where: {
         userId: session.user.id,
         status: { in: ["pending", "confirmed"] },
       },
       orderBy: { checkInDate: "asc" },
+      take: 3,
+      include: { suite: true, bookingPets: { include: { pet: true } } },
+    }),
+    prisma.booking.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
       take: 5,
       include: { suite: true, bookingPets: { include: { pet: true } } },
     }),
     prisma.pet.findMany({ where: { userId: session.user.id }, take: 6 }),
+    prisma.message.count({
+      where: {
+        userId: session.user.id,
+        senderType: "staff",
+        isRead: false,
+      },
+    }),
   ]);
 
-  return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <Button asChild>
-          <Link href="/book">Book a Stay</Link>
-        </Button>
-      </div>
+  const totalBookings = recentBookings.length;
+  const activeStays = recentBookings.filter((b) =>
+    ["pending", "confirmed", "checked_in"].includes(b.status),
+  ).length;
+  const completedStays = recentBookings.filter((b) => b.status === "completed").length;
+  const lifetimeValue = recentBookings
+    .filter((b) => b.status !== "cancelled")
+    .reduce((sum, booking) => sum + booking.total, 0);
 
-      <section className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="card p-4">
-          <h2 className="text-lg font-medium">Upcoming Bookings</h2>
-          {upcomingBookings.length === 0 ? (
-            <p className="mt-3 text-sm text-muted-foreground">
-              No upcoming bookings.
+  const nextStay = upcomingBookings[0];
+  const daysToNextStay = nextStay ? daysUntil(nextStay.checkInDate) : null;
+  const profileReadiness = pets.length === 0
+    ? 0
+    : Math.round(
+        (pets.filter((pet) => Boolean(pet.microchipId) && Boolean(pet.healthNotes)).length /
+          pets.length) *
+          100,
+      );
+  const firstName = session.user.name?.split(" ")[0] ?? "there";
+
+  return (
+    <div className="container mx-auto space-y-6 p-6">
+      <section className="rounded-xl border bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 p-6 text-white">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-sm uppercase tracking-[0.2em] text-slate-300">Customer Dashboard</p>
+            <h1 className="mt-2 text-3xl font-semibold">Welcome back, {firstName}.</h1>
+            <p className="mt-2 max-w-2xl text-sm text-slate-200">
+              Track stays, monitor pet profile readiness, and manage your account in one place.
             </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="secondary">
+              <Link href="/book">Book a Stay</Link>
+            </Button>
+            <Button asChild variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10">
+              <Link href="/dashboard/bookings">View All Bookings</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-lg border bg-card p-4">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Active Stays</p>
+          <p className="mt-2 text-2xl font-semibold">{activeStays}</p>
+          <p className="text-xs text-muted-foreground">Pending, confirmed, and checked-in bookings</p>
+        </div>
+        <div className="rounded-lg border bg-card p-4">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Completed Stays</p>
+          <p className="mt-2 text-2xl font-semibold">{completedStays}</p>
+          <p className="text-xs text-muted-foreground">Your total completed reservations</p>
+        </div>
+        <div className="rounded-lg border bg-card p-4">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Lifetime Spend</p>
+          <p className="mt-2 text-2xl font-semibold">{formatCurrency(lifetimeValue)}</p>
+          <p className="text-xs text-muted-foreground">Across non-cancelled bookings</p>
+        </div>
+        <div className="rounded-lg border bg-card p-4">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Unread Messages</p>
+          <p className="mt-2 text-2xl font-semibold">{unreadStaffMessages}</p>
+          <p className="text-xs text-muted-foreground">New updates from the care team</p>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="rounded-lg border p-4 lg:col-span-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-medium">Upcoming Stays</h2>
+            <Link href="/dashboard/bookings" className="text-sm text-primary">
+              See all
+            </Link>
+          </div>
+
+          {!nextStay ? (
+            <div className="mt-4 rounded-md border border-dashed p-4 text-sm text-muted-foreground">
+              No upcoming bookings. Reserve your next stay to lock in your preferred dates.
+            </div>
           ) : (
-            <ul className="mt-3 space-y-3">
-              {upcomingBookings.map(
-                (b: {
-                  id: string;
-                  suite?: { name?: string } | null;
-                  checkInDate: Date;
-                  checkOutDate: Date;
-                  bookingNumber: string;
-                }) => (
-                  <li key={b.id} className="p-3 border rounded">
-                    <div className="flex justify-between">
+            <>
+              <div className="mt-4 rounded-md border bg-muted/20 p-4">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Next check-in</p>
+                <p className="mt-1 text-xl font-semibold">
+                  {new Date(nextStay.checkInDate).toLocaleDateString()} ({daysToNextStay === 0 ? "Today" : `${daysToNextStay} day${daysToNextStay === 1 ? "" : "s"}`})
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {nextStay.bookingPets.length} pet{nextStay.bookingPets.length === 1 ? "" : "s"} in {nextStay.suite?.name || "assigned suite"}
+                </p>
+              </div>
+
+              <ul className="mt-4 space-y-3">
+                {upcomingBookings.map((booking) => (
+                  <li key={booking.id} className="rounded-md border p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <div className="font-medium">
-                          {b.suite?.name || "Suite"}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {new Date(b.checkInDate).toLocaleDateString()} →{" "}
-                          {new Date(b.checkOutDate).toLocaleDateString()}
-                        </div>
+                        <p className="font-medium">{booking.suite?.name || "Suite"}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(booking.checkInDate).toLocaleDateString()} - {new Date(booking.checkOutDate).toLocaleDateString()}
+                        </p>
                       </div>
                       <div className="text-right">
-                        <div className="font-medium">{b.bookingNumber}</div>
-                        <Link
-                          href={`/dashboard/bookings/${b.id}`}
-                          className="text-sm text-primary"
-                        >
-                          View
-                        </Link>
+                        <p className="text-sm font-medium">{booking.bookingNumber}</p>
+                        <p className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-xs ${statusClasses(booking.status)}`}>
+                          {booking.status.replace("_", " ")}
+                        </p>
                       </div>
                     </div>
+                    <div className="mt-2 flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        Pets: {booking.bookingPets.map((bp) => bp.pet?.name).filter(Boolean).join(", ") || "Not listed"}
+                      </span>
+                      <Link href={`/dashboard/bookings/${booking.id}`} className="text-primary">
+                        View booking
+                      </Link>
+                    </div>
                   </li>
-                ),
-              )}
-            </ul>
+                ))}
+              </ul>
+            </>
           )}
         </div>
 
-        <div className="card p-4">
-          <h2 className="text-lg font-medium">My Pets</h2>
-          {pets.length === 0 ? (
-            <p className="mt-3 text-sm text-muted-foreground">
-              No pets added. Add a pet to speed up bookings.
-            </p>
-          ) : (
-            <ul className="mt-3 grid grid-cols-2 gap-3">
-              {pets.map(
-                (p: { id: string; name: string; breed?: string | null }) => (
-                  <li key={p.id} className="p-3 border rounded">
-                    <div className="font-medium">{p.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {p.breed || "Unknown"}
-                    </div>
-                  </li>
-                ),
-              )}
-            </ul>
-          )}
+        <div className="space-y-4">
+          <div className="rounded-lg border p-4">
+            <h3 className="text-base font-medium">Quick Actions</h3>
+            <div className="mt-3 grid grid-cols-1 gap-2">
+              <Button asChild variant="outline" size="sm">
+                <Link href="/dashboard/pets/new">Add a Pet</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/dashboard/messages">Open Messages</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/dashboard/settings">Update Account Settings</Link>
+              </Button>
+            </div>
+          </div>
 
-          <div className="mt-4">
-            <Link href="/dashboard/pets" className="text-sm text-primary">
-              Manage Pets
+          <div className="rounded-lg border p-4">
+            <h3 className="text-base font-medium">Pet Profile Readiness</h3>
+            <p className="mt-2 text-3xl font-semibold">{profileReadiness}%</p>
+            <div className="mt-2 h-2 rounded-full bg-muted">
+              <div
+                className="h-2 rounded-full bg-primary"
+                style={{ width: `${Math.max(8, profileReadiness)}%` }}
+              />
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Readiness improves when pets include both microchip ID and health notes.
+            </p>
+            <Link href="/dashboard/pets" className="mt-3 inline-block text-sm text-primary">
+              Review pet profiles
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Health Timeline */}
-      <section className="mt-6">
-        <HealthTimeline />
+      <section className="rounded-lg border p-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-medium">Recent Booking Activity</h2>
+          <span className="text-xs text-muted-foreground">Last {totalBookings} booking{totalBookings === 1 ? "" : "s"}</span>
+        </div>
+
+        {recentBookings.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">No booking history yet.</p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {recentBookings.map((booking) => (
+              <li key={booking.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3">
+                <div>
+                  <p className="font-medium">{booking.bookingNumber}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(booking.checkInDate).toLocaleDateString()} - {new Date(booking.checkOutDate).toLocaleDateString()} in {booking.suite?.name || "Suite"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium">{formatCurrency(booking.total)}</span>
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-xs ${statusClasses(booking.status)}`}>
+                    {booking.status.replace("_", " ")}
+                  </span>
+                  <Link href={`/dashboard/bookings/${booking.id}`} className="text-sm text-primary">
+                    Details
+                  </Link>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="rounded-lg border p-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-medium">My Pets</h2>
+            <Link href="/dashboard/pets" className="text-sm text-primary">
+              Manage
+            </Link>
+          </div>
+
+          {pets.length === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">
+              No pets added yet. Add your first pet profile to speed up booking checkout.
+            </p>
+          ) : (
+            <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {pets.map((pet) => (
+                <li key={pet.id} className="rounded-md border p-3">
+                  <p className="font-medium">{pet.name}</p>
+                  <p className="text-sm text-muted-foreground">{pet.breed}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {pet.age} years old, {pet.weight} lbs
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div>
+          <HealthTimeline />
+        </div>
       </section>
     </div>
   );
