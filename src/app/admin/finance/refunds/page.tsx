@@ -280,8 +280,6 @@ export default function FinanceRefundsPage() {
     await loadData();
   }
 
-  const rows = useMemo(() => data?.rows ?? [], [data]);
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
