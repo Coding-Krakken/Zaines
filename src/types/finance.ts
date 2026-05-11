@@ -37,6 +37,10 @@ export interface FinanceTransactionRow {
   status: FinanceTransactionStatus;
   paymentMethod: string;
   stripePaymentId: string | null;
+  stripeChargeId?: string | null;
+  cardBrand?: string | null;
+  cardLastFour?: string | null;
+  stripeFee?: number | null;
   createdAt: string;
   paidAt: string | null;
   refundedAt: string | null;

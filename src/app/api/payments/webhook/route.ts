@@ -85,25 +85,25 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case "payment_intent.succeeded": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        await handlePaymentSuccess(paymentIntent, correlationId);
+        await handlePaymentSuccess(paymentIntent, event.id, correlationId);
         break;
       }
 
       case "payment_intent.payment_failed": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        await handlePaymentFailure(paymentIntent, correlationId);
+        await handlePaymentFailure(paymentIntent, event.id, correlationId);
         break;
       }
 
       case "payment_intent.canceled": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        await handlePaymentCanceled(paymentIntent, correlationId);
+        await handlePaymentCanceled(paymentIntent, event.id, correlationId);
         break;
       }
 
       case "charge.refunded": {
         const charge = event.data.object as Stripe.Charge;
-        await handleRefund(charge, correlationId);
+        await handleRefund(charge, event.id, correlationId);
         break;
       }
 
@@ -136,6 +136,7 @@ export async function POST(request: NextRequest) {
 
 async function handlePaymentSuccess(
   paymentIntent: Stripe.PaymentIntent,
+  eventId: string,
   correlationId: string,
 ) {
   const bookingId = paymentIntent.metadata.bookingId;
@@ -161,7 +162,38 @@ async function handlePaymentSuccess(
       return;
     }
 
-    // Update payment record
+    // Fetch charge to get card and fee details
+    let chargeData: Partial<{
+      cardBrand: string;
+      cardLastFour: string;
+      stripeFee: number;
+      stripeChargeId: string;
+    }> = {};
+
+    try {
+      // Get the charge associated with this payment intent
+      const charges = await stripe.charges.list({
+        payment_intent: paymentIntent.id,
+        limit: 1,
+      });
+
+      if (charges.data.length > 0) {
+        const charge = charges.data[0];
+        chargeData.stripeChargeId = charge.id;
+        if (charge.payment_method_details?.card) {
+          chargeData.cardBrand = charge.payment_method_details.card.brand;
+          chargeData.cardLastFour = charge.payment_method_details.card.last4;
+        }
+        if (charge.amount_captured && charge.application_fee_amount) {
+          chargeData.stripeFee = charge.application_fee_amount / 100;
+        }
+      }
+    } catch (err) {
+      // Log error but don't fail the payment processing
+      console.error('Failed to fetch charge details for payment intent:', err);
+    }
+
+    // Update payment record with enriched data
     await prisma.payment.updateMany({
       where: {
         stripePaymentId: paymentIntent.id,
@@ -169,8 +201,29 @@ async function handlePaymentSuccess(
       data: {
         status: "succeeded",
         paidAt: new Date(),
+        ...chargeData,
+        webhookEventIds: eventId ? [eventId] : [],
       },
     });
+
+    // Store event record
+    if (eventId) {
+      await prisma.stripeEvent.upsert({
+        where: { eventId },
+        create: {
+          eventId,
+          eventType: "payment_intent.succeeded",
+          paymentId: existingPayment?.id || null,
+          payload: paymentIntent as any,
+          processed: true,
+          processedAt: new Date(),
+        },
+        update: {
+          processed: true,
+          processedAt: new Date(),
+        },
+      });
+    }
 
     // Update booking status
     await prisma.booking.update({
@@ -213,6 +266,7 @@ async function handlePaymentSuccess(
 
 async function handlePaymentFailure(
   paymentIntent: Stripe.PaymentIntent,
+  eventId: string,
   correlationId: string,
 ) {
   const bookingId = paymentIntent.metadata.bookingId;
@@ -235,6 +289,7 @@ async function handlePaymentFailure(
       },
       data: {
         status: "failed",
+        webhookEventIds: eventId ? [eventId] : [],
       },
     });
 
@@ -279,6 +334,7 @@ async function handlePaymentFailure(
 
 async function handlePaymentCanceled(
   paymentIntent: Stripe.PaymentIntent,
+  eventId: string,
   correlationId: string,
 ) {
   const bookingId = paymentIntent.metadata.bookingId;
@@ -301,6 +357,7 @@ async function handlePaymentCanceled(
       },
       data: {
         status: "cancelled",
+        webhookEventIds: eventId ? [eventId] : [],
       },
     });
 
@@ -328,7 +385,7 @@ async function handlePaymentCanceled(
   }
 }
 
-async function handleRefund(charge: Stripe.Charge, correlationId: string) {
+async function handleRefund(charge: Stripe.Charge, eventId: string, correlationId: string) {
   try {
     const paymentIntentId =
       typeof charge.payment_intent === "string"
@@ -352,6 +409,7 @@ async function handleRefund(charge: Stripe.Charge, correlationId: string) {
       },
       data: {
         status: "refunded",
+        webhookEventIds: eventId ? [eventId] : [],
       },
     });
 

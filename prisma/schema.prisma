@@ -372,24 +372,37 @@ model AccountWaiver {
 // ============================================================================
 
 model Payment {
-  id                String   @id @default(cuid())
-  bookingId         String
-  stripePaymentId   String?  @unique
-  amount            Float
-  currency          String   @default("usd")
-  status            String // pending, succeeded, failed, refunded
-  paymentMethod     String? // card, bank_transfer, etc.
-  isDeposit         Boolean  @default(false) // true = deposit, false = full/balance
-  paidAt            DateTime?
-  refundedAt        DateTime?
-  refundAmount      Float?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                        String   @id @default(cuid())
+  bookingId                 String
+  stripePaymentId           String?  @unique
+  stripeChargeId            String?  @unique // Distinct from paymentIntentId
+  amount                    Float
+  currency                  String   @default("usd")
+  status                    String // pending, succeeded, failed, refunded, cancelled
+  paymentMethod             String? // card, bank_transfer, etc.
+  cardBrand                 String? // Visa, Amex, Discover, etc.
+  cardLastFour              String? // e.g., "4242"
+  stripeFeeAmount           Float? // Stripe's transaction fee
+  stripeBalanceTransactionId String? // For payout matching
+  isDeposit                 Boolean  @default(false) // true = deposit, false = full/balance
+  paidAt                    DateTime?
+  refundedAt                DateTime?
+  refundAmount              Float?
+  webhookEventIds           String[] // JSON array of Stripe event IDs
+  reconciliationStatus      String? // pending, matched, disputed
+  reconciliationNote        String?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
 
-  booking Booking @relation(fields: [bookingId], references: [id])
+  booking            Booking         @relation(fields: [bookingId], references: [id])
+  stripeBalances     StripeBalance[] @relation("PaymentToBalance")
+  stripeEvent        StripeEvent?    @relation("PaymentToEvent")
 
   @@index([bookingId])
   @@index([status])
+  @@index([stripePaymentId])
+  @@index([stripeChargeId])
+  @@index([reconciliationStatus])
   @@map("payments")
 }
 
@@ -410,6 +423,70 @@ model Credit {
   @@index([userId])
   @@index([code])
   @@map("credits")
+}
+
+// ============================================================================
+// STRIPE INTEGRATION & RECONCILIATION
+// ============================================================================
+
+model StripeEvent {
+  id        String   @id @default(cuid())
+  eventId   String   @unique // Stripe's event ID
+  eventType String // payment_intent.succeeded, charge.refunded, etc.
+  paymentId String?  @unique // Linked payment if applicable
+  payload   Json // Full Stripe event object
+  processed Boolean  @default(false)
+  processedAt DateTime?
+  createdAt DateTime @default(now())
+
+  payment Payment? @relation("PaymentToEvent", fields: [paymentId], references: [id], onDelete: SetNull)
+
+  @@index([eventType])
+  @@index([processed])
+  @@map("stripe_events")
+}
+
+model StripeBalance {
+  id                      String   @id @default(cuid())
+  balanceTransactionId    String   @unique // Stripe's balance transaction ID
+  paymentId               String? // Link to Payment if this is from a charge
+  type                    String // charge, refund, payout_reversal, fee, etc.
+  amount                  Float // Gross amount
+  stripeFee               Float // Stripe's fee (negative for charges, included in gross for refunds)
+  net                     Float // Net amount (amount - stripeFee)
+  sourceChargeId          String? // If this is a refund, the charge it refunded
+  payoutId                String? // Link to StripePayout if this was included in a payout
+  payoutArrivalDate       DateTime? // When this will/did arrive in payout
+  status                  String // available, pending (processing)
+  createdAt               DateTime @default(now())
+
+  payment   Payment?      @relation("PaymentToBalance", fields: [paymentId], references: [id], onDelete: SetNull)
+  payout    StripePayout? @relation(fields: [payoutId], references: [id], onDelete: SetNull)
+
+  @@index([paymentId])
+  @@index([payoutId])
+  @@index([status])
+  @@map("stripe_balances")
+}
+
+model StripePayout {
+  id                String   @id @default(cuid())
+  stripePayoutId    String   @unique
+  amount            Float
+  currency          String   @default("usd")
+  status            String // pending, in_transit, paid, failed, canceled
+  failureCode       String? // If failed, why
+  arrivedAt         DateTime? // When the payout actually arrived
+  reconciledAt      DateTime? // When admin marked as reconciled
+  reconciledByUserId String? // Which admin reconciled it
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  balanceTransactions StripeBalance[]
+
+  @@index([status])
+  @@index([reconciledAt])
+  @@map("stripe_payouts")
 }
 
 // ============================================================================

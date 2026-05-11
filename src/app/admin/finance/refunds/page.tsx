@@ -8,8 +8,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
-import type { FinanceAuditEvent, FinanceTransactionsResponse } from '@/types/finance';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2, ExternalLink } from 'lucide-react';
+import type { FinanceAuditEvent, FinanceTransactionsResponse, FinanceTransactionStatus } from '@/types/finance';
+import { TransactionDetailModal } from '@/components/admin/TransactionDetailModal';
+import { getStripeChargeUrl } from '@/lib/stripe-links';
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -22,6 +31,7 @@ function formatCurrency(value: number): string {
 
 export default function FinanceRefundsPage() {
   const [search, setSearch] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'refunded' | 'failed' | 'pending' | 'succeeded'>('refunded');
   const [reasonById, setReasonById] = useState<Record<string, string>>({});
   const [amountById, setAmountById] = useState<Record<string, string>>({});
   const [data, setData] = useState<FinanceTransactionsResponse | null>(null);
@@ -33,12 +43,13 @@ export default function FinanceRefundsPage() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
 
   async function loadData() {
     setLoading(true);
     setError('');
     try {
-      const params = new URLSearchParams({ status: 'succeeded' });
+      const params = new URLSearchParams({ status: filterStatus });
       if (search.trim()) {
         params.set('search', search.trim());
       }
@@ -71,7 +82,7 @@ export default function FinanceRefundsPage() {
 
   useEffect(() => {
     void loadData();
-  }, []);
+  }, [filterStatus]);
 
   const rows = useMemo(() => data?.rows ?? [], [data]);
 
@@ -184,13 +195,33 @@ export default function FinanceRefundsPage() {
         <CardHeader>
           <CardTitle className="text-base">Search Refund Queue</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col gap-3 sm:flex-row">
-          <Input
-            placeholder="Booking number, customer, or Stripe ID"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <Button onClick={() => void loadData()} disabled={loading}>Apply</Button>
+        <CardContent className="space-y-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="flex-1 space-y-1">
+              <Label htmlFor="status-filter" className="text-xs">Filter by Status</Label>
+              <Select value={filterStatus} onValueChange={(value) => setFilterStatus(value as any)}>
+                <SelectTrigger id="status-filter" className="w-full sm:w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="refunded">Refunded</SelectItem>
+                  <SelectItem value="failed">Failed</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="succeeded">Succeeded</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex-1 space-y-1">
+              <Label htmlFor="search-input" className="text-xs">Search</Label>
+              <Input
+                id="search-input"
+                placeholder="Booking number, customer, or Stripe ID"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <Button onClick={() => void loadData()} disabled={loading}>Apply</Button>
+          </div>
         </CardContent>
       </Card>
 
@@ -219,7 +250,10 @@ export default function FinanceRefundsPage() {
                       <TableRow>
                         <TableHead>Booking</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Payment Method</TableHead>
                         <TableHead>Amount</TableHead>
+                        <TableHead>Stripe Fee</TableHead>
+                        <TableHead>Stripe Link</TableHead>
                         <TableHead>Refund Amount</TableHead>
                         <TableHead>Reason</TableHead>
                         <TableHead>Action</TableHead>
@@ -227,7 +261,11 @@ export default function FinanceRefundsPage() {
                     </TableHeader>
                     <TableBody>
                       {rows.map((row) => (
-                        <TableRow key={row.id}>
+                        <TableRow 
+                          key={row.id}
+                          className="cursor-pointer hover:bg-gray-50"
+                          onClick={() => setSelectedPaymentId(row.id)}
+                        >
                           <TableCell>
                             <p className="font-medium">{row.bookingNumber}</p>
                             <p className="text-xs text-muted-foreground">{row.customerName}</p>
@@ -235,8 +273,41 @@ export default function FinanceRefundsPage() {
                           <TableCell>
                             <Badge variant={row.status === 'succeeded' ? 'default' : 'outline'}>{row.status}</Badge>
                           </TableCell>
+                          <TableCell>
+                            {row.cardBrand && row.cardLastFour ? (
+                              <div className="text-sm">
+                                <span className="capitalize">{row.cardBrand}</span> •••• {row.cardLastFour}
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
                           <TableCell>{formatCurrency(row.amount)}</TableCell>
                           <TableCell>
+                            {row.stripeFee ? formatCurrency(row.stripeFee) : <span className="text-muted-foreground">—</span>}
+                          </TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
+                            {row.stripeChargeId ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                asChild
+                              >
+                                <a
+                                  href={getStripeChargeUrl(row.stripeChargeId)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1"
+                                >
+                                  <ExternalLink className="h-3 w-3" />
+                                  View
+                                </a>
+                              </Button>
+                            ) : (
+                              <span className="text-muted-foreground text-sm">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
                             <Input
                               type="number"
                               min="0"
@@ -249,7 +320,7 @@ export default function FinanceRefundsPage() {
                               className="w-28"
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
                             <div className="space-y-1">
                               <Label htmlFor={`reason-${row.id}`} className="sr-only">
                                 Refund reason
@@ -265,7 +336,7 @@ export default function FinanceRefundsPage() {
                               />
                             </div>
                           </TableCell>
-                          <TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
                             <Button
                               size="sm"
                               disabled={savingId === row.id}
@@ -336,6 +407,13 @@ export default function FinanceRefundsPage() {
           </Card>
         </>
       )}
+
+      {/* Transaction Detail Modal */}
+      <TransactionDetailModal
+        paymentId={selectedPaymentId ?? ''}
+        isOpen={!!selectedPaymentId}
+        onClose={() => setSelectedPaymentId(null)}
+      />
     </div>
   );
 }

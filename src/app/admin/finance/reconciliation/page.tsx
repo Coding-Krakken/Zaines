@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ExternalLink } from 'lucide-react';
 import type { FinanceReconciliationResponse } from '@/types/finance';
+import { getStripeReconciliationReportUrl } from '@/lib/stripe-links';
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -22,7 +23,7 @@ function formatCurrency(value: number): string {
 function defaultDateRange(): { startDate: string; endDate: string } {
   const endDate = new Date();
   const startDate = new Date();
-  startDate.setDate(startDate.getDate() - 30);
+  startDate.setDate(startDate.getDate() - 7);
   return {
     startDate: startDate.toISOString().slice(0, 10),
     endDate: endDate.toISOString().slice(0, 10),
@@ -101,9 +102,22 @@ export default function FinanceReconciliationPage() {
             Reconcile daily payout buckets and record immutable audit events.
           </p>
         </div>
-        <Button variant="outline" asChild>
-          <Link href="/admin/finance">Back to Finance</Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <a
+              href={getStripeReconciliationReportUrl('payout')}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Stripe Sigma Report
+            </a>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/admin/finance">Back to Finance</Link>
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -157,6 +171,9 @@ export default function FinanceReconciliationPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Daily Buckets</CardTitle>
+              <CardDescription>
+                Mark each day as reconciled after matching with Stripe payouts. Use the Sigma report above for detailed payout matching.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {data.buckets.length === 0 ? (
