@@ -212,15 +212,67 @@ const bookingSchema = z.object({
     )
     .optional(),
   waiver: z.object({
-    liabilityAccepted: z.literal(true),
-    medicalAuthorizationAccepted: z.literal(true),
-    photoReleaseAccepted: z.literal(true),
-    policyAcknowledgmentAccepted: z.literal(true),
-    signature: z.string().min(10).optional(),
+    liabilityAccepted: z.boolean(),
+    medicalAuthorizationAccepted: z.boolean(),
+    photoReleaseAccepted: z.boolean(),
+    policyAcknowledgmentAccepted: z.boolean(),
+    signature: z.preprocess(
+      (value) =>
+        typeof value === "string" && value.trim().length === 0
+          ? undefined
+          : value,
+      z.string().min(10).optional(),
+    ),
     ipAddress: z.string().optional(),
     userAgent: z.string().optional(),
   }),
   reuseExistingWaivers: z.boolean().optional().default(true),
+}).superRefine((data, context) => {
+  const reuseExistingWaivers = data.reuseExistingWaivers !== false;
+
+  if (reuseExistingWaivers) {
+    return;
+  }
+
+  if (!data.waiver.liabilityAccepted) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Liability waiver must be accepted",
+      path: ["waiver", "liabilityAccepted"],
+    });
+  }
+
+  if (!data.waiver.medicalAuthorizationAccepted) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Medical authorization must be accepted",
+      path: ["waiver", "medicalAuthorizationAccepted"],
+    });
+  }
+
+  if (!data.waiver.photoReleaseAccepted) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Photo release must be accepted",
+      path: ["waiver", "photoReleaseAccepted"],
+    });
+  }
+
+  if (!data.waiver.policyAcknowledgmentAccepted) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Policy acknowledgment must be accepted",
+      path: ["waiver", "policyAcknowledgmentAccepted"],
+    });
+  }
+
+  if (!data.waiver.signature) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Signature is required",
+      path: ["waiver", "signature"],
+    });
+  }
 });
 
 // POST /api/bookings - Create a new booking

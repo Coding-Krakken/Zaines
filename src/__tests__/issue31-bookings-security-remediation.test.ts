@@ -77,6 +77,10 @@ const { prismaMock } = vi.hoisted(() => {
     booking: {
       findMany: vi.fn(async () => []),
     },
+    suite: {
+      count: vi.fn(async () => 1),
+      upsert: vi.fn(async () => ({ id: "suite-standard-1" })),
+    },
   };
 
   return { prismaMock: mock };
@@ -184,6 +188,47 @@ describe("Issue #31 CP2 booking security remediation", () => {
         code: "INVALID_STAY_LENGTH",
         error: "Minimum stay is 10 nights.",
         correlationId: "issue31-min-night-correlation",
+      }),
+    );
+  });
+
+  it("accepts reused waivers without requiring a fresh signature at schema layer", async () => {
+    const request = new Request("http://localhost:3000/api/bookings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-correlation-id": "issue31-reuse-waiver-correlation",
+      },
+      body: JSON.stringify({
+        checkIn: "2026-03-10",
+        checkOut: "2026-03-12",
+        suiteType: "luxury",
+        petCount: 1,
+        firstName: "Morgan",
+        lastName: "Lee",
+        email: "morgan@example.com",
+        phone: "3155551234",
+        petNames: "Scout",
+        reuseExistingWaivers: true,
+        waiver: {
+          liabilityAccepted: false,
+          medicalAuthorizationAccepted: false,
+          photoReleaseAccepted: false,
+          policyAcknowledgmentAccepted: false,
+          signature: "",
+        },
+      }),
+    });
+
+    const response = await createBooking(request as NextRequest);
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toEqual(
+      expect.objectContaining({
+        code: "INVALID_STAY_LENGTH",
+        error: "Minimum stay is 10 nights.",
+        correlationId: "issue31-reuse-waiver-correlation",
       }),
     );
   });

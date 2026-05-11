@@ -113,7 +113,7 @@ export default function BookPage() {
         policyAcknowledgmentAccepted: Boolean(
           wizardData.waiver?.policyAcknowledgmentAccepted,
         ),
-        signature: wizardData.waiver?.signature || "",
+        signature: wizardData.waiver?.signature,
       },
     };
   }, [wizardData]);
