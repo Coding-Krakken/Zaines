@@ -87,6 +87,7 @@ export function SiteFooter() {
                 <li key={href}>
                   <Link
                     href={href}
+                    prefetch={href === "/suites" ? false : undefined}
                     className="hover:text-primary transition-colors"
                   >
                     {label}

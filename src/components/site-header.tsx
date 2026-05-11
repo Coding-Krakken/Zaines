@@ -55,6 +55,7 @@ export function SiteHeader() {
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={item.href === "/suites" ? false : undefined}
                 className={cn(
                   "px-3.5 py-2 rounded-lg text-sm font-medium transition-colors",
                   pathname === item.href
