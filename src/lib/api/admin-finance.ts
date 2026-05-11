@@ -62,8 +62,11 @@ export async function getFinanceOverview(
   startDate: Date,
   endDate: Date,
 ): Promise<FinanceOverviewResponse> {
+  const generatedAt = new Date().toISOString();
+
   if (!isDatabaseConfigured()) {
     return {
+      generatedAt,
       range: {
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
@@ -161,6 +164,7 @@ export async function getFinanceOverview(
   const netRevenue = roundCurrency(grossRevenue - refunds);
 
   return {
+    generatedAt,
     range: {
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
@@ -185,8 +189,11 @@ export async function getFinanceRevenueRecognitionSummary(
   startDate: Date,
   endDate: Date,
 ): Promise<FinanceRevenueRecognitionSummaryResponse> {
+  const generatedAt = new Date().toISOString();
+
   if (!isDatabaseConfigured()) {
     return {
+      generatedAt,
       range: {
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
@@ -287,6 +294,7 @@ export async function getFinanceRevenueRecognitionSummary(
   );
 
   return {
+    generatedAt,
     range: {
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
@@ -339,12 +347,14 @@ function inferPaymentMode(
 export async function getFinanceTransactions(
   filters: FinanceFilters,
 ): Promise<FinanceTransactionsResponse> {
+  const generatedAt = new Date().toISOString();
   const defaultRange = getDefaultFinanceRange();
   const startDate = filters.startDate ?? defaultRange.startDate;
   const endDate = filters.endDate ?? defaultRange.endDate;
 
   if (!isDatabaseConfigured()) {
     return {
+      generatedAt,
       range: {
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
@@ -472,6 +482,7 @@ export async function getFinanceTransactions(
   const totalRefundAmount = filteredRows.reduce((sum, row) => sum + row.refundAmount, 0);
 
   return {
+    generatedAt,
     range: {
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { useInvalidateSettings } from '@/providers/settings-provider';
-import type { AdminSettings, BusinessHours, AvailabilityRules } from '@/types/admin';
+import type { AdminSettings } from '@/types/admin';
 import { ServiceManagementCard } from '@/components/admin/ServiceManagementCard';
 import { AvailabilityRulesCard } from '@/components/admin/AvailabilityRulesCard';
 import { BlackoutDatesCard } from '@/components/admin/BlackoutDatesCard';
@@ -43,6 +43,19 @@ const settingsFormSchema = z.object({
   photoNotificationType: z.enum(['instant', 'daily_batch']),
   photoNotificationTime: z.string().nullable().optional(),
   dashboardDateRange: z.enum(['today', 'today_tomorrow', 'this_week']),
+  stripeCapabilityFlags: z.object({
+    billingSubscriptionsEnabled: z.boolean(),
+    customerPortalEnabled: z.boolean(),
+    taxEnabled: z.boolean(),
+    disputesEnabled: z.boolean(),
+    radarReviewEnabled: z.boolean(),
+    connectEnabled: z.boolean(),
+    treasuryEnabled: z.boolean(),
+    issuingEnabled: z.boolean(),
+    financialConnectionsEnabled: z.boolean(),
+    identityEnabled: z.boolean(),
+    terminalEnabled: z.boolean(),
+  }),
   // Phase 1: Business Hours & Contact Info
   businessHours: z.object({
     monday: businessHoursSchema,
@@ -194,6 +207,19 @@ export default function AdminSettingsPage() {
       photoNotificationType: 'instant',
       photoNotificationTime: null,
       dashboardDateRange: 'today',
+      stripeCapabilityFlags: {
+        billingSubscriptionsEnabled: false,
+        customerPortalEnabled: false,
+        taxEnabled: false,
+        disputesEnabled: false,
+        radarReviewEnabled: false,
+        connectEnabled: false,
+        treasuryEnabled: false,
+        issuingEnabled: false,
+        financialConnectionsEnabled: false,
+        identityEnabled: false,
+        terminalEnabled: false,
+      },
       businessHours: {
         monday: { openTime: '06:00', closeTime: '20:00', isClosed: false },
         tuesday: { openTime: '06:00', closeTime: '20:00', isClosed: false },
@@ -276,6 +302,14 @@ export default function AdminSettingsPage() {
           'Only 3 private suites, owner onsite, camera-monitored safety, no harsh chemicals, and same-family dogs can stay together when approved.',
       },
     },
+  });
+  const watchedBusinessHours = useWatch({
+    control: form.control,
+    name: 'businessHours',
+  });
+  const watchedPhotoNotificationType = useWatch({
+    control: form.control,
+    name: 'photoNotificationType',
   });
 
   // Load settings on mount
@@ -393,7 +427,7 @@ export default function AdminSettingsPage() {
                   />
 
                   {/* Open/Close Times */}
-                  {!form.watch(`businessHours.${day}.isClosed`) && (
+                  {!watchedBusinessHours?.[day]?.isClosed && (
                     <>
                       <FormField
                         control={form.control}
@@ -588,6 +622,96 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
 
+          <Card>
+            <CardHeader>
+              <CardTitle>Stripe Capability Tracks</CardTitle>
+              <CardDescription>
+                Enable production-ready tracks as your business model expands. Disabled tracks remain integrated but dormant.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {[
+                {
+                  key: 'billingSubscriptionsEnabled' as const,
+                  label: 'Billing subscriptions',
+                  description: 'Recurring plans, subscriptions, and proration-safe changes.',
+                },
+                {
+                  key: 'customerPortalEnabled' as const,
+                  label: 'Customer portal',
+                  description: 'Self-service billing updates and plan changes.',
+                },
+                {
+                  key: 'taxEnabled' as const,
+                  label: 'Stripe Tax',
+                  description: 'Automated tax calculation and reporting workflows.',
+                },
+                {
+                  key: 'disputesEnabled' as const,
+                  label: 'Disputes workflow',
+                  description: 'Chargeback evidence and response deadline tracking.',
+                },
+                {
+                  key: 'radarReviewEnabled' as const,
+                  label: 'Radar review flow',
+                  description: 'Risk-review queue for suspicious charges.',
+                },
+                {
+                  key: 'connectEnabled' as const,
+                  label: 'Connect platform',
+                  description: 'Connected account orchestration for partner models.',
+                },
+                {
+                  key: 'treasuryEnabled' as const,
+                  label: 'Treasury track',
+                  description: 'Financial account operations for advanced cash workflows.',
+                },
+                {
+                  key: 'issuingEnabled' as const,
+                  label: 'Issuing track',
+                  description: 'Card issuing controls for internal spend operations.',
+                },
+                {
+                  key: 'financialConnectionsEnabled' as const,
+                  label: 'Financial Connections',
+                  description: 'Bank account linking and ACH verification flows.',
+                },
+                {
+                  key: 'identityEnabled' as const,
+                  label: 'Identity verification',
+                  description: 'Verification gates for high-risk or regulated paths.',
+                },
+                {
+                  key: 'terminalEnabled' as const,
+                  label: 'Terminal in-person payments',
+                  description: 'card_present and in-person check-in charging capability.',
+                },
+              ].map((track) => (
+                <FormField
+                  key={track.key}
+                  control={form.control}
+                  name={`stripeCapabilityFlags.${track.key}`}
+                  render={({ field }) => (
+                    <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                      <div>
+                        <FormLabel>{track.label}</FormLabel>
+                        <FormDescription>{track.description}</FormDescription>
+                      </div>
+                      <FormControl>
+                        <input
+                          type="checkbox"
+                          checked={field.value}
+                          onChange={field.onChange}
+                          className="h-4 w-4"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              ))}
+            </CardContent>
+          </Card>
+
           {/* Photo Settings */}
           <Card>
             <CardHeader>
@@ -626,7 +750,7 @@ export default function AdminSettingsPage() {
               />
 
               {/* Notification Time */}
-              {form.watch('photoNotificationType') === 'daily_batch' && (
+              {watchedPhotoNotificationType === 'daily_batch' && (
                 <FormField
                   control={form.control}
                   name="photoNotificationTime"

@@ -106,7 +106,8 @@ describe('GET /api/admin/bookings', () => {
     const res = await getBookings(makeBookingsRequest());
     expect(res.status).toBe(200);
     const data = await res.json();
-    expect(data.bookings).toHaveLength(1);
+    expect(data.success).toBe(true);
+    expect(data.data).toHaveLength(1);
   });
 
   it('returns bookings for admin role', async () => {

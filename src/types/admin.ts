@@ -125,12 +125,27 @@ export interface TestimonialsSettings {
   testimonials: TestimonialItem[];
 }
 
+export interface StripeCapabilityFlags {
+  billingSubscriptionsEnabled: boolean;
+  customerPortalEnabled: boolean;
+  taxEnabled: boolean;
+  disputesEnabled: boolean;
+  radarReviewEnabled: boolean;
+  connectEnabled: boolean;
+  treasuryEnabled: boolean;
+  issuingEnabled: boolean;
+  financialConnectionsEnabled: boolean;
+  identityEnabled: boolean;
+  terminalEnabled: boolean;
+}
+
 export interface AdminSettings {
   // Operational Preferences
   autoConfirmBookings: boolean;
   photoNotificationType: 'instant' | 'daily_batch';
   photoNotificationTime?: string; // HH:mm format, e.g., "17:00"
   dashboardDateRange: 'today' | 'today_tomorrow' | 'this_week';
+  stripeCapabilityFlags: StripeCapabilityFlags;
   
   // Phase 1: Business Hours & Contact Info
   businessHours: BusinessHours;
@@ -175,6 +190,28 @@ export interface SettingsRecord {
   key: string;
   value: string;
   updatedAt: Date;
+}
+
+export interface AdminQueueItem {
+  id:
+    | 'check_ins_today'
+    | 'check_outs_today'
+    | 'pending_confirmations'
+    | 'unresolved_messages'
+    | 'failed_payments'
+    | 'reconciliation_exceptions'
+    | 'dispute_deadlines';
+  label: string;
+  count: number;
+  href: string;
+  description: string;
+  severity: 'normal' | 'attention' | 'critical';
+  capabilityBlocked?: boolean;
+}
+
+export interface AdminOperationsQueueResponse {
+  generatedAt: string;
+  items: AdminQueueItem[];
 }
 
 // ============================================================================

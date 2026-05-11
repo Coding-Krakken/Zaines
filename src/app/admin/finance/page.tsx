@@ -161,6 +161,7 @@ export default function AdminFinancePage() {
   const [alerts, setAlerts] = useState<FinanceAlertsResponse | null>(null);
   const [exceptions, setExceptions] = useState<FinanceExceptionsResponse | null>(null);
   const [forecast, setForecast] = useState<FinanceCashForecastResponse | null>(null);
+  const [evaluatedAt, setEvaluatedAt] = useState<number | null>(null);
   const [state, setState] = useState<FetchState>({ loading: true, error: '' });
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
 
@@ -252,6 +253,7 @@ export default function AdminFinancePage() {
       setAlerts(alertsJson.data);
       setExceptions(exceptionsJson.data);
       setForecast(forecastJson.data);
+      setEvaluatedAt(Date.now());
       setState({ loading: false, error: '' });
     } catch (error) {
       setOverview(null);
@@ -260,6 +262,7 @@ export default function AdminFinancePage() {
       setAlerts(null);
       setExceptions(null);
       setForecast(null);
+      setEvaluatedAt(Date.now());
       setState({
         loading: false,
         error: error instanceof Error ? error.message : 'Failed loading finance data',
@@ -290,6 +293,33 @@ export default function AdminFinancePage() {
     const normalizedEndDate = normalizeDateForApi(endDate);
     return `${normalizedStartDate || 'unset'} to ${normalizedEndDate || 'unset'}`;
   }, [endDate, startDate]);
+
+  const latestDataGeneratedAt = useMemo(() => {
+    const generatedAtValues = [
+      overview?.generatedAt,
+      revenueRecognition?.generatedAt,
+      transactions?.generatedAt,
+      alerts?.generatedAt,
+      exceptions?.generatedAt,
+      forecast?.generatedAt,
+    ].filter(Boolean) as string[];
+
+    if (generatedAtValues.length === 0) return null;
+
+    return generatedAtValues.reduce((latest, current) => {
+      return new Date(current).getTime() > new Date(latest).getTime()
+        ? current
+        : latest;
+    });
+  }, [alerts, exceptions, forecast, overview, revenueRecognition, transactions]);
+
+  const dataAgeMinutes = useMemo(() => {
+    if (!latestDataGeneratedAt || evaluatedAt === null) return null;
+    const ms = evaluatedAt - new Date(latestDataGeneratedAt).getTime();
+    return Math.max(0, Math.floor(ms / 60000));
+  }, [latestDataGeneratedAt, evaluatedAt]);
+
+  const dataIsStale = (dataAgeMinutes ?? 0) >= 10;
 
   return (
     <div className="space-y-6">
@@ -354,6 +384,32 @@ export default function AdminFinancePage() {
                 <div className="text-xs text-muted-foreground">Review tax liability</div>
               </div>
             </Link>
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className={dataIsStale ? 'border-amber-200 bg-amber-50' : ''}>
+        <CardHeader>
+          <CardTitle className="text-base">Data Freshness</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            {latestDataGeneratedAt ? (
+              <>
+                <p className="text-sm">
+                  Last synchronized at {formatDate(latestDataGeneratedAt)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Data age: {dataAgeMinutes} minute(s)
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground">No finance sync timestamp available yet.</p>
+            )}
+          </div>
+          <Button variant="outline" size="sm" onClick={() => void loadData()} disabled={state.loading}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Retry Sync
           </Button>
         </CardContent>
       </Card>
@@ -440,7 +496,17 @@ export default function AdminFinancePage() {
         </div>
       )}
 
-      {state.error && <p className="text-sm text-red-700">{state.error}</p>}
+      {state.error ? (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-red-700">{state.error}</p>
+            <Button variant="outline" size="sm" onClick={() => void loadData()}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Retry Finance Load
+            </Button>
+          </CardContent>
+        </Card>
+      ) : null}
 
       {!state.loading && !state.error && overview && revenueRecognition && transactions && alerts && exceptions && forecast && (
         <>

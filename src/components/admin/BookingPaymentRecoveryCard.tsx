@@ -19,13 +19,27 @@ type SetupResponse = {
   paymentId: string;
 };
 
+type SendLinkResponse = {
+  success: boolean;
+  recoveryUrl: string;
+  notification: {
+    sent: boolean;
+    provider: string;
+    detail?: unknown;
+  };
+  messageId: string;
+};
+
 export function BookingPaymentRecoveryCard({ bookingId }: { bookingId: string }) {
   const [flow, setFlow] = useState<'payment_element' | 'embedded_checkout'>(
     'payment_element',
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSendingLink, setIsSendingLink] = useState(false);
   const [error, setError] = useState('');
+  const [sendError, setSendError] = useState('');
   const [result, setResult] = useState<SetupResponse | null>(null);
+  const [sendResult, setSendResult] = useState<SendLinkResponse | null>(null);
 
   const handleSetup = async () => {
     setIsSubmitting(true);
@@ -59,6 +73,36 @@ export function BookingPaymentRecoveryCard({ bookingId }: { bookingId: string })
       setError(err instanceof Error ? err.message : 'Failed to initialize payment setup');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSendRecoveryLink = async () => {
+    setIsSendingLink(true);
+    setSendError('');
+
+    try {
+      const res = await fetch(`/api/admin/bookings/${bookingId}/payment-recovery-link`, {
+        method: 'POST',
+      });
+
+      const payload = (await res.json().catch(() => ({}))) as
+        | SendLinkResponse
+        | { error?: string; message?: string };
+
+      if (!res.ok || !('success' in payload) || !payload.success) {
+        throw new Error(
+          ('error' in payload && payload.error) ||
+            ('message' in payload && payload.message) ||
+            'Failed to send payment recovery link',
+        );
+      }
+
+      setSendResult(payload);
+    } catch (err) {
+      setSendResult(null);
+      setSendError(err instanceof Error ? err.message : 'Failed to send payment recovery link');
+    } finally {
+      setIsSendingLink(false);
     }
   };
 
@@ -99,7 +143,23 @@ export function BookingPaymentRecoveryCard({ bookingId }: { bookingId: string })
           )}
         </Button>
 
+        <Button
+          variant="outline"
+          onClick={() => void handleSendRecoveryLink()}
+          disabled={isSendingLink}
+        >
+          {isSendingLink ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Sending Link...
+            </>
+          ) : (
+            'Send Recovery Link To Customer'
+          )}
+        </Button>
+
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        {sendError ? <p className="text-sm text-destructive">{sendError}</p> : null}
 
         {result ? (
           <div className="rounded-md border p-3 text-sm">
@@ -112,6 +172,18 @@ export function BookingPaymentRecoveryCard({ bookingId }: { bookingId: string })
               {result.reused ? 'Reused existing session' : 'Created new session'}
             </p>
             <p className="text-muted-foreground">Payment ID: {result.paymentId}</p>
+          </div>
+        ) : null}
+
+        {sendResult ? (
+          <div className="rounded-md border p-3 text-sm">
+            <p>
+              <span className="font-medium">Delivery:</span>{' '}
+              {sendResult.notification.sent
+                ? `Sent via ${sendResult.notification.provider}`
+                : `Queued via ${sendResult.notification.provider}`}
+            </p>
+            <p className="break-all text-muted-foreground">{sendResult.recoveryUrl}</p>
           </div>
         ) : null}
       </CardContent>

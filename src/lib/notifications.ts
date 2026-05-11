@@ -342,6 +342,73 @@ export async function sendPaymentNotification(
   }
 }
 
+export async function sendPaymentRecoveryLinkNotification(
+  bookingId: string,
+  recoveryUrl: string,
+  booking?: Booking,
+): Promise<SendResult> {
+  const from = process.env.EMAIL_FROM || "noreply@pawfectstays.com";
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = booking?.user?.email;
+  const safeBookingNumber = escapeHtml(booking?.bookingNumber || bookingId);
+  const safeRecoveryUrl = escapeHtml(recoveryUrl);
+  const subject = `Complete payment for booking ${booking?.bookingNumber || bookingId}`;
+  const html = `
+    <p>Hi ${escapeHtml(booking?.user?.name || "there")},</p>
+    <p>Your booking <strong>${safeBookingNumber}</strong> is waiting for payment confirmation.</p>
+    <p><a href="${safeRecoveryUrl}">Click here to complete your payment securely</a>.</p>
+    <p>If the link does not work, copy and paste this URL into your browser:</p>
+    <p>${safeRecoveryUrl}</p>
+  `;
+
+  if (!to) {
+    return { sent: false, provider: "dev-queue", detail: "no-recipient" };
+  }
+
+  if (!apiKey) {
+    await appendToDevQueue({
+      type: "payment_notification",
+      to,
+      from,
+      subject,
+      html,
+      bookingId,
+      status: "recovery_link",
+    });
+    return { sent: false, provider: "dev-queue" };
+  }
+
+  try {
+    const resp = await sendEmailViaResend({ from, to, subject, html });
+    if (resp && resp.ok)
+      return { sent: true, provider: "resend", detail: resp.json };
+
+    await appendToDevQueue({
+      type: "payment_notification",
+      to,
+      from,
+      subject,
+      html,
+      bookingId,
+      status: "recovery_link",
+      response: resp.json,
+    });
+    return { sent: false, provider: "dev-queue", detail: resp.json };
+  } catch (err) {
+    await appendToDevQueue({
+      type: "payment_notification",
+      to,
+      from,
+      subject,
+      html,
+      bookingId,
+      status: "recovery_link",
+      error: String(err),
+    });
+    return { sent: false, provider: "dev-queue", detail: String(err) };
+  }
+}
+
 export async function sendContactSubmissionNotification(payload: {
   submissionId: string;
   fullName: string;

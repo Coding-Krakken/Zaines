@@ -16,6 +16,7 @@ import type {
   ServiceTiersSettings,
   AddOnsSettings,
   TestimonialsSettings,
+  StripeCapabilityFlags,
 } from '@/types/admin';
 import { siteConfig } from '@/config/site';
 import {
@@ -30,6 +31,7 @@ const SETTINGS_KEYS: Record<string, string> = {
   PHOTO_NOTIFICATION_TYPE: 'admin.photo_notification_type',
   PHOTO_NOTIFICATION_TIME: 'admin.photo_notification_time',
   DASHBOARD_DATE_RANGE: 'admin.dashboard_date_range',
+  STRIPE_CAPABILITY_FLAGS: 'admin.stripe_capability_flags', // JSON object
   // Phase 1: Business Hours & Contact Info
   BUSINESS_HOURS: 'admin.business_hours', // JSON string
   CONTACT_PHONE: 'admin.contact_phone',
@@ -104,6 +106,19 @@ export async function getAdminSettings(): Promise<AdminSettings> {
       photoNotificationTime: settingsMap.get(SETTINGS_KEYS.PHOTO_NOTIFICATION_TIME),
       dashboardDateRange: (settingsMap.get(SETTINGS_KEYS.DASHBOARD_DATE_RANGE) ||
         'today') as 'today' | 'today_tomorrow' | 'this_week',
+      stripeCapabilityFlags: (() => {
+        try {
+          const json = settingsMap.get(SETTINGS_KEYS.STRIPE_CAPABILITY_FLAGS);
+          return json
+            ? {
+                ...getDefaultStripeCapabilityFlags(),
+                ...(JSON.parse(json) as Partial<StripeCapabilityFlags>),
+              }
+            : getDefaultStripeCapabilityFlags();
+        } catch {
+          return getDefaultStripeCapabilityFlags();
+        }
+      })(),
       // Phase 1: Business Hours & Contact Info
       businessHours,
       contactPhone: settingsMap.get(SETTINGS_KEYS.CONTACT_PHONE) || '(315) 657-1332',
@@ -299,6 +314,19 @@ export async function updateAdminSettings(updates: Partial<AdminSettings>): Prom
           create: {
             key: SETTINGS_KEYS.DASHBOARD_DATE_RANGE,
             value: updates.dashboardDateRange,
+          },
+        }),
+      );
+    }
+
+    if (updates.stripeCapabilityFlags !== undefined) {
+      updatePromises.push(
+        prisma.settings.upsert({
+          where: { key: SETTINGS_KEYS.STRIPE_CAPABILITY_FLAGS },
+          update: { value: JSON.stringify(updates.stripeCapabilityFlags) },
+          create: {
+            key: SETTINGS_KEYS.STRIPE_CAPABILITY_FLAGS,
+            value: JSON.stringify(updates.stripeCapabilityFlags),
           },
         }),
       );
@@ -766,6 +794,22 @@ function getDefaultTestimonialsSettings(): TestimonialsSettings {
   };
 }
 
+function getDefaultStripeCapabilityFlags(): StripeCapabilityFlags {
+  return {
+    billingSubscriptionsEnabled: false,
+    customerPortalEnabled: false,
+    taxEnabled: false,
+    disputesEnabled: false,
+    radarReviewEnabled: false,
+    connectEnabled: false,
+    treasuryEnabled: false,
+    issuingEnabled: false,
+    financialConnectionsEnabled: false,
+    identityEnabled: false,
+    terminalEnabled: false,
+  };
+}
+
 /**
  * Get default admin settings
  */
@@ -774,6 +818,7 @@ export function getDefaultSettings(): AdminSettings {
     autoConfirmBookings: true,
     photoNotificationType: 'instant',
     dashboardDateRange: 'today',
+    stripeCapabilityFlags: getDefaultStripeCapabilityFlags(),
     // Phase 1: Business Hours & Contact Info
     businessHours: getDefaultBusinessHours(),
     contactPhone: '(315) 657-1332',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,10 +8,14 @@ import {
   Calendar,
   LogOut,
   Users,
-  TrendingUp,
   AlertCircle,
+  ListChecks,
 } from 'lucide-react';
-import type { AdminBookingResponse } from '@/types/admin';
+import type {
+  AdminBookingResponse,
+  AdminOperationsQueueResponse,
+  AdminQueueItem,
+} from '@/types/admin';
 
 interface KPICard {
   label: string;
@@ -74,39 +78,15 @@ export default function AdminDashboardClient({
   dateRange = 'today',
 }: AdminDashboardClientProps) {
   const [bookings, setBookings] = useState<AdminBookingResponse[]>([]);
+  const [operationsQueue, setOperationsQueue] = useState<AdminQueueItem[]>([]);
   const [kpis, setKpis] = useState<KPICard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  // Fetch bookings data
-  const fetchBookings = async () => {
-    try {
-      const { startDate, endDate } = getDateRange(dateRange);
-      const params = new URLSearchParams({
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
-      });
-
-      const res = await fetch(`/api/admin/bookings?${params}`);
-      const data = await res.json();
-
-      if (data.data) {
-        setBookings(data.data);
-        calculateKPIs(data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching bookings:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Calculate KPIs from bookings
-  const calculateKPIs = (bookingList: AdminBookingResponse[]) => {
+  function calculateKPIs(bookingList: AdminBookingResponse[]) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
 
     // Count check-ins today
     const checkInsToday = bookingList.filter((b) => {
@@ -182,12 +162,51 @@ export default function AdminDashboardClient({
 
     setKpis(newKPIs);
     setLastUpdated(new Date());
-  };
+  }
+
+  // Fetch bookings data
+  const fetchBookings = useCallback(async () => {
+    try {
+      const { startDate, endDate } = getDateRange(dateRange);
+      const params = new URLSearchParams({
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+      });
+
+      const [bookingsRes, queueRes] = await Promise.all([
+        fetch(`/api/admin/bookings?${params}`),
+        fetch('/api/admin/operations/queue'),
+      ]);
+
+      const data = (await bookingsRes.json()) as {
+        success?: boolean;
+        data?: AdminBookingResponse[];
+      };
+      const queueData = (await queueRes.json()) as {
+        success?: boolean;
+        data?: AdminOperationsQueueResponse;
+      };
+
+      if (data.data) {
+        setBookings(data.data);
+        calculateKPIs(data.data);
+      }
+
+      if (queueData.data?.items) {
+        setOperationsQueue(queueData.data.items);
+      }
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [dateRange]);
 
   // Initial fetch
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchBookings();
-  }, [dateRange]);
+  }, [fetchBookings]);
 
   // Set up polling (5 second interval)
   useEffect(() => {
@@ -196,7 +215,7 @@ export default function AdminDashboardClient({
     }, 5000);
 
     return () => clearInterval(pollInterval);
-  }, [dateRange]);
+  }, [fetchBookings]);
 
   if (isLoading && bookings.length === 0) {
     return (
@@ -266,6 +285,52 @@ export default function AdminDashboardClient({
           );
         })}
       </div>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <ListChecks className="h-4 w-4" />
+            Operations Queue
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {operationsQueue.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No queue items available.</p>
+          ) : (
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {operationsQueue.map((item) => {
+                const severityTone =
+                  item.severity === 'critical'
+                    ? 'border-red-200 bg-red-50'
+                    : item.severity === 'attention'
+                      ? 'border-amber-200 bg-amber-50'
+                      : 'border-slate-200 bg-white';
+
+                return (
+                  <div key={item.id} className={`rounded-md border p-3 ${severityTone}`}>
+                    <div className="mb-1 flex items-center justify-between">
+                      <p className="text-sm font-medium">{item.label}</p>
+                      <Badge variant={item.severity === 'critical' ? 'destructive' : 'outline'}>
+                        {item.count}
+                      </Badge>
+                    </div>
+                    <p className="mb-2 text-xs text-muted-foreground">{item.description}</p>
+                    {item.capabilityBlocked ? (
+                      <Link href="/admin/settings" className="text-xs font-medium text-primary hover:underline">
+                        Enable capability in settings →
+                      </Link>
+                    ) : (
+                      <Link href={item.href} className="text-xs font-medium text-primary hover:underline">
+                        Open queue →
+                      </Link>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Bookings List */}
       <div>

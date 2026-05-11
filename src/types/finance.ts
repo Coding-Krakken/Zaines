@@ -6,6 +6,7 @@ export type FinanceTransactionStatus =
   | 'cancelled';
 
 export interface FinanceOverviewResponse {
+  generatedAt: string;
   range: {
     startDate: string;
     endDate: string;
@@ -49,6 +50,7 @@ export interface FinanceTransactionRow {
 }
 
 export interface FinanceTransactionsResponse {
+  generatedAt: string;
   range: {
     startDate: string;
     endDate: string;
@@ -157,6 +159,7 @@ export interface FinanceRevenueRecognitionRow {
 }
 
 export interface FinanceRevenueRecognitionSummaryResponse {
+  generatedAt: string;
   range: {
     startDate: string;
     endDate: string;

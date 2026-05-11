@@ -43,6 +43,8 @@ export function UserNav() {
   }
 
   const user = session.user;
+  const role = (user as { role?: string } | undefined)?.role;
+  const dashboardHref = role === "admin" ? "/admin/dashboard" : "/dashboard";
   const initials = user?.name
     ? user.name
         .split(" ")
@@ -78,7 +80,7 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href="/dashboard" className="cursor-pointer">
+            <Link href={dashboardHref} className="cursor-pointer">
               <User className="mr-2 h-4 w-4" />
               <span>Dashboard</span>
             </Link>
