@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -53,6 +54,7 @@ export default async function RootLayout({
           </div>
           <Toaster />
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
