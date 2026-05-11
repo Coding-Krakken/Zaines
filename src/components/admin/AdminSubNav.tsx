@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useRef, useTransition } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -62,6 +62,7 @@ export function AdminSubNav() {
   const pathname = usePathname();
   const router = useRouter();
   const [, startTransition] = useTransition();
+  const prefetchedRoutesRef = useRef<Set<string>>(new Set());
 
   const handleNavigate = (
     event: React.MouseEvent<HTMLAnchorElement>,
@@ -85,6 +86,11 @@ export function AdminSubNav() {
   };
 
   const handlePrefetch = (href: string) => {
+    if (href === pathname || prefetchedRoutesRef.current.has(href)) {
+      return;
+    }
+
+    prefetchedRoutesRef.current.add(href);
     router.prefetch(href);
   };
 
@@ -101,6 +107,7 @@ export function AdminSubNav() {
                 onClick={(event) => handleNavigate(event, item.href)}
                 onMouseEnter={() => handlePrefetch(item.href)}
                 onFocus={() => handlePrefetch(item.href)}
+                onTouchStart={() => handlePrefetch(item.href)}
                 className={`inline-flex rounded-md px-3 py-1.5 text-sm transition-colors ${
                   active
                     ? "bg-primary text-primary-foreground"
