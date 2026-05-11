@@ -78,7 +78,7 @@ export function StepWaiver({
         if (!isCancelled && activeWaivers.length > 0) {
           setSavedWaiverTypes(activeWaivers.map((waiver) => waiver.type));
           setReuseExistingWaivers(true);
-          onUpdate({ reuseExistingWaivers: true });
+          // Don't call onUpdate here to avoid re-render loop; data persists from checkbox handler
         }
       } catch (error) {
         console.error("Failed to load saved waivers:", error);
@@ -94,7 +94,7 @@ export function StepWaiver({
     return () => {
       isCancelled = true;
     };
-  }, [onUpdate]);
+  }, []);
 
   useEffect(() => {
     const canvas = signaturePadRef.current;
@@ -319,13 +319,11 @@ export function StepWaiver({
           </Button>
           <Button
             onClick={handleNext}
-            disabled={
-              !liabilityAccepted ||
+            disabled={reuseExistingWaivers ? false : (!liabilityAccepted ||
               !medicalAuthorizationAccepted ||
               !photoReleaseAccepted ||
               !policyAcknowledgmentAccepted ||
-              (!reuseExistingWaivers && !signature)
-            }
+              !signature)}
           >
             Continue to Payment
             <ArrowRight className="ml-2 h-4 w-4" />

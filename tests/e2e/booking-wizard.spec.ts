@@ -186,18 +186,26 @@ async function completeBookingWizard(
   await expect(page.getByText(/Vaccine uploaded/i).first()).toBeVisible();
   await page.getByRole("button", { name: "Continue to Waivers" }).click();
 
-  await page.locator("label[for='liability']").click();
-  await page.locator("label[for='medical']").click();
-  await page.locator("label[for='photo']").click();
+  // Check if saved waivers are available; if so, click to reuse
+  const reuseWaiverCheckbox = page.locator("label[for='reuse-waivers']");
+  if (await reuseWaiverCheckbox.isVisible()) {
+    await reuseWaiverCheckbox.click();
+  } else {
+    // No saved waivers, sign new ones
+    await page.locator("label[for='liability']").click();
+    await page.locator("label[for='medical']").click();
+    await page.locator("label[for='photo']").click();
 
-  const signaturePad = page.getByTestId("booking-signature-pad");
-  await signaturePad.hover();
-  await page.mouse.down();
-  await page.mouse.move(240, 300);
-  await page.mouse.move(280, 320);
-  await page.mouse.up();
+    const signaturePad = page.getByTestId("booking-signature-pad");
+    await signaturePad.hover();
+    await page.mouse.down();
+    await page.mouse.move(240, 300);
+    await page.mouse.move(280, 320);
+    await page.mouse.up();
 
-  await page.getByRole("button", { name: "Save Signature" }).click();
+    await page.getByRole("button", { name: "Save Signature" }).click();
+  }
+
   await page.getByRole("button", { name: "Continue to Payment" }).click();
 
   if (options?.stopBeforePayment) {

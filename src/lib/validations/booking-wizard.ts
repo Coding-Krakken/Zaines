@@ -122,18 +122,10 @@ export const stepPetsSchema = z
 
 // Step 5: Waiver & E-Signature
 export const stepWaiverSchema = z.object({
-  liabilityAccepted: z.literal(true, {
-    message: "You must accept the liability waiver",
-  }),
-  medicalAuthorizationAccepted: z.literal(true, {
-    message: "You must authorize emergency medical treatment",
-  }),
-  photoReleaseAccepted: z.literal(true, {
-    message: "You must consent to photo/video use",
-  }),
-  policyAcknowledgmentAccepted: z.literal(true, {
-    message: "You must acknowledge the booking policies",
-  }),
+  liabilityAccepted: z.boolean().default(false),
+  medicalAuthorizationAccepted: z.boolean().default(false),
+  photoReleaseAccepted: z.boolean().default(false),
+  policyAcknowledgmentAccepted: z.boolean().default(false),
   reuseExistingWaivers: z.boolean().default(true),
   signature: z.string().min(10, "Please provide a signature").optional(),
   ipAddress: z
@@ -146,12 +138,44 @@ export const stepWaiverSchema = z.object({
   userAgent: z.string().optional(),
   timestamp: z.date().default(() => new Date()),
 }).superRefine((data, context) => {
-    if (!data.reuseExistingWaivers && !data.signature) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Please provide a signature",
-        path: ["signature"],
-      });
+    // If reusing saved waivers, checkboxes are optional (already accepted when waivers were originally signed)
+    // If not reusing, require all checkboxes checked AND a new signature
+    if (!data.reuseExistingWaivers) {
+      if (!data.liabilityAccepted) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "You must accept the liability waiver",
+          path: ["liabilityAccepted"],
+        });
+      }
+      if (!data.medicalAuthorizationAccepted) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "You must authorize emergency medical treatment",
+          path: ["medicalAuthorizationAccepted"],
+        });
+      }
+      if (!data.photoReleaseAccepted) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "You must consent to photo/video use",
+          path: ["photoReleaseAccepted"],
+        });
+      }
+      if (!data.policyAcknowledgmentAccepted) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "You must acknowledge the booking policies",
+          path: ["policyAcknowledgmentAccepted"],
+        });
+      }
+      if (!data.signature) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Please provide a signature",
+          path: ["signature"],
+        });
+      }
     }
   });
 
@@ -192,10 +216,10 @@ export const createBookingSchema = z.object({
   // Step 5 data
   waiver: z.object({
     signature: z.string().optional(),
-    liabilityAccepted: z.literal(true),
-    medicalAuthorizationAccepted: z.literal(true),
-    photoReleaseAccepted: z.literal(true),
-    policyAcknowledgmentAccepted: z.literal(true),
+    liabilityAccepted: z.boolean(),
+    medicalAuthorizationAccepted: z.boolean(),
+    photoReleaseAccepted: z.boolean(),
+    policyAcknowledgmentAccepted: z.boolean(),
     reuseExistingWaivers: z.boolean().optional(),
     ipAddress: z.string().optional(),
     userAgent: z.string().optional(),

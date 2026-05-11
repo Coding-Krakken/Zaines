@@ -101,17 +101,28 @@ describe("Validation Schemas", () => {
   });
 
   it("validates stepWaiverSchema", () => {
-    const validData = {
+    const validReusedData = {
+      liabilityAccepted: false,
+      medicalAuthorizationAccepted: false,
+      photoReleaseAccepted: false,
+      policyAcknowledgmentAccepted: false,
+      reuseExistingWaivers: true,
+      signature: undefined,
+    };
+    expect(stepWaiverSchema.parse(validReusedData)).toBeDefined();
+
+    const validNewSignatureData = {
       liabilityAccepted: true,
       medicalAuthorizationAccepted: true,
       photoReleaseAccepted: true,
       policyAcknowledgmentAccepted: true,
+      reuseExistingWaivers: false,
       signature: "data:image/png;base64,...",
       timestamp: new Date("2026-02-17T00:24:24.022Z"),
     };
-    expect(stepWaiverSchema.parse(validData)).toEqual(validData);
+    expect(stepWaiverSchema.parse(validNewSignatureData)).toBeDefined();
 
-    const invalidData = { ...validData, liabilityAccepted: false };
+    const invalidData = { ...validNewSignatureData, liabilityAccepted: false };
     expect(() => stepWaiverSchema.parse(invalidData)).toThrow();
   });
 

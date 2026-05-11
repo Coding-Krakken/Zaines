@@ -272,6 +272,7 @@ export default function BookPage() {
 
           {currentStep === "waiver" && (
             <StepWaiver
+              key="waiver-step"
               data={wizardData.waiver || {}}
               onUpdate={(data) => updateStepData("waiver", data)}
               onNext={nextStep}
