@@ -23,12 +23,12 @@ async function requireStaffSession() {
   return { session };
 }
 
-async function storeFile(file: File, bookingId: string): Promise<string> {
+async function storeFile(file: File, folderKey: string): Promise<string> {
   const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
 
   if (blobToken) {
     const { put } = await import('@vercel/blob');
-    const key = `photos/${bookingId}/${Date.now()}-${file.name}`;
+    const key = `photos/${folderKey}/${Date.now()}-${file.name}`;
     const blob = await put(key, file, { access: 'public', token: blobToken });
     return blob.url;
   }
@@ -56,16 +56,30 @@ export async function GET(request: NextRequest) {
   }
 
   const bookingId = request.nextUrl.searchParams.get('bookingId')?.trim();
+  const includeUnassigned = request.nextUrl.searchParams.get('includeUnassigned') === 'true';
   const take = Math.min(Number(request.nextUrl.searchParams.get('limit') ?? '30') || 30, 100);
 
   const photos = await prisma.petPhoto.findMany({
     where: bookingId
       ? { bookingId }
-      : {
-          booking: {
-            status: 'checked_in',
+      : includeUnassigned
+        ? {
+            OR: [
+              {
+                booking: {
+                  status: 'checked_in',
+                },
+              },
+              {
+                bookingId: null,
+              },
+            ],
+          }
+        : {
+            booking: {
+              status: 'checked_in',
+            },
           },
-        },
     include: {
       pet: {
         select: { id: true, name: true, breed: true },
@@ -99,9 +113,6 @@ export async function POST(request: NextRequest) {
   const caption = formData?.get('caption');
   const file = formData?.get('file');
 
-  if (!bookingId || typeof bookingId !== 'string') {
-    return NextResponse.json({ error: 'bookingId is required' }, { status: 400 });
-  }
   if (!petId || typeof petId !== 'string') {
     return NextResponse.json({ error: 'petId is required' }, { status: 400 });
   }
@@ -114,40 +125,60 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: validation.error ?? 'Invalid file' }, { status: 400 });
   }
 
-  const booking = await prisma.booking.findUnique({
-    where: { id: bookingId },
-    include: {
-      bookingPets: {
-        select: { petId: true },
+  const resolvedBookingId = typeof bookingId === 'string' && bookingId.trim() ? bookingId.trim() : null;
+
+  let ownerUserId: string;
+  if (resolvedBookingId) {
+    const booking = await prisma.booking.findUnique({
+      where: { id: resolvedBookingId },
+      include: {
+        bookingPets: {
+          select: { petId: true },
+        },
       },
-    },
-  });
+    });
 
-  if (!booking) {
-    return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+    if (!booking) {
+      return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+    }
+
+    if (booking.status !== 'checked_in') {
+      return NextResponse.json(
+        { error: `Cannot upload photo for booking with status: ${booking.status}` },
+        { status: 409 },
+      );
+    }
+
+    const petIsOnBooking = booking.bookingPets.some((bp) => bp.petId === petId);
+    if (!petIsOnBooking) {
+      return NextResponse.json(
+        { error: 'Pet is not assigned to this booking' },
+        { status: 409 },
+      );
+    }
+
+    ownerUserId = booking.userId;
+  } else {
+    const pet = await prisma.pet.findUnique({
+      where: { id: petId },
+      select: { userId: true },
+    });
+
+    if (!pet) {
+      return NextResponse.json({ error: 'Pet not found' }, { status: 404 });
+    }
+
+    ownerUserId = pet.userId;
   }
 
-  if (booking.status !== 'checked_in') {
-    return NextResponse.json(
-      { error: `Cannot upload photo for booking with status: ${booking.status}` },
-      { status: 409 },
-    );
-  }
-
-  const petIsOnBooking = booking.bookingPets.some((bp) => bp.petId === petId);
-  if (!petIsOnBooking) {
-    return NextResponse.json(
-      { error: 'Pet is not assigned to this booking' },
-      { status: 409 },
-    );
-  }
-
-  const imageUrl = await storeFile(file, bookingId);
+  const storageFolderKey = resolvedBookingId ?? `account-${ownerUserId}`;
+  const imageUrl = await storeFile(file, storageFolderKey);
   const uploadedBy = session.user!.name ?? session.user!.email ?? session.user!.id;
 
   const photo = await prisma.petPhoto.create({
     data: {
-      bookingId,
+      bookingId: resolvedBookingId,
+      userId: ownerUserId,
       petId,
       imageUrl,
       caption: typeof caption === 'string' ? caption.trim() || null : null,

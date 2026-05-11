@@ -35,6 +35,7 @@ model User {
   accountWaivers    AccountWaiver[]
   reviews           Review[]
   messages          Message[]
+  petPhotos         PetPhoto[]
   emergencyContacts EmergencyContact[]
   credits           Credit[]
 
@@ -546,7 +547,8 @@ model Message {
 
 model PetPhoto {
   id          String   @id @default(cuid())
-  bookingId   String
+  bookingId   String?
+  userId      String
   petId       String
   imageUrl    String
   caption     String?
@@ -554,10 +556,13 @@ model PetPhoto {
   uploadedAt  DateTime @default(now())
   pushSentAt  DateTime? // When push notification sent to owner
 
-  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   pet     Pet     @relation(fields: [petId], references: [id])
 
   @@index([bookingId])
+  @@index([userId])
+  @@index([userId, uploadedAt])
   @@index([petId])
   @@index([uploadedAt])
   @@map("pet_photos")

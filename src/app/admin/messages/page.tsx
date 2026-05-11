@@ -1,5 +1,6 @@
 import { getRecentContactSubmissions } from "@/lib/api/issue26";
 import { ContactSubmissionCard } from "@/components/admin/ContactSubmissionCard";
+import { MessageReassociationPanel } from "@/components/admin/MessageReassociationPanel";
 import { AdminEmptyState, AdminErrorState } from "@/components/admin/AdminAsyncState";
 import { AdminRunbookActions } from "@/components/admin/AdminRunbookActions";
 
@@ -75,6 +76,8 @@ export default async function AdminMessagesPage() {
           },
         ]}
       />
+
+      <MessageReassociationPanel />
 
       {submissions.length === 0 ? (
         <AdminEmptyState

@@ -18,6 +18,7 @@ import {
   Calendar,
   PawPrint,
   MessageSquare,
+  Bell,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -95,6 +96,12 @@ export function UserNav() {
             <Link href="/dashboard/pets" className="cursor-pointer">
               <PawPrint className="mr-2 h-4 w-4" />
               <span>My Pets</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/updates" className="cursor-pointer">
+              <Bell className="mr-2 h-4 w-4" />
+              <span>Updates</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>

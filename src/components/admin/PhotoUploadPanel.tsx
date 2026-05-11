@@ -28,7 +28,19 @@ type PhotoItem = {
   uploadedAt: string;
   uploadedBy: string | null;
   pet: { id: string; name: string; breed: string };
-  booking: { id: string; bookingNumber: string; status: string };
+  booking: { id: string; bookingNumber: string; status: string } | null;
+};
+
+type PetOption = {
+  id: string;
+  name: string;
+  breed: string;
+  userId: string;
+  user: {
+    id: string;
+    name: string | null;
+    email: string | null;
+  };
 };
 
 export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?: string }) {
@@ -38,13 +50,16 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
   const [success, setSuccess] = useState('');
 
   const [bookings, setBookings] = useState<BookingOption[]>([]);
+  const [pets, setPets] = useState<PetOption[]>([]);
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
 
-  const [bookingId, setBookingId] = useState('');
+  const [bookingId, setBookingId] = useState('none');
   const [petId, setPetId] = useState('');
   const [caption, setCaption] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [notifyOwner, setNotifyOwner] = useState(true);
+  const [targetByPhotoId, setTargetByPhotoId] = useState<Record<string, string>>({});
+  const [savingByPhotoId, setSavingByPhotoId] = useState<Record<string, boolean>>({});
 
   const activeBookings = useMemo(
     () => bookings.filter((booking) => booking.status === 'checked_in'),
@@ -57,6 +72,10 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
         .map((bp) => bp.pet)
         .filter((pet): pet is NonNullable<typeof pet> => Boolean(pet)) ?? [],
     [selectedBooking],
+  );
+  const availablePets = useMemo(
+    () => (bookingId === 'none' ? pets : selectedPets),
+    [bookingId, pets, selectedPets],
   );
 
   const previewUrl = useMemo(() => {
@@ -73,9 +92,9 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
   }, [previewUrl]);
 
   const activePetId = useMemo(() => {
-    if (!selectedPets.length) return '';
-    return selectedPets.some((p) => p.id === petId) ? petId : (selectedPets[0]?.id ?? '');
-  }, [petId, selectedPets]);
+    if (!availablePets.length) return '';
+    return availablePets.some((p) => p.id === petId) ? petId : (availablePets[0]?.id ?? '');
+  }, [availablePets, petId]);
 
   async function loadData(options?: { resetLoading?: boolean }) {
     const shouldResetLoading = options?.resetLoading ?? true;
@@ -85,9 +104,10 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
     }
 
     try {
-      const [bookingsRes, photosRes] = await Promise.all([
+      const [bookingsRes, petsRes, photosRes] = await Promise.all([
         fetch('/api/admin/bookings?status=checked_in', { cache: 'no-store' }),
-        fetch('/api/admin/photos?limit=30', { cache: 'no-store' }),
+        fetch('/api/admin/pets?limit=200', { cache: 'no-store' }),
+        fetch('/api/admin/photos?limit=30&includeUnassigned=true', { cache: 'no-store' }),
       ]);
 
       const bookingsData = (await bookingsRes.json()) as {
@@ -95,10 +115,14 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
         data?: BookingOption[];
         error?: string;
       };
+      const petsData = (await petsRes.json()) as { pets?: PetOption[]; error?: string };
       const photosData = (await photosRes.json()) as { photos?: PhotoItem[]; error?: string };
 
       if (!bookingsRes.ok) {
         throw new Error(bookingsData.error ?? 'Unable to load bookings');
+      }
+      if (!petsRes.ok) {
+        throw new Error(petsData.error ?? 'Unable to load pets');
       }
       if (!photosRes.ok) {
         throw new Error(photosData.error ?? 'Unable to load photos');
@@ -106,14 +130,22 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
 
       const loadedBookings = bookingsData.bookings ?? bookingsData.data ?? [];
       setBookings(loadedBookings);
-      setPhotos(photosData.photos ?? []);
+      setPets(petsData.pets ?? []);
+      const loadedPhotos = photosData.photos ?? [];
+      setPhotos(loadedPhotos);
+      setTargetByPhotoId(
+        loadedPhotos.reduce<Record<string, string>>((acc, photo) => {
+          acc[photo.id] = photo.booking?.id ?? 'none';
+          return acc;
+        }, {}),
+      );
 
       const preselectedBooking =
         loadedBookings.find(
           (booking) => booking.status === 'checked_in' && booking.id === initialBookingId,
         ) ?? loadedBookings.find((booking) => booking.status === 'checked_in');
 
-      if (preselectedBooking && !bookingId) {
+      if (preselectedBooking && bookingId === 'none' && initialBookingId) {
         setBookingId(preselectedBooking.id);
         const firstPet = preselectedBooking.bookingPets.find((bp) => bp.pet)?.pet;
         if (firstPet) {
@@ -146,7 +178,9 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
 
     try {
       const formData = new FormData();
-      formData.set('bookingId', bookingId);
+      if (bookingId !== 'none') {
+        formData.set('bookingId', bookingId);
+      }
       formData.set('petId', activePetId);
       formData.set('caption', caption);
       formData.set('file', file);
@@ -163,7 +197,7 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
       }
 
       // Queue notification if owner notification is enabled
-      if (notifyOwner && data.photo) {
+      if (notifyOwner && data.photo && bookingId !== 'none' && selectedBooking?.user?.email) {
         try {
           await fetch('/api/admin/photo-notifications', {
             method: 'POST',
@@ -171,8 +205,8 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
             body: JSON.stringify({
               photoId: data.photo.id,
               bookingId,
-              petName: selectedPets.find((p) => p.id === activePetId)?.name,
-              ownerEmail: selectedBooking?.user?.email,
+              petName: availablePets.find((p) => p.id === activePetId)?.name,
+              ownerEmail: selectedBooking.user.email,
               notifyOwner,
             }),
           });
@@ -185,12 +219,49 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
       setPhotos((current) => [data.photo as PhotoItem, ...current]);
       setCaption('');
       setFile(null);
+      setPetId('');
       setNotifyOwner(true);
       setSuccess('Photo uploaded.');
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : 'Unable to upload photo');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleReassociatePhoto(photoId: string) {
+    const nextBookingId = targetByPhotoId[photoId] ?? 'none';
+
+    setSavingByPhotoId((state) => ({ ...state, [photoId]: true }));
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await fetch(`/api/admin/photos/${photoId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bookingId: nextBookingId === 'none' ? null : nextBookingId,
+        }),
+      });
+
+      const data = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        throw new Error(data.error ?? 'Unable to update photo association');
+      }
+
+      setSuccess('Photo association updated.');
+      await loadData({ resetLoading: false });
+    } catch (reassociateError) {
+      setError(
+        reassociateError instanceof Error
+          ? reassociateError.message
+          : 'Unable to update photo association',
+      );
+    } finally {
+      setSavingByPhotoId((state) => ({ ...state, [photoId]: false }));
     }
   }
 
@@ -206,9 +277,10 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
               <p className="text-sm font-medium">Booking</p>
               <Select value={bookingId} onValueChange={setBookingId}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select checked-in booking" />
+                  <SelectValue placeholder="Select booking or account-level" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">Account-level (no booking)</SelectItem>
                   {activeBookings.map((booking) => (
                     <SelectItem key={booking.id} value={booking.id}>
                       {booking.bookingNumber} - {booking.user?.name ?? booking.user?.email ?? 'Guest'}
@@ -230,13 +302,18 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
                   <SelectValue placeholder="Select pet" />
                 </SelectTrigger>
                 <SelectContent>
-                  {selectedPets.map((pet) => (
+                  {availablePets.map((pet) => (
                     <SelectItem key={pet.id} value={pet.id}>
                       {pet.name} ({pet.breed})
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {bookingId === 'none' && (
+                <p className="text-xs text-muted-foreground">
+                  Account-level uploads attach to the pet owner without a booking context.
+                </p>
+              )}
             </div>
 
             <div className="space-y-1">
@@ -280,7 +357,7 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
             )}
             {success && <p className="text-sm text-green-700">{success}</p>}
 
-            <Button type="submit" className="w-full" disabled={saving || !bookingId || !activePetId || !file || loading}>
+            <Button type="submit" className="w-full" disabled={saving || !activePetId || !file || loading}>
               {saving ? 'Uploading…' : 'Upload Photo'}
             </Button>
           </form>
@@ -322,12 +399,46 @@ export function PhotoUploadPanel({ initialBookingId = '' }: { initialBookingId?:
                   <div className="space-y-1 p-2 text-xs">
                     <div className="flex items-center justify-between">
                       <Badge variant="outline">{photo.pet.name}</Badge>
-                      <span className="text-muted-foreground">{photo.booking.bookingNumber}</span>
+                      <span className="text-muted-foreground">
+                        {photo.booking?.bookingNumber ?? 'Account-level'}
+                      </span>
                     </div>
                     {photo.caption && <p>{photo.caption}</p>}
                     <p className="text-muted-foreground">
                       {new Date(photo.uploadedAt).toLocaleString()} by {photo.uploadedBy ?? 'staff'}
                     </p>
+                    <div className="mt-2 flex items-center gap-2">
+                      <Select
+                        value={targetByPhotoId[photo.id] ?? 'none'}
+                        onValueChange={(value) =>
+                          setTargetByPhotoId((state) => ({
+                            ...state,
+                            [photo.id]: value,
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue placeholder="Assign booking" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Account-level</SelectItem>
+                          {activeBookings.map((booking) => (
+                            <SelectItem key={booking.id} value={booking.id}>
+                              {booking.bookingNumber}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 px-2 text-xs"
+                        onClick={() => void handleReassociatePhoto(photo.id)}
+                        disabled={savingByPhotoId[photo.id] === true}
+                      >
+                        {savingByPhotoId[photo.id] ? 'Saving…' : 'Save'}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}

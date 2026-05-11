@@ -1,4 +1,0 @@
-
-> zaines-stay-and-play@0.1.0 typecheck /home/obsidian/Projects/Zaines
-> tsc --noEmit
-

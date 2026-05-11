@@ -182,6 +182,9 @@ export default async function DashboardPage() {
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Unread Messages</p>
           <p className="mt-2 text-2xl font-semibold">{unreadStaffMessages}</p>
           <p className="text-xs text-muted-foreground">New updates from the care team</p>
+          <Link href="/dashboard/updates" className="mt-2 inline-block text-xs text-primary underline">
+            Open updates hub
+          </Link>
         </div>
       </section>
 

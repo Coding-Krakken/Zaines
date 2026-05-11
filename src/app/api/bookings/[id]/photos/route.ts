@@ -184,6 +184,21 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       });
     }
 
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: { id: true, userId: true },
+    });
+
+    if (!booking) {
+      return errorResponse({
+        status: 404,
+        errorCode: "BOOKING_NOT_FOUND",
+        message: "Booking not found.",
+        retryable: false,
+        correlationId,
+      });
+    }
+
     const bookingPet = await prisma.bookingPet.findUnique({
       where: {
         bookingId_petId: {
@@ -208,6 +223,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const photo = await prisma.petPhoto.create({
       data: {
         bookingId,
+        userId: booking.userId,
         petId,
         imageUrl,
         caption,
