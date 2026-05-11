@@ -47,6 +47,11 @@ const adminSubNavItems: AdminSubNavItem[] = [
     match: (pathname) => pathname.startsWith("/admin/messages"),
   },
   {
+    href: "/admin/association-audit",
+    label: "Association Audit",
+    match: (pathname) => pathname.startsWith("/admin/association-audit"),
+  },
+  {
     href: "/admin/finance",
     label: "Finance",
     match: (pathname) => pathname.startsWith("/admin/finance"),
