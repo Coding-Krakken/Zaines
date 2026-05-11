@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Camera, Loader2, Sparkles } from "lucide-react";
+import { retryWithBackoff } from "@/lib/retry";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -215,10 +216,23 @@ export function AdminCameraCapture() {
       formData.set("decorativeEmoji", decorativeEmoji);
       formData.set("file", file);
 
-      const response = await fetch("/api/admin/photos", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await retryWithBackoff(
+        () =>
+          fetch("/api/admin/photos", {
+            method: "POST",
+            body: formData,
+          }),
+        {
+          maxAttempts: 3,
+          initialDelayMs: 1000,
+          maxDelayMs: 5000,
+          onAttempt: (attempt, lastError) => {
+            if (attempt > 1) {
+              console.warn(`[Camera] Retry attempt ${attempt}: ${lastError.message}`);
+            }
+          },
+        },
+      );
 
       const payload = (await response.json()) as { error?: string };
       if (!response.ok) {
