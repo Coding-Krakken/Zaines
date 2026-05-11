@@ -134,7 +134,8 @@ export const stepWaiverSchema = z.object({
   policyAcknowledgmentAccepted: z.literal(true, {
     message: "You must acknowledge the booking policies",
   }),
-  signature: z.string().min(10, "Please provide a signature"),
+  reuseExistingWaivers: z.boolean().default(true),
+  signature: z.string().min(10, "Please provide a signature").optional(),
   ipAddress: z
     .string()
     .regex(
@@ -145,6 +146,15 @@ export const stepWaiverSchema = z.object({
   userAgent: z.string().optional(),
   timestamp: z.date().default(() => new Date()),
 });
+  superRefine((data, context) => {
+    if (!data.reuseExistingWaivers && !data.signature) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please provide a signature",
+        path: ["signature"],
+      });
+    }
+  });
 
 // Step 6: Payment
 export const stepPaymentSchema = z.object({
@@ -178,14 +188,16 @@ export const createBookingSchema = z.object({
       }),
     )
     .optional(),
+  reuseExistingWaivers: z.boolean().optional(),
 
   // Step 5 data
   waiver: z.object({
-    signature: z.string(),
+    signature: z.string().optional(),
     liabilityAccepted: z.literal(true),
     medicalAuthorizationAccepted: z.literal(true),
     photoReleaseAccepted: z.literal(true),
     policyAcknowledgmentAccepted: z.literal(true),
+    reuseExistingWaivers: z.boolean().optional(),
     ipAddress: z.string().optional(),
     userAgent: z.string().optional(),
   }),

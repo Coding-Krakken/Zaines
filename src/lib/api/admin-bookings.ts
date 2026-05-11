@@ -128,7 +128,34 @@ export async function createAdminBooking(
         suite: { select: { id: true, name: true } },
         bookingPets: {
           include: {
-            pet: { select: { id: true, name: true, breed: true } },
+            pet: {
+              select: {
+                id: true,
+                name: true,
+                breed: true,
+                vaccines: {
+                  orderBy: { expiryDate: 'desc' },
+                  select: {
+                    id: true,
+                    name: true,
+                    administeredDate: true,
+                    expiryDate: true,
+                    documentUrl: true,
+                  },
+                },
+                medications: {
+                  orderBy: { startDate: 'desc' },
+                  select: {
+                    id: true,
+                    name: true,
+                    frequency: true,
+                    startDate: true,
+                    endDate: true,
+                    instructions: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -193,7 +220,34 @@ export async function getAdminBookings(filters?: BookingListFilters): Promise<Ad
         suite: { select: { id: true, name: true } },
         bookingPets: {
           include: {
-            pet: { select: { id: true, name: true, breed: true } },
+            pet: {
+              select: {
+                id: true,
+                name: true,
+                breed: true,
+                vaccines: {
+                  orderBy: { expiryDate: 'desc' },
+                  select: {
+                    id: true,
+                    name: true,
+                    administeredDate: true,
+                    expiryDate: true,
+                    documentUrl: true,
+                  },
+                },
+                medications: {
+                  orderBy: { startDate: 'desc' },
+                  select: {
+                    id: true,
+                    name: true,
+                    frequency: true,
+                    startDate: true,
+                    endDate: true,
+                    instructions: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -221,7 +275,34 @@ export async function getAdminBooking(bookingId: string): Promise<AdminBookingRe
         suite: { select: { id: true, name: true } },
         bookingPets: {
           include: {
-            pet: { select: { id: true, name: true, breed: true } },
+            pet: {
+              select: {
+                id: true,
+                name: true,
+                breed: true,
+                vaccines: {
+                  orderBy: { expiryDate: 'desc' },
+                  select: {
+                    id: true,
+                    name: true,
+                    administeredDate: true,
+                    expiryDate: true,
+                    documentUrl: true,
+                  },
+                },
+                medications: {
+                  orderBy: { startDate: 'desc' },
+                  select: {
+                    id: true,
+                    name: true,
+                    frequency: true,
+                    startDate: true,
+                    endDate: true,
+                    instructions: true,
+                  },
+                },
+              },
+            },
           },
         },
       },

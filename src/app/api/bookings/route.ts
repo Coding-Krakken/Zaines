@@ -22,6 +22,12 @@ import {
   calculateBookingPrice,
 } from "@/lib/booking/pricing";
 import { getAdminSettings } from "@/lib/api/admin-settings";
+import {
+  WAIVER_CONTENT_BY_TYPE,
+  getAccountWaiverExpiry,
+  isAccountWaiverActive,
+  type WaiverType,
+} from "@/lib/health-records";
 
 function isAbsoluteOrRootRelativeUrl(value: string): boolean {
   if (value.startsWith("/")) {
@@ -82,6 +88,15 @@ type BookingsApiPrisma = {
       orderBy: { createdAt: "desc" | "asc" };
       include: Record<string, unknown>;
     }) => Promise<unknown[]>;
+  };
+  accountWaiver: {
+    findMany: (args: {
+      where: { userId: string };
+    }) => Promise<Array<{ id: string; type: WaiverType; content: string; signature: string; signedAt: Date; expiresAt: Date | null; ipAddress: string; userAgent: string | null }>>;
+    upsert: (args: Record<string, unknown>) => Promise<{ id: string; type: WaiverType; content: string; signature: string; signedAt: Date; expiresAt: Date | null; ipAddress: string; userAgent: string | null }>;
+  };
+  waiver: {
+    create: (args: Record<string, unknown>) => Promise<unknown>;
   };
 };
 
@@ -158,8 +173,9 @@ const bookingSchema = z.object({
     medicalAuthorizationAccepted: z.literal(true),
     photoReleaseAccepted: z.literal(true),
     policyAcknowledgmentAccepted: z.literal(true),
-    signature: z.string().min(10),
+    signature: z.string().min(10).optional(),
   }),
+  reuseExistingWaivers: z.boolean().optional().default(true),
 });
 
 // POST /api/bookings - Create a new booking
@@ -438,8 +454,89 @@ export async function POST(request: NextRequest) {
           });
         }
 
+        const now = new Date();
+        const reuseExistingWaivers = data.reuseExistingWaivers !== false;
+        const existingAccountWaivers = await tx.accountWaiver.findMany({
+          where: { userId: user!.id },
+        });
+        const bookingWaivers: Array<{
+          accountWaiverId: string | null;
+          type: WaiverType;
+          content: string;
+          signature: string;
+          signedAt: Date;
+          appliedAt: Date;
+          sourceType: 'auto_applied' | 'new_signature';
+          ipAddress: string;
+          userAgent: string | null;
+        }> = [];
+
+        for (const type of ["liability", "medical", "photo_release"] as WaiverType[]) {
+          const existing = existingAccountWaivers.find((waiver) => waiver.type === type);
+
+          if (reuseExistingWaivers && existing && isAccountWaiverActive(existing)) {
+            bookingWaivers.push({
+              accountWaiverId: existing.id,
+              type,
+              content: existing.content,
+              signature: existing.signature,
+              signedAt: existing.signedAt,
+              appliedAt: now,
+              sourceType: 'auto_applied',
+              ipAddress: existing.ipAddress,
+              userAgent: existing.userAgent,
+            });
+            continue;
+          }
+
+          if (!data.waiver.signature) {
+            throw new Error('Waiver signature is required when no active waiver is on file');
+          }
+
+          const accountWaiver = await tx.accountWaiver.upsert({
+            where: {
+              userId_type: {
+                userId: user!.id,
+                type,
+              },
+            },
+            create: {
+              userId: user!.id,
+              type,
+              content: WAIVER_CONTENT_BY_TYPE[type],
+              signature: data.waiver.signature,
+              signedAt: now,
+              expiresAt: getAccountWaiverExpiry(type, now),
+              ipAddress:
+                data.waiver.ipAddress ?? request.headers.get('x-forwarded-for') ?? 'unknown',
+              userAgent: data.waiver.userAgent ?? request.headers.get('user-agent'),
+            },
+            update: {
+              content: WAIVER_CONTENT_BY_TYPE[type],
+              signature: data.waiver.signature,
+              signedAt: now,
+              expiresAt: getAccountWaiverExpiry(type, now),
+              ipAddress:
+                data.waiver.ipAddress ?? request.headers.get('x-forwarded-for') ?? 'unknown',
+              userAgent: data.waiver.userAgent ?? request.headers.get('user-agent'),
+            },
+          });
+
+          bookingWaivers.push({
+            accountWaiverId: accountWaiver.id,
+            type,
+            content: accountWaiver.content,
+            signature: accountWaiver.signature,
+            signedAt: accountWaiver.signedAt,
+            appliedAt: now,
+            sourceType: 'new_signature',
+            ipAddress: accountWaiver.ipAddress,
+            userAgent: accountWaiver.userAgent,
+          });
+        }
+
         // 6. Create booking atomically
-        return await tx.booking.create({
+        const createdBooking = await tx.booking.create({
           data: {
             userId: user!.id,
             suiteId: availableSuite.id,
@@ -472,6 +569,27 @@ export async function POST(request: NextRequest) {
             },
           },
         });
+
+        await Promise.all(
+          bookingWaivers.map((waiver) =>
+            tx.waiver.create({
+              data: {
+                bookingId: createdBooking.id,
+                accountWaiverId: waiver.accountWaiverId,
+                type: waiver.type,
+                content: waiver.content,
+                signature: waiver.signature,
+                signedAt: waiver.signedAt,
+                appliedAt: waiver.appliedAt,
+                sourceType: waiver.sourceType,
+                ipAddress: waiver.ipAddress,
+                userAgent: waiver.userAgent,
+              },
+            }),
+          ),
+        );
+
+        return createdBooking;
       },
       {
         isolationLevel: "Serializable",

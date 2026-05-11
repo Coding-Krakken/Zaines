@@ -186,6 +186,16 @@ export default function PricingPage() {
                       >
                         <Link href="/book">Book This Suite</Link>
                       </Button>
+                      <Button
+                        className="mt-3 w-full"
+                        size="lg"
+                        variant="outline"
+                        asChild
+                      >
+                        <Link href={`/checkout/${suite.name.split(" ")[0].toLowerCase()}`}>
+                          Stripe Checkout
+                        </Link>
+                      </Button>
                     </CardContent>
                   </Card>
                 </div>

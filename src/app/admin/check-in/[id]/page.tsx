@@ -27,6 +27,7 @@ export default function CheckInPage({
   const [vaccinesCurrent, setVaccinesCurrent] = useState(false);
   const [medicationsReviewed, setMedicationsReviewed] = useState(false);
   const [specialRequestsAcknowledged, setSpecialRequestsAcknowledged] = useState(false);
+  const now = new Date();
 
   // Load booking data on mount
   React.useEffect(() => {
@@ -52,8 +53,50 @@ export default function CheckInPage({
     loadBookingData();
   }, [id]);
 
+  React.useEffect(() => {
+    if (!bookingData) {
+      return;
+    }
+
+    const bookingWaivers = bookingData.waivers || [];
+    const bookingPets = bookingData.bookingPets || [];
+
+    const allWaiversSigned =
+      bookingWaivers.length > 0 &&
+      bookingWaivers.every((waiver: any) => Boolean(waiver.signedAt));
+
+    const allVaccinesCurrent = bookingPets.every((bookingPet: any) => {
+      const currentVaccine = bookingPet.pet?.vaccines?.find(
+        (vaccine: any) => !vaccine.expiryDate || new Date(vaccine.expiryDate) > now,
+      );
+
+      return Boolean(currentVaccine);
+    });
+
+    const hasActiveMedicationRecords = bookingPets.some((bookingPet: any) =>
+      bookingPet.pet?.medications?.some(
+        (medication: any) => !medication.endDate || new Date(medication.endDate) > now,
+      ),
+    );
+
+    setWaiversSigned(allWaiversSigned);
+    setVaccinesCurrent(allVaccinesCurrent);
+    setMedicationsReviewed(!hasActiveMedicationRecords);
+    setSpecialRequestsAcknowledged(!bookingData.specialRequests);
+  }, [bookingData]);
+
+  const hasActiveMedications =
+    bookingData?.bookingPets?.some((bp: any) =>
+      bp.pet?.medications?.some(
+        (medication: any) => !medication.endDate || new Date(medication.endDate) > now,
+      ),
+    ) || false;
+
   const allCheckboxesDone =
-    waiversSigned && vaccinesCurrent && medicationsReviewed && specialRequestsAcknowledged;
+    waiversSigned &&
+    vaccinesCurrent &&
+    (hasActiveMedications ? medicationsReviewed : true) &&
+    (bookingData?.specialRequests ? specialRequestsAcknowledged : true);
 
   async function handleCheckIn() {
     if (!allCheckboxesDone) {
@@ -105,10 +148,28 @@ export default function CheckInPage({
       .filter(Boolean)
       .join(', ') || '—';
 
-  const hasActiveMedications =
-    bookingData?.bookingPets?.some((bp: any) =>
-      bp.pet?.medications?.some((m: any) => !m.endDate || new Date(m.endDate) > new Date()),
-    ) || false;
+  const petHealthSummary =
+    bookingData?.bookingPets?.map((bookingPet: any) => {
+      const currentVaccine = bookingPet.pet?.vaccines?.find(
+        (vaccine: any) => !vaccine.expiryDate || new Date(vaccine.expiryDate) > now,
+      );
+
+      const activeMedications =
+        bookingPet.pet?.medications?.filter(
+          (medication: any) => !medication.endDate || new Date(medication.endDate) > now,
+        ) || [];
+
+      return {
+        petId: bookingPet.pet?.id,
+        petName: bookingPet.pet?.name,
+        vaccineStatus: currentVaccine
+          ? new Date(currentVaccine.expiryDate).getTime() - now.getTime() < 30 * 24 * 60 * 60 * 1000
+            ? 'expiring_soon'
+            : 'current'
+          : 'missing',
+        activeMedications,
+      };
+    }) || [];
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -185,6 +246,13 @@ export default function CheckInPage({
                         ? `Signed on ${new Date(waiver.signedAt).toLocaleDateString()}`
                         : 'Not signed'}
                     </p>
+                    <p className="text-xs text-muted-foreground">
+                      {waiver.sourceType === 'auto_applied'
+                        ? 'Reused from saved account record'
+                        : waiver.sourceType === 'new_signature'
+                          ? 'Signed during this booking'
+                          : 'Legacy booking waiver'}
+                    </p>
                   </div>
                   {waiver.signedAt ? (
                     <Badge variant="default" className="ml-2">
@@ -226,6 +294,39 @@ export default function CheckInPage({
           </p>
 
           <div className="space-y-4">
+            <div className="space-y-2 rounded-lg border bg-muted/30 p-4">
+              <p className="text-sm font-medium">Pet health summary</p>
+              <div className="space-y-2">
+                {petHealthSummary.map((pet: any) => (
+                  <div key={pet.petId} className="flex items-center justify-between gap-3 text-sm">
+                    <div>
+                      <p className="font-medium">{pet.petName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {pet.activeMedications.length > 0
+                          ? `${pet.activeMedications.length} active medication(s)`
+                          : 'No active medications'}
+                      </p>
+                    </div>
+                    <Badge
+                      variant={
+                        pet.vaccineStatus === 'current'
+                          ? 'default'
+                          : pet.vaccineStatus === 'expiring_soon'
+                            ? 'secondary'
+                            : 'destructive'
+                      }
+                    >
+                      {pet.vaccineStatus === 'current'
+                        ? 'Vaccine current'
+                        : pet.vaccineStatus === 'expiring_soon'
+                          ? 'Vaccine expiring soon'
+                          : 'Vaccine missing'}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Vaccines */}
             <div className="flex items-start gap-3 p-3 border rounded-lg">
               <div className="flex-1">

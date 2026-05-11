@@ -59,6 +59,28 @@ interface Pet {
   breed: string;
   age: number;
   weight: number;
+  vaccines: Array<{
+    id: string;
+    name: string;
+    administeredDate: string;
+    expiryDate: string;
+    documentUrl: string | null;
+  }>;
+  medications: Array<{
+    id: string;
+    name: string;
+    frequency: string;
+    startDate: string;
+    endDate: string | null;
+  }>;
+}
+
+interface VaccinationRecord {
+  petId: string;
+  fileUrl: string;
+  fileName: string;
+  fileSize: number;
+  sourceType: 'existing' | 'uploaded';
 }
 
 export function StepPets({
@@ -74,9 +96,15 @@ export function StepPets({
     data.selectedPetIds || [],
   );
   const [newPets, setNewPets] = useState<NewPetData[]>(data.newPets || []);
-  const [vaccines, setVaccines] = useState<
-    Array<{ petId: string; file: File; fileUrl?: string }>
-  >([]);
+  const [vaccines, setVaccines] = useState<VaccinationRecord[]>(
+    (data.vaccines || []).map((record) => ({
+      petId: record.petId,
+      fileUrl: record.fileUrl,
+      fileName: record.fileName,
+      fileSize: record.fileSize,
+      sourceType: 'uploaded',
+    })),
+  );
   const [uploadingVaccine, setUploadingVaccine] = useState<string | null>(null);
   const [showNewPetForm, setShowNewPetForm] = useState(false);
   const [newPetForm, setNewPetForm] = useState<Partial<NewPetData>>({
@@ -84,23 +112,77 @@ export function StepPets({
     temperament: "friendly",
   });
 
-  // Fetch existing pets if authenticated
-  const fetchPets = async () => {
+  // Fetch existing pets and any valid records if authenticated
+  const fetchRecords = async () => {
     try {
-      const response = await fetch("/api/pets");
+      const response = await fetch("/api/account-records");
       if (response.ok) {
-        const petsData = await response.json();
-        setExistingPets(petsData.pets || petsData || []);
+        const records = (await response.json()) as {
+          pets?: Pet[];
+        };
+
+        const petsFromApi = records.pets || [];
+        setExistingPets(petsFromApi);
+
+        const now = new Date();
+        const preloadedVaccines = petsFromApi.flatMap((pet) => {
+          const currentVaccine = pet.vaccines
+            .filter((vaccine) => new Date(vaccine.expiryDate) > now)
+            .sort(
+              (left, right) =>
+                new Date(right.expiryDate).getTime() -
+                new Date(left.expiryDate).getTime(),
+            )[0];
+
+          if (!currentVaccine?.documentUrl) {
+            return [];
+          }
+
+          return [
+            {
+              petId: pet.id,
+              fileUrl: currentVaccine.documentUrl,
+              fileName:
+                currentVaccine.documentUrl.split("/").pop() ||
+                `${pet.name}-vaccine.pdf`,
+              fileSize: 0,
+              sourceType: 'existing' as const,
+            },
+          ];
+        });
+
+        setVaccines((currentVaccines) => {
+          const preserved = currentVaccines.filter((record) => record.sourceType === 'uploaded');
+          const merged = [
+            ...preloadedVaccines.filter(
+              (record) => !preserved.some((existing) => existing.petId === record.petId),
+            ),
+            ...preserved,
+          ];
+
+          onUpdate({
+            selectedPetIds,
+            newPets,
+            vaccines: merged.map((record) => ({
+              petId: record.petId,
+              fileUrl: record.fileUrl,
+              fileName: record.fileName,
+              fileSize: record.fileSize,
+            })),
+          });
+
+          return merged;
+        });
       }
     } catch (error) {
-      console.error("Failed to fetch pets:", error);
+      console.error("Failed to fetch records:", error);
     }
   };
 
   useEffect(() => {
     if (session?.user?.id) {
       (async () => {
-        await fetchPets();
+        await fetchRecords();
       })();
     }
   }, [session]);
@@ -154,8 +236,8 @@ export function StepPets({
         vaccines: nextVaccines.map((v) => ({
           petId: v.petId,
           fileUrl: v.fileUrl || "",
-          fileName: v.file.name,
-          fileSize: v.file.size,
+          fileName: v.fileName,
+          fileSize: v.fileSize,
         })),
       });
 
@@ -216,10 +298,10 @@ export function StepPets({
         ...vaccines.filter((v) => v.petId !== petId),
         {
           petId,
-          file,
           fileUrl: result.url,
           fileName: file.name,
           fileSize: file.size,
+          sourceType: 'uploaded' as const,
         },
       ];
 
@@ -229,8 +311,8 @@ export function StepPets({
       const vaccineData = updatedVaccines.map((v) => ({
         petId: v.petId,
         fileUrl: v.fileUrl || "",
-        fileName: v.file.name,
-        fileSize: v.file.size,
+        fileName: v.fileName,
+        fileSize: v.fileSize,
       }));
 
       onUpdate({ vaccines: vaccineData });
@@ -270,8 +352,8 @@ export function StepPets({
       vaccines: vaccines.map((v) => ({
         petId: v.petId,
         fileUrl: v.fileUrl || "",
-        fileName: v.file.name,
-        fileSize: v.file.size,
+        fileName: v.fileName,
+        fileSize: v.fileSize,
       })),
     });
 
@@ -352,7 +434,7 @@ export function StepPets({
                             ) : hasVaccine ? (
                               <>
                                 <FileText className="h-4 w-4" />
-                                Vaccine uploaded • Click to replace
+                                Vaccine on file • Click to replace
                               </>
                             ) : (
                               <>
@@ -426,7 +508,7 @@ export function StepPets({
                         ) : hasVaccine ? (
                           <>
                             <FileText className="h-4 w-4" />
-                            Vaccine uploaded • Click to replace
+                            Vaccine on file • Click to replace
                           </>
                         ) : (
                           <>

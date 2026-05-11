@@ -103,6 +103,7 @@ export default function BookPage() {
       addOns: wizardData.suites?.addOns || [],
       newPets: wizardData.pets?.newPets || [],
       vaccines: wizardData.pets?.vaccines || [],
+      reuseExistingWaivers: wizardData.waiver?.reuseExistingWaivers ?? true,
       waiver: {
         liabilityAccepted: Boolean(wizardData.waiver?.liabilityAccepted),
         medicalAuthorizationAccepted: Boolean(
@@ -112,7 +113,7 @@ export default function BookPage() {
         policyAcknowledgmentAccepted: Boolean(
           wizardData.waiver?.policyAcknowledgmentAccepted,
         ),
-        signature: wizardData.waiver?.signature || "pending-signature",
+        signature: wizardData.waiver?.signature || "",
       },
     };
   }, [wizardData]);

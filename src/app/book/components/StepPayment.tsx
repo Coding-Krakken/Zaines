@@ -82,12 +82,13 @@ interface StepPaymentProps {
       fileName: string;
       fileSize: number;
     }>;
+    reuseExistingWaivers?: boolean;
     waiver: {
       liabilityAccepted: boolean;
       medicalAuthorizationAccepted: boolean;
       photoReleaseAccepted: boolean;
       policyAcknowledgmentAccepted: boolean;
-      signature: string;
+      signature?: string;
     };
   } | null;
 }

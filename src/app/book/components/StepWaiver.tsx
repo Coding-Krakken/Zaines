@@ -33,6 +33,11 @@ export function StepWaiver({
   onNext,
   onBack,
 }: StepWaiverProps) {
+  const [savedWaiverTypes, setSavedWaiverTypes] = useState<string[]>([]);
+  const [isLoadingSavedWaivers, setIsLoadingSavedWaivers] = useState(false);
+  const [reuseExistingWaivers, setReuseExistingWaivers] = useState(
+    data.reuseExistingWaivers ?? false,
+  );
   const [liabilityAccepted, setLiabilityAccepted] = useState(
     data.liabilityAccepted || false,
   );
@@ -46,6 +51,50 @@ export function StepWaiver({
   const signaturePadRef = useRef<HTMLCanvasElement>(null);
   const signaturePadInstanceRef = useRef<SignaturePad | null>(null);
   const [signature, setSignature] = useState(data.signature || "");
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const loadSavedWaivers = async () => {
+      setIsLoadingSavedWaivers(true);
+
+      try {
+        const response = await fetch("/api/account-records");
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = (await response.json()) as {
+          accountWaivers?: Array<{
+            type: string;
+            expiresAt: string | null;
+          }>;
+        };
+
+        const activeWaivers = (payload.accountWaivers || []).filter(
+          (waiver) => !waiver.expiresAt || new Date(waiver.expiresAt) > new Date(),
+        );
+
+        if (!isCancelled && activeWaivers.length > 0) {
+          setSavedWaiverTypes(activeWaivers.map((waiver) => waiver.type));
+          setReuseExistingWaivers(true);
+          onUpdate({ reuseExistingWaivers: true });
+        }
+      } catch (error) {
+        console.error("Failed to load saved waivers:", error);
+      } finally {
+        if (!isCancelled) {
+          setIsLoadingSavedWaivers(false);
+        }
+      }
+    };
+
+    void loadSavedWaivers();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [onUpdate]);
 
   useEffect(() => {
     const canvas = signaturePadRef.current;
@@ -105,6 +154,7 @@ export function StepWaiver({
       medicalAuthorizationAccepted,
       photoReleaseAccepted,
       policyAcknowledgmentAccepted,
+      reuseExistingWaivers,
       signature,
     };
 
@@ -132,6 +182,42 @@ export function StepWaiver({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {isLoadingSavedWaivers && (
+          <p className="text-sm text-muted-foreground">
+            Checking for saved waiver records...
+          </p>
+        )}
+
+        {savedWaiverTypes.length > 0 && (
+          <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-900 dark:border-green-900 dark:bg-green-950 dark:text-green-100">
+            <p className="font-medium">Saved waivers on file</p>
+            <p className="mt-1">
+              We found current waiver records for this account. They will be reused automatically unless you choose to sign again.
+            </p>
+          </div>
+        )}
+
+        {savedWaiverTypes.length > 0 && (
+          <div className="flex items-center gap-3 rounded-lg border bg-muted/40 p-4">
+            <Checkbox
+              id="reuse-waivers"
+              checked={reuseExistingWaivers}
+              onCheckedChange={(checked) => {
+                const nextValue = checked === true;
+                setReuseExistingWaivers(nextValue);
+                onUpdate({ reuseExistingWaivers: nextValue });
+                if (nextValue) {
+                  setSignature("");
+                  onUpdate({ signature: "" });
+                }
+              }}
+            />
+            <Label htmlFor="reuse-waivers" className="cursor-pointer text-sm font-medium">
+              Use my saved waivers on file
+            </Label>
+          </div>
+        )}
+
         {/* Liability Waiver */}
         <div className="space-y-2">
           <Checkbox
@@ -192,37 +278,38 @@ export function StepWaiver({
           </Label>
         </div>
 
-        {/* Signature Pad */}
-        <div className="space-y-2">
-          <Label htmlFor="signature">E-Signature *</Label>
-          <div className="rounded-lg border p-4">
-            <canvas
-              id="signature"
-              ref={signaturePadRef}
-              width={400}
-              height={150}
-              aria-label="Signature pad"
-              data-testid="booking-signature-pad"
-              className="w-full border rounded-md"
-            />
-            <div className="mt-2 flex justify-between">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleClearSignature}
-              >
-                Clear
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleSaveSignature}
-              >
-                Save Signature
-              </Button>
+        {!reuseExistingWaivers && (
+          <div className="space-y-2">
+            <Label htmlFor="signature">E-Signature *</Label>
+            <div className="rounded-lg border p-4">
+              <canvas
+                id="signature"
+                ref={signaturePadRef}
+                width={400}
+                height={150}
+                aria-label="Signature pad"
+                data-testid="booking-signature-pad"
+                className="w-full rounded-md border"
+              />
+              <div className="mt-2 flex justify-between">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleClearSignature}
+                >
+                  Clear
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleSaveSignature}
+                >
+                  Save Signature
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Navigation Buttons */}
         <div className="flex justify-between pt-4">
@@ -237,7 +324,7 @@ export function StepWaiver({
               !medicalAuthorizationAccepted ||
               !photoReleaseAccepted ||
               !policyAcknowledgmentAccepted ||
-              !signature
+              (!reuseExistingWaivers && !signature)
             }
           >
             Continue to Payment
