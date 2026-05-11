@@ -180,7 +180,12 @@ async function handlePaymentSuccess(
 
     try {
       // Get the charge associated with this payment intent
-      const charges = await stripe.charges.list({
+      const listCharges = stripe.charges?.list;
+      if (typeof listCharges !== "function") {
+        throw new Error("Stripe charges.list is unavailable");
+      }
+
+      const charges = await listCharges({
         payment_intent: paymentIntent.id,
         limit: 1,
       });
@@ -298,6 +303,20 @@ async function handleCheckoutSessionCompleted(
       typeof paymentIntentRef === "string"
         ? await stripe.paymentIntents.retrieve(paymentIntentRef)
         : paymentIntentRef;
+
+    if (session.metadata?.bookingId) {
+      await prisma.payment.updateMany({
+        where: {
+          bookingId: session.metadata.bookingId,
+          status: {
+            in: ["pending", "failed", "cancelled"],
+          },
+        },
+        data: {
+          stripePaymentId: paymentIntent.id,
+        },
+      });
+    }
 
     await handlePaymentSuccess(
       paymentIntent,

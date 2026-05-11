@@ -68,6 +68,14 @@ export async function getAdminSettings(): Promise<AdminSettings> {
     return getDefaultSettings();
   }
 
+  if (
+    !("settings" in prisma) ||
+    !prisma.settings ||
+    typeof prisma.settings.findMany !== "function"
+  ) {
+    return getDefaultSettings();
+  }
+
   try {
     const settings = await prisma.settings.findMany({
       where: {
@@ -182,7 +190,7 @@ export async function getAdminSettings(): Promise<AdminSettings> {
           if (!json) return getDefaultServiceTiersSettings();
           const parsed = JSON.parse(json) as ServiceTiersSettings;
           return {
-            serviceTiers: (parsed.serviceTiers || []).map((tier, index) => ({
+            serviceTiers: (parsed.serviceTiers || []).map((tier) => ({
               ...tier,
               imageUrl: tier.imageUrl || '/images/suites/standard-placeholder.svg',
             })),

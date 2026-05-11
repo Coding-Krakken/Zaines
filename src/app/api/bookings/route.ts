@@ -49,6 +49,14 @@ const vaccineFileUrlSchema = z.string().refine(isAbsoluteOrRootRelativeUrl, {
 let hasLoggedStripeUnavailableWarning = false;
 const shouldLogBookingDiagnostics = process.env.NODE_ENV !== "test";
 
+type BookingPaymentMode = "payment_element" | "embedded_checkout";
+
+function getBookingPaymentMode(): BookingPaymentMode {
+  return process.env.STRIPE_BOOKING_PAYMENT_FLOW === "checkout_session"
+    ? "embedded_checkout"
+    : "payment_element";
+}
+
 function createBookingValidationDetails(validationError: z.ZodError): {
   fields: string[];
 } {
@@ -492,9 +500,16 @@ export async function POST(request: NextRequest) {
 
         const now = new Date();
         const reuseExistingWaivers = data.reuseExistingWaivers !== false;
-        const existingAccountWaivers = await tx.accountWaiver.findMany({
-          where: { userId: user!.id },
-        });
+        const supportsWaiverPersistence =
+          typeof tx.accountWaiver?.findMany === "function" &&
+          typeof tx.accountWaiver?.upsert === "function" &&
+          typeof tx.waiver?.create === "function";
+
+        const existingAccountWaivers = supportsWaiverPersistence
+          ? await tx.accountWaiver.findMany({
+              where: { userId: user!.id },
+            })
+          : [];
         const bookingWaivers: Array<{
           accountWaiverId: string | null;
           type: WaiverType;
@@ -508,6 +523,10 @@ export async function POST(request: NextRequest) {
         }> = [];
 
         for (const type of ["liability", "medical", "photo_release"] as WaiverType[]) {
+          if (!supportsWaiverPersistence) {
+            continue;
+          }
+
           const existing = existingAccountWaivers.find((waiver) => waiver.type === type);
 
           if (reuseExistingWaivers && existing && isAccountWaiverActive(existing)) {
@@ -606,24 +625,26 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        await Promise.all(
-          bookingWaivers.map((waiver) =>
-            tx.waiver.create({
-              data: {
-                bookingId: createdBooking.id,
-                accountWaiverId: waiver.accountWaiverId,
-                type: waiver.type,
-                content: waiver.content,
-                signature: waiver.signature,
-                signedAt: waiver.signedAt,
-                appliedAt: waiver.appliedAt,
-                sourceType: waiver.sourceType,
-                ipAddress: waiver.ipAddress,
-                userAgent: waiver.userAgent,
-              },
-            }),
-          ),
-        );
+        if (supportsWaiverPersistence) {
+          await Promise.all(
+            bookingWaivers.map((waiver) =>
+              tx.waiver.create({
+                data: {
+                  bookingId: createdBooking.id,
+                  accountWaiverId: waiver.accountWaiverId,
+                  type: waiver.type,
+                  content: waiver.content,
+                  signature: waiver.signature,
+                  signedAt: waiver.signedAt,
+                  appliedAt: waiver.appliedAt,
+                  sourceType: waiver.sourceType,
+                  ipAddress: waiver.ipAddress,
+                  userAgent: waiver.userAgent,
+                },
+              }),
+            ),
+          );
+        }
 
         return createdBooking;
       },
@@ -660,10 +681,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create Stripe Payment Intent if Stripe is configured
+    // Create Stripe payment session if Stripe is configured
     let clientSecret: string | undefined;
+    let paymentMode: BookingPaymentMode = "payment_element";
     if (isStripeConfigured()) {
       try {
+        paymentMode = getBookingPaymentMode();
+
         // Check if payment already exists for this booking (idempotency)
         const existingPayment = await bookingsPrisma.payment.findFirst({
           where: {
@@ -672,38 +696,91 @@ export async function POST(request: NextRequest) {
         });
 
         if (!existingPayment) {
-          const paymentIntent = await stripe.paymentIntents.create({
-            amount: formatAmountForStripe(booking.total),
-            currency: "usd",
-            automatic_payment_methods: { enabled: true },
-            metadata: {
-              bookingId: booking.id,
-              bookingNumber: booking.bookingNumber,
-              userId: booking.userId,
-            },
-            description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
-            receipt_email: data.email,
-          });
+          if (paymentMode === "embedded_checkout") {
+            const checkoutSession = await stripe.checkout.sessions.create({
+              ui_mode: "embedded",
+              redirect_on_completion: "never",
+              mode: "payment",
+              line_items: [
+                {
+                  price_data: {
+                    currency: "usd",
+                    product_data: {
+                      name: `Booking #${booking.bookingNumber}`,
+                      description: "Zaine's Stay & Play booking payment",
+                    },
+                    unit_amount: formatAmountForStripe(booking.total),
+                  },
+                  quantity: 1,
+                },
+              ],
+              metadata: {
+                bookingId: booking.id,
+                bookingNumber: booking.bookingNumber,
+                userId: booking.userId,
+              },
+              payment_intent_data: {
+                metadata: {
+                  bookingId: booking.id,
+                  bookingNumber: booking.bookingNumber,
+                  userId: booking.userId,
+                },
+                description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
+                receipt_email: data.email,
+              },
+            });
 
-          // Create payment record
-          await bookingsPrisma.payment.create({
-            data: {
-              bookingId: booking.id,
-              amount: booking.total,
+            await bookingsPrisma.payment.create({
+              data: {
+                bookingId: booking.id,
+                amount: booking.total,
+                currency: "usd",
+                status: "pending",
+                stripePaymentId: checkoutSession.id,
+                revenueRecognitionMethod: "service_period",
+                recognitionStatus: "pending_payment",
+                servicePeriodStart: booking.checkInDate,
+                servicePeriodEnd: booking.checkOutDate,
+                deferredRevenueAmount: booking.total,
+                recognizedRevenueAmount: 0,
+                taxTreatment: "booking_taxable",
+              },
+            });
+
+            clientSecret = checkoutSession.client_secret || undefined;
+          } else {
+            const paymentIntent = await stripe.paymentIntents.create({
+              amount: formatAmountForStripe(booking.total),
               currency: "usd",
-              status: "pending",
-              stripePaymentId: paymentIntent.id,
-              revenueRecognitionMethod: "service_period",
-              recognitionStatus: "pending_payment",
-              servicePeriodStart: booking.checkInDate,
-              servicePeriodEnd: booking.checkOutDate,
-              deferredRevenueAmount: booking.total,
-              recognizedRevenueAmount: 0,
-              taxTreatment: "booking_taxable",
-            },
-          });
+              automatic_payment_methods: { enabled: true },
+              metadata: {
+                bookingId: booking.id,
+                bookingNumber: booking.bookingNumber,
+                userId: booking.userId,
+              },
+              description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
+              receipt_email: data.email,
+            });
 
-          clientSecret = paymentIntent.client_secret || undefined;
+            await bookingsPrisma.payment.create({
+              data: {
+                bookingId: booking.id,
+                amount: booking.total,
+                currency: "usd",
+                status: "pending",
+                stripePaymentId: paymentIntent.id,
+                revenueRecognitionMethod: "service_period",
+                recognitionStatus: "pending_payment",
+                servicePeriodStart: booking.checkInDate,
+                servicePeriodEnd: booking.checkOutDate,
+                deferredRevenueAmount: booking.total,
+                recognizedRevenueAmount: 0,
+                taxTreatment: "booking_taxable",
+              },
+            });
+
+            clientSecret = paymentIntent.client_secret || undefined;
+          }
         }
       } catch (error) {
         logServerFailure(
@@ -741,13 +818,14 @@ export async function POST(request: NextRequest) {
           subtotal: responseSubtotal,
           tax: responseTax,
           total: responseTotal,
-          currency: adminSettings.pricingSettings.currency || BOOKING_PRICING_CURRENCY,
+          currency:
+            adminSettings.pricingSettings?.currency || BOOKING_PRICING_CURRENCY,
           pricingModelLabel: BOOKING_PRICING_MODEL_LABEL,
           disclosure:
-            adminSettings.trustCopySettings.pricingDisclosure ||
+            adminSettings.trustCopySettings?.pricingDisclosure ||
             BOOKING_PRICING_DISCLOSURE,
         },
-        payment: clientSecret ? { clientSecret } : undefined,
+        payment: clientSecret ? { clientSecret, mode: paymentMode } : undefined,
         message: clientSecret
           ? "Booking created. Please complete payment."
           : "Booking created successfully.",

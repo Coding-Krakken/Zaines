@@ -1,0 +1,151 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90m/home/obsidian/Projects/Zaines[39m
+
+[90mstderr[2m | src/__tests__/payments-create-intent-extended.test.ts[2m > [22m[2mcreate-intent route – extended coverage[2m > [22m[2mreturns 500 when stripe.paymentIntents.create throws
+[22m[39m{"route":"/api/payments/create-intent","errorCode":"PAYMENT_INTENT_CREATE_FAILED","correlationId":"ci-ext-test","errorType":"Error"}
+
+ [32m✓[39m src/__tests__/payments-create-intent-extended.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+[90mstderr[2m | src/__tests__/booking-flow-contract.test.ts[2m > [22m[2mbooking flow contract[2m > [22m[2mkeeps quote totals and created booking totals consistent
+[22m[39mError fetching admin settings: TypeError: Cannot read properties of undefined (reading 'findMany')
+    at getAdminSettings [90m(/home/obsidian/Projects/Zaines/[39msrc/lib/api/admin-settings.ts:72:44[90m)[39m
+    at Module.POST [90m(/home/obsidian/Projects/Zaines/[39msrc/app/api/bookings/validate/route.ts:89:28[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:103:5)[39m
+    at [90m/home/obsidian/Projects/Zaines/[39msrc/__tests__/booking-flow-contract.test.ts:149:27
+    at [90mfile:///home/obsidian/Projects/Zaines/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+
+[90mstderr[2m | src/__tests__/booking-payment-e2e.test.ts[2m > [22m[2mBooking → Payment E2E Flow[2m > [22m[2mPOST /api/bookings returns clientSecret when Stripe is configured
+[22m[39m{"route":"/api/bookings","errorCode":"BOOKING_CREATE_FAILED","correlationId":"96d9bfdd-7d9e-4008-a220-f3dbd30ca28c","errorType":"TypeError"}
+
+[90mstderr[2m | src/__tests__/booking-flow-contract.test.ts[2m > [22m[2mbooking flow contract[2m > [22m[2mkeeps quote totals and created booking totals consistent
+[22m[39mError fetching admin settings: TypeError: Cannot read properties of undefined (reading 'findMany')
+    at getAdminSettings [90m(/home/obsidian/Projects/Zaines/[39msrc/lib/api/admin-settings.ts:72:44[90m)[39m
+    at Module.POST [90m(/home/obsidian/Projects/Zaines/[39msrc/app/api/bookings/route.ts:269:33[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:103:5)[39m
+    at [90m/home/obsidian/Projects/Zaines/[39msrc/__tests__/booking-flow-contract.test.ts:180:29
+    at [90mfile:///home/obsidian/Projects/Zaines/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+
+[90mstderr[2m | src/__tests__/booking-flow-contract.test.ts[2m > [22m[2mbooking flow contract[2m > [22m[2mkeeps quote totals and created booking totals consistent
+[22m[39m{"route":"/api/bookings","errorCode":"BOOKING_CREATE_FAILED","correlationId":"14a28e8e-779c-4819-86b8-2ac404f7f204","errorType":"TypeError"}
+
+[90mstderr[2m | src/__tests__/booking-payment-e2e.test.ts[2m > [22m[2mBooking → Payment E2E Flow[2m > [22m[2mPOST /api/bookings creates payment record with pending status
+[22m[39m{"route":"/api/bookings","errorCode":"BOOKING_CREATE_FAILED","correlationId":"02a8a199-3f16-43d8-b17d-aeb2958340b8","errorType":"TypeError"}
+
+[90mstderr[2m | src/__tests__/booking-payment-e2e.test.ts[2m > [22m[2mBooking → Payment E2E Flow[2m > [22m[2mPOST /api/bookings handles Stripe failures gracefully
+[22m[39m{"route":"/api/bookings","errorCode":"BOOKING_CREATE_FAILED","correlationId":"25d079ad-d967-42c7-b4c0-1a799844bb08","errorType":"TypeError"}
+
+[90mstderr[2m | src/__tests__/booking-flow-contract.test.ts[2m > [22m[2mbooking flow contract[2m > [22m[2mhandles duplicate payment_intent.succeeded webhook events idempotently
+[22m[39mFailed to fetch charge details for payment intent: TypeError: Cannot read properties of undefined (reading 'list')
+    at handlePaymentSuccess [90m(/home/obsidian/Projects/Zaines/[39msrc/app/api/payments/webhook/route.ts:183:44[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:103:5)[39m
+    at Module.POST [90m(/home/obsidian/Projects/Zaines/[39msrc/app/api/payments/webhook/route.ts:89:9[90m)[39m
+    at [90m/home/obsidian/Projects/Zaines/[39msrc/__tests__/booking-flow-contract.test.ts:201:19
+    at [90mfile:///home/obsidian/Projects/Zaines/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+
+[90mstdout[2m | src/__tests__/booking-flow-contract.test.ts[2m > [22m[2mbooking flow contract[2m > [22m[2mhandles duplicate payment_intent.succeeded webhook events idempotently
+[22m[39m{"route":"/api/payments/webhook","event":"PAYMENT_SUCCEEDED","correlationId":"c36732aa-00b5-4c72-943a-8721897cbece","context":{"bookingId":"booking-contract-001"}}
+
+[90mstderr[2m | src/__tests__/booking-payment-e2e.test.ts[2m > [22m[2mBooking → Payment E2E Flow[2m > [22m[2mwebhook payment_intent.succeeded updates booking to confirmed
+[22m[39mFailed to fetch charge details for payment intent: TypeError: Cannot read properties of undefined (reading 'list')
+    at handlePaymentSuccess [90m(/home/obsidian/Projects/Zaines/[39msrc/app/api/payments/webhook/route.ts:183:44[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:103:5)[39m
+    at Module.POST [90m(/home/obsidian/Projects/Zaines/[39msrc/app/api/payments/webhook/route.ts:89:9[90m)[39m
+    at [90m/home/obsidian/Projects/Zaines/[39msrc/__tests__/booking-payment-e2e.test.ts:400:22
+    at [90mfile:///home/obsidian/Projects/Zaines/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+
+[90mstdout[2m | src/__tests__/booking-payment-e2e.test.ts[2m > [22m[2mBooking → Payment E2E Flow[2m > [22m[2mwebhook payment_intent.succeeded updates booking to confirmed
+[22m[39m{"route":"/api/payments/webhook","event":"PAYMENT_SUCCEEDED","correlationId":"e872aeec-b71b-4d02-aee5-fe6f9d6206ac","context":{"bookingId":"booking-123"}}
+
+ [31m❯[39m src/__tests__/booking-flow-contract.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 35[2mms[22m[39m
+[31m     [31m×[31m keeps quote totals and created booking totals consistent[39m[32m 28[2mms[22m[39m
+     [32m✓[39m handles duplicate payment_intent.succeeded webhook events idempotently[32m 5[2mms[22m[39m
+[90mstdout[2m | src/__tests__/booking-payment-e2e.test.ts[2m > [22m[2mBooking → Payment E2E Flow[2m > [22m[2mwebhook payment_intent.payment_failed updates booking to cancelled
+[22m[39m{"route":"/api/payments/webhook","event":"PAYMENT_FAILED","correlationId":"a7f86133-77c8-466a-a4fd-6db42af623d3","context":{"bookingId":"booking-123"}}
+
+ [31m❯[39m src/__tests__/booking-payment-e2e.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 38[2mms[22m[39m
+[31m     [31m×[31m POST /api/bookings returns clientSecret when Stripe is configured[39m[32m 21[2mms[22m[39m
+[31m     [31m×[31m POST /api/bookings creates payment record with pending status[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m POST /api/bookings handles Stripe failures gracefully[39m[32m 3[2mms[22m[39m
+     [32m✓[39m webhook payment_intent.succeeded updates booking to confirmed[32m 5[2mms[22m[39m
+     [32m✓[39m webhook payment_intent.payment_failed updates booking to cancelled[32m 2[2mms[22m[39m
+     [32m✓[39m POST /api/bookings does not create duplicate payment records (idempotent)[32m 2[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/booking-flow-contract.test.ts[2m > [22mbooking flow contract[2m > [22mkeeps quote totals and created booking totals consistent
+[31m[1mAssertionError[22m: expected 500 to be 201 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 201[39m
+[31m+ 500[39m
+
+[36m [2m❯[22m src/__tests__/booking-flow-contract.test.ts:[2m183:36[22m[39m
+    [90m181| [39m    [35mconst[39m bookingBody [33m=[39m [35mawait[39m bookingResponse[33m.[39m[34mjson[39m()[33m;[39m
+    [90m182| [39m
+    [90m183| [39m    [34mexpect[39m(bookingResponse[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m201[39m)[33m;[39m
+    [90m   | [39m                                   [31m^[39m
+    [90m184| [39m    [34mexpect[39m(bookingBody[33m.[39mpricing[33m.[39mtotal)[33m.[39m[34mtoBe[39m(quoteBody[33m.[39mpricing[33m.[39mtotal)[33m;[39m
+    [90m185| [39m    expect(bookingBody.pricing.subtotal).toBe(quoteBody.pricing.subtot…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/booking-payment-e2e.test.ts[2m > [22mBooking → Payment E2E Flow[2m > [22mPOST /api/bookings returns clientSecret when Stripe is configured
+[31m[1mAssertionError[22m: expected 500 to be 201 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 201[39m
+[31m+ 500[39m
+
+[36m [2m❯[22m src/__tests__/booking-payment-e2e.test.ts:[2m260:29[22m[39m
+    [90m258| [39m    [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()[33m;[39m
+    [90m259| [39m
+    [90m260| [39m    [34mexpect[39m(response[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m201[39m)[33m;[39m
+    [90m   | [39m                            [31m^[39m
+    [90m261| [39m    [34mexpect[39m(data[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m262| [39m    [34mexpect[39m(data[33m.[39mbooking)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/booking-payment-e2e.test.ts[2m > [22mBooking → Payment E2E Flow[2m > [22mPOST /api/bookings creates payment record with pending status
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ][90m
+
+Number of calls: [1m0[22m
+[31m[39m
+[36m [2m❯[22m src/__tests__/booking-payment-e2e.test.ts:[2m310:35[22m[39m
+    [90m308| [39m    [35mawait[39m [34mbookingsPost[39m(request [35mas[39m [33mNextRequest[39m)[33m;[39m
+    [90m309| [39m
+    [90m310| [39m    [34mexpect[39m(prisma[33m.[39mpayment[33m.[39mcreate)[33m.[39m[34mtoHaveBeenCalledWith[39m(
+    [90m   | [39m                                  [31m^[39m
+    [90m311| [39m      expect[33m.[39m[34mobjectContaining[39m({
+    [90m312| [39m        data[33m:[39m expect[33m.[39m[34mobjectContaining[39m({
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/booking-payment-e2e.test.ts[2m > [22mBooking → Payment E2E Flow[2m > [22mPOST /api/bookings handles Stripe failures gracefully
+[31m[1mAssertionError[22m: expected 500 to be 201 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 201[39m
+[31m+ 500[39m
+
+[36m [2m❯[22m src/__tests__/booking-payment-e2e.test.ts:[2m359:29[22m[39m
+    [90m357| [39m
+    [90m358| [39m    // Booking should still succeed even if payment intent creation fa…
+    [90m359| [39m    [34mexpect[39m(response[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m201[39m)[33m;[39m
+    [90m   | [39m                            [31m^[39m
+    [90m360| [39m    [34mexpect[39m(data[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m361| [39m    [34mexpect[39m(data[33m.[39mbooking)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m15 passed[39m[22m[90m (19)[39m
+[2m   Start at [22m 10:19:54
+[2m   Duration [22m 536ms[2m (transform 516ms, setup 91ms, import 903ms, tests 115ms, environment 0ms)[22m
+

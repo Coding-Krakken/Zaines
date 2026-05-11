@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  EmbeddedCheckout,
+  EmbeddedCheckoutProvider,
   Elements,
   PaymentElement,
   useStripe,
@@ -33,12 +35,14 @@ import { useRouter } from "next/navigation";
 interface StepPaymentProps {
   data: Partial<StepPaymentData> & {
     clientSecret?: string;
+    paymentMode?: "payment_element" | "embedded_checkout";
     pricingDisclosureAccepted?: boolean;
     bookingId?: string;
   };
   onUpdate: (
     data: Partial<StepPaymentData> & {
       clientSecret?: string;
+      paymentMode?: "payment_element" | "embedded_checkout";
       pricingDisclosureAccepted?: boolean;
       bookingId?: string;
     },
@@ -237,6 +241,9 @@ export function StepPayment({
 }: StepPaymentProps) {
   const router = useRouter();
   const [clientSecret, setClientSecret] = useState(data.clientSecret || "");
+  const [paymentMode, setPaymentMode] = useState<
+    "payment_element" | "embedded_checkout"
+  >(data.paymentMode || "payment_element");
   const [bookingId, setBookingId] = useState(data.bookingId || "");
   const [pricingDisclosureAccepted, setPricingDisclosureAccepted] = useState(
     Boolean(data.pricingDisclosureAccepted),
@@ -328,7 +335,10 @@ export function StepPayment({
           total: number;
           currency: string;
         };
-        payment?: { clientSecret?: string };
+        payment?: {
+          clientSecret?: string;
+          mode?: "payment_element" | "embedded_checkout";
+        };
       };
 
       if (Math.abs(payload.pricing.total - pricingQuote.total) > 0.01) {
@@ -339,6 +349,7 @@ export function StepPayment({
 
       const nextBookingId = payload.booking.id;
       const nextClientSecret = payload.payment?.clientSecret || "";
+      const nextPaymentMode = payload.payment?.mode || "payment_element";
 
       sessionStorage.setItem(
         `booking-${nextBookingId}`,
@@ -365,9 +376,11 @@ export function StepPayment({
 
       setBookingId(nextBookingId);
       setClientSecret(nextClientSecret);
+      setPaymentMode(nextPaymentMode);
       onUpdate({
         bookingId: nextBookingId,
         clientSecret: nextClientSecret,
+        paymentMode: nextPaymentMode,
       });
     } catch (error: unknown) {
       const message =
@@ -492,20 +505,54 @@ export function StepPayment({
           onPricingDisclosureChange={handleDisclosureChange}
         />
 
-        <Elements
-          stripe={getStripe()}
-          options={{
-            clientSecret,
-            appearance: { theme: "stripe" },
-          }}
-        >
-          <PaymentForm
-            onSuccess={finalizeBooking}
-            onBack={onBack}
-            disclosureAccepted={pricingDisclosureAccepted}
-            totalWithTax={totalWithTax}
-          />
-        </Elements>
+        {paymentMode === "embedded_checkout" ? (
+          pricingDisclosureAccepted ? (
+            <div className="space-y-4">
+              <EmbeddedCheckoutProvider
+                stripe={getStripe()}
+                options={{
+                  fetchClientSecret: async () => clientSecret,
+                  onComplete: finalizeBooking,
+                }}
+              >
+                <EmbeddedCheckout />
+              </EmbeddedCheckoutProvider>
+              <div className="flex justify-start">
+                <Button type="button" variant="outline" onClick={onBack}>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3 rounded-lg border border-dashed p-4">
+              <p className="text-sm text-muted-foreground">
+                Acknowledge pricing disclosure above to unlock secure checkout.
+              </p>
+              <div className="flex justify-start">
+                <Button type="button" variant="outline" onClick={onBack}>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+              </div>
+            </div>
+          )
+        ) : (
+          <Elements
+            stripe={getStripe()}
+            options={{
+              clientSecret,
+              appearance: { theme: "stripe" },
+            }}
+          >
+            <PaymentForm
+              onSuccess={finalizeBooking}
+              onBack={onBack}
+              disclosureAccepted={pricingDisclosureAccepted}
+              totalWithTax={totalWithTax}
+            />
+          </Elements>
+        )}
       </CardContent>
     </Card>
   );
