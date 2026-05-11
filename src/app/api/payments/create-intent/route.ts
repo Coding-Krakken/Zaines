@@ -215,6 +215,8 @@ export async function POST(request: NextRequest) {
       },
       description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
       receipt_email: booking.user.email || undefined,
+    }, {
+      idempotencyKey: `booking:${bookingId}:amount:${formatAmountForStripe(amount)}`,
     });
 
     // Create payment record in database

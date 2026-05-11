@@ -8,6 +8,42 @@ import { sendPaymentNotification } from "@/lib/notifications";
 import { errorResponse, getCorrelationId, logServerFailure } from "@/lib/security/api";
 import { logSecurityEvent } from "@/lib/security/logging";
 
+async function reserveWebhookEvent(event: Stripe.Event): Promise<boolean> {
+  const existing = await prisma.stripeEvent.findUnique({
+    where: { eventId: event.id },
+    select: { processed: true },
+  });
+
+  if (existing?.processed) {
+    return false;
+  }
+
+  if (!existing) {
+    await prisma.stripeEvent.create({
+      data: {
+        eventId: event.id,
+        eventType: event.type,
+        payload: event as unknown as Prisma.InputJsonValue,
+        processed: false,
+      },
+    });
+  }
+
+  return true;
+}
+
+async function markWebhookEventProcessed(event: Stripe.Event): Promise<void> {
+  await prisma.stripeEvent.updateMany({
+    where: { eventId: event.id },
+    data: {
+      eventType: event.type,
+      payload: event as unknown as Prisma.InputJsonValue,
+      processed: true,
+      processedAt: new Date(),
+    },
+  });
+}
+
 // POST /api/payments/webhook - Handle Stripe webhook events
 export async function POST(request: NextRequest) {
   const correlationId = getCorrelationId(request);
@@ -82,11 +118,22 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const shouldProcess = await reserveWebhookEvent(event);
+    if (!shouldProcess) {
+      logSecurityEvent({
+        route: "/api/payments/webhook",
+        event: "WEBHOOK_EVENT_REPLAY_SKIPPED",
+        correlationId,
+        context: { eventId: event.id, eventType: event.type },
+      });
+      return NextResponse.json({ received: true, deduplicated: true });
+    }
+
     // Handle the event
     switch (event.type) {
       case "payment_intent.succeeded": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        await handlePaymentSuccess(paymentIntent, event.id, correlationId);
+        await handlePaymentSuccess(paymentIntent, correlationId);
         break;
       }
 
@@ -123,6 +170,8 @@ export async function POST(request: NextRequest) {
         });
     }
 
+    await markWebhookEventProcessed(event);
+
     return NextResponse.json({ received: true });
   } catch (error) {
     logServerFailure(
@@ -143,7 +192,6 @@ export async function POST(request: NextRequest) {
 
 async function handlePaymentSuccess(
   paymentIntent: Stripe.PaymentIntent,
-  eventId: string,
   correlationId: string,
   fallbackBookingId?: string,
 ) {
@@ -220,25 +268,6 @@ async function handlePaymentSuccess(
       },
     });
 
-    // Store event record
-    if (eventId) {
-      await prisma.stripeEvent.upsert({
-        where: { eventId },
-        create: {
-          eventId,
-          eventType: "payment_intent.succeeded",
-          paymentId: existingPayment?.id || null,
-          payload: paymentIntent as unknown as Prisma.InputJsonValue,
-          processed: true,
-          processedAt: new Date(),
-        },
-        update: {
-          processed: true,
-          processedAt: new Date(),
-        },
-      });
-    }
-
     // Update booking status
     await prisma.booking.update({
       where: { id: bookingId },
@@ -275,6 +304,7 @@ async function handlePaymentSuccess(
       correlationId,
       error,
     );
+    throw error;
   }
 }
 
@@ -320,7 +350,6 @@ async function handleCheckoutSessionCompleted(
 
     await handlePaymentSuccess(
       paymentIntent,
-      eventId,
       correlationId,
       session.metadata?.bookingId,
     );
@@ -331,6 +360,7 @@ async function handleCheckoutSessionCompleted(
       correlationId,
       error,
     );
+    throw error;
   }
 }
 
@@ -402,6 +432,7 @@ async function handlePaymentFailure(
       correlationId,
       error,
     );
+    throw error;
   }
 }
 
@@ -458,6 +489,7 @@ async function handlePaymentCanceled(
       correlationId,
       error,
     );
+    throw error;
   }
 }
 
@@ -521,5 +553,6 @@ async function handleRefund(charge: Stripe.Charge, eventId: string, correlationI
       correlationId,
       error,
     );
+    throw error;
   }
 }

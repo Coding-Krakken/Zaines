@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Download, Loader2, RefreshCw, TrendingUp, TrendingDown, DollarSign, CreditCard, AlertTriangle, ExternalLink, FileText, BarChart3 } from 'lucide-react';
+import { Download, RefreshCw, TrendingUp, TrendingDown, DollarSign, CreditCard, AlertTriangle, ExternalLink, FileText, BarChart3 } from 'lucide-react';
 import { AdminErrorState, AdminLoadingState } from '@/components/admin/AdminAsyncState';
 import type {
   FinanceAlertsResponse,

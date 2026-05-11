@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AdminErrorState, AdminLoadingState } from '@/components/admin/AdminAsyncState';
 import {
   Calendar,
   LogOut,
@@ -81,6 +82,7 @@ export default function AdminDashboardClient({
   const [operationsQueue, setOperationsQueue] = useState<AdminQueueItem[]>([]);
   const [kpis, setKpis] = useState<KPICard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   // Calculate KPIs from bookings
@@ -166,6 +168,8 @@ export default function AdminDashboardClient({
 
   // Fetch bookings data
   const fetchBookings = useCallback(async () => {
+    setErrorMessage('');
+
     try {
       const { startDate, endDate } = getDateRange(dateRange);
       const params = new URLSearchParams({
@@ -197,6 +201,11 @@ export default function AdminDashboardClient({
       }
     } catch (error) {
       console.error('Error fetching bookings:', error);
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'Failed loading dashboard data.',
+      );
     } finally {
       setIsLoading(false);
     }
@@ -219,16 +228,24 @@ export default function AdminDashboardClient({
 
   if (isLoading && bookings.length === 0) {
     return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 w-48 bg-muted rounded mb-4" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-32 bg-muted rounded" />
-            ))}
-          </div>
-        </div>
+      <div className="py-8">
+        <AdminLoadingState message="Loading staff dashboard…" />
       </div>
+    );
+  }
+
+  if (errorMessage && bookings.length === 0) {
+    return (
+      <AdminErrorState
+        title="Dashboard unavailable"
+        message={errorMessage}
+        action={{
+          label: 'Retry Dashboard Load',
+          onAction: () => {
+            void fetchBookings();
+          },
+        }}
+      />
     );
   }
 

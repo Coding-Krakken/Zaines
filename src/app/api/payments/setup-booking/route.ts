@@ -122,6 +122,8 @@ async function createPaymentObject(args: {
         description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
         receipt_email: booking.user.email || undefined,
       },
+    }, {
+      idempotencyKey: `booking:${booking.id}:mode:embedded_checkout`,
     });
 
     return {
@@ -142,6 +144,8 @@ async function createPaymentObject(args: {
     },
     description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
     receipt_email: booking.user.email || undefined,
+  }, {
+    idempotencyKey: `booking:${booking.id}:mode:payment_element`,
   });
 
   return {
