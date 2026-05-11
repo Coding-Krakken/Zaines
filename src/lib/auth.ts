@@ -8,8 +8,9 @@ import { isDatabaseConfigured } from "./prisma";
 
 // NextAuth v5 uses AUTH_SECRET; fall back to NEXTAUTH_SECRET for deployments
 // that have not yet migrated their environment variables.
+// Use || (not ??) so that an empty string also falls through to the fallback.
 const authSecret =
-  process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+  process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
 
 const isProduction = process.env.NODE_ENV === "production";
 const hasDatabase = isDatabaseConfigured();
