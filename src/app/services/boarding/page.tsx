@@ -50,6 +50,9 @@ export default function BoardingPage() {
                   <Link href="/book">Book Now</Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
+                  <Link href="/checkout/standard">Stripe Checkout</Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild>
                   <Link href="/suites">View Suites</Link>
                 </Button>
               </div>
