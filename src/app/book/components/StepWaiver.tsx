@@ -208,7 +208,7 @@ export function StepWaiver({
                 onUpdate({ reuseExistingWaivers: nextValue });
                 if (nextValue) {
                   setSignature("");
-                  onUpdate({ signature: "" });
+                  onUpdate({ signature: undefined });
                 }
               }}
             />

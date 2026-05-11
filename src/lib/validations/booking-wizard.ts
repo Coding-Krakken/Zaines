@@ -127,7 +127,10 @@ export const stepWaiverSchema = z.object({
   photoReleaseAccepted: z.boolean().default(false),
   policyAcknowledgmentAccepted: z.boolean().default(false),
   reuseExistingWaivers: z.boolean().default(true),
-  signature: z.string().min(10, "Please provide a signature").optional(),
+  signature: z.preprocess(
+    (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+    z.string().min(10, "Please provide a signature").optional(),
+  ),
   ipAddress: z
     .string()
     .regex(

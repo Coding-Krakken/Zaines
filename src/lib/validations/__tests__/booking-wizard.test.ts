@@ -126,6 +126,19 @@ describe("Validation Schemas", () => {
     expect(() => stepWaiverSchema.parse(invalidData)).toThrow();
   });
 
+  it("accepts reused waivers when signature is an empty string", () => {
+    const reusedWithEmptySignature = {
+      liabilityAccepted: false,
+      medicalAuthorizationAccepted: false,
+      photoReleaseAccepted: false,
+      policyAcknowledgmentAccepted: false,
+      reuseExistingWaivers: true,
+      signature: "",
+    };
+
+    expect(stepWaiverSchema.parse(reusedWithEmptySignature)).toBeDefined();
+  });
+
   it("validates stepPaymentSchema", () => {
     const validData = { paymentOption: "full", amount: 100 };
     expect(stepPaymentSchema.parse(validData)).toEqual(validData);
