@@ -21,16 +21,16 @@ import {
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { paymentId: string } }
+  { params }: { params: Promise<{ paymentId: string }> }
 ) {
   try {
     // Require finance read access
     const access = await requireFinanceAccess('read');
-    if (!access.authorized) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (access.response) {
+      return access.response;
     }
 
-    const { paymentId } = params;
+    const { paymentId } = await params;
 
     if (!paymentId) {
       return NextResponse.json(
@@ -45,14 +45,12 @@ export async function GET(
       include: {
         booking: {
           include: {
-            customer: {
+            user: {
               select: {
                 id: true,
                 email: true,
-                firstName: true,
-                lastName: true,
+                name: true,
                 phone: true,
-                stripeCustomerId: true,
               },
             },
             suite: {
@@ -64,9 +62,8 @@ export async function GET(
             waivers: {
               select: {
                 id: true,
-                status: true,
+                type: true,
                 signedAt: true,
-                participantName: true,
               },
             },
           },
@@ -146,11 +143,11 @@ export async function GET(
       : [];
 
     // Fetch other payments from same customer
-    const customerPayments = payment.booking?.customer?.id
+    const customerPayments = payment.booking?.user?.id
       ? await prisma.payment.findMany({
           where: {
             booking: {
-              customerId: payment.booking.customer.id,
+              userId: payment.booking.user.id,
             },
             id: { not: payment.id },
             bookingId: { not: payment.bookingId },
@@ -208,14 +205,8 @@ export async function GET(
       }
     }
 
-    if (payment.booking?.customer?.stripeCustomerId) {
-      try {
-        stripeLinks.customer = getStripeCustomerUrl(
-          payment.booking.customer.stripeCustomerId
-        );
-      } catch (e) {
-        console.warn('Invalid customer ID:', payment.booking.customer.stripeCustomerId);
-      }
+    if (payment.booking?.user?.id) {
+      // No stripeCustomerId on User; omit customer Stripe link
     }
 
     // Add payout link if payment is matched to a payout
@@ -254,15 +245,14 @@ export async function GET(
         ? {
             id: payment.booking.id,
             status: payment.booking.status,
-            startTime: payment.booking.startTime,
-            endTime: payment.booking.endTime,
-            totalAmount: payment.booking.totalAmount,
-            depositAmount: payment.booking.depositAmount,
+            checkInDate: payment.booking.checkInDate,
+            checkOutDate: payment.booking.checkOutDate,
+            total: payment.booking.total,
             suite: payment.booking.suite,
             waivers: payment.booking.waivers,
           }
         : null,
-      customer: payment.booking?.customer || null,
+      customer: payment.booking?.user || null,
       stripeEvents: relatedEvents,
       stripeBalances: payment.stripeBalances || [],
       payout: matchedPayout?.payout || null,

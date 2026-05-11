@@ -130,6 +130,31 @@ type BookingsTransactionClient = {
     ) => Promise<{ id: string } | null>;
     upsert: (args: Record<string, unknown>) => Promise<{ id: string }>;
   };
+  accountWaiver: {
+    findMany: (args: Record<string, unknown>) => Promise<Array<{
+      id: string;
+      userId: string;
+      type: string;
+      content: string;
+      signature: string;
+      signedAt: Date;
+      expiresAt: Date | null;
+      ipAddress: string;
+      userAgent: string | null;
+    }>>;
+    upsert: (args: Record<string, unknown>) => Promise<{
+      id: string;
+      content: string;
+      signature: string;
+      signedAt: Date;
+      expiresAt: Date | null;
+      ipAddress: string;
+      userAgent: string | null;
+    }>;
+  };
+  waiver: {
+    create: (args: Record<string, unknown>) => Promise<{ id: string }>;
+  };
 };
 
 const bookingsPrisma = prisma as unknown as BookingsApiPrisma;
@@ -174,6 +199,8 @@ const bookingSchema = z.object({
     photoReleaseAccepted: z.literal(true),
     policyAcknowledgmentAccepted: z.literal(true),
     signature: z.string().min(10).optional(),
+    ipAddress: z.string().optional(),
+    userAgent: z.string().optional(),
   }),
   reuseExistingWaivers: z.boolean().optional().default(true),
 });

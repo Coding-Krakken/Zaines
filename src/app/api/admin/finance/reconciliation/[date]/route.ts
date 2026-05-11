@@ -10,15 +10,15 @@ import { requireFinanceAccess } from '@/lib/api/admin-finance-auth';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { date: string } }
+  { params }: { params: Promise<{ date: string }> }
 ) {
   try {
     const access = await requireFinanceAccess('read');
-    if (!access.authorized) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (access.response) {
+      return access.response;
     }
 
-    const { date } = params;
+    const { date } = await params;
 
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return NextResponse.json(
@@ -44,10 +44,9 @@ export async function GET(
           select: {
             id: true,
             bookingNumber: true,
-            customer: {
+            user: {
               select: {
-                firstName: true,
-                lastName: true,
+                name: true,
                 email: true,
               },
             },
@@ -74,9 +73,7 @@ export async function GET(
 
     // Enrich payment data
     const enrichedPayments = payments.map((payment) => {
-      const customerName = payment.booking?.customer
-        ? `${payment.booking.customer.firstName ?? ''} ${payment.booking.customer.lastName ?? ''}`.trim()
-        : 'Unknown';
+      const customerName = payment.booking?.user?.name ?? 'Unknown';
       
       const payout = payment.stripeBalances?.[0]?.payout;
 
@@ -93,7 +90,7 @@ export async function GET(
         paidAt: payment.paidAt,
         bookingNumber: payment.booking?.bookingNumber ?? 'N/A',
         customerName,
-        customerEmail: payment.booking?.customer?.email ?? 'N/A',
+        customerEmail: payment.booking?.user?.email ?? 'N/A',
         payout: payout
           ? {
               id: payout.id,

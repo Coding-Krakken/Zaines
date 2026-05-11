@@ -181,8 +181,8 @@ async function handlePaymentSuccess(
         const charge = charges.data[0];
         chargeData.stripeChargeId = charge.id;
         if (charge.payment_method_details?.card) {
-          chargeData.cardBrand = charge.payment_method_details.card.brand;
-          chargeData.cardLastFour = charge.payment_method_details.card.last4;
+          chargeData.cardBrand = charge.payment_method_details.card.brand ?? undefined;
+          chargeData.cardLastFour = charge.payment_method_details.card.last4 ?? undefined;
         }
         if (charge.amount_captured && charge.application_fee_amount) {
           chargeData.stripeFee = charge.application_fee_amount / 100;

@@ -329,9 +329,9 @@ export default function FinanceReconciliationPage() {
                                             <TableRow key={payment.id} className="text-sm">
                                               <TableCell>
                                                 {payment.payout ? (
-                                                  <CheckCircle className="h-4 w-4 text-green-600" title="Matched to payout" />
+                                                  <CheckCircle className="h-4 w-4 text-green-600" aria-label="Matched to payout" />
                                                 ) : (
-                                                  <XCircle className="h-4 w-4 text-orange-600" title="Not matched" />
+                                                  <XCircle className="h-4 w-4 text-orange-600" aria-label="Not matched" />
                                                 )}
                                               </TableCell>
                                               <TableCell className="text-xs">

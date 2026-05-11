@@ -5,8 +5,8 @@ import { requireFinanceAccess } from '@/lib/api/admin-finance-auth';
 export async function GET(request: NextRequest) {
   try {
     const access = await requireFinanceAccess('read');
-    if (!access.authorized) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (access.response) {
+      return access.response;
     }
 
     // Fetch all payouts with their balance transactions

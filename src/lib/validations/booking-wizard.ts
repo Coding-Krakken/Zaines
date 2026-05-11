@@ -145,8 +145,7 @@ export const stepWaiverSchema = z.object({
     .optional(),
   userAgent: z.string().optional(),
   timestamp: z.date().default(() => new Date()),
-});
-  superRefine((data, context) => {
+}).superRefine((data, context) => {
     if (!data.reuseExistingWaivers && !data.signature) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
