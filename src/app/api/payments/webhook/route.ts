@@ -166,7 +166,7 @@ async function handlePaymentSuccess(
     let chargeData: Partial<{
       cardBrand: string;
       cardLastFour: string;
-      stripeFee: number;
+      stripeFeeAmount: number;
       stripeChargeId: string;
     }> = {};
 
@@ -185,7 +185,7 @@ async function handlePaymentSuccess(
           chargeData.cardLastFour = charge.payment_method_details.card.last4 ?? undefined;
         }
         if (charge.amount_captured && charge.application_fee_amount) {
-          chargeData.stripeFee = charge.application_fee_amount / 100;
+          chargeData.stripeFeeAmount = charge.application_fee_amount / 100;
         }
       }
     } catch (err) {
@@ -201,6 +201,7 @@ async function handlePaymentSuccess(
       data: {
         status: "succeeded",
         paidAt: new Date(),
+        recognitionStatus: "deferred",
         ...chargeData,
         webhookEventIds: eventId ? [eventId] : [],
       },
@@ -289,6 +290,9 @@ async function handlePaymentFailure(
       },
       data: {
         status: "failed",
+        recognitionStatus: "voided",
+        deferredRevenueAmount: 0,
+        recognizedRevenueAmount: 0,
         webhookEventIds: eventId ? [eventId] : [],
       },
     });
@@ -357,6 +361,9 @@ async function handlePaymentCanceled(
       },
       data: {
         status: "cancelled",
+        recognitionStatus: "voided",
+        deferredRevenueAmount: 0,
+        recognizedRevenueAmount: 0,
         webhookEventIds: eventId ? [eventId] : [],
       },
     });
@@ -409,6 +416,9 @@ async function handleRefund(charge: Stripe.Charge, eventId: string, correlationI
       },
       data: {
         status: "refunded",
+        recognitionStatus: "reversed",
+        deferredRevenueAmount: 0,
+        recognizedRevenueAmount: 0,
         webhookEventIds: eventId ? [eventId] : [],
       },
     });

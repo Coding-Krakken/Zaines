@@ -1,0 +1,48 @@
+meta:
+  id: canonical-failure-modes
+  version: 1.0.0
+  status: active
+  owner: sre-engineer
+  date: 2026-05-11
+
+failure_modes:
+  - id: FM-RR-001
+    name: webhook_signature_verification_failed
+    impact: no recognition mutation for the incoming event
+    detection:
+      - errorCode WEBHOOK_SIGNATURE_VERIFICATION_FAILED
+    mitigation:
+      - reject event with 400
+      - preserve existing payment/recognition state
+
+  - id: FM-RR-002
+    name: duplicate_webhook_event
+    impact: potential double-mutation of recognition amounts
+    detection:
+      - existing stripe_events.eventId already processed
+    mitigation:
+      - idempotent upsert by eventId
+      - no-op when payment already in terminal state
+
+  - id: FM-RR-003
+    name: service_period_missing
+    impact: transaction cannot be recognized on schedule
+    detection:
+      - servicePeriodStart or servicePeriodEnd null while method=service_period
+    mitigation:
+      - mark recognitionStatus as excluded
+      - emit mismatch alert and remediation task
+
+  - id: FM-RR-004
+    name: report_generation_timeout
+    impact: delayed finance reporting for close process
+    detection:
+      - API timeout or export failure
+    mitigation:
+      - retry with narrowed period window
+      - fallback to cached summary for read-only views
+
+rollback_triggers:
+  - recognition_mismatch_rate_over_threshold
+  - webhook_processing_failure_rate_over_threshold
+  - finance_export_failure_spike

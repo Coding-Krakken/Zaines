@@ -27,6 +27,7 @@ import type {
   FinanceCashForecastResponse,
   FinanceExceptionsResponse,
   FinanceOverviewResponse,
+  FinanceRevenueRecognitionSummaryResponse,
   FinanceTransactionStatus,
   FinanceTransactionsResponse,
 } from '@/types/finance';
@@ -93,6 +94,24 @@ function severityBadgeVariant(severity: 'info' | 'warning' | 'critical'): 'defau
   }
 }
 
+function recognitionBadgeVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
+  switch (status) {
+    case 'fully_recognized':
+      return 'default';
+    case 'partially_recognized':
+      return 'secondary';
+    case 'reversed':
+      return 'destructive';
+    case 'excluded':
+      return 'outline';
+    case 'deferred':
+    case 'pending_payment':
+    case 'voided':
+    default:
+      return 'secondary';
+  }
+}
+
 function defaultDateRange(): { startDate: string; endDate: string } {
   const endDate = new Date();
   const startDate = new Date();
@@ -136,6 +155,8 @@ export default function AdminFinancePage() {
   const [status, setStatus] = useState<'all' | FinanceTransactionStatus>('all');
 
   const [overview, setOverview] = useState<FinanceOverviewResponse | null>(null);
+  const [revenueRecognition, setRevenueRecognition] =
+    useState<FinanceRevenueRecognitionSummaryResponse | null>(null);
   const [transactions, setTransactions] = useState<FinanceTransactionsResponse | null>(null);
   const [alerts, setAlerts] = useState<FinanceAlertsResponse | null>(null);
   const [exceptions, setExceptions] = useState<FinanceExceptionsResponse | null>(null);
@@ -161,8 +182,9 @@ export default function AdminFinancePage() {
         ...(search.trim() ? { search: search.trim() } : {}),
       });
 
-      const [overviewRes, txRes, alertsRes, exceptionsRes, forecastRes] = await Promise.all([
+      const [overviewRes, revRecRes, txRes, alertsRes, exceptionsRes, forecastRes] = await Promise.all([
         fetch(`/api/admin/finance/overview?${params}`, { cache: 'no-store' }),
+        fetch(`/api/admin/finance/revenue-recognition?${params}`, { cache: 'no-store' }),
         fetch(`/api/admin/finance/transactions?${txParams}`, { cache: 'no-store' }),
         fetch('/api/admin/finance/alerts', { cache: 'no-store' }),
         fetch('/api/admin/finance/exceptions', { cache: 'no-store' }),
@@ -177,6 +199,11 @@ export default function AdminFinancePage() {
       const txJson = (await txRes.json()) as {
         success?: boolean;
         data?: FinanceTransactionsResponse;
+        error?: string;
+      };
+      const revRecJson = (await revRecRes.json()) as {
+        success?: boolean;
+        data?: FinanceRevenueRecognitionSummaryResponse;
         error?: string;
       };
       const alertsJson = (await alertsRes.json()) as {
@@ -203,6 +230,10 @@ export default function AdminFinancePage() {
         throw new Error(txJson.error ?? 'Failed loading finance transactions');
       }
 
+      if (!revRecRes.ok || !revRecJson.data) {
+        throw new Error(revRecJson.error ?? 'Failed loading revenue recognition summary');
+      }
+
       if (!alertsRes.ok || !alertsJson.data) {
         throw new Error(alertsJson.error ?? 'Failed loading finance alerts');
       }
@@ -216,6 +247,7 @@ export default function AdminFinancePage() {
       }
 
       setOverview(overviewJson.data);
+      setRevenueRecognition(revRecJson.data);
       setTransactions(txJson.data);
       setAlerts(alertsJson.data);
       setExceptions(exceptionsJson.data);
@@ -223,6 +255,7 @@ export default function AdminFinancePage() {
       setState({ loading: false, error: '' });
     } catch (error) {
       setOverview(null);
+      setRevenueRecognition(null);
       setTransactions(null);
       setAlerts(null);
       setExceptions(null);
@@ -408,7 +441,7 @@ export default function AdminFinancePage() {
 
       {state.error && <p className="text-sm text-red-700">{state.error}</p>}
 
-      {!state.loading && !state.error && overview && transactions && alerts && exceptions && forecast && (
+      {!state.loading && !state.error && overview && revenueRecognition && transactions && alerts && exceptions && forecast && (
         <>
           <Card>
             <CardHeader>
@@ -584,6 +617,71 @@ export default function AdminFinancePage() {
               </CardContent>
             </Card>
           </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Deferred Revenue</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold">{formatCurrency(revenueRecognition.totals.deferredRevenue)}</div>
+                <div className="text-xs text-muted-foreground mt-1">Not yet recognized</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Recognized Revenue</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold">{formatCurrency(revenueRecognition.totals.recognizedRevenue)}</div>
+                <div className="text-xs text-muted-foreground mt-1">Recognized in period</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Reversed Revenue</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold">{formatCurrency(revenueRecognition.totals.reversedRevenue)}</div>
+                <div className="text-xs text-muted-foreground mt-1">Refund/correction reversals</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Excluded Revenue</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold">{formatCurrency(revenueRecognition.totals.excludedRevenue)}</div>
+                <div className="text-xs text-muted-foreground mt-1">Excluded by rules</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">RevRec Transactions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold">{revenueRecognition.totals.transactionCount}</div>
+                <div className="text-xs text-muted-foreground mt-1">In selected period</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Revenue Recognition Status Mix</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              {revenueRecognition.byRecognitionStatus.map((item) => (
+                <div key={item.status} className="rounded-md border p-3">
+                  <div className="mb-2">
+                    <Badge variant={recognitionBadgeVariant(item.status)}>{item.status.replaceAll('_', ' ')}</Badge>
+                  </div>
+                  <p className="text-lg font-semibold">{item.count}</p>
+                  <p className="text-sm text-muted-foreground">{formatCurrency(item.amount)}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader>

@@ -24,6 +24,8 @@ type PaymentIntentPrisma = {
       userId: string;
       bookingNumber: string;
       total: number;
+      checkInDate: Date;
+      checkOutDate: Date;
       user: { email: string | null };
     } | null>;
   };
@@ -41,6 +43,13 @@ type PaymentIntentPrisma = {
         currency: string;
         status: string;
         stripePaymentId: string;
+        revenueRecognitionMethod: string;
+        recognitionStatus: string;
+        servicePeriodStart: Date;
+        servicePeriodEnd: Date;
+        deferredRevenueAmount: number;
+        recognizedRevenueAmount: number;
+        taxTreatment: string;
       };
     }) => Promise<unknown>;
   };
@@ -216,6 +225,13 @@ export async function POST(request: NextRequest) {
         currency: "usd",
         status: "pending",
         stripePaymentId: paymentIntent.id,
+        revenueRecognitionMethod: "service_period",
+        recognitionStatus: "pending_payment",
+        servicePeriodStart: booking.checkInDate,
+        servicePeriodEnd: booking.checkOutDate,
+        deferredRevenueAmount: booking.total,
+        recognizedRevenueAmount: 0,
+        taxTreatment: "booking_taxable",
       },
     });
 

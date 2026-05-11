@@ -129,6 +129,52 @@ export interface FinanceTaxSummaryResponse {
   rows: FinanceTaxSummaryRow[];
 }
 
+export type RevenueRecognitionStatus =
+  | 'pending_payment'
+  | 'deferred'
+  | 'partially_recognized'
+  | 'fully_recognized'
+  | 'reversed'
+  | 'voided'
+  | 'excluded';
+
+export interface FinanceRevenueRecognitionRow {
+  paymentId: string;
+  bookingId: string;
+  bookingNumber: string;
+  amount: number;
+  currency: string;
+  recognitionStatus: RevenueRecognitionStatus;
+  servicePeriodStart: string | null;
+  servicePeriodEnd: string | null;
+  deferredRevenueAmount: number;
+  recognizedRevenueAmount: number;
+  taxTreatment: string | null;
+  exclusionReason: string | null;
+  createdAt: string;
+}
+
+export interface FinanceRevenueRecognitionSummaryResponse {
+  range: {
+    startDate: string;
+    endDate: string;
+  };
+  totals: {
+    grossRevenue: number;
+    deferredRevenue: number;
+    recognizedRevenue: number;
+    reversedRevenue: number;
+    excludedRevenue: number;
+    transactionCount: number;
+  };
+  byRecognitionStatus: Array<{
+    status: RevenueRecognitionStatus;
+    count: number;
+    amount: number;
+  }>;
+  rows: FinanceRevenueRecognitionRow[];
+}
+
 export type FinanceAlertSeverity = 'info' | 'warning' | 'critical';
 
 export interface FinanceAlertItem {

@@ -9,6 +9,7 @@ const {
   isDbConfiguredMock,
   getDefaultFinanceRangeMock,
   getFinanceOverviewMock,
+  getFinanceRevenueRecognitionSummaryMock,
   getFinanceReconciliationMock,
   getFinanceTransactionsMock,
   getFinanceTaxSummaryMock,
@@ -50,6 +51,25 @@ const {
       transactionCount: 1,
     },
     byStatus: [],
+  })),
+  getFinanceRevenueRecognitionSummaryMock: vi.fn(async () => ({
+    range: { startDate: new Date().toISOString(), endDate: new Date().toISOString() },
+    totals: {
+      grossRevenue: 100,
+      deferredRevenue: 100,
+      recognizedRevenue: 0,
+      reversedRevenue: 0,
+      excludedRevenue: 0,
+      transactionCount: 1,
+    },
+    byRecognitionStatus: [
+      {
+        status: 'deferred',
+        count: 1,
+        amount: 100,
+      },
+    ],
+    rows: [],
   })),
   getFinanceReconciliationMock: vi.fn(async () => ({
     range: { startDate: new Date().toISOString(), endDate: new Date().toISOString() },
@@ -152,6 +172,7 @@ vi.mock('@/lib/prisma', () => ({
 vi.mock('@/lib/api/admin-finance', () => ({
   getDefaultFinanceRange: getDefaultFinanceRangeMock,
   getFinanceOverview: getFinanceOverviewMock,
+  getFinanceRevenueRecognitionSummary: getFinanceRevenueRecognitionSummaryMock,
   getFinanceReconciliation: getFinanceReconciliationMock,
   getFinanceTransactions: getFinanceTransactionsMock,
   getFinanceTaxSummary: getFinanceTaxSummaryMock,
@@ -173,6 +194,7 @@ vi.mock('@/lib/stripe', () => ({
 }));
 
 import { GET as getFinanceOverviewRoute } from '@/app/api/admin/finance/overview/route';
+import { GET as getFinanceRevenueRecognitionRoute } from '@/app/api/admin/finance/revenue-recognition/route';
 import { GET as getFinanceTransactionsRoute } from '@/app/api/admin/finance/transactions/route';
 import { GET as getFinanceRefundsRoute, POST as postFinanceRefundRoute } from '@/app/api/admin/finance/refunds/route';
 import { POST as postFinanceAdjustmentRoute } from '@/app/api/admin/finance/adjustments/route';
@@ -230,6 +252,15 @@ describe('admin finance route authz', () => {
     const res = await getFinanceOverviewRoute(new NextRequest('http://localhost/api/admin/finance/overview'));
     expect(res.status).toBe(200);
     expect(getFinanceOverviewMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows staff users to read revenue recognition summary', async () => {
+    authMock.mockResolvedValue(staffSession);
+    const res = await getFinanceRevenueRecognitionRoute(
+      new NextRequest('http://localhost/api/admin/finance/revenue-recognition'),
+    );
+    expect(res.status).toBe(200);
+    expect(getFinanceRevenueRecognitionSummaryMock).toHaveBeenCalledTimes(1);
   });
 
   it('allows staff users to read finance transactions and refunds queue', async () => {

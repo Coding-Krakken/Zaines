@@ -5,6 +5,7 @@ import type {
   FinanceCashForecastResponse,
   FinanceExceptionsResponse,
   FinanceOverviewResponse,
+  FinanceRevenueRecognitionSummaryResponse,
   FinanceReconciliationResponse,
   FinanceTransactionsResponse,
   FinanceTransactionStatus,
@@ -177,6 +178,133 @@ export async function getFinanceOverview(
       count: statusMap[status].count,
       amount: statusMap[status].amount,
     })),
+  };
+}
+
+export async function getFinanceRevenueRecognitionSummary(
+  startDate: Date,
+  endDate: Date,
+): Promise<FinanceRevenueRecognitionSummaryResponse> {
+  if (!isDatabaseConfigured()) {
+    return {
+      range: {
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+      },
+      totals: {
+        grossRevenue: 0,
+        deferredRevenue: 0,
+        recognizedRevenue: 0,
+        reversedRevenue: 0,
+        excludedRevenue: 0,
+        transactionCount: 0,
+      },
+      byRecognitionStatus: [],
+      rows: [],
+    };
+  }
+
+  const payments = await prisma.payment.findMany({
+    where: {
+      createdAt: {
+        gte: startDate,
+        lte: endDate,
+      },
+    },
+    include: {
+      booking: {
+        select: {
+          id: true,
+          bookingNumber: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    take: 400,
+  });
+
+  const statusMap = new Map<string, { count: number; amount: number }>();
+  const rows = payments.map((payment) => {
+    const recognitionStatus = (payment.recognitionStatus ?? 'pending_payment') as
+      | 'pending_payment'
+      | 'deferred'
+      | 'partially_recognized'
+      | 'fully_recognized'
+      | 'reversed'
+      | 'voided'
+      | 'excluded';
+
+    const deferredRevenueAmount = payment.deferredRevenueAmount ?? 0;
+    const recognizedRevenueAmount = payment.recognizedRevenueAmount ?? 0;
+    const grossAmount = payment.amount;
+
+    const current = statusMap.get(recognitionStatus) ?? { count: 0, amount: 0 };
+    current.count += 1;
+    current.amount = roundCurrency(current.amount + grossAmount);
+    statusMap.set(recognitionStatus, current);
+
+    return {
+      paymentId: payment.id,
+      bookingId: payment.bookingId,
+      bookingNumber: payment.booking.bookingNumber,
+      amount: grossAmount,
+      currency: payment.currency,
+      recognitionStatus,
+      servicePeriodStart: payment.servicePeriodStart?.toISOString() ?? null,
+      servicePeriodEnd: payment.servicePeriodEnd?.toISOString() ?? null,
+      deferredRevenueAmount: roundCurrency(deferredRevenueAmount),
+      recognizedRevenueAmount: roundCurrency(recognizedRevenueAmount),
+      taxTreatment: payment.taxTreatment ?? null,
+      exclusionReason: payment.exclusionReason ?? null,
+      createdAt: payment.createdAt.toISOString(),
+    };
+  });
+
+  const totals = rows.reduce(
+    (acc, row) => {
+      acc.grossRevenue = roundCurrency(acc.grossRevenue + row.amount);
+      acc.deferredRevenue = roundCurrency(acc.deferredRevenue + row.deferredRevenueAmount);
+      acc.recognizedRevenue = roundCurrency(acc.recognizedRevenue + row.recognizedRevenueAmount);
+
+      if (row.recognitionStatus === 'reversed') {
+        acc.reversedRevenue = roundCurrency(acc.reversedRevenue + row.amount);
+      }
+      if (row.recognitionStatus === 'excluded') {
+        acc.excludedRevenue = roundCurrency(acc.excludedRevenue + row.amount);
+      }
+      return acc;
+    },
+    {
+      grossRevenue: 0,
+      deferredRevenue: 0,
+      recognizedRevenue: 0,
+      reversedRevenue: 0,
+      excludedRevenue: 0,
+      transactionCount: rows.length,
+    },
+  );
+
+  return {
+    range: {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    },
+    totals,
+    byRecognitionStatus: Array.from(statusMap.entries()).map(([status, value]) => ({
+      status: status as
+        | 'pending_payment'
+        | 'deferred'
+        | 'partially_recognized'
+        | 'fully_recognized'
+        | 'reversed'
+        | 'voided'
+        | 'excluded',
+      count: value.count,
+      amount: value.amount,
+    })),
+    rows,
   };
 }
 

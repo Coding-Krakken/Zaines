@@ -1,0 +1,38 @@
+meta:
+  id: canonical-test-traceability
+  version: 1.0.0
+  status: active
+  owner: qa-test-engineer
+  date: 2026-05-11
+
+traceability:
+  - acceptance_id: AC-RR-001
+    description: Payment creation persists revenue recognition defaults.
+    invariants:
+      - INV-RR-001
+      - INV-RR-002
+    tests:
+      - src/__tests__/payments-create-intent-extended.test.ts
+      - src/__tests__/booking-payment-e2e.test.ts
+
+  - acceptance_id: AC-RR-002
+    description: Webhook success/failure/refund transitions mutate recognition fields idempotently.
+    invariants:
+      - INV-RR-002
+    tests:
+      - src/__tests__/payments-webhook-extended.test.ts
+      - src/__tests__/booking-flow-contract.test.ts
+
+  - acceptance_id: AC-RR-003
+    description: Finance summaries can represent deferred vs recognized revenue totals.
+    invariants:
+      - INV-RR-002
+    tests:
+      - src/__tests__/admin-finance-authz.test.ts
+
+  - acceptance_id: AC-RR-004
+    description: No card data appears in recognition persistence or logs.
+    invariants:
+      - INV-RR-003
+    tests:
+      - src/__tests__/booking-payment-e2e.test.ts

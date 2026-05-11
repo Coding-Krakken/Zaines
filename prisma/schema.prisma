@@ -379,6 +379,16 @@ model Payment {
   amount                    Float
   currency                  String   @default("usd")
   status                    String // pending, succeeded, failed, refunded, cancelled
+  revenueRecognitionMethod  String? // service_period, at_payment, excluded
+  recognitionStatus         String? // deferred, partially_recognized, fully_recognized, reversed, voided, excluded
+  servicePeriodStart        DateTime?
+  servicePeriodEnd          DateTime?
+  deferredRevenueAmount     Float?
+  recognizedRevenueAmount   Float?
+  taxTreatment              String? // booking_taxable, third_party_tax, non_taxable
+  passthroughFeeAmount      Float?
+  exclusionReason           String?
+  recognitionImportedAt     DateTime?
   paymentMethod             String? // card, bank_transfer, etc.
   cardBrand                 String? // Visa, Amex, Discover, etc.
   cardLastFour              String? // e.g., "4242"
@@ -403,6 +413,9 @@ model Payment {
   @@index([stripePaymentId])
   @@index([stripeChargeId])
   @@index([reconciliationStatus])
+  @@index([recognitionStatus])
+  @@index([servicePeriodStart])
+  @@index([servicePeriodEnd])
   @@map("payments")
 }
 
