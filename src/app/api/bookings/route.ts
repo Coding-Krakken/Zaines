@@ -31,8 +31,6 @@ import {
 } from "@/lib/health-records";
 
 function isAbsoluteOrRootRelativeUrl(value: string): boolean {
-  await ensureDefaultSuites();
-
   if (value.startsWith("/")) {
     return true;
   }
@@ -228,6 +226,8 @@ const bookingSchema = z.object({
 // POST /api/bookings - Create a new booking
 export async function POST(request: NextRequest) {
   const correlationId = getCorrelationId(request);
+
+  await ensureDefaultSuites();
 
   try {
     const rateLimit = rateLimitedResponse({
