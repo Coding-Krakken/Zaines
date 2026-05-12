@@ -45,6 +45,8 @@ const BORDER_OPTIONS = [
 
 const EMOJI_OPTIONS = ["", "🐾", "🎾", "🦴", "💤", "❤️", "✨"] as const;
 const NO_EMOJI_VALUE = "__none__";
+const CLIENT_ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/jpg"];
+const CLIENT_MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 function buildOwnerLabel(booking: BookingOption): string {
   return booking.user?.name ?? booking.user?.email ?? "Pet Parent";
@@ -69,21 +71,31 @@ export function AdminCameraCapture() {
     useState<(typeof BORDER_OPTIONS)[number]["value"]>("none");
   const [decorativeEmoji, setDecorativeEmoji] =
     useState<(typeof EMOJI_OPTIONS)[number]>("");
-
-  const previewUrl = useMemo(() => {
-    if (!file) {
-      return "";
-    }
-    return URL.createObjectURL(file);
-  }, [file]);
+  const [previewUrl, setPreviewUrl] = useState("");
 
   useEffect(() => {
+    if (!file) {
+      setPreviewUrl("");
+      return;
+    }
+
+    let nextPreviewUrl = "";
+    try {
+      nextPreviewUrl = URL.createObjectURL(file);
+      setPreviewUrl(nextPreviewUrl);
+    } catch (previewError) {
+      console.error("[Camera] Failed to create preview URL", previewError);
+      setPreviewUrl("");
+      setError("Unable to preview this photo. Please retake and try again.");
+      return;
+    }
+
     return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
+      if (nextPreviewUrl) {
+        URL.revokeObjectURL(nextPreviewUrl);
       }
     };
-  }, [previewUrl]);
+  }, [file]);
 
   const bookedPets = useMemo<BookedPetOption[]>(() => {
     return bookings.flatMap((booking) => {
@@ -151,6 +163,20 @@ export function AdminCameraCapture() {
 
   async function handleFileSelection(nextFile: File | null) {
     if (!nextFile) {
+      return;
+    }
+
+    if (!CLIENT_ALLOWED_IMAGE_TYPES.includes(nextFile.type)) {
+      setError("Unsupported photo format. Please use JPG or PNG.");
+      setFile(null);
+      setOpen(false);
+      return;
+    }
+
+    if (nextFile.size > CLIENT_MAX_IMAGE_SIZE) {
+      setError("Photo is too large. Please choose an image under 5MB.");
+      setFile(null);
+      setOpen(false);
       return;
     }
 
@@ -305,6 +331,10 @@ export function AdminCameraCapture() {
                         src={previewUrl}
                         alt="Captured pet"
                         className="h-56 w-full object-cover"
+                        onError={() => {
+                          setPreviewUrl("");
+                          setError("Unable to render this photo preview. Please retake the photo.");
+                        }}
                       />
                     </div>
                   ) : (
