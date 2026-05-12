@@ -253,6 +253,8 @@ export function StepPayment({
   const [isRecoveringPayment, setIsRecoveringPayment] = useState(false);
   const hasAutoInitAttempted = useRef(Boolean(data.bookingId));
   const hasAutoRecoveryAttempted = useRef(false);
+  const shouldSyncSeededPaymentState = useRef(Boolean(data.bookingId));
+  const hasSyncedSeededPaymentState = useRef(false);
   const subtotal = Math.round((pricingQuote?.subtotal || 0) * 100) / 100;
   const tax = Math.round((pricingQuote?.tax || 0) * 100) / 100;
   const totalWithTax =
@@ -495,6 +497,21 @@ export function StepPayment({
     initializeBookingAndPayment,
     pricingQuote,
   ]);
+
+  useEffect(() => {
+    if (
+      !shouldSyncSeededPaymentState.current ||
+      hasSyncedSeededPaymentState.current ||
+      !bookingId ||
+      isRecoveringPayment
+    ) {
+      return;
+    }
+
+    hasSyncedSeededPaymentState.current = true;
+    setBookingError("Refreshing payment session...");
+    void setupPaymentForExistingBooking();
+  }, [bookingId, isRecoveringPayment, setupPaymentForExistingBooking]);
 
   if (!bookingId) {
     return (
