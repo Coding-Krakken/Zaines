@@ -380,7 +380,7 @@ export function UpdatesHubClient() {
                             src={item.imageUrl}
                             alt={item.caption || `${item.pet.name} photo`}
                             fill
-                            className="object-cover"
+                            className="object-contain"
                             sizes="(max-width: 640px) 90vw, 170px"
                           />
                         </div>
