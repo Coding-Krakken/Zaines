@@ -42,6 +42,7 @@ type SetupPrisma = {
       checkInDate: Date;
       checkOutDate: Date;
       status: string;
+      email: string | null;
       user: { email: string | null };
     } | null>;
   };
@@ -284,7 +285,14 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    if (booking.userId !== session.user.id && !isStaffOrAdmin) {
+    const isOwner = booking.userId === session.user.id;
+    const isEmailMatch =
+      !!booking.email &&
+      !!session.user.email &&
+      booking.email.toLowerCase() === session.user.email.toLowerCase();
+    const hasAccess = isOwner || isStaffOrAdmin || isEmailMatch;
+
+    if (!hasAccess) {
       return errorResponse({
         status: 403,
         errorCode: "BOOKING_ACCESS_DENIED",
