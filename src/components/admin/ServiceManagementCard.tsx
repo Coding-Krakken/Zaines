@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { startTransition, useState, useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Save, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -34,6 +35,7 @@ const serviceUpdateSchema = z.object({
       name: z.string().min(1, 'Service type is required'),
       description: z.string().min(1, 'Description is required'),
       baseNightlyRate: z.number().min(0, 'Price must be positive'),
+      capacity: z.number().int().min(1, 'Capacity must be at least 1').max(100),
       imageUrl: z.string().min(1, 'Image URL is required'),
       isActive: z.boolean(),
       displayOrder: z.number().int().min(0),
@@ -148,6 +150,7 @@ export function ServiceManagementCard({
       name: '',
       description: '',
       baseNightlyRate: 0,
+      capacity: 1,
       imageUrl: '/images/suites/standard-placeholder.svg',
       isActive: true,
       displayOrder: fields.length,
@@ -220,7 +223,7 @@ export function ServiceManagementCard({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
                       name={`serviceTiers.${index}.name`}
@@ -248,6 +251,26 @@ export function ServiceManagementCard({
                               min="0"
                               value={field.value ?? 0}
                               onChange={(e) => field.onChange(Number(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`serviceTiers.${index}.capacity`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Capacity</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="1"
+                              max="100"
+                              value={field.value ?? 1}
+                              onChange={(e) => field.onChange(Number(e.target.value || 1))}
                             />
                           </FormControl>
                           <FormMessage />
@@ -290,11 +313,11 @@ export function ServiceManagementCard({
                     render={({ field }) => (
                       <FormItem className="flex items-center gap-2">
                         <FormControl>
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={field.value}
-                            onChange={field.onChange}
-                            className="h-4 w-4"
+                            onCheckedChange={(checked) => {
+                              startTransition(() => field.onChange(Boolean(checked)));
+                            }}
                           />
                         </FormControl>
                         <FormLabel className="text-sm font-normal cursor-pointer">

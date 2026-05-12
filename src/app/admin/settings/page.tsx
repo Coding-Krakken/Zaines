@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { startTransition, useState, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { useInvalidateSettings } from '@/providers/settings-provider';
@@ -414,11 +415,11 @@ export default function AdminSettingsPage() {
                     render={({ field }) => (
                       <FormItem className="flex items-center gap-2">
                         <FormControl>
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={field.value}
-                            onChange={field.onChange}
-                            className="h-4 w-4"
+                            onCheckedChange={(checked) => {
+                              startTransition(() => field.onChange(Boolean(checked)));
+                            }}
                           />
                         </FormControl>
                         <FormLabel className="text-sm font-normal cursor-pointer">Closed</FormLabel>
@@ -582,11 +583,11 @@ export default function AdminSettingsPage() {
                       </FormDescription>
                     </div>
                     <FormControl>
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={field.value}
-                        onChange={field.onChange}
-                        className="h-4 w-4"
+                        onCheckedChange={(checked) => {
+                          startTransition(() => field.onChange(Boolean(checked)));
+                        }}
                       />
                     </FormControl>
                   </FormItem>
@@ -698,11 +699,11 @@ export default function AdminSettingsPage() {
                         <FormDescription>{track.description}</FormDescription>
                       </div>
                       <FormControl>
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={field.value}
-                          onChange={field.onChange}
-                          className="h-4 w-4"
+                          onCheckedChange={(checked) => {
+                            startTransition(() => field.onChange(Boolean(checked)));
+                          }}
                         />
                       </FormControl>
                     </FormItem>

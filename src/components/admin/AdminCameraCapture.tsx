@@ -23,8 +23,16 @@ type BookingOption = {
   bookingNumber: string;
   status: string;
   checkInDate?: string;
-  user: { name: string | null; email: string | null } | null;
+  user: { id?: string; name: string | null; email: string | null } | null;
   bookingPets: Array<{ pet: { id: string; name: string; breed: string } | null }>;
+};
+
+type PetOption = {
+  id: string;
+  name: string;
+  breed: string;
+  userId: string;
+  user?: { id?: string; email?: string | null; name?: string | null };
 };
 
 type BookedPetOption = {
@@ -188,6 +196,49 @@ export function AdminCameraCapture() {
               },
               bookingPets: (booking.pets ?? []).map((pet) => ({ pet })),
             }));
+        }
+      }
+
+      const needsPetHydration = nextBookings.some((booking) => booking.bookingPets.length === 0);
+
+      if (needsPetHydration) {
+        const petsResponse = await fetch('/api/admin/pets?limit=200', { cache: 'no-store' });
+        const petsPayload = (await petsResponse.json()) as { pets?: PetOption[] };
+        if (petsResponse.ok) {
+          const pets = petsPayload.pets ?? [];
+          nextBookings = nextBookings.map((booking) => {
+            if (booking.bookingPets.length > 0 || !booking.user?.id) {
+              return booking;
+            }
+
+            const ownerPets = pets.filter((pet) => {
+              if (booking.user?.id && pet.userId === booking.user.id) {
+                return true;
+              }
+
+              const bookingEmail = booking.user?.email?.toLowerCase();
+              if (bookingEmail && pet.user?.email?.toLowerCase() === bookingEmail) {
+                return true;
+              }
+
+              const bookingName = booking.user?.name?.trim().toLowerCase();
+              if (bookingName && pet.user?.name?.trim().toLowerCase() === bookingName) {
+                return true;
+              }
+
+              return false;
+            });
+            return {
+              ...booking,
+              bookingPets: ownerPets.map((pet) => ({
+                pet: {
+                  id: pet.id,
+                  name: pet.name,
+                  breed: pet.breed,
+                },
+              })),
+            };
+          });
         }
       }
 
