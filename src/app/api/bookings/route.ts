@@ -53,6 +53,13 @@ const shouldLogBookingDiagnostics = process.env.NODE_ENV !== "test";
 
 type BookingPaymentMode = "payment_element" | "embedded_checkout";
 
+const REUSABLE_PAYMENT_INTENT_STATUSES = new Set([
+  "requires_payment_method",
+  "requires_confirmation",
+  "requires_action",
+  "processing",
+]);
+
 function getBookingPaymentMode(): BookingPaymentMode {
   return process.env.STRIPE_BOOKING_PAYMENT_FLOW === "checkout_session"
     ? "embedded_checkout"
@@ -82,6 +89,10 @@ type BookingsApiPrisma = {
     findFirst: (args: {
       where: { bookingId: string };
     }) => Promise<{ id: string; stripePaymentId: string | null } | null>;
+    update: (args: {
+      where: { id: string };
+      data: { stripePaymentId: string; status: string };
+    }) => Promise<unknown>;
     create: (args: {
       data: {
         bookingId: string;
@@ -856,14 +867,98 @@ export async function POST(request: NextRequest) {
             const existingSession = await stripe.checkout.sessions.retrieve(
               existingPayment.stripePaymentId,
             );
-            paymentMode = "embedded_checkout";
-            clientSecret = existingSession.client_secret || undefined;
+
+            if (
+              existingSession.status === "open" &&
+              existingSession.client_secret
+            ) {
+              paymentMode = "embedded_checkout";
+              clientSecret = existingSession.client_secret;
+            } else {
+              const refreshedSession = await stripe.checkout.sessions.create({
+                ui_mode: "embedded",
+                redirect_on_completion: "never",
+                mode: "payment",
+                line_items: [
+                  {
+                    price_data: {
+                      currency: "usd",
+                      product_data: {
+                        name: `Booking #${booking.bookingNumber}`,
+                        description: "Zaine's Stay & Play booking payment",
+                      },
+                      unit_amount: formatAmountForStripe(booking.total),
+                    },
+                    quantity: 1,
+                  },
+                ],
+                metadata: {
+                  bookingId: booking.id,
+                  bookingNumber: booking.bookingNumber,
+                  userId: booking.userId,
+                },
+                payment_intent_data: {
+                  metadata: {
+                    bookingId: booking.id,
+                    bookingNumber: booking.bookingNumber,
+                    userId: booking.userId,
+                  },
+                  description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
+                  receipt_email: data.email,
+                },
+              }, {
+                idempotencyKey: `booking:${booking.id}:mode:embedded_checkout:refresh`,
+              });
+
+              await bookingsPrisma.payment.update({
+                where: { id: existingPayment.id },
+                data: {
+                  stripePaymentId: refreshedSession.id,
+                  status: "pending",
+                },
+              });
+
+              paymentMode = "embedded_checkout";
+              clientSecret = refreshedSession.client_secret || undefined;
+            }
           } else if (existingPayment.stripePaymentId.startsWith("pi_")) {
             const existingIntent = await stripe.paymentIntents.retrieve(
               existingPayment.stripePaymentId,
             );
-            paymentMode = "payment_element";
-            clientSecret = existingIntent.client_secret || undefined;
+
+            if (
+              REUSABLE_PAYMENT_INTENT_STATUSES.has(existingIntent.status) &&
+              existingIntent.client_secret
+            ) {
+              paymentMode = "payment_element";
+              clientSecret = existingIntent.client_secret;
+            } else {
+              const refreshedIntent = await stripe.paymentIntents.create({
+                amount: formatAmountForStripe(booking.total),
+                currency: "usd",
+                automatic_payment_methods: { enabled: true },
+                metadata: {
+                  bookingId: booking.id,
+                  bookingNumber: booking.bookingNumber,
+                  userId: booking.userId,
+                },
+                description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
+                receipt_email: data.email,
+              }, {
+                idempotencyKey: `booking:${booking.id}:mode:payment_element:refresh`,
+              });
+
+              await bookingsPrisma.payment.update({
+                where: { id: existingPayment.id },
+                data: {
+                  stripePaymentId: refreshedIntent.id,
+                  status: "pending",
+                },
+              });
+
+              paymentMode = "payment_element";
+              clientSecret = refreshedIntent.client_secret || undefined;
+            }
           }
         }
       } catch (error) {

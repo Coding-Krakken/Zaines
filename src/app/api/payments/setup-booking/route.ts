@@ -22,6 +22,13 @@ const setupSchema = z.object({
 
 type BookingPaymentMode = "payment_element" | "embedded_checkout";
 
+const REUSABLE_PAYMENT_INTENT_STATUSES = new Set([
+  "requires_payment_method",
+  "requires_confirmation",
+  "requires_action",
+  "processing",
+]);
+
 type SetupPrisma = {
   booking: {
     findUnique: (args: {
@@ -161,6 +168,11 @@ async function resolveExistingClientSecret(
 ): Promise<{ clientSecret: string | null; mode: BookingPaymentMode | null }> {
   if (stripePaymentId.startsWith("cs_")) {
     const session = await stripe.checkout.sessions.retrieve(stripePaymentId);
+
+    if (session.status !== "open" || !session.client_secret) {
+      return { clientSecret: null, mode: null };
+    }
+
     return {
       clientSecret: session.client_secret,
       mode: "embedded_checkout",
@@ -169,6 +181,14 @@ async function resolveExistingClientSecret(
 
   if (stripePaymentId.startsWith("pi_")) {
     const intent = await stripe.paymentIntents.retrieve(stripePaymentId);
+
+    if (
+      !REUSABLE_PAYMENT_INTENT_STATUSES.has(intent.status) ||
+      !intent.client_secret
+    ) {
+      return { clientSecret: null, mode: null };
+    }
+
     return {
       clientSecret: intent.client_secret,
       mode: "payment_element",
