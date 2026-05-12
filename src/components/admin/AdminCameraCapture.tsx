@@ -44,6 +44,7 @@ const BORDER_OPTIONS = [
 ] as const;
 
 const EMOJI_OPTIONS = ["", "🐾", "🎾", "🦴", "💤", "❤️", "✨"] as const;
+const NO_EMOJI_VALUE = "__none__";
 
 function buildOwnerLabel(booking: BookingOption): string {
   return booking.user?.name ?? booking.user?.email ?? "Pet Parent";
@@ -401,14 +402,18 @@ export function AdminCameraCapture() {
                   <div className="space-y-1">
                     <Label>Emoji Accent</Label>
                     <Select
-                      value={decorativeEmoji}
-                      onValueChange={(value) => setDecorativeEmoji(value as (typeof EMOJI_OPTIONS)[number])}
+                      value={decorativeEmoji || NO_EMOJI_VALUE}
+                      onValueChange={(value) => {
+                        setDecorativeEmoji(
+                          value === NO_EMOJI_VALUE ? "" : (value as (typeof EMOJI_OPTIONS)[number]),
+                        );
+                      }}
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="None" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value={NO_EMOJI_VALUE}>None</SelectItem>
                         {EMOJI_OPTIONS.filter(Boolean).map((emoji) => (
                           <SelectItem key={emoji} value={emoji}>
                             {emoji}
