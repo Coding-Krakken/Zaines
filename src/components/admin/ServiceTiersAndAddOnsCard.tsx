@@ -21,6 +21,7 @@ const serviceTierSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
   description: z.string().min(1, 'Description is required').max(500),
   baseNightlyRate: z.number().min(0, 'Price must be positive'),
+  capacity: z.number().int().min(1, 'Capacity must be at least 1').max(100),
   imageUrl: z.string().min(1, 'Image URL is required'),
   isActive: z.boolean(),
   displayOrder: z.number().min(0, 'Order must be non-negative'),
@@ -156,6 +157,7 @@ export function ServiceTiersAndAddOnsCard({
       name: '',
       description: '',
       baseNightlyRate: 0,
+      capacity: 1,
       imageUrl: '/images/suites/standard-placeholder.svg',
       isActive: true,
       displayOrder: tierFields.length,
@@ -216,7 +218,7 @@ export function ServiceTiersAndAddOnsCard({
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-3 gap-3">
                         <FormField
                           control={tiersForm.control}
                           name={`serviceTiers.${index}.name`}
@@ -246,6 +248,27 @@ export function ServiceTiersAndAddOnsCard({
                                   onChange={(e) => field.onChange(parseFloat(e.target.value))}
                                 />
                               </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={tiersForm.control}
+                          name={`serviceTiers.${index}.capacity`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Capacity</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  placeholder="3"
+                                  value={field.value ?? 1}
+                                  onChange={(e) => field.onChange(parseInt(e.target.value || '1', 10))}
+                                />
+                              </FormControl>
+                              <FormDescription>Max pets/slots for this tier.</FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}

@@ -22,6 +22,7 @@ type BookingOption = {
   id: string;
   bookingNumber: string;
   status: string;
+  checkInDate?: string;
   user: { name: string | null; email: string | null } | null;
   bookingPets: Array<{ pet: { id: string; name: string; breed: string } | null }>;
 };
@@ -128,19 +129,68 @@ export function AdminCameraCapture() {
     setError("");
 
     try {
-      const response = await fetch("/api/admin/bookings?status=checked_in", { cache: "no-store" });
-      const payload = (await response.json()) as {
+      const checkedInResponse = await fetch("/api/admin/bookings?status=checked_in", { cache: "no-store" });
+      const checkedInPayload = (await checkedInResponse.json()) as {
         success?: boolean;
         data?: BookingOption[];
         bookings?: BookingOption[];
         error?: string;
       };
 
-      if (!response.ok) {
-        throw new Error(payload.error ?? "Unable to load checked-in bookings.");
+      if (!checkedInResponse.ok) {
+        throw new Error(checkedInPayload.error ?? "Unable to load checked-in bookings.");
       }
 
-      const nextBookings = payload.data ?? payload.bookings ?? [];
+      let nextBookings = checkedInPayload.data ?? checkedInPayload.bookings ?? [];
+
+      // Fallback: include today's confirmed bookings when checked_in status is empty.
+      if (nextBookings.length === 0) {
+        const today = new Date().toISOString().split("T")[0];
+        const confirmedResponse = await fetch(
+          `/api/admin/bookings?status=confirmed&startDate=${today}&endDate=${today}`,
+          { cache: "no-store" },
+        );
+        const confirmedPayload = (await confirmedResponse.json()) as {
+          data?: BookingOption[];
+          bookings?: BookingOption[];
+        };
+        if (confirmedResponse.ok) {
+          nextBookings = confirmedPayload.data ?? confirmedPayload.bookings ?? [];
+        }
+      }
+
+      // Fallback: occupancy feed can include currently checked-in pets even if bookings feed is stale.
+      if (nextBookings.length === 0) {
+        const occupancyResponse = await fetch("/api/admin/occupancy", { cache: "no-store" });
+        const occupancyPayload = (await occupancyResponse.json()) as {
+          suites?: Array<{
+            bookings?: Array<{
+              id: string;
+              bookingNumber: string;
+              checkInDate?: string;
+              guest?: { name?: string | null; email?: string | null } | null;
+              pets?: Array<{ id: string; name: string; breed: string } | null>;
+            }>;
+          }>;
+        };
+
+        if (occupancyResponse.ok) {
+          nextBookings = (occupancyPayload.suites ?? [])
+            .flatMap((suite) => suite.bookings ?? [])
+            .map((booking) => ({
+              id: booking.id,
+              bookingNumber: booking.bookingNumber,
+              status: "checked_in",
+              checkInDate: booking.checkInDate,
+              user: {
+                name: booking.guest?.name ?? null,
+                email: booking.guest?.email ?? null,
+              },
+              bookingPets: (booking.pets ?? []).map((pet) => ({ pet })),
+            }));
+        }
+      }
+
       setBookings(nextBookings);
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Unable to load booked pets.");
@@ -311,7 +361,7 @@ export function AdminCameraCapture() {
       {success ? <p className="hidden lg:block text-xs text-green-700">{success}</p> : null}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>Capture Pet Update</DialogTitle>
             <DialogDescription>

@@ -87,6 +87,7 @@ export interface ServiceTier {
   name: string; // e.g., "Standard Suite", "Deluxe Suite", "Luxury Suite"
   description: string;
   baseNightlyRate: number; // Base price per night for this tier
+  capacity?: number; // Maximum pets/slots available for this service tier
   imageUrl: string; // Public URL for suite/service image
   isActive: boolean;
   displayOrder: number; // For sorting in UI

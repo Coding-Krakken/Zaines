@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import { getAdminSettings } from "@/lib/api/admin-settings";
 import {
   errorResponse,
   getCorrelationId,
@@ -21,8 +22,13 @@ type AvailabilityPrisma = {
             tier: boolean;
           };
         };
+        bookingPets: {
+          select: {
+            id: boolean;
+          };
+        };
       };
-    }) => Promise<Array<{ suite: { tier: string } }>>;
+    }) => Promise<Array<{ suite: { tier: string }; bookingPets: Array<{ id: string }> }>>;
   };
 };
 
@@ -143,24 +149,53 @@ export async function GET(request: NextRequest) {
             tier: true,
           },
         },
+        bookingPets: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
 
-    // Count occupied suites by tier
+    // Count occupied pets by tier.
     const occupiedCounts = overlappingBookings.reduce(
-      (acc: Record<string, number>, booking: { suite: { tier: string } }) => {
+      (acc: Record<string, number>, booking: { suite: { tier: string }; bookingPets: Array<{ id: string }> }) => {
         const tier = booking.suite.tier.toUpperCase();
-        acc[tier] = (acc[tier] || 0) + 1;
+        acc[tier] = (acc[tier] || 0) + booking.bookingPets.length;
         return acc;
       },
       {} as Record<string, number>,
     );
 
-    // Suite capacity (adjust these numbers based on your actual inventory)
+    const adminSettings = await getAdminSettings();
+    const tierCapacityMap = adminSettings.serviceSettings.serviceTiers.reduce(
+      (acc, tier) => {
+        const normalizedName = tier.name.toLowerCase();
+        const normalizedId = tier.id.toLowerCase();
+        const capacity = typeof tier.capacity === "number" ? Math.max(1, Math.floor(tier.capacity)) : undefined;
+
+        if (!capacity) {
+          return acc;
+        }
+
+        if (normalizedName.includes("standard") || normalizedId.includes("standard")) {
+          acc.STANDARD = capacity;
+        } else if (normalizedName.includes("deluxe") || normalizedId.includes("deluxe")) {
+          acc.DELUXE = capacity;
+        } else if (normalizedName.includes("luxury") || normalizedId.includes("luxury")) {
+          acc.LUXURY = capacity;
+        }
+
+        return acc;
+      },
+      {} as Partial<Record<"STANDARD" | "DELUXE" | "LUXURY", number>>,
+    );
+
+    // Fallback capacities if no admin-configured values exist yet.
     const capacity = {
-      STANDARD: 10,
-      DELUXE: 8,
-      LUXURY: 5,
+      STANDARD: tierCapacityMap.STANDARD ?? 3,
+      DELUXE: tierCapacityMap.DELUXE ?? 2,
+      LUXURY: tierCapacityMap.LUXURY ?? 1,
     };
 
     // Calculate available suites

@@ -207,6 +207,14 @@ export async function getAdminSettings(): Promise<AdminSettings> {
           return {
             serviceTiers: (parsed.serviceTiers || []).map((tier) => ({
               ...tier,
+              capacity:
+                typeof tier.capacity === 'number' && Number.isFinite(tier.capacity)
+                  ? Math.max(1, Math.floor(tier.capacity))
+                  : tier.id.includes('standard')
+                    ? 3
+                    : tier.id.includes('deluxe')
+                      ? 2
+                      : 1,
               imageUrl: tier.imageUrl || '/images/suites/standard-placeholder.svg',
             })),
           };
@@ -691,6 +699,7 @@ function getDefaultServiceTiersSettings(): ServiceTiersSettings {
         name: 'Standard Suite',
         description: 'Comfortable and cozy suite with basic amenities',
         baseNightlyRate: 65,
+        capacity: 3,
         imageUrl: '/images/suites/standard-placeholder.svg',
         isActive: true,
         displayOrder: 1,
@@ -700,6 +709,7 @@ function getDefaultServiceTiersSettings(): ServiceTiersSettings {
         name: 'Deluxe Suite',
         description: 'Premium suite with enhanced comfort and features',
         baseNightlyRate: 85,
+        capacity: 2,
         imageUrl: '/images/suites/deluxe-placeholder.svg',
         isActive: true,
         displayOrder: 2,
@@ -709,6 +719,7 @@ function getDefaultServiceTiersSettings(): ServiceTiersSettings {
         name: 'Luxury Suite',
         description: 'Exclusive luxury experience with top-tier amenities',
         baseNightlyRate: 120,
+        capacity: 1,
         imageUrl: '/images/suites/luxury-placeholder.svg',
         isActive: true,
         displayOrder: 3,
