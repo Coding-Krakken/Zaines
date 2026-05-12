@@ -33,6 +33,9 @@ const suppressionPatterns = [
   // Browser/framework preload noise
   /preloaded using link preload but not used within a few seconds/i,
 
+  // Stripe advisory warning for legacy Elements API usage
+  /Your Elements integration is using an older API/i,
+
   // Tracking Prevention messages (expected behavior)
   // Note: These are from browser, not our console, so won't be caught here
 ];

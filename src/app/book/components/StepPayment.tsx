@@ -252,6 +252,7 @@ export function StepPayment({
   const [isLoading, setIsLoading] = useState(false);
   const [isRecoveringPayment, setIsRecoveringPayment] = useState(false);
   const hasAutoInitAttempted = useRef(Boolean(data.bookingId));
+  const hasAutoRecoveryAttempted = useRef(false);
   const subtotal = Math.round((pricingQuote?.subtotal || 0) * 100) / 100;
   const tax = Math.round((pricingQuote?.tax || 0) * 100) / 100;
   const totalWithTax =
@@ -446,6 +447,34 @@ export function StepPayment({
     }
   }, [bookingId, onUpdate, paymentMode]);
 
+  const hasValidSecretForMode =
+    paymentMode === "embedded_checkout"
+      ? clientSecret.startsWith("cs_")
+      : clientSecret.startsWith("pi_");
+
+  useEffect(() => {
+    if (!bookingId || !clientSecret || hasValidSecretForMode || isRecoveringPayment) {
+      if (hasValidSecretForMode) {
+        hasAutoRecoveryAttempted.current = false;
+      }
+      return;
+    }
+
+    if (hasAutoRecoveryAttempted.current) {
+      return;
+    }
+
+    hasAutoRecoveryAttempted.current = true;
+    setBookingError("Refreshing payment session...");
+    void setupPaymentForExistingBooking();
+  }, [
+    bookingId,
+    clientSecret,
+    hasValidSecretForMode,
+    isRecoveringPayment,
+    setupPaymentForExistingBooking,
+  ]);
+
   useEffect(() => {
     if (
       bookingId ||
@@ -577,7 +606,34 @@ export function StepPayment({
           onPricingDisclosureChange={handleDisclosureChange}
         />
 
-        {paymentMode === "embedded_checkout" ? (
+        {!hasValidSecretForMode ? (
+          <div className="space-y-4 rounded-lg border border-dashed p-4">
+            <p className="text-sm text-muted-foreground">
+              Refreshing your secure payment session before checkout.
+            </p>
+            <div className="flex justify-start gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={setupPaymentForExistingBooking}
+                disabled={isRecoveringPayment}
+              >
+                {isRecoveringPayment ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Refreshing
+                  </>
+                ) : (
+                  "Refresh Payment Session"
+                )}
+              </Button>
+              <Button type="button" variant="outline" onClick={onBack}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+              </Button>
+            </div>
+          </div>
+        ) : paymentMode === "embedded_checkout" ? (
           pricingDisclosureAccepted ? (
             <div className="space-y-4">
               <EmbeddedCheckoutProvider

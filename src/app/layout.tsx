@@ -56,7 +56,8 @@ export default async function RootLayout({
       /\[DEPRECATED\].*zustand/i,
       /E353.*csPostMessage.*timeout/i,
       /csPostMessage.*timeout/i,
-      /preloaded using link preload but not used within a few seconds/i
+      /preloaded using link preload but not used within a few seconds/i,
+      /Your Elements integration is using an older API/i
     ];
     function shouldSuppress(args){
       var text = Array.prototype.map.call(args, function(part){

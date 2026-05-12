@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
@@ -90,6 +90,7 @@ export default function RecoverPaymentClient({ bookingId, bookingNumber, total }
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [setup, setSetup] = useState<SetupResponse | null>(null);
+  const hasRetriedInvalidSetup = useRef(false);
 
   const loadRecoverySession = useCallback(async () => {
     setIsLoading(true);
@@ -134,6 +135,23 @@ export default function RecoverPaymentClient({ bookingId, bookingNumber, total }
     void loadRecoverySession();
   }, [loadRecoverySession]);
 
+  const hasValidSetupSecret = setup
+    ? setup.paymentMode === "embedded_checkout"
+      ? setup.clientSecret.startsWith("cs_")
+      : setup.clientSecret.startsWith("pi_")
+    : false;
+
+  useEffect(() => {
+    if (!setup || hasValidSetupSecret || hasRetriedInvalidSetup.current) {
+      return;
+    }
+
+    hasRetriedInvalidSetup.current = true;
+    setError("Refreshing payment session...");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadRecoverySession();
+  }, [hasValidSetupSecret, loadRecoverySession, setup]);
+
   const stripePromise = useMemo(() => getStripe(), []);
 
   return (
@@ -164,7 +182,20 @@ export default function RecoverPaymentClient({ bookingId, bookingNumber, total }
             </Alert>
           ) : null}
 
-          {!isLoading && setup && setup.paymentMode === "embedded_checkout" ? (
+          {!isLoading && setup && !hasValidSetupSecret ? (
+            <Alert variant="destructive">
+              <AlertDescription>
+                <div className="space-y-3">
+                  <p>Payment session is invalid. Please refresh and retry.</p>
+                  <Button type="button" variant="outline" onClick={() => void loadRecoverySession()}>
+                    Retry
+                  </Button>
+                </div>
+              </AlertDescription>
+            </Alert>
+          ) : null}
+
+          {!isLoading && setup && hasValidSetupSecret && setup.paymentMode === "embedded_checkout" ? (
             <EmbeddedCheckoutProvider
               stripe={stripePromise}
               options={{
@@ -175,7 +206,7 @@ export default function RecoverPaymentClient({ bookingId, bookingNumber, total }
             </EmbeddedCheckoutProvider>
           ) : null}
 
-          {!isLoading && setup && setup.paymentMode === "payment_element" ? (
+          {!isLoading && setup && hasValidSetupSecret && setup.paymentMode === "payment_element" ? (
             <Elements stripe={stripePromise} options={{ clientSecret: setup.clientSecret }}>
               <PaymentElementRecoveryForm bookingId={bookingId} />
             </Elements>
