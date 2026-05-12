@@ -39,13 +39,20 @@ async function requireStaffSession() {
 
 async function storeFile(file: File, folderKey: string): Promise<string> {
   const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+  const isVercelRuntime = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
+
+  const uploadToBlob = async (token?: string): Promise<string> => {
+    const { put } = await import('@vercel/blob');
+    const key = `photos/${folderKey}/${Date.now()}-${file.name}`;
+    const blob = token
+      ? await put(key, file, { access: 'public', token })
+      : await put(key, file, { access: 'public' });
+    return blob.url;
+  };
 
   if (blobToken) {
     try {
-      const { put } = await import('@vercel/blob');
-      const key = `photos/${folderKey}/${Date.now()}-${file.name}`;
-      const blob = await put(key, file, { access: 'public', token: blobToken });
-      return blob.url;
+      return await uploadToBlob(blobToken);
     } catch (blobError) {
       const errorMessage =
         blobError instanceof Error ? blobError.message : 'Unknown Vercel Blob error';
@@ -54,7 +61,36 @@ async function storeFile(file: File, folderKey: string): Promise<string> {
         folderKey,
         error: blobError,
       });
+
+      // Retry once without explicit token in hosted environments.
+      if (isVercelRuntime) {
+        try {
+          return await uploadToBlob();
+        } catch (secondaryBlobError) {
+          const secondaryMessage =
+            secondaryBlobError instanceof Error
+              ? secondaryBlobError.message
+              : 'Unknown Vercel Blob fallback error';
+          throw new Error(`Photo storage service temporarily unavailable: ${secondaryMessage}`);
+        }
+      }
+
       throw new Error(`Photo storage service temporarily unavailable: ${errorMessage}`);
+    }
+  }
+
+  // In Vercel runtime, local filesystem writes are not reliable/persistent.
+  if (isVercelRuntime) {
+    try {
+      return await uploadToBlob();
+    } catch (blobError) {
+      const errorMessage = blobError instanceof Error ? blobError.message : 'Unknown Vercel Blob error';
+      console.error(`[Photo Upload] Blob upload without token failed: ${errorMessage}`, {
+        file: file.name,
+        folderKey,
+        error: blobError,
+      });
+      throw new Error('Photo storage is not configured. Please configure Vercel Blob for uploads.');
     }
   }
 

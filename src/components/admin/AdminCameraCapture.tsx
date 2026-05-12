@@ -296,13 +296,14 @@ export function AdminCameraCapture() {
     setSuccess("");
     setError("");
 
-    if (bookings.length === 0) {
-      await loadBookedPets();
-    }
-
     if (inputRef.current) {
       inputRef.current.value = "";
       inputRef.current.click();
+    }
+
+    // Non-blocking preload so the click interaction stays responsive.
+    if (bookings.length === 0) {
+      void loadBookedPets();
     }
   }
 
