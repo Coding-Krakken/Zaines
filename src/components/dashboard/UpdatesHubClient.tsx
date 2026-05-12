@@ -79,22 +79,76 @@ export function UpdatesHubClient() {
   const handleSharePhoto = useCallback(
     async (photo: Extract<TimelineItem, { type: "photo" }>) => {
       setSharingPhotoId(photo.id);
+      setError("");
       try {
-        const sharePayload = {
-          title: `${photo.pet.name} update photo`,
-          text: photo.caption || `${photo.pet.name} photo update`,
-          url: photo.imageUrl,
+        const shareTitle = `${photo.pet.name} update photo`;
+        const shareText = photo.caption || `${photo.pet.name} photo update`;
+
+        const buildShareFile = async (): Promise<File | null> => {
+          try {
+            if (photo.imageUrl.startsWith("data:")) {
+              const [meta, base64] = photo.imageUrl.split(",");
+              if (!meta || !base64) return null;
+              const mimeMatch = meta.match(/data:(.*?);base64/);
+              const mimeType = mimeMatch?.[1] || "image/jpeg";
+              const bytes = atob(base64);
+              const array = new Uint8Array(bytes.length);
+              for (let i = 0; i < bytes.length; i += 1) {
+                array[i] = bytes.charCodeAt(i);
+              }
+              return new File([array], `${photo.pet.name.toLowerCase().replace(/\s+/g, "-")}-update.jpg`, {
+                type: mimeType,
+              });
+            }
+
+            const response = await fetch(photo.imageUrl);
+            if (!response.ok) return null;
+            const blob = await response.blob();
+            const extension = blob.type.includes("png") ? "png" : "jpg";
+            return new File([blob], `${photo.pet.name.toLowerCase().replace(/\s+/g, "-")}-update.${extension}`, {
+              type: blob.type || "image/jpeg",
+            });
+          } catch {
+            return null;
+          }
         };
 
-        if (typeof navigator !== "undefined" && navigator.share) {
-          await navigator.share(sharePayload);
-        } else if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+        const shareFile = await buildShareFile();
+
+        if (
+          typeof navigator !== "undefined" &&
+          navigator.share &&
+          shareFile &&
+          (navigator as Navigator & { canShare?: (data: ShareData) => boolean }).canShare?.({ files: [shareFile] })
+        ) {
+          await navigator.share({
+            title: shareTitle,
+            text: shareText,
+            files: [shareFile],
+          });
+          return;
+        }
+
+        if (typeof navigator !== "undefined" && navigator.share && !photo.imageUrl.startsWith("data:")) {
+          await navigator.share({ title: shareTitle, text: shareText, url: photo.imageUrl });
+          return;
+        }
+
+        if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
           await navigator.clipboard.writeText(photo.imageUrl);
+          return;
+        }
+
+        if (typeof window !== "undefined") {
+          const openedWindow = window.open(photo.imageUrl, "_blank", "noopener,noreferrer");
+          if (openedWindow) {
+            return;
+          }
         } else {
-          window.open(photo.imageUrl, "_blank", "noopener,noreferrer");
+          throw new Error("Share not supported in this browser");
         }
       } catch {
-        // Ignore user-cancelled share flows.
+        setError("Unable to share this photo on this device right now.");
       } finally {
         setSharingPhotoId(null);
       }
@@ -320,14 +374,14 @@ export function UpdatesHubClient() {
                         <span>{bookingBadge}</span>
                         <span>{when}</span>
                       </div>
-                      <div className="mt-3 grid gap-3 sm:grid-cols-[120px_minmax(0,1fr)]">
-                        <div className="relative h-[120px] overflow-hidden rounded-md bg-muted">
+                      <div className="mt-3 grid gap-3 sm:grid-cols-[170px_minmax(0,1fr)]">
+                        <div className="relative h-[150px] overflow-hidden rounded-md bg-muted sm:h-[170px]">
                           <Image
                             src={item.imageUrl}
                             alt={item.caption || `${item.pet.name} photo`}
                             fill
                             className="object-cover"
-                            sizes="120px"
+                            sizes="(max-width: 640px) 90vw, 170px"
                           />
                         </div>
                         <div className="space-y-1">
