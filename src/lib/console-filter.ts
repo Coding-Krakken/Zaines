@@ -15,6 +15,7 @@ interface ConsoleMethod {
 // Store original console methods
 const originalWarn = console.warn;
 const originalError = console.error;
+const originalLog = console.log;
 
 // Patterns to suppress
 const suppressionPatterns = [
@@ -66,6 +67,7 @@ function createFilteredMethod(originalMethod: ConsoleMethod): ConsoleMethod {
 if (typeof window !== "undefined") {
   console.warn = createFilteredMethod(originalWarn);
   console.error = createFilteredMethod(originalError);
+  console.log = createFilteredMethod(originalLog);
 
   // Also suppress errors from uncaught promise rejections related to Vercel
   window.addEventListener(

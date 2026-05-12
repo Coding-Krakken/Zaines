@@ -46,6 +46,7 @@ export default async function RootLayout({
   try {
     var warn = console.warn;
     var error = console.error;
+    var log = console.log;
     var patterns = [
       /\[DEPRECATED\].*Default export is deprecated/i,
       /Default export is deprecated/i,
@@ -73,6 +74,10 @@ export default async function RootLayout({
     console.error = function(){
       if (shouldSuppress(arguments)) return;
       return error.apply(console, arguments);
+    };
+    console.log = function(){
+      if (shouldSuppress(arguments)) return;
+      return log.apply(console, arguments);
     };
   } catch (e) {
     // noop

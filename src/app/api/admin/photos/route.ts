@@ -116,6 +116,13 @@ async function storeFile(file: File, folderKey: string): Promise<string> {
   }
 }
 
+async function storeInlineDataUrl(file: File): Promise<string> {
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const mimeType = file.type || 'image/jpeg';
+  const base64 = buffer.toString('base64');
+  return `data:${mimeType};base64,${base64}`;
+}
+
 export async function GET(request: NextRequest) {
   const authResult = await requireStaffSession();
   if (authResult.error) {
@@ -298,10 +305,24 @@ export async function POST(request: NextRequest) {
         bookingId: resolvedBookingId,
         error: storageError,
       });
-      return NextResponse.json(
-        { error: errorMessage },
-        { status: 503, headers: { 'Content-Type': 'application/json' } },
-      );
+
+      // Last-resort fallback: inline Data URL storage keeps staff workflow alive
+      // when Blob/local filesystem storage is temporarily unavailable.
+      try {
+        imageUrl = await storeInlineDataUrl(file);
+      } catch (inlineError) {
+        const inlineErrorMessage =
+          inlineError instanceof Error ? inlineError.message : 'Unknown inline storage error';
+        console.error(`[Photo Upload] Inline Data URL fallback failed: ${inlineErrorMessage}`, {
+          petId,
+          bookingId: resolvedBookingId,
+          error: inlineError,
+        });
+        return NextResponse.json(
+          { error: errorMessage },
+          { status: 503, headers: { 'Content-Type': 'application/json' } },
+        );
+      }
     }
 
     const uploadedBy = session.user!.name ?? session.user!.email ?? session.user!.id;
