@@ -215,8 +215,20 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      const petRecord = await prisma.pet.findUnique({
+        where: { id: petId },
+        select: { userId: true },
+      });
+
+      if (!petRecord) {
+        return NextResponse.json({ error: 'Pet not found' }, { status: 404 });
+      }
+
       const petIsOnBooking = booking.bookingPets.some((bp) => bp.petId === petId);
-      if (!petIsOnBooking) {
+      const bookingHasNoPetLinks = booking.bookingPets.length === 0;
+      const petBelongsToBookingOwner = petRecord.userId === booking.userId;
+
+      if (!petIsOnBooking && !(bookingHasNoPetLinks && petBelongsToBookingOwner)) {
         return NextResponse.json(
           { error: 'Pet is not assigned to this booking' },
           { status: 409 },
