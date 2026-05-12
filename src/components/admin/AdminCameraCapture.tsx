@@ -61,6 +61,110 @@ function buildOwnerLabel(booking: BookingOption): string {
   return booking.user?.name ?? booking.user?.email ?? "Pet Parent";
 }
 
+async function loadImageFromFile(file: File): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(img);
+    };
+    img.onerror = (error) => {
+      URL.revokeObjectURL(url);
+      reject(error);
+    };
+    img.src = url;
+  });
+}
+
+async function applyDecorativeFrameToImage(
+  sourceFile: File,
+  decorativeBorder: (typeof BORDER_OPTIONS)[number]["value"],
+): Promise<File> {
+  if (decorativeBorder === "none") {
+    return sourceFile;
+  }
+
+  const image = await loadImageFromFile(sourceFile);
+  const baseWidth = image.naturalWidth || image.width;
+  const baseHeight = image.naturalHeight || image.height;
+  const borderThickness = Math.max(18, Math.floor(Math.min(baseWidth, baseHeight) * 0.07));
+  const polaroidBottomExtra = decorativeBorder === "polaroid"
+    ? Math.max(26, Math.floor(borderThickness * 1.1))
+    : 0;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = baseWidth + borderThickness * 2;
+  canvas.height = baseHeight + borderThickness * 2 + polaroidBottomExtra;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    return sourceFile;
+  }
+
+  const drawPawPattern = () => {
+    ctx.fillStyle = "#f9c6d1";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgba(170, 78, 112, 0.35)";
+    ctx.font = `${Math.max(14, Math.floor(borderThickness * 0.45))}px sans-serif`;
+    const step = Math.max(22, Math.floor(borderThickness * 0.9));
+    for (let y = step; y < canvas.height; y += step) {
+      for (let x = step; x < canvas.width; x += step) {
+        if (
+          x > borderThickness &&
+          x < canvas.width - borderThickness &&
+          y > borderThickness &&
+          y < canvas.height - borderThickness
+        ) {
+          continue;
+        }
+        ctx.fillText("🐾", x, y);
+      }
+    }
+  };
+
+  if (decorativeBorder === "polaroid") {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  } else if (decorativeBorder === "gold") {
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, "#fdf5c4");
+    gradient.addColorStop(0.5, "#e0b342");
+    gradient.addColorStop(1, "#9a7420");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  } else {
+    drawPawPattern();
+  }
+
+  if (decorativeBorder === "gold") {
+    ctx.strokeStyle = "rgba(123, 89, 19, 0.8)";
+    ctx.lineWidth = Math.max(4, Math.floor(borderThickness * 0.18));
+    ctx.strokeRect(
+      Math.floor(borderThickness * 0.15),
+      Math.floor(borderThickness * 0.15),
+      canvas.width - Math.floor(borderThickness * 0.3),
+      canvas.height - Math.floor(borderThickness * 0.3),
+    );
+  }
+
+  ctx.drawImage(image, borderThickness, borderThickness, baseWidth, baseHeight);
+
+  const blob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob(resolve, "image/jpeg", 0.92);
+  });
+
+  if (!blob) {
+    return sourceFile;
+  }
+
+  const sanitizedName = sourceFile.name.replace(/\.[^.]+$/, "");
+  return new File([blob], `${sanitizedName}-framed.jpg`, {
+    type: "image/jpeg",
+    lastModified: Date.now(),
+  });
+}
+
 export function AdminCameraCapture() {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -343,7 +447,8 @@ export function AdminCameraCapture() {
       formData.set("sendMessage", String(sendMessage));
       formData.set("decorativeBorder", decorativeBorder);
       formData.set("decorativeEmoji", decorativeEmoji);
-      formData.set("file", file);
+      const framedFile = await applyDecorativeFrameToImage(file, decorativeBorder);
+      formData.set("file", framedFile);
 
       const response = await retryWithBackoff(
         () =>

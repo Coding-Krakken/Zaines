@@ -3,8 +3,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Download, ExternalLink, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -57,6 +65,42 @@ export function UpdatesHubClient() {
   const [contextMode, setContextMode] = useState<ContextMode>("all");
   const [messageDraft, setMessageDraft] = useState("");
   const [selectedBookingId, setSelectedBookingId] = useState("none");
+  const [expandedPhoto, setExpandedPhoto] = useState<Extract<TimelineItem, { type: "photo" }> | null>(null);
+  const [sharingPhotoId, setSharingPhotoId] = useState<string | null>(null);
+
+  const cleanMessageContent = useCallback((content: string) => {
+    return content
+      .replace(/\(Frame:\s*[^)]+\)/gi, "")
+      .replace(/\[frame:[^\]]+\]/gi, "")
+      .replace(/\s{2,}/g, " ")
+      .trim();
+  }, []);
+
+  const handleSharePhoto = useCallback(
+    async (photo: Extract<TimelineItem, { type: "photo" }>) => {
+      setSharingPhotoId(photo.id);
+      try {
+        const sharePayload = {
+          title: `${photo.pet.name} update photo`,
+          text: photo.caption || `${photo.pet.name} photo update`,
+          url: photo.imageUrl,
+        };
+
+        if (typeof navigator !== "undefined" && navigator.share) {
+          await navigator.share(sharePayload);
+        } else if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(photo.imageUrl);
+        } else {
+          window.open(photo.imageUrl, "_blank", "noopener,noreferrer");
+        }
+      } catch {
+        // Ignore user-cancelled share flows.
+      } finally {
+        setSharingPhotoId(null);
+      }
+    },
+    [],
+  );
 
   const loadUpdates = useCallback(async () => {
     setIsLoading(true);
@@ -261,7 +305,7 @@ export function UpdatesHubClient() {
                           <span>{bookingBadge}</span>
                           <span>{when}</span>
                         </div>
-                        <p className="mt-2 text-sm">{item.content}</p>
+                        <p className="mt-2 text-sm">{cleanMessageContent(item.content)}</p>
                         <p className="mt-1 text-xs text-muted-foreground">
                           {item.senderType === "customer" ? "You" : item.senderName}
                         </p>
@@ -292,6 +336,36 @@ export function UpdatesHubClient() {
                           <p className="text-xs text-muted-foreground">
                             Uploaded by {item.uploadedBy || "Staff"}
                           </p>
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setExpandedPhoto(item)}
+                            >
+                              <ExternalLink className="mr-1 size-4" />
+                              Open
+                            </Button>
+                            <Button asChild size="sm" variant="outline">
+                              <a
+                                href={item.imageUrl}
+                                download={`${item.pet.name.toLowerCase().replace(/\s+/g, "-")}-update.jpg`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Download className="mr-1 size-4" />
+                                Download
+                              </a>
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => void handleSharePhoto(item)}
+                              disabled={sharingPhotoId === item.id}
+                            >
+                              <Share2 className="mr-1 size-4" />
+                              {sharingPhotoId === item.id ? "Sharing..." : "Share"}
+                            </Button>
+                          </div>
                           {item.booking ? (
                             <Link
                               className="text-xs text-primary underline"
@@ -312,6 +386,50 @@ export function UpdatesHubClient() {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={Boolean(expandedPhoto)} onOpenChange={(open) => !open && setExpandedPhoto(null)}>
+        <DialogContent className="sm:max-w-4xl max-h-[92vh] overflow-y-auto">
+          {expandedPhoto ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>{expandedPhoto.pet.name} Photo Update</DialogTitle>
+                <DialogDescription>
+                  {expandedPhoto.caption || "Care photo update"}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-3">
+                <div className="relative h-[70vh] min-h-[340px] w-full overflow-hidden rounded-md bg-muted">
+                  <Image
+                    src={expandedPhoto.imageUrl}
+                    alt={expandedPhoto.caption || `${expandedPhoto.pet.name} photo`}
+                    fill
+                    className="object-contain"
+                    sizes="95vw"
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild>
+                    <a
+                      href={expandedPhoto.imageUrl}
+                      download={`${expandedPhoto.pet.name.toLowerCase().replace(/\s+/g, "-")}-update.jpg`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Download className="mr-1 size-4" />
+                      Download
+                    </a>
+                  </Button>
+                  <Button variant="outline" onClick={() => void handleSharePhoto(expandedPhoto)}>
+                    <Share2 className="mr-1 size-4" />
+                    Share
+                  </Button>
+                </div>
+              </div>
+            </>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

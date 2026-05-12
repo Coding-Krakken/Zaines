@@ -333,11 +333,6 @@ export async function POST(request: NextRequest) {
       messageContent = `New photo update: ${decoratedCaption}`;
     }
 
-    if (shouldCreateMessage && normalizedBorder !== 'none') {
-      const borderSuffix = `(Frame: ${normalizedBorder})`;
-      messageContent = messageContent ? `${messageContent} ${borderSuffix}` : borderSuffix;
-    }
-
     // Database operations with error handling
     let photo, createdMessage;
     try {
