@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import {
+  areStripeKeysModeAligned,
   stripe,
   formatAmountForStripe,
   isStripeConfigured,
@@ -195,6 +196,16 @@ export async function POST(request: NextRequest) {
       return errorResponse({
         status: 503,
         errorCode: "PAYMENT_PROVIDER_UNAVAILABLE",
+        message: "Payment processing is temporarily unavailable.",
+        retryable: true,
+        correlationId,
+      });
+    }
+
+    if (!areStripeKeysModeAligned()) {
+      return errorResponse({
+        status: 503,
+        errorCode: "PAYMENT_PROVIDER_MISCONFIGURED",
         message: "Payment processing is temporarily unavailable.",
         retryable: true,
         correlationId,

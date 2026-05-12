@@ -3,6 +3,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import {
+  areStripeKeysModeAligned,
   stripe,
   formatAmountForStripe,
   isStripeConfigured,
@@ -734,6 +735,16 @@ export async function POST(request: NextRequest) {
           });
         hasLoggedStripeUnavailableWarning = true;
       }
+    }
+
+    if (isStripeConfigured() && !areStripeKeysModeAligned()) {
+      return errorResponse({
+        status: 503,
+        errorCode: "PAYMENT_PROVIDER_MISCONFIGURED",
+        message: "Payment processing is temporarily unavailable.",
+        retryable: true,
+        correlationId,
+      });
     }
 
     // Create Stripe payment session if Stripe is configured
