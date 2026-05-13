@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookingPaymentRecoveryCard } from '@/components/admin/BookingPaymentRecoveryCard';
+import { RepairBookingPetsButton } from '@/components/admin/RepairBookingPetsButton';
 
 const DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
   month: 'short',
@@ -138,6 +139,16 @@ export default async function AdminBookingDetailPage({
         </CardHeader>
         <CardContent>
           <p>{petNames || 'No pets attached to this booking.'}</p>
+          {!petNames ? (
+            <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3">
+              <p className="text-sm text-amber-800">
+                This booking is missing pet associations. Attach owner pets to restore photo/activity workflows.
+              </p>
+              <div className="mt-3">
+                <RepairBookingPetsButton bookingId={booking.id} />
+              </div>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 

@@ -18,6 +18,9 @@ const { authMock, prismaMock } = vi.hoisted(() => ({
       findMany: vi.fn(),
       create: vi.fn(),
     },
+    pet: {
+      findUnique: vi.fn(),
+    },
     suite: {
       findMany: vi.fn(),
     },
@@ -159,16 +162,37 @@ describe('POST /api/admin/check-in', () => {
 
   it('returns 409 when booking is not confirmed', async () => {
     authMock.mockResolvedValue(staffSession);
-    prismaMock.booking.findUnique.mockResolvedValue({ id: 'book-1', status: 'checked_in' });
+    prismaMock.booking.findUnique.mockResolvedValue({
+      id: 'book-1',
+      status: 'checked_in',
+      bookingPets: [{ petId: 'pet-1' }],
+    });
     const res = await postCheckIn(makeRequest({ bookingId: 'book-1' }));
     expect(res.status).toBe(409);
     const data = await res.json();
     expect(data.error).toContain('checked_in');
   });
 
+  it('returns 409 when booking has no pets attached', async () => {
+    authMock.mockResolvedValue(staffSession);
+    prismaMock.booking.findUnique.mockResolvedValue({
+      id: 'book-1',
+      status: 'confirmed',
+      bookingPets: [],
+    });
+    const res = await postCheckIn(makeRequest({ bookingId: 'book-1' }));
+    expect(res.status).toBe(409);
+    const data = await res.json();
+    expect(data.error).toContain('without pets attached');
+  });
+
   it('returns 200 and updates booking on success', async () => {
     authMock.mockResolvedValue(staffSession);
-    prismaMock.booking.findUnique.mockResolvedValue({ id: 'book-1', status: 'confirmed' });
+    prismaMock.booking.findUnique.mockResolvedValue({
+      id: 'book-1',
+      status: 'confirmed',
+      bookingPets: [{ petId: 'pet-1' }],
+    });
     prismaMock.booking.update.mockResolvedValue({ id: 'book-1', status: 'checked_in' });
     const res = await postCheckIn(makeRequest({ bookingId: 'book-1' }));
     expect(res.status).toBe(200);
@@ -339,7 +363,9 @@ describe('POST /api/admin/photos', () => {
       id: 'book-1',
       status: 'checked_in',
       bookingPets: [{ petId: 'pet-other' }],
+      userId: 'owner-1',
     });
+    prismaMock.pet.findUnique.mockResolvedValue({ userId: 'owner-1' });
     const res = await postPhotos(makePhotoRequest({ bookingId: 'book-1', petId: 'pet-1' }));
     expect(res.status).toBe(409);
     const data = await res.json();

@@ -232,6 +232,15 @@ export function AdminCameraCapture() {
     return bookedPets.find((pet) => pet.key === selectedBookedPetKey) ?? null;
   }, [bookedPets, selectedBookedPetKey]);
 
+  const bookingsMissingPets = useMemo(() => {
+    return bookings
+      .filter((booking) => {
+        const hasLinkedPet = booking.bookingPets.some((bookingPet) => Boolean(bookingPet.pet));
+        return !hasLinkedPet;
+      })
+      .map((booking) => booking.bookingNumber);
+  }, [bookings]);
+
   const previewBorderClass = useMemo(() => {
     return BORDER_OPTIONS.find((option) => option.value === decorativeBorder)?.previewClass ?? "";
   }, [decorativeBorder]);
@@ -594,6 +603,11 @@ export function AdminCameraCapture() {
                   ) : null}
                   {!loading && bookedPets.length === 0 ? (
                     <p className="text-xs text-muted-foreground">No checked-in pets available right now.</p>
+                  ) : null}
+                  {bookingsMissingPets.length > 0 ? (
+                    <p className="text-xs text-amber-700">
+                      Missing pet links for checked-in bookings: {bookingsMissingPets.join(", ")}
+                    </p>
                   ) : null}
                 </div>
 

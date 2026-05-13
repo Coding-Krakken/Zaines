@@ -66,6 +66,7 @@ interface StepPaymentProps {
     checkOut: string;
     suiteType: "standard" | "deluxe" | "luxury";
     petCount: number;
+    petIds?: string[];
     firstName: string;
     lastName: string;
     email: string;

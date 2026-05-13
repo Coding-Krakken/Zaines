@@ -160,6 +160,10 @@ type BookingsTransactionClient = {
     ) => Promise<{ id: string } | null>;
     upsert: (args: Record<string, unknown>) => Promise<{ id: string }>;
   };
+  pet: {
+    findMany: (args: Record<string, unknown>) => Promise<Array<{ id: string }>>;
+    create: (args: Record<string, unknown>) => Promise<{ id: string }>;
+  };
   accountWaiver: {
     findMany: (args: Record<string, unknown>) => Promise<Array<{
       id: string;
@@ -194,6 +198,7 @@ const bookingSchema = z.object({
   checkOut: z.string(),
   suiteType: z.enum(["standard", "deluxe", "luxury"]),
   petCount: z.number().min(1).max(5),
+  petIds: z.array(z.string()).optional(),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Valid email is required"),
@@ -657,6 +662,48 @@ export async function POST(request: NextRequest) {
           });
         }
 
+        const selectedPetIds = [...new Set((data.petIds ?? []).filter(Boolean))];
+        const linkedPetIds: string[] = [];
+
+        if (selectedPetIds.length > 0) {
+          const existingPets = await tx.pet.findMany({
+            where: {
+              id: { in: selectedPetIds },
+              userId: user!.id,
+            },
+            select: { id: true },
+          });
+
+          if (existingPets.length !== selectedPetIds.length) {
+            throw new Error("BOOKING_PET_SELECTION_INVALID");
+          }
+
+          linkedPetIds.push(...existingPets.map((pet) => pet.id));
+        }
+
+        if ((data.newPets ?? []).length > 0) {
+          const createdPets = await Promise.all(
+            (data.newPets ?? []).map((pet) =>
+              tx.pet.create({
+                data: {
+                  userId: user!.id,
+                  name: pet.name,
+                  breed: pet.breed,
+                  age: pet.age,
+                  weight: pet.weight,
+                  gender: pet.gender,
+                  temperament: pet.temperament,
+                  specialNeeds: pet.specialNeeds,
+                  feedingInstructions: pet.feedingInstructions,
+                },
+                select: { id: true },
+              }),
+            ),
+          );
+
+          linkedPetIds.push(...createdPets.map((pet) => pet.id));
+        }
+
         // 6. Create booking atomically
         const createdBooking = await tx.booking.create({
           data: {
@@ -671,6 +718,12 @@ export async function POST(request: NextRequest) {
             total: pricing.total,
             status: "pending",
             specialRequests: data.specialRequests || null,
+            bookingPets:
+              linkedPetIds.length > 0
+                ? {
+                    create: linkedPetIds.map((petId) => ({ petId })),
+                  }
+                : undefined,
           },
           include: {
             user: {
@@ -1036,6 +1089,16 @@ export async function POST(request: NextRequest) {
           status: 404,
           errorCode: "NO_SUITE_AVAILABLE",
           message: "No suites available for the selected tier",
+          retryable: false,
+          correlationId,
+        });
+      }
+
+      if (error.message === "BOOKING_PET_SELECTION_INVALID") {
+        return errorResponse({
+          status: 400,
+          errorCode: "BOOKING_PET_SELECTION_INVALID",
+          message: "One or more selected pets are invalid for this account.",
           retryable: false,
           correlationId,
         });

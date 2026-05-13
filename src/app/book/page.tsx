@@ -100,6 +100,7 @@ export default function BookPage() {
       checkOut,
       suiteType,
       petCount,
+      petIds: wizardData.pets?.selectedPetIds || [],
       firstName: wizardData.account?.firstName || "Guest",
       lastName: wizardData.account?.lastName || "Customer",
       email: wizardData.account?.email || "guest@example.com",

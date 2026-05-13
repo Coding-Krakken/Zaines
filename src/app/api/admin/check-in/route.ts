@@ -24,13 +24,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
   }
 
-  const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: {
+      bookingPets: {
+        select: { petId: true },
+      },
+    },
+  });
   if (!booking) {
     return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
   }
   if (booking.status !== 'confirmed') {
     return NextResponse.json(
       { error: `Cannot check in booking with status: ${booking.status}` },
+      { status: 409 },
+    );
+  }
+  if (booking.bookingPets.length === 0) {
+    return NextResponse.json(
+      { error: 'Cannot check in booking without pets attached. Attach at least one pet first.' },
       { status: 409 },
     );
   }
