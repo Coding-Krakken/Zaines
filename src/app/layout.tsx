@@ -94,6 +94,12 @@ export default async function RootLayout({
       if (shouldSuppress(arguments)) return;
       return log.apply(console, arguments);
     };
+    window.addEventListener('unhandledrejection', function(event){
+      var reason = String(event && event.reason ? event.reason : '');
+      if (/E353.*csPostMessage.*timeout/i.test(reason) || /csPostMessage.*timeout/i.test(reason)) {
+        event.preventDefault();
+      }
+    }, true);
   } catch (e) {
     // noop
   }

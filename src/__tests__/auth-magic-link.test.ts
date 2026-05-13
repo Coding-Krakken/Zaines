@@ -25,12 +25,15 @@ function makeRequest(body: unknown, correlationId = "ml-test") {
 describe("magic-link route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.AUTH_SECRET = "auth_test_secret";
     // Provide valid auth config by default
     process.env.AUTH_RESEND_KEY = "re_test_key";
     process.env.EMAIL_FROM = "noreply@example.com";
   });
 
   afterEach(() => {
+    delete process.env.AUTH_SECRET;
+    delete process.env.NEXTAUTH_SECRET;
     delete process.env.AUTH_RESEND_KEY;
     delete process.env.EMAIL_FROM;
     delete process.env.RESEND_API_KEY;
@@ -74,24 +77,34 @@ describe("magic-link route", () => {
     expect(body.retryable).toBe(false);
   });
 
-  it("returns 500 when auth is misconfigured (no keys)", async () => {
+  it("returns 503 when auth is misconfigured (no keys)", async () => {
     delete process.env.AUTH_RESEND_KEY;
     delete process.env.RESEND_API_KEY;
     delete process.env.EMAIL_FROM;
 
     const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(503);
     const body = await res.json();
     expect(body.errorCode).toBe("AUTH_PROVIDER_MISCONFIGURED");
     expect(body.retryable).toBe(false);
     expect(body.correlationId).toBe("ml-test");
   });
 
-  it("returns 500 when EMAIL_FROM is missing", async () => {
+  it("returns 503 when EMAIL_FROM is missing", async () => {
     delete process.env.EMAIL_FROM;
 
     const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(503);
+  });
+
+  it("returns 503 when auth secret is missing", async () => {
+    delete process.env.AUTH_SECRET;
+    delete process.env.NEXTAUTH_SECRET;
+
+    const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.errorCode).toBe("AUTH_PROVIDER_MISCONFIGURED");
   });
 
   it("returns 202 on successful sign-in link dispatch", async () => {
@@ -128,42 +141,42 @@ describe("magic-link route", () => {
     );
   });
 
-  it("returns 500 when signIn returns an error object (misconfigured)", async () => {
+  it("returns 503 when signIn returns an error object (misconfigured)", async () => {
     signInMock.mockResolvedValueOnce({ error: new Error("resend configuration failed") });
 
     const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(503);
     const body = await res.json();
     expect(body.errorCode).toBe("AUTH_PROVIDER_MISCONFIGURED");
     expect(body.retryable).toBe(false);
     expect(body.correlationId).toBe("ml-test");
   });
 
-  it("returns 500 when signIn returns an error object (transient)", async () => {
+  it("returns 503 when signIn returns an error object (transient)", async () => {
     signInMock.mockResolvedValueOnce({ error: new Error("network timeout") });
 
     const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(503);
     const body = await res.json();
     expect(body.errorCode).toBe("AUTH_TRANSIENT_FAILURE");
     expect(body.retryable).toBe(true);
     expect(body.correlationId).toBe("ml-test");
   });
 
-  it("returns 500 when signIn throws (misconfigured error)", async () => {
+  it("returns 503 when signIn throws (misconfigured error)", async () => {
     signInMock.mockRejectedValueOnce(new Error("resend configuration failed"));
 
     const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(503);
     const body = await res.json();
     expect(body.errorCode).toBe("AUTH_PROVIDER_MISCONFIGURED");
   });
 
-  it("returns 500 when signIn throws (transient error)", async () => {
+  it("returns 503 when signIn throws (transient error)", async () => {
     signInMock.mockRejectedValueOnce(new Error("connection reset"));
 
     const res = await POST(makeRequest({ email: "user@example.com", intent: "sign_in" }));
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(503);
     const body = await res.json();
     expect(body.errorCode).toBe("AUTH_TRANSIENT_FAILURE");
     expect(body.retryable).toBe(true);
