@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { stripe, isStripeConfigured } from '@/lib/stripe';
+import { findOrCreateCustomerByEmail } from '@/lib/stripe-customer';
 import { getAdminSettings } from '@/lib/api/admin-settings';
 import {
   errorResponse,
@@ -20,24 +21,6 @@ function getBaseUrl(request: NextRequest): string {
   }
 
   return `${protocol}://${host}`;
-}
-
-async function findOrCreateCustomerByEmail(email: string, name?: string | null): Promise<string> {
-  const existing = await stripe.customers.list({
-    email,
-    limit: 1,
-  });
-
-  if (existing.data.length > 0 && existing.data[0]) {
-    return existing.data[0].id;
-  }
-
-  const created = await stripe.customers.create({
-    email,
-    name: name || undefined,
-  });
-
-  return created.id;
 }
 
 export async function POST(request: NextRequest) {

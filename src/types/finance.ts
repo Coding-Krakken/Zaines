@@ -261,3 +261,23 @@ export interface FinanceWebhookHealthResponse {
   };
   recentEvents: FinanceWebhookHealthEvent[];
 }
+
+export interface FinanceAutopayConsentRow {
+  userId: string;
+  customerName: string | null;
+  customerEmail: string | null;
+  bookingsSearchHref: string;
+  enabled: boolean;
+  allowIncidentals: boolean;
+  updatedAt: string;
+}
+
+export interface FinanceAutopayConsentSummaryResponse {
+  generatedAt: string;
+  totals: {
+    profiles: number;
+    enabled: number;
+    incidentalsAuthorized: number;
+  };
+  rows: FinanceAutopayConsentRow[];
+}

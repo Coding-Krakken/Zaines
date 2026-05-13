@@ -31,6 +31,8 @@ import {
 import { getStripe } from "@/lib/stripe-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useSettings } from "@/providers/settings-provider";
+import { CheckoutReassurancePanel } from "@/components/checkout/CheckoutReassurancePanel";
 
 interface StepPaymentProps {
   data: Partial<StepPaymentData> & {
@@ -157,17 +159,24 @@ function PricingDisclosureCard({
 function PaymentForm({
   onSuccess,
   onBack,
+  onRecover,
   disclosureAccepted,
   totalWithTax,
+  actionLabel,
+  premiumLoadingEnabled,
 }: {
   onSuccess: () => void;
   onBack: () => void;
+  onRecover: () => void;
   disclosureAccepted: boolean;
   totalWithTax: number;
+  actionLabel: string;
+  premiumLoadingEnabled: boolean;
 }) {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [submitError, setSubmitError] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -177,6 +186,7 @@ function PaymentForm({
     }
 
     setIsProcessing(true);
+    setSubmitError("");
 
     try {
       const { error, paymentIntent } = await stripe.confirmPayment({
@@ -185,21 +195,62 @@ function PaymentForm({
       });
 
       if (error) {
-        toast.error(error.message || "Payment failed");
+        const message = error.message || "Payment failed";
+        setSubmitError(message);
+        toast.error(message);
         setIsProcessing(false);
       } else if (paymentIntent && paymentIntent.status === "succeeded") {
         toast.success("Payment successful!");
         onSuccess();
       }
     } catch {
-      toast.error("An error occurred during payment");
+      const message = "An error occurred during payment";
+      setSubmitError(message);
+      toast.error(message);
       setIsProcessing(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <PaymentElement />
+      <PaymentElement
+        options={{
+          layout: {
+            type: "tabs",
+            defaultCollapsed: false,
+          },
+        }}
+      />
+      {isProcessing && premiumLoadingEnabled ? (
+        <div className="rounded-lg border bg-muted/40 p-4 text-sm">
+          <div className="flex items-center gap-2 font-medium">
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            {actionLabel}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Verifying your payment details and securing your reservation.
+          </p>
+        </div>
+      ) : null}
+      {submitError ? (
+        <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm">
+          <p className="font-medium text-destructive">Payment needs attention</p>
+          <p className="text-xs text-muted-foreground">{submitError}</p>
+          <div className="mt-3 flex gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={onRecover}>
+              Refresh Payment Session
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setSubmitError("")}
+            >
+              Dismiss
+            </Button>
+          </div>
+        </div>
+      ) : null}
       <div className="flex justify-between pt-4">
         <Button
           type="button"
@@ -221,7 +272,7 @@ function PaymentForm({
             </>
           ) : (
             <>
-              Confirm & Pay ${totalWithTax.toFixed(2)}
+              {actionLabel} ${totalWithTax.toFixed(2)}
               <CheckCircle2 className="ml-2 h-4 w-4" />
             </>
           )}
@@ -242,6 +293,7 @@ export function StepPayment({
   bookingPayload,
 }: StepPaymentProps) {
   const router = useRouter();
+  const { settings } = useSettings();
   const [clientSecret, setClientSecret] = useState(data.clientSecret || "");
   const [paymentMode, setPaymentMode] = useState<
     "payment_element" | "embedded_checkout"
@@ -251,8 +303,17 @@ export function StepPayment({
     Boolean(data.pricingDisclosureAccepted),
   );
   const [bookingError, setBookingError] = useState<string>("");
+  const [quickPayError, setQuickPayError] = useState<string>("");
+  const [quickPayHint, setQuickPayHint] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [isRecoveringPayment, setIsRecoveringPayment] = useState(false);
+  const [isOneClickSubmitting, setIsOneClickSubmitting] = useState(false);
+  const [isLoadingDefaultSavedMethod, setIsLoadingDefaultSavedMethod] = useState(false);
+  const [defaultSavedMethod, setDefaultSavedMethod] = useState<{
+    id: string;
+    brand: string | null;
+    last4: string | null;
+  } | null>(null);
   const hasAutoInitAttempted = useRef(Boolean(data.bookingId));
   const hasAutoRecoveryAttempted = useRef(false);
   const shouldSyncSeededPaymentState = useRef(Boolean(data.bookingId));
@@ -262,6 +323,41 @@ export function StepPayment({
   const totalWithTax =
     Math.round((pricingQuote?.total || totalAmount) * 100) / 100;
   const disclosure = pricingQuote?.disclosure || BOOKING_PRICING_DISCLOSURE;
+  const supportPhone = settings?.contactPhone || "(315) 657-1332";
+  const supportEmail = settings?.contactEmail || "jgibbs@zainesstayandplay.com";
+  const activeTestimonials =
+    settings?.testimonialsSettings?.testimonials
+      ?.filter((testimonial) => testimonial.isActive)
+      .sort((left, right) => left.displayOrder - right.displayOrder)
+      .slice(0, 2)
+      .map((testimonial) => ({
+        id: testimonial.id,
+        author: testimonial.author,
+        petName: testimonial.petName,
+        text: testimonial.text,
+        rating: testimonial.rating,
+      })) || [];
+
+  const stripeFlags = settings?.stripeCapabilityFlags;
+  const premiumReassuranceEnabled =
+    stripeFlags?.premiumCheckoutReassuranceEnabled ?? false;
+  const premiumCopyEnabled = stripeFlags?.premiumCheckoutCopyEnabled ?? false;
+  const premiumTrustIndicatorsEnabled =
+    stripeFlags?.premiumCheckoutTrustIndicatorsEnabled ?? false;
+  const premiumLoadingExperienceEnabled =
+    stripeFlags?.premiumCheckoutLoadingExperienceEnabled ?? false;
+  const oneClickRebookingEnabled =
+    (stripeFlags?.savedPaymentMethodsEnabled ?? false) &&
+    (stripeFlags?.oneClickRebookingEnabled ?? false);
+  const leadPetName = bookingPayload?.petNames
+    ?.split(",")
+    ?.map((name) => name.trim())
+    ?.find((name) => name.length > 0);
+  const personalizedActionLabel = premiumCopyEnabled
+    ? leadPetName
+      ? `Reserve ${leadPetName}'s Stay`
+      : "Secure Your Stay"
+    : "Confirm & Pay";
 
   const handleDisclosureChange = (accepted: boolean) => {
     setPricingDisclosureAccepted(accepted);
@@ -475,6 +571,166 @@ export function StepPayment({
     paymentMode,
   ]);
 
+  const loadDefaultSavedMethod = useCallback(async () => {
+    if (!oneClickRebookingEnabled) {
+      setDefaultSavedMethod(null);
+      setIsLoadingDefaultSavedMethod(false);
+      return;
+    }
+
+    setIsLoadingDefaultSavedMethod(true);
+    try {
+      const response = await fetch("/api/payments/payment-methods", {
+        method: "GET",
+      });
+
+      const payload = (await response.json().catch(() => ({}))) as {
+        paymentMethods?: Array<{
+          id: string;
+          brand: string | null;
+          last4: string | null;
+          isDefault: boolean;
+        }>;
+      };
+
+      if (!response.ok || !payload.paymentMethods) {
+        setDefaultSavedMethod(null);
+        return;
+      }
+
+      const defaultMethod =
+        payload.paymentMethods.find((method) => method.isDefault) || null;
+
+      setDefaultSavedMethod(
+        defaultMethod
+          ? {
+              id: defaultMethod.id,
+              brand: defaultMethod.brand,
+              last4: defaultMethod.last4,
+            }
+          : null,
+      );
+    } catch {
+      setDefaultSavedMethod(null);
+    } finally {
+      setIsLoadingDefaultSavedMethod(false);
+    }
+  }, [oneClickRebookingEnabled]);
+
+  const handleOneClickPayment = useCallback(async () => {
+    if (!bookingId) return;
+
+    if (!pricingDisclosureAccepted) {
+      toast.error("Please acknowledge pricing disclosure before confirming.");
+      return;
+    }
+
+    setQuickPayError("");
+    setQuickPayHint("");
+    setIsOneClickSubmitting(true);
+
+    try {
+      const response = await fetch("/api/payments/one-click-booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId }),
+      });
+
+      const payload = (await response.json().catch(() => ({}))) as {
+        succeeded?: boolean;
+        status?: string;
+        paymentIntentId?: string;
+        message?: string;
+        error?: string;
+        errorCode?: string;
+        details?: {
+          clientSecret?: string | null;
+        };
+      };
+
+      if (!response.ok) {
+        if (payload.errorCode === "PAYMENT_ALREADY_COMPLETED") {
+          handleAlreadyCompletedPayment();
+          return;
+        }
+
+        if (payload.errorCode === "ONE_CLICK_REQUIRES_ACTION") {
+          const fallbackClientSecret = payload.details?.clientSecret;
+          if (fallbackClientSecret && fallbackClientSecret.startsWith("pi_")) {
+            setPaymentMode("payment_element");
+            setClientSecret(fallbackClientSecret);
+            onUpdate({
+              bookingId,
+              paymentMode: "payment_element",
+              clientSecret: fallbackClientSecret,
+            });
+          } else {
+            setBookingError("Refreshing payment session...");
+            await setupPaymentForExistingBooking();
+          }
+          setQuickPayHint(
+            "Card authentication required. Continue below in secure checkout.",
+          );
+          toast.error("Additional verification required for your saved card.");
+          return;
+        }
+
+        if (payload.errorCode === "ONE_CLICK_CARD_DECLINED") {
+          setQuickPayError(
+            "Saved card was declined. Use secure checkout or update your default card.",
+          );
+          toast.error("Saved card was declined.");
+          return;
+        }
+
+        if (payload.errorCode === "DEFAULT_PAYMENT_METHOD_REQUIRED") {
+          setDefaultSavedMethod(null);
+          setQuickPayHint(
+            "Add a default card in Wallet, then return and retry one-click.",
+          );
+          setQuickPayError(
+            "No default saved card is configured. Add one in your wallet, then retry one-click checkout.",
+          );
+          toast.error("Set a default saved card to use one-click.");
+          return;
+        }
+
+        throw new Error(
+          payload.message ||
+            payload.error ||
+            "Unable to process one-click payment.",
+        );
+      }
+
+      if (payload.succeeded || payload.status === "succeeded") {
+        toast.success("One-click payment successful!");
+        finalizeBooking();
+        return;
+      }
+
+      setQuickPayHint(
+        "Payment is processing. We will continue confirming your reservation.",
+      );
+      toast.success("Payment is processing.");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to process one-click payment.";
+      setQuickPayError(message);
+      toast.error(message);
+    } finally {
+      setIsOneClickSubmitting(false);
+    }
+  }, [
+    bookingId,
+    finalizeBooking,
+    handleAlreadyCompletedPayment,
+    onUpdate,
+    pricingDisclosureAccepted,
+    setupPaymentForExistingBooking,
+  ]);
+
   const hasValidSecretForMode =
     paymentMode === "embedded_checkout"
       ? clientSecret.startsWith("cs_")
@@ -538,6 +794,19 @@ export function StepPayment({
     setBookingError("Refreshing payment session...");
     void setupPaymentForExistingBooking();
   }, [bookingId, isRecoveringPayment, setupPaymentForExistingBooking]);
+
+  useEffect(() => {
+    if (!bookingId || isRecoveringPayment || !oneClickRebookingEnabled) {
+      return;
+    }
+
+    void loadDefaultSavedMethod();
+  }, [
+    bookingId,
+    isRecoveringPayment,
+    loadDefaultSavedMethod,
+    oneClickRebookingEnabled,
+  ]);
 
   if (!bookingId) {
     return (
@@ -649,10 +918,14 @@ export function StepPayment({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <CheckCircle2 className="h-5 w-5" />
-          Payment Information
+          {premiumCopyEnabled ? "You're almost done" : "Payment Information"}
         </CardTitle>
         <CardDescription>
-          {pricingQuote?.pricingModelLabel || BOOKING_PRICING_MODEL_LABEL}
+          {premiumCopyEnabled
+            ? leadPetName
+              ? `Secure ${leadPetName}'s suite with encrypted checkout.`
+              : "Finalize your premium booking with encrypted checkout."
+            : pricingQuote?.pricingModelLabel || BOOKING_PRICING_MODEL_LABEL}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -664,6 +937,97 @@ export function StepPayment({
           pricingDisclosureAccepted={pricingDisclosureAccepted}
           onPricingDisclosureChange={handleDisclosureChange}
         />
+
+        {premiumReassuranceEnabled ? (
+          <CheckoutReassurancePanel
+            supportPhone={supportPhone}
+            supportEmail={supportEmail}
+            showTrustIndicators={premiumTrustIndicatorsEnabled}
+            testimonials={activeTestimonials}
+          />
+        ) : null}
+
+        {oneClickRebookingEnabled && defaultSavedMethod ? (
+          <div className="rounded-lg border bg-muted/30 p-4">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-sm font-medium">One-click rebooking</p>
+                <p className="text-xs text-muted-foreground">
+                  Pay instantly with your default card {defaultSavedMethod.brand?.toUpperCase() || "CARD"} •••• {defaultSavedMethod.last4 || "----"}.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  void handleOneClickPayment();
+                }}
+                disabled={
+                  !pricingDisclosureAccepted ||
+                  isOneClickSubmitting ||
+                  isRecoveringPayment
+                }
+              >
+                {isOneClickSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Charging Saved Card...
+                  </>
+                ) : (
+                  "Pay With Saved Card"
+                )}
+              </Button>
+            </div>
+            {quickPayHint ? (
+              <p className="mt-2 text-xs text-muted-foreground">{quickPayHint}</p>
+            ) : null}
+            {quickPayError ? (
+              <p className="mt-2 text-xs text-destructive">{quickPayError}</p>
+            ) : null}
+          </div>
+        ) : null}
+
+        {oneClickRebookingEnabled && isLoadingDefaultSavedMethod ? (
+          <div className="rounded-lg border border-dashed bg-muted/20 p-4">
+            <p className="text-sm font-medium">Checking saved payment methods</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Loading your default card for one-click checkout...
+            </p>
+          </div>
+        ) : null}
+
+        {oneClickRebookingEnabled && !isLoadingDefaultSavedMethod && !defaultSavedMethod ? (
+          <div className="rounded-lg border border-dashed bg-muted/20 p-4">
+            <p className="text-sm font-medium">One-click rebooking unavailable</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Add a default saved card in Wallet to unlock instant one-click payments.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.open("/dashboard/wallet", "_blank", "noopener,noreferrer");
+                  }
+                }}
+              >
+                Open Wallet
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  void loadDefaultSavedMethod();
+                }}
+              >
+                Check Again
+              </Button>
+            </div>
+          </div>
+        ) : null}
 
         {!hasValidSecretForMode ? (
           <div className="space-y-4 rounded-lg border border-dashed p-4">
@@ -756,8 +1120,11 @@ export function StepPayment({
             <PaymentForm
               onSuccess={finalizeBooking}
               onBack={onBack}
+              onRecover={setupPaymentForExistingBooking}
               disclosureAccepted={pricingDisclosureAccepted}
               totalWithTax={totalWithTax}
+              actionLabel={personalizedActionLabel}
+              premiumLoadingEnabled={premiumLoadingExperienceEnabled}
             />
           </Elements>
         )}

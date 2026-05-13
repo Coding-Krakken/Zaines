@@ -172,6 +172,18 @@ export async function POST(request: NextRequest) {
         break;
       }
 
+      case "setup_intent.succeeded": {
+        const setupIntent = event.data.object as Stripe.SetupIntent;
+        await handleSetupIntentSucceeded(setupIntent, event.id, correlationId);
+        break;
+      }
+
+      case "setup_intent.setup_failed": {
+        const setupIntent = event.data.object as Stripe.SetupIntent;
+        await handleSetupIntentFailed(setupIntent, event.id, correlationId);
+        break;
+      }
+
       case "charge.refunded": {
         const charge = event.data.object as Stripe.Charge;
         await handleRefund(charge, event.id, correlationId);
@@ -392,6 +404,49 @@ async function handleCheckoutSessionCompleted(
     );
     throw error;
   }
+}
+
+async function handleSetupIntentSucceeded(
+  setupIntent: Stripe.SetupIntent,
+  eventId: string,
+  correlationId: string,
+) {
+  logSecurityEvent({
+    route: "/api/payments/webhook",
+    event: "SETUP_INTENT_SUCCEEDED",
+    correlationId,
+    context: {
+      eventId,
+      setupIntentId: setupIntent.id,
+      customerId:
+        typeof setupIntent.customer === "string"
+          ? setupIntent.customer
+          : setupIntent.customer?.id,
+      paymentMethodId:
+        typeof setupIntent.payment_method === "string"
+          ? setupIntent.payment_method
+          : setupIntent.payment_method?.id,
+    },
+  });
+}
+
+async function handleSetupIntentFailed(
+  setupIntent: Stripe.SetupIntent,
+  eventId: string,
+  correlationId: string,
+) {
+  logSecurityEvent({
+    route: "/api/payments/webhook",
+    event: "SETUP_INTENT_FAILED",
+    correlationId,
+    level: "warn",
+    context: {
+      eventId,
+      setupIntentId: setupIntent.id,
+      failureCode: setupIntent.last_setup_error?.code,
+      failureType: setupIntent.last_setup_error?.type,
+    },
+  });
 }
 
 async function handlePaymentFailure(

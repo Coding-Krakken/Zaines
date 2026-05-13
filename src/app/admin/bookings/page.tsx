@@ -38,6 +38,15 @@ export default function BookingsPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const search = params.get('search');
+    if (search) {
+      setSearchTerm(search);
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchBookings = async () => {
       try {
         const res = await fetch('/api/admin/bookings');

@@ -51,11 +51,14 @@ export default async function SettingsPage() {
   }
 
   let billingPortalEnabled = false;
+  let walletEnabled = false;
   try {
     const settings = await getAdminSettings();
     billingPortalEnabled = settings.stripeCapabilityFlags.customerPortalEnabled;
+    walletEnabled = settings.stripeCapabilityFlags.savedPaymentMethodsEnabled;
   } catch {
     billingPortalEnabled = false;
+    walletEnabled = false;
   }
 
   return (
@@ -65,7 +68,11 @@ export default async function SettingsPage() {
         title="Settings"
         description="Update profile details and billing preferences for your customer portal access."
       />
-      <ProfileForm user={user} billingPortalEnabled={billingPortalEnabled} />
+      <ProfileForm
+        user={user}
+        billingPortalEnabled={billingPortalEnabled}
+        walletEnabled={walletEnabled}
+      />
     </div>
   );
 }

@@ -809,6 +809,9 @@ function getDefaultStripeCapabilityFlags(): StripeCapabilityFlags {
   return {
     billingSubscriptionsEnabled: false,
     customerPortalEnabled: false,
+    savedPaymentMethodsEnabled: false,
+    oneClickRebookingEnabled: false,
+    autopayEnabled: false,
     taxEnabled: false,
     disputesEnabled: false,
     radarReviewEnabled: false,
@@ -818,6 +821,10 @@ function getDefaultStripeCapabilityFlags(): StripeCapabilityFlags {
     financialConnectionsEnabled: false,
     identityEnabled: false,
     terminalEnabled: false,
+    premiumCheckoutReassuranceEnabled: false,
+    premiumCheckoutCopyEnabled: false,
+    premiumCheckoutTrustIndicatorsEnabled: false,
+    premiumCheckoutLoadingExperienceEnabled: false,
   };
 }
 

@@ -27,6 +27,10 @@ const {
       financialConnectionsEnabled: false,
       identityEnabled: false,
       terminalEnabled: false,
+      premiumCheckoutReassuranceEnabled: false,
+      premiumCheckoutCopyEnabled: false,
+      premiumCheckoutTrustIndicatorsEnabled: false,
+      premiumCheckoutLoadingExperienceEnabled: false,
     },
   })),
   stripeMock: {
@@ -104,6 +108,10 @@ describe('payments billing capability routes', () => {
         financialConnectionsEnabled: false,
         identityEnabled: false,
         terminalEnabled: false,
+      premiumCheckoutReassuranceEnabled: false,
+      premiumCheckoutCopyEnabled: false,
+      premiumCheckoutTrustIndicatorsEnabled: false,
+      premiumCheckoutLoadingExperienceEnabled: false,
       },
     });
     isStripeConfiguredMock.mockReturnValue(true);
@@ -134,6 +142,10 @@ describe('payments billing capability routes', () => {
         financialConnectionsEnabled: false,
         identityEnabled: false,
         terminalEnabled: false,
+      premiumCheckoutReassuranceEnabled: false,
+      premiumCheckoutCopyEnabled: false,
+      premiumCheckoutTrustIndicatorsEnabled: false,
+      premiumCheckoutLoadingExperienceEnabled: false,
       },
     });
 
@@ -194,6 +206,10 @@ describe('payments billing capability routes', () => {
         financialConnectionsEnabled: false,
         identityEnabled: false,
         terminalEnabled: false,
+      premiumCheckoutReassuranceEnabled: false,
+      premiumCheckoutCopyEnabled: false,
+      premiumCheckoutTrustIndicatorsEnabled: false,
+      premiumCheckoutLoadingExperienceEnabled: false,
       },
     });
 

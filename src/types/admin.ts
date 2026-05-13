@@ -129,6 +129,9 @@ export interface TestimonialsSettings {
 export interface StripeCapabilityFlags {
   billingSubscriptionsEnabled: boolean;
   customerPortalEnabled: boolean;
+  savedPaymentMethodsEnabled: boolean;
+  oneClickRebookingEnabled: boolean;
+  autopayEnabled: boolean;
   taxEnabled: boolean;
   disputesEnabled: boolean;
   radarReviewEnabled: boolean;
@@ -138,6 +141,10 @@ export interface StripeCapabilityFlags {
   financialConnectionsEnabled: boolean;
   identityEnabled: boolean;
   terminalEnabled: boolean;
+  premiumCheckoutReassuranceEnabled: boolean;
+  premiumCheckoutCopyEnabled: boolean;
+  premiumCheckoutTrustIndicatorsEnabled: boolean;
+  premiumCheckoutLoadingExperienceEnabled: boolean;
 }
 
 export interface AdminSettings {

@@ -32,6 +32,9 @@ function getDefaultSettings(): AdminSettings {
     stripeCapabilityFlags: {
       billingSubscriptionsEnabled: false,
       customerPortalEnabled: false,
+      savedPaymentMethodsEnabled: false,
+      oneClickRebookingEnabled: false,
+      autopayEnabled: false,
       taxEnabled: false,
       disputesEnabled: false,
       radarReviewEnabled: false,
@@ -41,6 +44,10 @@ function getDefaultSettings(): AdminSettings {
       financialConnectionsEnabled: false,
       identityEnabled: false,
       terminalEnabled: false,
+      premiumCheckoutReassuranceEnabled: false,
+      premiumCheckoutCopyEnabled: false,
+      premiumCheckoutTrustIndicatorsEnabled: false,
+      premiumCheckoutLoadingExperienceEnabled: false,
     },
     businessHours: {
       monday: { openTime: '06:00', closeTime: '20:00', isClosed: false },

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { AlertCircle, CircleCheckBig } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,9 +22,14 @@ interface ProfileFormProps {
     zip: string | null;
   };
   billingPortalEnabled?: boolean;
+  walletEnabled?: boolean;
 }
 
-export function ProfileForm({ user, billingPortalEnabled = false }: ProfileFormProps) {
+export function ProfileForm({
+  user,
+  billingPortalEnabled = false,
+  walletEnabled = false,
+}: ProfileFormProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -285,14 +291,21 @@ export function ProfileForm({ user, billingPortalEnabled = false }: ProfileFormP
               </Alert>
             ) : null}
             <div className="mt-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleOpenBillingPortal}
-                disabled={isOpeningPortal}
-              >
-                {isOpeningPortal ? 'Opening portal...' : 'Open Billing Portal'}
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleOpenBillingPortal}
+                  disabled={isOpeningPortal}
+                >
+                  {isOpeningPortal ? 'Opening portal...' : 'Open Billing Portal'}
+                </Button>
+                {walletEnabled ? (
+                  <Button asChild variant="outline">
+                    <Link href="/dashboard/wallet">Manage Saved Cards</Link>
+                  </Button>
+                ) : null}
+              </div>
             </div>
           </div>
         )}

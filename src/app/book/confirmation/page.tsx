@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, CalendarDays, Loader2 } from "lucide-react";
+import { CheckCircle2, CalendarDays, Download, Loader2, Printer } from "lucide-react";
 import { downloadICSFile } from "@/lib/calendar-export";
 import Link from "next/link";
 
@@ -35,9 +35,11 @@ function ConfirmationContent() {
   const searchParams = useSearchParams();
   const [booking, setBooking] = useState<BookingData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDownloadingReceipt, setIsDownloadingReceipt] = useState(false);
+  const [isPreparingPdf, setIsPreparingPdf] = useState(false);
 
   useEffect(() => {
-    const loadAndApplyBookingData = () => {
+    const loadAndApplyBookingData = async () => {
       const bookingId = searchParams.get("bookingId");
 
       if (bookingId) {
@@ -46,12 +48,118 @@ function ConfirmationContent() {
           const parsed = JSON.parse(storedBooking);
           setBooking(parsed);
         }
+
+        try {
+          const response = await fetch(`/api/bookings/${bookingId}/receipt`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
+
+          if (response.ok) {
+            const payload = (await response.json()) as {
+              receipt?: {
+                bookingId: string;
+                bookingNumber: string;
+                checkIn: string;
+                checkOut: string;
+                suite: string;
+                subtotal: number;
+                tax: number;
+                total: number;
+                currency: string;
+                petNames: string[];
+                customerEmail: string;
+              };
+            };
+
+            if (payload.receipt) {
+              setBooking((current) => ({
+                id: payload.receipt?.bookingId || current?.id || bookingId,
+                bookingNumber:
+                  payload.receipt?.bookingNumber ||
+                  current?.bookingNumber ||
+                  bookingId,
+                checkIn: payload.receipt?.checkIn || current?.checkIn || "",
+                checkOut: payload.receipt?.checkOut || current?.checkOut || "",
+                suite: payload.receipt?.suite || current?.suite || "standard",
+                total: payload.receipt?.total || current?.total || 0,
+                pricing: {
+                  subtotal:
+                    payload.receipt?.subtotal || current?.pricing?.subtotal || 0,
+                  tax: payload.receipt?.tax || current?.pricing?.tax || 0,
+                  total: payload.receipt?.total || current?.pricing?.total || 0,
+                  currency:
+                    payload.receipt?.currency ||
+                    current?.pricing?.currency ||
+                    "USD",
+                },
+                petNames: payload.receipt?.petNames || current?.petNames || [],
+                email:
+                  payload.receipt?.customerEmail || current?.email || "unknown",
+              }));
+            }
+          }
+        } catch {
+          // Keep sessionStorage fallback for recovery and offline browsing.
+        }
       }
       setIsLoading(false);
     };
 
-    loadAndApplyBookingData();
+    void loadAndApplyBookingData();
   }, [searchParams]);
+
+  const downloadReceiptHtml = async () => {
+    if (!booking?.id) return;
+
+    setIsDownloadingReceipt(true);
+    try {
+      const response = await fetch(`/api/bookings/${booking.id}/receipt?format=html`);
+      if (!response.ok) {
+        throw new Error("Unable to download receipt");
+      }
+
+      const html = await response.text();
+      const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+      const blobUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = blobUrl;
+      anchor.download = `invoice-${booking.bookingNumber || booking.id}.html`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(blobUrl);
+    } finally {
+      setIsDownloadingReceipt(false);
+    }
+  };
+
+  const openPrintableInvoice = async () => {
+    if (!booking?.id) return;
+
+    setIsPreparingPdf(true);
+    try {
+      const response = await fetch(`/api/bookings/${booking.id}/receipt?format=html`);
+      if (!response.ok) {
+        throw new Error("Unable to load printable invoice");
+      }
+
+      const html = await response.text();
+      const printWindow = window.open("", "_blank", "noopener,noreferrer");
+
+      if (!printWindow) {
+        throw new Error("Popup blocked");
+      }
+
+      printWindow.document.open();
+      printWindow.document.write(html);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    } finally {
+      setIsPreparingPdf(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -175,6 +283,34 @@ function ConfirmationContent() {
           <Button onClick={handleDownloadCalendar} variant="outline">
             <CalendarDays className="mr-2 h-4 w-4" />
             Add to Calendar
+          </Button>
+          <Button
+            onClick={() => {
+              void downloadReceiptHtml();
+            }}
+            variant="outline"
+            disabled={isDownloadingReceipt}
+          >
+            {isDownloadingReceipt ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-4 w-4" />
+            )}
+            Download Premium Receipt (HTML)
+          </Button>
+          <Button
+            onClick={() => {
+              void openPrintableInvoice();
+            }}
+            variant="outline"
+            disabled={isPreparingPdf}
+          >
+            {isPreparingPdf ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Printer className="mr-2 h-4 w-4" />
+            )}
+            Save PDF Invoice
           </Button>
           <Button asChild>
             <Link href="/dashboard">View Dashboard</Link>

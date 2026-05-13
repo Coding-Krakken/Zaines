@@ -47,6 +47,9 @@ const settingsFormSchema = z.object({
   stripeCapabilityFlags: z.object({
     billingSubscriptionsEnabled: z.boolean(),
     customerPortalEnabled: z.boolean(),
+    savedPaymentMethodsEnabled: z.boolean(),
+    oneClickRebookingEnabled: z.boolean(),
+    autopayEnabled: z.boolean(),
     taxEnabled: z.boolean(),
     disputesEnabled: z.boolean(),
     radarReviewEnabled: z.boolean(),
@@ -56,6 +59,10 @@ const settingsFormSchema = z.object({
     financialConnectionsEnabled: z.boolean(),
     identityEnabled: z.boolean(),
     terminalEnabled: z.boolean(),
+    premiumCheckoutReassuranceEnabled: z.boolean(),
+    premiumCheckoutCopyEnabled: z.boolean(),
+    premiumCheckoutTrustIndicatorsEnabled: z.boolean(),
+    premiumCheckoutLoadingExperienceEnabled: z.boolean(),
   }),
   // Phase 1: Business Hours & Contact Info
   businessHours: z.object({
@@ -211,6 +218,9 @@ export default function AdminSettingsPage() {
       stripeCapabilityFlags: {
         billingSubscriptionsEnabled: false,
         customerPortalEnabled: false,
+        savedPaymentMethodsEnabled: false,
+        oneClickRebookingEnabled: false,
+        autopayEnabled: false,
         taxEnabled: false,
         disputesEnabled: false,
         radarReviewEnabled: false,
@@ -220,6 +230,10 @@ export default function AdminSettingsPage() {
         financialConnectionsEnabled: false,
         identityEnabled: false,
         terminalEnabled: false,
+        premiumCheckoutReassuranceEnabled: false,
+        premiumCheckoutCopyEnabled: false,
+        premiumCheckoutTrustIndicatorsEnabled: false,
+        premiumCheckoutLoadingExperienceEnabled: false,
       },
       businessHours: {
         monday: { openTime: '06:00', closeTime: '20:00', isClosed: false },
@@ -643,6 +657,21 @@ export default function AdminSettingsPage() {
                   description: 'Self-service billing updates and plan changes.',
                 },
                 {
+                  key: 'savedPaymentMethodsEnabled' as const,
+                  label: 'Saved payment methods',
+                  description: 'Store and reuse cards for faster checkout experiences.',
+                },
+                {
+                  key: 'oneClickRebookingEnabled' as const,
+                  label: 'One-click rebooking',
+                  description: 'Allow returning customers to confirm with a default payment method.',
+                },
+                {
+                  key: 'autopayEnabled' as const,
+                  label: 'Autopay authorization',
+                  description: 'Enable optional automatic charging for upcoming balances and incidentals.',
+                },
+                {
                   key: 'taxEnabled' as const,
                   label: 'Stripe Tax',
                   description: 'Automated tax calculation and reporting workflows.',
@@ -686,6 +715,26 @@ export default function AdminSettingsPage() {
                   key: 'terminalEnabled' as const,
                   label: 'Terminal in-person payments',
                   description: 'card_present and in-person check-in charging capability.',
+                },
+                {
+                  key: 'premiumCheckoutReassuranceEnabled' as const,
+                  label: 'Premium checkout reassurance',
+                  description: 'Luxury reassurance panel near payment submission.',
+                },
+                {
+                  key: 'premiumCheckoutCopyEnabled' as const,
+                  label: 'Premium emotional copy',
+                  description: 'Pet-centric checkout headlines and action language.',
+                },
+                {
+                  key: 'premiumCheckoutTrustIndicatorsEnabled' as const,
+                  label: 'Checkout trust indicators',
+                  description: 'Testimonials, satisfaction stats, and care badges.',
+                },
+                {
+                  key: 'premiumCheckoutLoadingExperienceEnabled' as const,
+                  label: 'Premium loading experience',
+                  description: 'Enhanced processing and payment recovery states.',
                 },
               ].map((track) => (
                 <FormField

@@ -226,8 +226,35 @@ export type Booking = {
   id?: string;
   bookingNumber?: string;
   status?: string;
+  checkInDate?: Date;
+  checkOutDate?: Date;
+  subtotal?: number;
+  tax?: number;
+  total?: number;
+  suite?: { name?: string | null; tier?: string | null } | null;
+  bookingPets?: Array<{ pet?: { name?: string | null } | null }>;
   user?: { email?: string | null; name?: string | null };
 };
+
+function formatDate(value?: Date): string {
+  if (!value) return "TBD";
+  return value.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function formatCurrency(value?: number): string {
+  if (typeof value !== "number" || Number.isNaN(value)) return "$0.00";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
 
 export async function sendBookingConfirmation(
   booking: Booking,
@@ -235,8 +262,58 @@ export async function sendBookingConfirmation(
   const from = process.env.EMAIL_FROM || "noreply@pawfectstays.com";
   const apiKey = process.env.RESEND_API_KEY;
   const to = booking?.user?.email;
+  const appBaseUrl =
+    process.env.NEXTAUTH_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "https://zainesstayandplay.com";
+  const receiptUrl = booking?.id
+    ? `${appBaseUrl}/book/confirmation?bookingId=${booking.id}`
+    : appBaseUrl;
+  const suiteLabel = booking?.suite?.name || booking?.suite?.tier || "Private Suite";
+  const petNames =
+    booking?.bookingPets
+      ?.map((entry) => entry.pet?.name)
+      .filter((name): name is string => typeof name === "string" && name.length > 0)
+      .join(", ") || "Your pet guests";
+  const subtotal = formatCurrency(booking?.subtotal);
+  const tax = formatCurrency(booking?.tax);
+  const total = formatCurrency(booking?.total);
   const subject = `Booking ${booking?.bookingNumber} confirmation`;
-  const html = `<p>Thanks ${booking?.user?.name || "guest"},</p><p>Your booking ${booking?.bookingNumber} is ${booking?.status}.</p>`;
+  const html = `
+    <div style="font-family: Georgia, serif; color: #18212a; line-height: 1.5; max-width: 640px; margin: 0 auto;">
+      <h1 style="margin-bottom: 8px;">Your Luxury Stay Is Confirmed</h1>
+      <p style="margin-top: 0; color: #4e5a67;">Thank you ${escapeHtml(booking?.user?.name || "Guest")}, we are ready to host your family.</p>
+
+      <div style="border: 1px solid #d8dde3; border-radius: 12px; padding: 16px; background: #f7fbfd;">
+        <p style="margin: 0 0 8px;"><strong>Booking:</strong> ${escapeHtml(booking?.bookingNumber || "Pending")}</p>
+        <p style="margin: 0 0 8px;"><strong>Suite:</strong> ${escapeHtml(suiteLabel)}</p>
+        <p style="margin: 0 0 8px;"><strong>Pet guests:</strong> ${escapeHtml(petNames)}</p>
+        <p style="margin: 0;"><strong>Dates:</strong> ${escapeHtml(formatDate(booking?.checkInDate))} to ${escapeHtml(formatDate(booking?.checkOutDate))}</p>
+      </div>
+
+      <table style="width: 100%; border-collapse: collapse; margin-top: 14px;">
+        <tbody>
+          <tr>
+            <td style="padding: 6px 0; color: #4e5a67;">Subtotal</td>
+            <td style="padding: 6px 0; text-align: right;">${escapeHtml(subtotal)}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: #4e5a67;">Tax</td>
+            <td style="padding: 6px 0; text-align: right;">${escapeHtml(tax)}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0 0; border-top: 1px solid #d8dde3;"><strong>Total</strong></td>
+            <td style="padding: 10px 0 0; text-align: right; border-top: 1px solid #d8dde3;"><strong>${escapeHtml(total)}</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top: 16px;">
+        <a href="${escapeHtml(receiptUrl)}" style="display: inline-block; background: #0f766e; color: #fff; text-decoration: none; padding: 10px 14px; border-radius: 8px;">View Invoice & Save PDF</a>
+      </p>
+      <p style="font-size: 13px; color: #4e5a67;">Need assistance? Reply to this email or contact our concierge team at (315) 657-1332.</p>
+    </div>
+  `;
 
   if (!to) {
     return { sent: false, provider: "dev-queue", detail: "no-recipient" };

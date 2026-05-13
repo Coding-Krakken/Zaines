@@ -25,6 +25,7 @@ import { Download, RefreshCw, TrendingUp, TrendingDown, DollarSign, CreditCard, 
 import { AdminErrorState, AdminLoadingState } from '@/components/admin/AdminAsyncState';
 import type {
   FinanceAlertsResponse,
+  FinanceAutopayConsentSummaryResponse,
   FinanceCashForecastResponse,
   FinanceExceptionsResponse,
   FinanceOverviewResponse,
@@ -51,6 +52,9 @@ function defaultStripeCapabilityFlags(): StripeCapabilityFlags {
   return {
     billingSubscriptionsEnabled: false,
     customerPortalEnabled: false,
+    savedPaymentMethodsEnabled: false,
+    oneClickRebookingEnabled: false,
+    autopayEnabled: false,
     taxEnabled: false,
     disputesEnabled: false,
     radarReviewEnabled: false,
@@ -60,6 +64,10 @@ function defaultStripeCapabilityFlags(): StripeCapabilityFlags {
     financialConnectionsEnabled: false,
     identityEnabled: false,
     terminalEnabled: false,
+    premiumCheckoutReassuranceEnabled: false,
+    premiumCheckoutCopyEnabled: false,
+    premiumCheckoutTrustIndicatorsEnabled: false,
+    premiumCheckoutLoadingExperienceEnabled: false,
   };
 }
 
@@ -186,6 +194,8 @@ export default function AdminFinancePage() {
   const [exceptions, setExceptions] = useState<FinanceExceptionsResponse | null>(null);
   const [forecast, setForecast] = useState<FinanceCashForecastResponse | null>(null);
   const [webhookHealth, setWebhookHealth] = useState<FinanceWebhookHealthResponse | null>(null);
+  const [autopayConsents, setAutopayConsents] =
+    useState<FinanceAutopayConsentSummaryResponse | null>(null);
   const [stripeCapabilityFlags, setStripeCapabilityFlags] = useState<StripeCapabilityFlags>(
     defaultStripeCapabilityFlags(),
   );
@@ -211,7 +221,7 @@ export default function AdminFinancePage() {
         ...(search.trim() ? { search: search.trim() } : {}),
       });
 
-      const [overviewRes, revRecRes, txRes, alertsRes, exceptionsRes, forecastRes, webhookRes, settingsRes] = await Promise.all([
+      const [overviewRes, revRecRes, txRes, alertsRes, exceptionsRes, forecastRes, webhookRes, settingsRes, autopayRes] = await Promise.all([
         fetch(`/api/admin/finance/overview?${params}`, { cache: 'no-store' }),
         fetch(`/api/admin/finance/revenue-recognition?${params}`, { cache: 'no-store' }),
         fetch(`/api/admin/finance/transactions?${txParams}`, { cache: 'no-store' }),
@@ -220,6 +230,7 @@ export default function AdminFinancePage() {
         fetch('/api/admin/finance/forecast?days=30', { cache: 'no-store' }),
         fetch('/api/admin/finance/webhooks', { cache: 'no-store' }),
         fetch('/api/admin/settings', { cache: 'no-store' }),
+        fetch('/api/admin/finance/autopay-consents', { cache: 'no-store' }),
       ]);
 
       const overviewJson = (await overviewRes.json()) as {
@@ -261,6 +272,11 @@ export default function AdminFinancePage() {
         data?: FinanceWebhookHealthResponse;
         error?: string;
       };
+      const autopayJson = (await autopayRes.json()) as {
+        success?: boolean;
+        data?: FinanceAutopayConsentSummaryResponse;
+        error?: string;
+      };
 
       if (!overviewRes.ok || !overviewJson.data) {
         throw new Error(overviewJson.error ?? 'Failed loading finance overview');
@@ -290,6 +306,10 @@ export default function AdminFinancePage() {
         throw new Error(webhookJson.error ?? 'Failed loading webhook health');
       }
 
+      if (!autopayRes.ok || !autopayJson.data) {
+        throw new Error(autopayJson.error ?? 'Failed loading autopay consent summary');
+      }
+
       setOverview(overviewJson.data);
       setRevenueRecognition(revRecJson.data);
       setTransactions(txJson.data);
@@ -297,6 +317,7 @@ export default function AdminFinancePage() {
       setExceptions(exceptionsJson.data);
       setForecast(forecastJson.data);
       setWebhookHealth(webhookJson.data);
+      setAutopayConsents(autopayJson.data);
       setStripeCapabilityFlags(
         settingsJson.data?.stripeCapabilityFlags ?? defaultStripeCapabilityFlags(),
       );
@@ -310,6 +331,7 @@ export default function AdminFinancePage() {
       setExceptions(null);
       setForecast(null);
       setWebhookHealth(null);
+      setAutopayConsents(null);
       setStripeCapabilityFlags(defaultStripeCapabilityFlags());
       setEvaluatedAt(Date.now());
       setState({
@@ -351,6 +373,7 @@ export default function AdminFinancePage() {
       alerts?.generatedAt,
       exceptions?.generatedAt,
       forecast?.generatedAt,
+      autopayConsents?.generatedAt,
     ].filter(Boolean) as string[];
 
     if (generatedAtValues.length === 0) return null;
@@ -360,13 +383,33 @@ export default function AdminFinancePage() {
         ? current
         : latest;
     });
-  }, [alerts, exceptions, forecast, overview, revenueRecognition, transactions]);
+  }, [
+    alerts,
+    autopayConsents,
+    exceptions,
+    forecast,
+    overview,
+    revenueRecognition,
+    transactions,
+  ]);
 
   const dataAgeMinutes = useMemo(() => {
     if (!latestDataGeneratedAt || evaluatedAt === null) return null;
     const ms = evaluatedAt - new Date(latestDataGeneratedAt).getTime();
     return Math.max(0, Math.floor(ms / 60000));
   }, [latestDataGeneratedAt, evaluatedAt]);
+
+  const latestAutopayConsentUpdatedAt = useMemo(() => {
+    if (!autopayConsents || autopayConsents.rows.length === 0) {
+      return null;
+    }
+
+    return autopayConsents.rows.reduce((latest, row) => {
+      return new Date(row.updatedAt).getTime() > new Date(latest).getTime()
+        ? row.updatedAt
+        : latest;
+    }, autopayConsents.rows[0].updatedAt);
+  }, [autopayConsents]);
 
   const dataIsStale = (dataAgeMinutes ?? 0) >= 10;
   const stripeOpsEnabled =
@@ -711,7 +754,7 @@ export default function AdminFinancePage() {
         />
       ) : null}
 
-      {!state.loading && !state.error && overview && revenueRecognition && transactions && alerts && exceptions && forecast && (
+      {!state.loading && !state.error && overview && revenueRecognition && transactions && alerts && exceptions && forecast && autopayConsents && (
         <>
           <Card>
             <CardHeader>
@@ -764,6 +807,92 @@ export default function AdminFinancePage() {
                   </CardHeader>
                   <CardContent className="text-2xl font-semibold">{formatCurrency(forecast.totals.expectedNet)}</CardContent>
                 </Card>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-3">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Autopay Profiles</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-2xl font-semibold">{autopayConsents.totals.profiles}</CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Autopay Enabled</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-2xl font-semibold">{autopayConsents.totals.enabled}</CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Incidentals Authorized</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-2xl font-semibold">{autopayConsents.totals.incidentalsAuthorized}</CardContent>
+                </Card>
+              </div>
+
+              <p className="text-xs text-muted-foreground">
+                Latest autopay consent update:{" "}
+                {latestAutopayConsentUpdatedAt
+                  ? formatDate(latestAutopayConsentUpdatedAt)
+                  : "No consent updates recorded."}
+              </p>
+
+              <div>
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-sm font-medium">Recent Autopay Profiles</p>
+                  <p className="text-xs text-muted-foreground">
+                    Showing up to 5 most recent updates
+                  </p>
+                </div>
+                {autopayConsents.rows.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No autopay consent profiles recorded yet.
+                  </p>
+                ) : (
+                  <div className="overflow-x-auto rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Customer</TableHead>
+                          <TableHead>Autopay</TableHead>
+                          <TableHead>Incidentals</TableHead>
+                          <TableHead>Updated</TableHead>
+                          <TableHead>Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {autopayConsents.rows.slice(0, 5).map((row) => (
+                          <TableRow key={`${row.userId}:${row.updatedAt}`}>
+                            <TableCell>
+                              <p className="font-medium">
+                                {row.customerName || "Unknown customer"}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {row.customerEmail || row.userId}
+                              </p>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={row.enabled ? 'default' : 'secondary'}>
+                                {row.enabled ? 'enabled' : 'disabled'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={row.allowIncidentals ? 'default' : 'outline'}>
+                                {row.allowIncidentals ? 'authorized' : 'not authorized'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{formatDate(row.updatedAt)}</TableCell>
+                            <TableCell>
+                              <Button size="sm" variant="ghost" asChild>
+                                <Link href={row.bookingsSearchHref}>Open Bookings</Link>
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </div>
 
               <div>
