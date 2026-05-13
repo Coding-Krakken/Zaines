@@ -37,6 +37,7 @@ const capabilities = getAuthProviderCapabilities({
   enableGuestFlow,
 });
 const enabledCapabilityIds = getEnabledCapabilityIds(capabilities);
+const resendApiKey = process.env.AUTH_RESEND_KEY || process.env.RESEND_API_KEY;
 
 const normalizeRole = (value: unknown): string =>
   typeof value === "string" && value.length > 0 ? value : "customer";
@@ -45,6 +46,7 @@ const providers: NonNullable<NextAuthConfig["providers"]> = [
   ...(enabledCapabilityIds.has("resend")
     ? [
         Resend({
+          apiKey: resendApiKey,
           from: process.env.EMAIL_FROM || "noreply@pawfectstays.com",
         }),
       ]
@@ -220,7 +222,10 @@ const providers: NonNullable<NextAuthConfig["providers"]> = [
 ];
 
 export const authConfig: NextAuthConfig = {
-  ...(useDatabaseSessions ? { adapter: PrismaAdapter(prisma) } : {}),
+  // Keep adapter available whenever the database is configured. Some providers
+  // (for example email/magic-link) require adapter storage even when session
+  // strategy is JWT.
+  ...(hasDatabase ? { adapter: PrismaAdapter(prisma) } : {}),
 
   // Required for Vercel / AWS Lambda deployments: allows NextAuth to trust
   // the x-forwarded-host header when computing cookie domains during the
