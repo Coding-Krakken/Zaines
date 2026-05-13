@@ -6,7 +6,7 @@ import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
 
 const CalmModeExperience = dynamic(
   () => import("@/components/dog/DogModeExperience").then((m) => ({ default: m.CalmModeExperience })),
-  { loading: () => <Skeleton className="min-h-screen w-full" />, ssr: false },
+  { loading: () => <Skeleton className="min-h-screen w-full" /> },
 );
 
 export async function generateMetadata(): Promise<Metadata> {
