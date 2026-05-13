@@ -32,6 +32,7 @@ interface StepSuitesProps {
   onUpdate: (data: Partial<StepSuitesData>) => void;
   onNext: () => void;
   onBack: () => void;
+  onCancel?: () => void;
   nights?: number; // From dates step for pricing calculation
 }
 
@@ -115,6 +116,7 @@ export function StepSuites({
   onUpdate,
   onNext,
   onBack,
+  onCancel,
   nights = 1,
 }: StepSuitesProps) {
   const [, startTransition] = useTransition();
@@ -339,10 +341,17 @@ export function StepSuites({
 
         {/* Navigation Buttons */}
         <div className="flex justify-between pt-4">
-          <Button variant="outline" onClick={onBack}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onBack}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+            {onCancel && (
+              <Button variant="destructive" onClick={onCancel}>
+                Cancel Booking
+              </Button>
+            )}
+          </div>
           <Button onClick={handleNext} disabled={!data.suiteType}>
             Continue to Account
             <ArrowRight className="ml-2 h-4 w-4" />

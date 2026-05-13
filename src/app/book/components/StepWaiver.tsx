@@ -25,6 +25,7 @@ interface StepWaiverProps {
   onUpdate: (data: Partial<StepWaiverData>) => void;
   onNext: () => void;
   onBack: () => void;
+  onCancel?: () => void;
 }
 
 export function StepWaiver({
@@ -32,6 +33,7 @@ export function StepWaiver({
   onUpdate,
   onNext,
   onBack,
+  onCancel,
 }: StepWaiverProps) {
   const [savedWaiverTypes, setSavedWaiverTypes] = useState<string[]>([]);
   const [isLoadingSavedWaivers, setIsLoadingSavedWaivers] = useState(false);
@@ -313,10 +315,17 @@ export function StepWaiver({
 
         {/* Navigation Buttons */}
         <div className="flex justify-between pt-4">
-          <Button variant="outline" onClick={onBack}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onBack}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+            {onCancel && (
+              <Button variant="destructive" onClick={onCancel}>
+                Cancel Booking
+              </Button>
+            )}
+          </div>
           <Button
             onClick={handleNext}
             disabled={reuseExistingWaivers ? false : (!liabilityAccepted ||

@@ -33,6 +33,7 @@ interface StepAccountProps {
   onUpdate: (data: Partial<StepAccountData>) => void;
   onNext: () => void;
   onBack: () => void;
+  onCancel?: () => void;
 }
 
 type MagicLinkErrorCode =
@@ -57,6 +58,7 @@ export function StepAccount({
   onUpdate,
   onNext,
   onBack,
+  onCancel,
 }: StepAccountProps) {
   const { data: session, status } = useSession();
   const [firstName, setFirstName] = useState(data.firstName || "");
@@ -425,10 +427,17 @@ export function StepAccount({
 
         {/* Navigation Buttons */}
         <div className="flex justify-between pt-4">
-          <Button variant="outline" onClick={onBack}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onBack}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+            {onCancel && (
+              <Button variant="destructive" onClick={onCancel}>
+                Cancel Booking
+              </Button>
+            )}
+          </div>
           <Button
             onClick={handleNext}
             disabled={

@@ -216,15 +216,19 @@ export default function BookPage() {
       return;
     }
 
-    const bookingId = wizardData.payment?.bookingId;
-    if (bookingId) {
-      sessionStorage.removeItem(`booking-${bookingId}`);
-    }
+    // Use requestAnimationFrame to defer heavy state operations
+    // to avoid blocking UI thread (INP optimization)
+    requestAnimationFrame(() => {
+      const bookingId = wizardData.payment?.bookingId;
+      if (bookingId) {
+        sessionStorage.removeItem(`booking-${bookingId}`);
+      }
 
-    resetWizard();
-    setPricingQuote(null);
-    setQuoteError(null);
-    setQuoteRetryNonce(0);
+      resetWizard();
+      setPricingQuote(null);
+      setQuoteError(null);
+      setQuoteRetryNonce(0);
+    });
   };
 
   return (
@@ -236,18 +240,6 @@ export default function BookPage() {
           <p className="text-lg text-muted-foreground">
             Just a few steps to reserve your pet&apos;s vacation
           </p>
-          <div className="mt-4 flex justify-center gap-4">
-            <Button asChild>
-              <a href="#booking-wizard">Start Booking</a>
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={handleCancelBooking}
-            >
-              Cancel Booking
-            </Button>
-          </div>
           <p className="mt-3 text-sm text-muted-foreground">
             {trustCopy.trustEvidenceClaim}
           </p>

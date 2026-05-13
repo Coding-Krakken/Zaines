@@ -43,9 +43,10 @@ interface StepDatesProps {
   data: Partial<StepDatesData>;
   onUpdate: (data: Partial<StepDatesData>) => void;
   onNext: () => void;
+  onCancel?: () => void;
 }
 
-export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
+export function StepDates({ data, onUpdate, onNext, onCancel }: StepDatesProps) {
   const { availabilityRules } = useSiteSettings();
   const minNights = Math.max(1, availabilityRules.minNightsPerBooking || 1);
 
@@ -432,7 +433,12 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
           </Alert>
         )}
 
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-between">
+          {onCancel && (
+            <Button variant="destructive" onClick={onCancel}>
+              Cancel Booking
+            </Button>
+          )}
           <Button
             onClick={handleNext}
             disabled={
@@ -443,6 +449,7 @@ export function StepDates({ data, onUpdate, onNext }: StepDatesProps) {
               availabilityState === "checking_availability" ||
               availabilityState !== "available"
             }
+            className={!onCancel ? "ml-auto" : ""}
           >
             Continue to Suite Selection
             <ArrowRight className="ml-2 h-4 w-4" />

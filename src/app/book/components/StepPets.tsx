@@ -92,6 +92,7 @@ export function StepPets({
   onUpdate,
   onNext,
   onBack,
+  onCancel,
   petCount = 1,
 }: StepPetsProps) {
   const { data: session } = useSession();
@@ -776,10 +777,17 @@ export function StepPets({
 
         {/* Navigation */}
         <div className="flex justify-between pt-4">
-          <Button variant="outline" onClick={onBack}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onBack}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+            {onCancel && (
+              <Button variant="destructive" onClick={onCancel}>
+                Cancel Booking
+              </Button>
+            )}
+          </div>
           <Button
             onClick={handleNext}
             disabled={selectedPetIds.length + newPets.length === 0}
