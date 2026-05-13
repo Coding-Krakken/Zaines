@@ -50,6 +50,7 @@ interface StepPetsProps {
   onUpdate: (data: Partial<StepPetsData>) => void;
   onNext: () => void;
   onBack: () => void;
+  onCancel?: () => void;
   petCount?: number; // From dates step
 }
 
