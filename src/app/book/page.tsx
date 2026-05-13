@@ -263,6 +263,7 @@ export default function BookPage() {
               data={wizardData.dates || {}}
               onUpdate={(data) => updateStepData("dates", data)}
               onNext={nextStep}
+              onCancel={handleCancelBooking}
             />
           )}
 
@@ -272,6 +273,7 @@ export default function BookPage() {
               onUpdate={(data) => updateStepData("suites", data)}
               onNext={nextStep}
               onBack={prevStep}
+              onCancel={handleCancelBooking}
               nights={nights}
             />
           )}
@@ -282,6 +284,7 @@ export default function BookPage() {
               onUpdate={(data) => updateStepData("account", data)}
               onNext={nextStep}
               onBack={prevStep}
+              onCancel={handleCancelBooking}
             />
           )}
 
@@ -291,6 +294,7 @@ export default function BookPage() {
               onUpdate={(data) => updateStepData("pets", data)}
               onNext={nextStep}
               onBack={prevStep}
+              onCancel={handleCancelBooking}
               petCount={wizardData.dates?.petCount || 1}
             />
           )}
@@ -302,6 +306,7 @@ export default function BookPage() {
               onUpdate={(data) => updateStepData("waiver", data)}
               onNext={nextStep}
               onBack={prevStep}
+              onCancel={handleCancelBooking}
             />
           )}
 
