@@ -3,6 +3,7 @@ import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
+import { DashboardEmptyState } from "@/components/dashboard/dashboard-states";
 import { Button } from "@/components/ui/button";
 
 function isSchemaDriftError(error: unknown): boolean {
@@ -67,7 +68,12 @@ export default async function PetsPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         {pets.length === 0 && (
-          <p className="text-muted-foreground">No pets yet.</p>
+          <div className="md:col-span-3">
+            <DashboardEmptyState
+              title="No pets yet"
+              description="Add your first pet profile to unlock booking and records workflows."
+            />
+          </div>
         )}
         {pets.map((p: { id: string; name: string; breed?: string | null }) => (
           <div key={p.id} className="p-4 border rounded">

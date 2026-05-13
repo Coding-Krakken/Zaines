@@ -1,7 +1,9 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -207,7 +209,7 @@ export function PetRecordsManager({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border p-4">
+      <div className="rounded-lg border bg-card p-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="text-base font-medium">Vaccination Records</h3>
@@ -220,11 +222,12 @@ export function PetRecordsManager({
           </Button>
         </div>
 
-        {error && (
-          <div className="mt-3 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
+        {error ? (
+          <Alert variant="destructive" className="mt-3">
+            <AlertCircle className="size-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : null}
 
         <div className="mt-4 rounded-md border border-dashed p-3">
           <label className="text-sm font-medium">Upload Vaccine PDF</label>
@@ -290,7 +293,7 @@ export function PetRecordsManager({
         </ul>
       </div>
 
-      <form onSubmit={handleSubmit} className="rounded-lg border p-4">
+      <form onSubmit={handleSubmit} className="rounded-lg border bg-card p-4 shadow-sm">
         <h3 className="text-base font-medium">
           {editingVaccine ? 'Edit Vaccine Record' : 'Add Vaccine Record'}
         </h3>

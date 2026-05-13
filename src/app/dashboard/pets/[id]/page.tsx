@@ -1,6 +1,9 @@
 import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HealthTimeline } from "@/components/HealthTimeline";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import Link from "next/link";
@@ -82,31 +85,41 @@ export default async function PetDetail({ params }: Props) {
       />
 
       {healthDataCompatibilityMode && (
-        <p className="text-sm text-amber-700">
-          Health history is temporarily unavailable in compatibility mode. Run database migrations
-          to restore vaccine and medication records.
-        </p>
+        <Alert className="border-amber-200 bg-amber-50 text-amber-800">
+          <AlertCircle className="size-4" />
+          <AlertDescription className="text-amber-800">
+            Health history is temporarily unavailable in compatibility mode. Run database migrations
+            to restore vaccine and medication records.
+          </AlertDescription>
+        </Alert>
       )}
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="p-4 border rounded">
-          <h2 className="font-medium">Profile</h2>
-          <p className="text-sm">Breed: {pet.breed || "Unknown"}</p>
-          <p className="text-sm">Age: {pet.age}</p>
-          <p className="text-sm">Weight: {pet.weight || "N/A"}</p>
-          <p className="text-sm">Gender: {pet.gender}</p>
-          {pet.specialNeeds && (
-            <p className="text-sm mt-2">
-              <span className="font-medium">Special Needs:</span> {pet.specialNeeds}
-            </p>
-          )}
-        </div>
+        <Card className="shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Profile</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-1 text-sm">
+            <p>Breed: {pet.breed || "Unknown"}</p>
+            <p>Age: {pet.age}</p>
+            <p>Weight: {pet.weight || "N/A"}</p>
+            <p>Gender: {pet.gender}</p>
+            {pet.specialNeeds ? (
+              <p className="pt-1">
+                <span className="font-medium">Special Needs:</span> {pet.specialNeeds}
+              </p>
+            ) : null}
+          </CardContent>
+        </Card>
 
-        <div className="p-4 border rounded">
-          <h2 className="font-medium">Health Summary</h2>
-          <div className="mt-2">
-            <h3 className="text-sm font-medium">Vaccines</h3>
-            <ul className="text-sm list-disc pl-5">
+        <Card className="shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Health Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div>
+              <h3 className="text-sm font-medium">Vaccines</h3>
+              <ul className="list-disc pl-5 text-sm">
               {pet.vaccines.map(
                 (v: { id: string; name: string; expiryDate: Date }) => (
                   <li key={v.id}>
@@ -116,11 +129,11 @@ export default async function PetDetail({ params }: Props) {
                 ),
               )}
               {pet.vaccines.length === 0 && <li>No vaccine records</li>}
-            </ul>
-          </div>
-          <div className="mt-3">
-            <h3 className="text-sm font-medium">Medications</h3>
-            <ul className="text-sm list-disc pl-5">
+              </ul>
+            </div>
+            <div className="mt-3">
+              <h3 className="text-sm font-medium">Medications</h3>
+              <ul className="list-disc pl-5 text-sm">
               {pet.medications.map(
                 (m: { id: string; name: string; dosage: string }) => (
                   <li key={m.id}>
@@ -129,9 +142,10 @@ export default async function PetDetail({ params }: Props) {
                 ),
               )}
               {pet.medications.length === 0 && <li>No medications</li>}
-            </ul>
-          </div>
-        </div>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div>

@@ -25,13 +25,13 @@ export function WaiverReviewDialog({
 }: WaiverReviewDialogProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-2xl rounded-lg bg-white shadow-xl">
+      <div className="w-full max-w-2xl rounded-xl border bg-card shadow-xl">
         <div className="border-b p-4 sm:p-6">
           <h2 className="text-xl font-semibold">{formatWaiverTitle(waiverType)}</h2>
         </div>
 
         <div className="max-h-96 overflow-y-auto p-4 sm:p-6">
-          <div className="whitespace-pre-wrap rounded-md bg-gray-50 p-4 text-sm leading-relaxed text-gray-700">
+          <div className="whitespace-pre-wrap rounded-md bg-muted/30 p-4 text-sm leading-relaxed text-muted-foreground">
             {waiverContent}
           </div>
         </div>

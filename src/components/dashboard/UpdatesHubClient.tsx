@@ -3,8 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Download, ExternalLink, Share2 } from "lucide-react";
+import { AlertCircle, Download, ExternalLink, Share2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
+import { DashboardEmptyState, DashboardLoadingState } from "@/components/dashboard/dashboard-states";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -332,18 +335,20 @@ export function UpdatesHubClient() {
             </div>
           </CardHeader>
           <CardContent>
-            {error && (
-              <div className="mb-3 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
-                {error}
-              </div>
-            )}
+            {error ? (
+              <Alert variant="destructive" className="mb-3">
+                <AlertCircle className="size-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            ) : null}
 
             {isLoading ? (
-              <div className="py-10 text-center text-sm text-muted-foreground">Loading updates...</div>
+              <DashboardLoadingState message="Loading updates..." />
             ) : filteredItems.length === 0 ? (
-              <div className="py-10 text-center text-sm text-muted-foreground">
-                No updates matched this view.
-              </div>
+              <DashboardEmptyState
+                title="No updates matched this view"
+                description="Adjust filters or check back later for new messages and photos."
+              />
             ) : (
               <div className="space-y-3">
                 {filteredItems.map((item) => {
@@ -352,9 +357,9 @@ export function UpdatesHubClient() {
 
                   if (item.type === "message") {
                     return (
-                      <article key={item.id} className="rounded-lg border p-3">
+                      <article key={item.id} className="rounded-lg border bg-card p-3 shadow-sm">
                         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                          <span className="rounded-full bg-blue-100 px-2 py-1 text-blue-800">Message</span>
+                          <Badge variant="secondary" className="bg-sky-100 text-sky-800">Message</Badge>
                           <span>{bookingBadge}</span>
                           <span>{when}</span>
                         </div>
@@ -367,9 +372,9 @@ export function UpdatesHubClient() {
                   }
 
                   return (
-                    <article key={item.id} className="rounded-lg border p-3">
+                    <article key={item.id} className="rounded-lg border bg-card p-3 shadow-sm">
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                        <span className="rounded-full bg-green-100 px-2 py-1 text-green-800">Photo</span>
+                        <Badge variant="secondary" className="bg-emerald-100 text-emerald-800">Photo</Badge>
                         <span>{bookingBadge}</span>
                         <span>{when}</span>
                       </div>

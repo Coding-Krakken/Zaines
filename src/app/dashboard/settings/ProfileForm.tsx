@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, CircleCheckBig } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,7 @@ export function ProfileForm({ user, billingPortalEnabled = false }: ProfileFormP
   const [isOpeningPortal, setIsOpeningPortal] = useState(false);
   const [portalError, setPortalError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: user.name || '',
     email: user.email || '',
@@ -43,11 +44,13 @@ export function ProfileForm({ user, billingPortalEnabled = false }: ProfileFormP
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setError(null);
+    setSuccess(null);
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     setError(null);
+    setSuccess(null);
 
     try {
       const response = await fetch('/api/profile', {
@@ -63,6 +66,7 @@ export function ProfileForm({ user, billingPortalEnabled = false }: ProfileFormP
       }
 
       setIsEditing(false);
+      setSuccess('Profile updated successfully.');
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -83,6 +87,7 @@ export function ProfileForm({ user, billingPortalEnabled = false }: ProfileFormP
     });
     setIsEditing(false);
     setError(null);
+    setSuccess(null);
   };
 
   const handleOpenBillingPortal = async () => {
@@ -134,6 +139,13 @@ export function ProfileForm({ user, billingPortalEnabled = false }: ProfileFormP
           <Alert variant="destructive">
             <AlertCircle className="size-4" />
             <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : null}
+
+        {success ? (
+          <Alert className="border-emerald-200 bg-emerald-50 text-emerald-700">
+            <CircleCheckBig className="size-4" />
+            <AlertDescription className="text-emerald-700">{success}</AlertDescription>
           </Alert>
         ) : null}
 

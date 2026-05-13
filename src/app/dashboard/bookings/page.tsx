@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DashboardEmptyState } from "@/components/dashboard/dashboard-states";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { getBookingStatusMeta } from "@/lib/dashboard-status";
 import { CancelBookingButton } from "./[id]/CancelBookingButton";
@@ -42,9 +43,10 @@ export default async function BookingsPage() {
 
       <div className="space-y-4">
         {bookings.length === 0 && (
-          <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">
-            You have no bookings yet. Start a reservation to secure your preferred suite and dates.
-          </div>
+          <DashboardEmptyState
+            title="No bookings yet"
+            description="Start a reservation to secure your preferred suite and dates."
+          />
         )}
         {bookings.map(
           (b: {
