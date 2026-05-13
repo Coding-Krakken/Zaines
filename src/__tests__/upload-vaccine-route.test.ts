@@ -161,4 +161,24 @@ describe('POST /api/upload/vaccine', () => {
       }),
     );
   });
+
+  it('falls back to temp storage for guest uploads when public uploads directory is unavailable', async () => {
+    mkdirMock
+      .mockRejectedValueOnce(new Error('public uploads is read-only'))
+      .mockResolvedValueOnce(undefined);
+    writeFileMock.mockResolvedValue(undefined);
+
+    const response = await POST(makeUploadRequest('guest-vaccine.pdf', 'new-pet-1'));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual(
+      expect.objectContaining({
+        fileName: 'guest-vaccine.pdf',
+        savedToDatabase: false,
+        url: expect.stringMatching(/^\/api\/upload\/vaccine\/temp\//),
+      }),
+    );
+    expect(mkdirMock).toHaveBeenCalledTimes(2);
+    expect(writeFileMock).toHaveBeenCalledTimes(1);
+  });
 });

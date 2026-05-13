@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { mkdir, writeFile } from 'fs/promises';
+import os from 'os';
 import path from 'path';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
@@ -96,6 +97,41 @@ async function persistInlineVaccineDocument(params: {
   return `/api/vaccines/${vaccine.id}/document`;
 }
 
+type StorageTarget = {
+  directory: string;
+  toPublicUrl: (fileName: string) => string;
+};
+
+function getStorageTargets(petId: string): StorageTarget[] {
+  const targets: StorageTarget[] = [];
+
+  const configuredDir = process.env.VACCINE_UPLOADS_DIR?.trim();
+  if (configuredDir) {
+    const resolvedConfiguredDir = path.isAbsolute(configuredDir)
+      ? configuredDir
+      : path.join(process.cwd(), configuredDir);
+
+    targets.push({
+      directory: resolvedConfiguredDir,
+      toPublicUrl: (fileName: string) => `/api/upload/vaccine/temp/${fileName}`,
+    });
+  }
+
+  targets.push({
+    directory: path.join(process.cwd(), 'public', 'uploads', 'vaccines'),
+    toPublicUrl: (fileName: string) => `/uploads/vaccines/${fileName}`,
+  });
+
+  if (isTemporaryPetId(petId)) {
+    targets.push({
+      directory: path.join(os.tmpdir(), 'zaines', 'uploads', 'vaccines'),
+      toPublicUrl: (fileName: string) => `/api/upload/vaccine/temp/${fileName}`,
+    });
+  }
+
+  return targets;
+}
+
 async function storeFile(file: File, petId: string): Promise<string> {
   const blobToken = process.env.BLOB_READ_WRITE_TOKEN?.trim();
   let blobUploadFailed = false;
@@ -117,28 +153,9 @@ async function storeFile(file: File, petId: string): Promise<string> {
 
   // Local filesystem fallback (works for dev/test and stateful production hosts).
   try {
-    const localDir = path.join(process.cwd(), 'public', 'uploads', 'vaccines');
-    
-    try {
-      await mkdir(localDir, { recursive: true });
-    } catch (mkdirError) {
-      console.error('Failed to create uploads directory:', {
-        path: localDir,
-        cwd: process.cwd(),
-        errorName: mkdirError instanceof Error ? mkdirError.name : 'Unknown',
-        errorMessage: mkdirError instanceof Error ? mkdirError.message : String(mkdirError),
-      });
-      
-      throw new VaccineUploadStorageError(
-        'Storage directory is not accessible. Please contact support.',
-        503,
-      );
-    }
-
     const extension = path.extname(file.name) || '.pdf';
     const localName = `${Date.now()}-${randomUUID()}${extension}`;
-    const filePath = path.join(localDir, localName);
-    
+
     let buffer: Buffer;
     try {
       const arrayBuffer = await file.arrayBuffer();
@@ -153,22 +170,44 @@ async function storeFile(file: File, petId: string): Promise<string> {
       throw fileError;
     }
 
-    try {
-      await writeFile(filePath, buffer);
-    } catch (writeError) {
-      console.error('Failed to write vaccine file:', {
-        path: filePath,
-        errorName: writeError instanceof Error ? writeError.name : 'Unknown',
-        errorMessage: writeError instanceof Error ? writeError.message : String(writeError),
-      });
-      
-      throw new VaccineUploadStorageError(
-        'Failed to save vaccine file. Please try again later.',
-        503,
-      );
+    const storageTargets = getStorageTargets(petId);
+    let lastStorageError: unknown = null;
+
+    for (const target of storageTargets) {
+      try {
+        await mkdir(target.directory, { recursive: true });
+      } catch (mkdirError) {
+        lastStorageError = mkdirError;
+        console.error('Failed to create uploads directory:', {
+          path: target.directory,
+          cwd: process.cwd(),
+          errorName: mkdirError instanceof Error ? mkdirError.name : 'Unknown',
+          errorMessage: mkdirError instanceof Error ? mkdirError.message : String(mkdirError),
+        });
+        continue;
+      }
+
+      const filePath = path.join(target.directory, localName);
+
+      try {
+        await writeFile(filePath, buffer);
+        return target.toPublicUrl(localName);
+      } catch (writeError) {
+        lastStorageError = writeError;
+        console.error('Failed to write vaccine file:', {
+          path: filePath,
+          errorName: writeError instanceof Error ? writeError.name : 'Unknown',
+          errorMessage: writeError instanceof Error ? writeError.message : String(writeError),
+        });
+      }
     }
 
-    return `/uploads/vaccines/${localName}`;
+    throw new VaccineUploadStorageError(
+      lastStorageError
+        ? 'Storage directory is not accessible. Please contact support.'
+        : 'Failed to save vaccine file. Please try again later.',
+      503,
+    );
   } catch (localStorageError) {
     if (localStorageError instanceof VaccineUploadStorageError) {
       throw localStorageError;
