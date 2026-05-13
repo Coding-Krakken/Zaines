@@ -216,6 +216,9 @@ const bookingSchema = z.object({
         age: z.number().min(0),
         weight: z.number().min(1),
         gender: z.enum(["male", "female"]),
+        temperament: z.string().optional(),
+        specialNeeds: z.string().optional(),
+        feedingInstructions: z.string().optional(),
       }),
     )
     .optional(),
