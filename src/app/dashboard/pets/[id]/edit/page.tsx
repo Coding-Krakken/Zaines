@@ -17,7 +17,7 @@ export default async function EditPetPage({ params }: Props) {
   if (!pet || pet.userId !== session.user.id) redirect('/dashboard/pets');
 
   return (
-    <div className="space-y-6">
+    <div className="luxury-shell space-y-6 rounded-2xl border border-border/60 bg-card/70 p-4 md:p-6">
       <DashboardPageHeader
         eyebrow="Pet Profiles"
         title={`Edit ${pet.name}`}

@@ -71,13 +71,16 @@ export default async function PetDetail({ params }: Props) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="luxury-shell space-y-6 rounded-2xl border border-border/60 bg-card/70 p-4 md:p-6">
       <DashboardPageHeader
         eyebrow="Pet Profile"
         title={pet.name}
         description="Review health information, records, and timeline updates for this pet."
         actions={(
-          <Link href={`/dashboard/pets/${pet.id}/edit`} className="text-sm text-primary">
+          <Link
+            href={`/dashboard/pets/${pet.id}/edit`}
+            className="focus-ring rounded-md px-2 py-1 text-sm text-primary"
+          >
             Edit Profile
           </Link>
         )}
@@ -94,7 +97,7 @@ export default async function PetDetail({ params }: Props) {
       )}
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <Card className="shadow-sm">
+        <Card className="luxury-card border-border/60 bg-background/85 shadow-sm">
           <CardHeader>
             <CardTitle className="text-base">Profile</CardTitle>
           </CardHeader>
@@ -111,7 +114,7 @@ export default async function PetDetail({ params }: Props) {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className="luxury-card border-border/60 bg-background/85 shadow-sm">
           <CardHeader>
             <CardTitle className="text-base">Health Summary</CardTitle>
           </CardHeader>

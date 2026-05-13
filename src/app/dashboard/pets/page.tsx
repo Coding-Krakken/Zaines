@@ -52,8 +52,9 @@ export default async function PetsPage() {
         eyebrow="Pet Profiles"
         title="My Pets"
         description="Manage pet details, health profile completeness, and records access for faster booking workflows."
+        className="luxury-shell"
         actions={(
-          <Button asChild>
+          <Button asChild className="focus-ring">
             <Link href="/dashboard/pets/new">Add Pet</Link>
           </Button>
         )}
@@ -76,7 +77,7 @@ export default async function PetsPage() {
           </div>
         )}
         {pets.map((p: { id: string; name: string; breed?: string | null }) => (
-          <div key={p.id} className="rounded-xl border bg-card p-4 shadow-sm">
+          <div key={p.id} className="luxury-card p-4 shadow-sm">
             <div className="font-medium">{p.name}</div>
             <div className="text-sm text-muted-foreground">
               {p.breed || "Unknown"}
@@ -84,13 +85,13 @@ export default async function PetsPage() {
             <div className="mt-3 flex flex-wrap gap-2">
               <Link
                 href={`/dashboard/pets/${p.id}`}
-                className="inline-flex items-center rounded-md border px-2.5 py-1.5 text-sm text-primary hover:bg-muted/60"
+                className="focus-ring inline-flex items-center rounded-md border px-2.5 py-1.5 text-sm text-primary hover:bg-muted/60"
               >
                 View
               </Link>
               <Link
                 href={`/dashboard/pets/${p.id}/edit`}
-                className="inline-flex items-center rounded-md border px-2.5 py-1.5 text-sm text-primary hover:bg-muted/60"
+                className="focus-ring inline-flex items-center rounded-md border px-2.5 py-1.5 text-sm text-primary hover:bg-muted/60"
               >
                 Edit
               </Link>

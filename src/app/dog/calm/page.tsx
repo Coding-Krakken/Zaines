@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
 
-import { CalmModeExperience } from "@/components/dog/DogModeExperience";
 import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
+
+const CalmModeExperience = dynamic(
+  () => import("@/components/dog/DogModeExperience").then((m) => ({ default: m.CalmModeExperience })),
+  { loading: () => <Skeleton className="min-h-screen w-full" />, ssr: false },
+);
 
 export async function generateMetadata(): Promise<Metadata> {
   return simplePageMetadataFromSettings({

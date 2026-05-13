@@ -179,7 +179,7 @@ export function StepSuites({
   };
 
   return (
-    <Card>
+    <Card className="border-border/70 bg-background">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Home className="h-5 w-5" />
@@ -201,11 +201,14 @@ export function StepSuites({
 
               return (
                 <button
+                  type="button"
                   key={suite.value}
                   onClick={() => handleSuiteSelect(suite.value)}
                   className={cn(
-                    "relative flex flex-col rounded-lg border-2 p-4 text-left transition-all hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
-                    isSelected ? "border-primary bg-primary/5" : "border-muted",
+                    "relative flex flex-col rounded-xl border-2 p-4 text-left transition-all hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                    isSelected
+                      ? "border-primary bg-primary/5 shadow-sm"
+                      : "border-muted bg-background",
                   )}
                 >
                   {/* Badge */}
@@ -259,7 +262,7 @@ export function StepSuites({
             Select only what you want added to your quote. No surprise add-ons
             are applied automatically.
           </p>
-          <div className="space-y-2 rounded-lg border p-4">
+          <div className="space-y-2 rounded-xl border border-border/70 bg-muted/30 p-4">
             {ADD_ONS.map((addOn) => {
               const isChecked = selectedAddOns.includes(addOn.id);
 
@@ -297,7 +300,7 @@ export function StepSuites({
 
         {/* Pricing Summary */}
         {data.suiteType && (
-          <div className="rounded-lg border bg-muted/50 p-4">
+          <div className="rounded-xl border border-border/70 bg-muted/40 p-4">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>
@@ -342,17 +345,17 @@ export function StepSuites({
         {/* Navigation Buttons */}
         <div className="flex justify-between pt-4">
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onBack}>
+            <Button variant="outline" className="focus-ring" onClick={onBack}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>
             {onCancel && (
-              <Button variant="destructive" onClick={onCancel}>
+              <Button variant="destructive" className="focus-ring" onClick={onCancel}>
                 Cancel Booking
               </Button>
             )}
           </div>
-          <Button onClick={handleNext} disabled={!data.suiteType}>
+          <Button className="focus-ring" onClick={handleNext} disabled={!data.suiteType}>
             Continue to Account
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>

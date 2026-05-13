@@ -202,38 +202,95 @@ export const localGrowthPages = [
 
 export type LocalGrowthSlug = (typeof localGrowthPages)[number]["slug"];
 
+export type SeoRouteIntent =
+  | "core-conversion"
+  | "trust-proof"
+  | "local-demand"
+  | "supporting-discovery"
+  | "policy";
+
+type SeoRouteArchitectureEntry = {
+  route: string;
+  priority: number;
+  changeFrequency: "daily" | "weekly" | "monthly" | "yearly";
+  intent: SeoRouteIntent;
+  indexable: boolean;
+};
+
 export const keywordRouteMap = localGrowthPages.map((page) => ({
   keyword: page.primaryKeyword,
   route: page.route,
   supportingKeywords: page.secondaryKeywords,
 }));
 
-export const publicSeoRoutes = [
-  { route: "/", priority: 1, changeFrequency: "weekly" as const },
-  { route: "/about", priority: 0.75, changeFrequency: "monthly" as const },
-  { route: "/suites", priority: 0.82, changeFrequency: "weekly" as const },
-  { route: "/pricing", priority: 0.9, changeFrequency: "weekly" as const },
-  { route: "/book", priority: 0.88, changeFrequency: "weekly" as const },
-  {
-    route: "/services/boarding",
-    priority: 0.86,
-    changeFrequency: "weekly" as const,
-  },
-  { route: "/locations", priority: 0.76, changeFrequency: "weekly" as const },
-  { route: "/faq", priority: 0.7, changeFrequency: "monthly" as const },
-  { route: "/reviews", priority: 0.68, changeFrequency: "weekly" as const },
-  { route: "/contact", priority: 0.72, changeFrequency: "monthly" as const },
+export const seoRouteArchitecture: readonly SeoRouteArchitectureEntry[] = [
+  { route: "/", priority: 1, changeFrequency: "weekly", intent: "core-conversion", indexable: true },
+  { route: "/book", priority: 0.9, changeFrequency: "weekly", intent: "core-conversion", indexable: true },
+  { route: "/pricing", priority: 0.88, changeFrequency: "weekly", intent: "core-conversion", indexable: true },
+  { route: "/suites", priority: 0.84, changeFrequency: "weekly", intent: "core-conversion", indexable: true },
+  { route: "/services/boarding", priority: 0.83, changeFrequency: "weekly", intent: "core-conversion", indexable: true },
+  { route: "/reviews", priority: 0.77, changeFrequency: "weekly", intent: "trust-proof", indexable: true },
+  { route: "/about", priority: 0.74, changeFrequency: "monthly", intent: "trust-proof", indexable: true },
+  { route: "/faq", priority: 0.71, changeFrequency: "monthly", intent: "trust-proof", indexable: true },
+  { route: "/contact", priority: 0.69, changeFrequency: "monthly", intent: "supporting-discovery", indexable: true },
+  { route: "/gallery", priority: 0.66, changeFrequency: "monthly", intent: "trust-proof", indexable: true },
+  { route: "/locations", priority: 0.82, changeFrequency: "weekly", intent: "local-demand", indexable: true },
+  { route: "/terms", priority: 0.2, changeFrequency: "yearly", intent: "policy", indexable: true },
+  { route: "/privacy", priority: 0.2, changeFrequency: "yearly", intent: "policy", indexable: true },
+  { route: "/policies", priority: 0.22, changeFrequency: "yearly", intent: "policy", indexable: true },
+  { route: "/preview-themes", priority: 0, changeFrequency: "yearly", intent: "policy", indexable: false },
+  { route: "/book/confirmation", priority: 0, changeFrequency: "yearly", intent: "policy", indexable: false },
   ...localGrowthPages.map((page) => ({
     route: page.route,
     priority: page.priority,
     changeFrequency: "weekly" as const,
+    intent: "local-demand" as const,
+    indexable: true,
   })),
+] as const;
+
+export const publicSeoRoutes = seoRouteArchitecture.filter(
+  (route) => route.indexable,
+);
+
+export const seoIntentRouteMap = {
+  coreConversion: seoRouteArchitecture
+    .filter((route) => route.intent === "core-conversion" && route.indexable)
+    .map((route) => route.route),
+  trustProof: seoRouteArchitecture
+    .filter((route) => route.intent === "trust-proof" && route.indexable)
+    .map((route) => route.route),
+  localDemand: seoRouteArchitecture
+    .filter((route) => route.intent === "local-demand" && route.indexable)
+    .map((route) => route.route),
+  supportingDiscovery: seoRouteArchitecture
+    .filter(
+      (route) => route.intent === "supporting-discovery" && route.indexable,
+    )
+    .map((route) => route.route),
+  policy: seoRouteArchitecture
+    .filter((route) => route.intent === "policy" && route.indexable)
+    .map((route) => route.route),
+} as const;
+
+export const robotsDisallowRoutes = [
+  "/api/",
+  "/dashboard/",
+  "/admin/",
+  "/auth/",
+  "/book/confirmation",
+  "/book/recover/",
+  "/checkout/",
+  "/_next/",
+  "/static/",
+  "/preview-themes/",
 ];
 
 export const conversionFunnelLinks = [
   { href: "/book", label: "Check availability" },
   { href: "/pricing", label: "Review pricing" },
   { href: "/suites", label: "Compare suites" },
+  { href: "/locations", label: "Browse local pages" },
   { href: "/faq", label: "Read boarding FAQ" },
 ];
 

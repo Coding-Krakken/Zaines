@@ -81,7 +81,7 @@ function DashboardNavLinks({ compact = false }: { compact?: boolean }) {
               onFocus={() => handlePrefetch(item.href)}
               onTouchStart={() => handlePrefetch(item.href)}
               className={cn(
-                "inline-flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors",
+                "focus-ring inline-flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors",
                 active
                   ? "border-primary/40 bg-primary/10 text-primary"
                   : "border-transparent text-muted-foreground hover:border-border hover:bg-muted/70 hover:text-foreground",
@@ -100,7 +100,7 @@ function DashboardNavLinks({ compact = false }: { compact?: boolean }) {
 
 export function CustomerDashboardNav() {
   return (
-    <aside className="rounded-xl border bg-card/80 p-3 shadow-sm">
+    <aside className="luxury-shell rounded-xl border bg-card/80 p-3 shadow-sm">
       <p className="px-2 pb-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
         Customer Portal
       </p>
@@ -111,7 +111,7 @@ export function CustomerDashboardNav() {
 
 export function CustomerDashboardMobileNav() {
   return (
-    <div className="rounded-xl border bg-card/80 p-3 shadow-sm">
+    <div className="luxury-shell rounded-xl border bg-card/80 p-3 shadow-sm">
       <p className="px-1 pb-2 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
         Quick Navigation
       </p>

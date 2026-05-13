@@ -229,7 +229,7 @@ export function StepAccount({
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="border-border/70 bg-background">
         <CardContent className="flex items-center justify-center p-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </CardContent>
@@ -238,7 +238,7 @@ export function StepAccount({
   }
 
   return (
-    <Card>
+    <Card className="border-border/70 bg-background">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <User className="h-5 w-5" />
@@ -259,6 +259,7 @@ export function StepAccount({
               value={resolvedFirstName}
               onChange={(e) => setFirstName(e.target.value)}
               required
+              className="focus-ring"
             />
           </div>
           <div className="space-y-2">
@@ -268,6 +269,7 @@ export function StepAccount({
               value={resolvedLastName}
               onChange={(e) => setLastName(e.target.value)}
               required
+              className="focus-ring"
             />
           </div>
           <div className="space-y-2 sm:col-span-2">
@@ -279,6 +281,7 @@ export function StepAccount({
               onChange={(e) => setPhone(e.target.value)}
               placeholder="3155551234"
               required
+              className="focus-ring"
             />
           </div>
         </div>
@@ -338,6 +341,7 @@ export function StepAccount({
                     }
                   }}
                   required
+                  className="focus-ring"
                 />
               </div>
 
@@ -375,7 +379,7 @@ export function StepAccount({
                   <Button
                     onClick={handleSendMagicLink}
                     disabled={!resolvedEmail || isSendingMagicLink}
-                    className="w-full"
+                    className="focus-ring w-full"
                     variant="outline"
                   >
                     {isSendingMagicLink ? (
@@ -415,7 +419,7 @@ export function StepAccount({
                   onClick={handleContinueAsGuest}
                   disabled={!resolvedEmail}
                   variant="secondary"
-                  className="w-full"
+                  className="focus-ring w-full"
                 >
                   Continue as Guest
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -428,17 +432,18 @@ export function StepAccount({
         {/* Navigation Buttons */}
         <div className="flex justify-between pt-4">
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onBack}>
+            <Button variant="outline" className="focus-ring" onClick={onBack}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>
             {onCancel && (
-              <Button variant="destructive" onClick={onCancel}>
+              <Button variant="destructive" className="focus-ring" onClick={onCancel}>
                 Cancel Booking
               </Button>
             )}
           </div>
           <Button
+            className="focus-ring"
             onClick={handleNext}
             disabled={
               !resolvedEmail || !resolvedFirstName || !resolvedLastName || !phone

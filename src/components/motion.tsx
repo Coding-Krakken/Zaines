@@ -3,7 +3,15 @@
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { type ReactNode } from "react";
 
-// ── Shared Variants ──────────────────────────────────────────────
+const TRANSITIONS = {
+  slow: { duration: 0.62, ease: [0.22, 1, 0.36, 1] as const },
+  medium: { duration: 0.46, ease: [0.22, 1, 0.36, 1] as const },
+  fast: { duration: 0.28, ease: [0.22, 1, 0.36, 1] as const },
+};
+
+const VIEWPORT = { once: true, margin: "-80px" };
+
+// Shared base variants keep motion rhythm consistent across marketing and app routes.
 const fadeUpVariants: Variants = {
   hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0 },
@@ -34,9 +42,10 @@ const staggerContainerVariants: Variants = {
   },
 };
 
-// ── Shared transition ────────────────────────────────────────────
-const defaultTransition = { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const };
-const fastTransition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const };
+const scaleInVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.96 },
+  visible: { opacity: 1, scale: 1 },
+};
 
 // ── Shared props ────────────────────────────────────────────────
 interface BaseProps {
@@ -52,9 +61,9 @@ export function FadeUp({ children, className, delay = 0 }: BaseProps) {
     <motion.div
       initial={reduced ? "visible" : "hidden"}
       whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
+      viewport={VIEWPORT}
       variants={fadeUpVariants}
-      transition={reduced ? { duration: 0 } : { ...defaultTransition, delay }}
+      transition={reduced ? { duration: 0 } : { ...TRANSITIONS.slow, delay }}
       className={className}
     >
       {children}
@@ -69,9 +78,9 @@ export function FadeIn({ children, className, delay = 0 }: BaseProps) {
     <motion.div
       initial={reduced ? "visible" : "hidden"}
       whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
+      viewport={VIEWPORT}
       variants={fadeInVariants}
-      transition={reduced ? { duration: 0 } : { ...fastTransition, delay }}
+      transition={reduced ? { duration: 0 } : { ...TRANSITIONS.medium, delay }}
       className={className}
     >
       {children}
@@ -86,9 +95,9 @@ export function SlideInLeft({ children, className, delay = 0 }: BaseProps) {
     <motion.div
       initial={reduced ? "visible" : "hidden"}
       whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
+      viewport={VIEWPORT}
       variants={slideInLeftVariants}
-      transition={reduced ? { duration: 0 } : { ...defaultTransition, delay }}
+      transition={reduced ? { duration: 0 } : { ...TRANSITIONS.slow, delay }}
       className={className}
     >
       {children}
@@ -103,9 +112,9 @@ export function SlideInRight({ children, className, delay = 0 }: BaseProps) {
     <motion.div
       initial={reduced ? "visible" : "hidden"}
       whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
+      viewport={VIEWPORT}
       variants={slideInRightVariants}
-      transition={reduced ? { duration: 0 } : { ...defaultTransition, delay }}
+      transition={reduced ? { duration: 0 } : { ...TRANSITIONS.slow, delay }}
       className={className}
     >
       {children}
@@ -120,7 +129,7 @@ export function StaggerContainer({ children, className }: Omit<BaseProps, "delay
     <motion.div
       initial={reduced ? "visible" : "hidden"}
       whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
+      viewport={VIEWPORT}
       variants={staggerContainerVariants}
       className={className}
     >
@@ -134,7 +143,38 @@ export function StaggerItem({ children, className }: Omit<BaseProps, "delay">) {
   return (
     <motion.div
       variants={fadeUpVariants}
-      transition={defaultTransition}
+      transition={TRANSITIONS.slow}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function ScaleIn({ children, className, delay = 0 }: BaseProps) {
+  const reduced = useReducedMotion();
+  return (
+    <motion.div
+      initial={reduced ? "visible" : "hidden"}
+      whileInView="visible"
+      viewport={VIEWPORT}
+      variants={scaleInVariants}
+      transition={reduced ? { duration: 0 } : { ...TRANSITIONS.medium, delay }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function RevealMask({ children, className, delay = 0 }: BaseProps) {
+  const reduced = useReducedMotion();
+  return (
+    <motion.div
+      initial={reduced ? { opacity: 1 } : { opacity: 0, clipPath: "inset(0 0 100% 0)" }}
+      whileInView={reduced ? { opacity: 1 } : { opacity: 1, clipPath: "inset(0 0 0% 0)" }}
+      viewport={VIEWPORT}
+      transition={reduced ? { duration: 0 } : { ...TRANSITIONS.slow, delay }}
       className={className}
     >
       {children}

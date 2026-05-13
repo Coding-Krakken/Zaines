@@ -215,7 +215,7 @@ export function WalletManager() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <Card>
+      <Card className="rounded-xl border-border/70 bg-card/80">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CreditCard className="h-5 w-5" />
@@ -243,7 +243,7 @@ export function WalletManager() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="rounded-xl border-border/70 bg-card/80">
         <CardHeader>
           <CardTitle>Saved Payment Methods</CardTitle>
         </CardHeader>
@@ -288,6 +288,7 @@ export function WalletManager() {
                       <Button
                         variant="outline"
                         size="sm"
+                        className="focus-ring"
                         onClick={() => {
                           void setDefaultMethod(method.id);
                         }}
@@ -299,6 +300,7 @@ export function WalletManager() {
                     <Button
                       variant="outline"
                       size="sm"
+                      className="focus-ring"
                       onClick={() => {
                         void removeMethod(method.id);
                       }}

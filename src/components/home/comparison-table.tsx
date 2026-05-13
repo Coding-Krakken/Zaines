@@ -53,18 +53,18 @@ export function ComparisonTable() {
       <div className="container mx-auto px-4 max-w-4xl">
         <FadeUp>
           <div className="text-center mb-14">
-            <p className="text-sm uppercase tracking-[0.25em] text-primary font-semibold mb-4">
+            <p className="eyebrow mb-4">
               Side by Side
             </p>
             <h2
               id="comparison-heading"
-              className="font-display text-4xl md:text-5xl font-semibold text-foreground mb-4 text-balance"
+              className="headline-display mb-4 text-4xl font-semibold text-foreground text-balance md:text-5xl"
             >
               Why Not a
               <br />
               <em className="text-primary not-italic">Traditional Kennel?</em>
             </h2>
-            <p className="text-lg text-muted-foreground max-w-lg mx-auto">
+            <p className="mx-auto max-w-lg text-lg text-muted-foreground">
               See exactly how boutique private boarding compares to what most
               facilities actually offer.
             </p>
@@ -72,9 +72,9 @@ export function ComparisonTable() {
         </FadeUp>
 
         <FadeUp delay={0.1}>
-          <div className="overflow-hidden rounded-2xl border border-border shadow-sm">
+          <div className="luxury-shell overflow-hidden rounded-3xl border border-border/80">
             {/* Header */}
-            <div className="grid grid-cols-[1fr_auto_auto] md:grid-cols-[2fr_3fr_3fr] bg-muted/60">
+            <div className="grid grid-cols-[1fr_auto_auto] bg-muted/60 md:grid-cols-[2fr_3fr_3fr]">
               <div className="p-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                 Feature
               </div>

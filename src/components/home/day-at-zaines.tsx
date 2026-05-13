@@ -108,7 +108,7 @@ export function DayAtZaines() {
           <div className="absolute left-1/2 top-0 bottom-0 w-px bg-border -translate-x-1/2 hidden md:block" />
 
           <StaggerContainer className="space-y-8 md:space-y-0">
-            {schedule.map((item, idx) => {
+            {schedule.map((item) => {
               const Icon = item.icon;
               const isLeft = item.side === "left";
 

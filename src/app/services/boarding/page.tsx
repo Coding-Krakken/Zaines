@@ -17,6 +17,7 @@ import {
   Heart,
 } from "lucide-react";
 import Link from "next/link";
+import { FadeUp, ScaleIn } from "@/components/motion";
 import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -32,51 +33,66 @@ export default function BoardingPage() {
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-primary/5 to-background py-20">
+      <section className="section-padding bg-gradient-to-br from-primary/5 to-background">
         <div className="container mx-auto px-4">
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
-            <div className="flex flex-col justify-center">
-              <Badge className="mb-4 w-fit">Most Popular Service</Badge>
-              <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl">
-                Dog Boarding
-              </h1>
-              <p className="mb-8 text-lg text-muted-foreground">
-                Give your dog a vacation of their own! Our luxury boarding
-                suites provide a comfortable, safe home away from home with
-                expert care and 24/7 supervision.
-              </p>
-              <div className="flex flex-col gap-4 sm:flex-row">
-                <Button size="lg" asChild>
-                  <Link href="/book">Book Now</Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="/checkout/standard">Stripe Checkout</Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="/suites">View Suites</Link>
-                </Button>
-              </div>
-            </div>
-            <div className="flex items-center justify-center">
-              <div className="relative h-[400px] w-full rounded-lg bg-muted">
-                <div className="flex h-full items-center justify-center text-8xl">
-                  🏨
+          <div className="luxury-shell grain-overlay mx-auto grid max-w-6xl gap-12 p-8 lg:grid-cols-2 lg:gap-16 lg:p-12">
+            <FadeUp>
+              <div className="flex flex-col justify-center">
+                <Badge className="mb-4 w-fit border-primary/30 bg-primary/10 text-primary">Most Popular Service</Badge>
+                <h1 className="headline-display mb-6 text-4xl font-semibold text-foreground md:text-6xl">
+                  Private Dog Boarding
+                  <br />
+                  <em className="not-italic text-primary">for Syracuse Families</em>
+                </h1>
+                <p className="mb-8 text-lg text-muted-foreground">
+                  Small-capacity luxury suites with owner-led care, daily updates, and clear booking steps from first inquiry to pickup.
+                </p>
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                  <Button size="lg" className="focus-ring" asChild>
+                    <Link href="/book">Check Availability</Link>
+                  </Button>
+                  <Button size="lg" variant="outline" className="focus-ring" asChild>
+                    <Link href="/pricing">Review Pricing</Link>
+                  </Button>
+                  <Button size="lg" variant="ghost" className="focus-ring" asChild>
+                    <Link href="/suites">View Suites</Link>
+                  </Button>
                 </div>
               </div>
-            </div>
+            </FadeUp>
+            <ScaleIn delay={0.08}>
+              <div className="luxury-card flex h-full min-h-[340px] items-center justify-center rounded-3xl bg-gradient-to-br from-muted to-accent p-10">
+                <div className="max-w-sm space-y-4 text-center">
+                  <p className="eyebrow mx-auto">Service promise</p>
+                  <p className="font-display text-3xl leading-tight text-foreground">
+                    Calm routines,
+                    <br />
+                    structured care,
+                    <br />
+                    and no overcrowding.
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Built for dogs who do better with consistency and owners who want confidence.
+                  </p>
+                </div>
+              </div>
+            </ScaleIn>
           </div>
         </div>
       </section>
 
       {/* What&apos;s Included */}
-      <section className="py-20">
+      <section className="section-padding-tight">
         <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold">What&apos;s Included</h2>
-            <p className="text-lg text-muted-foreground">
-              Everything your dog needs for a comfortable stay
-            </p>
-          </div>
+          <FadeUp>
+            <div className="mb-12 text-center">
+              <p className="eyebrow mb-3">Boarding essentials</p>
+              <h2 className="headline-display mb-4 text-3xl font-semibold text-foreground md:text-4xl">What&apos;s Included</h2>
+              <p className="text-lg text-muted-foreground">
+                Everything your dog needs for a comfortable stay
+              </p>
+            </div>
+          </FadeUp>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[
               {
@@ -115,7 +131,8 @@ export default function BoardingPage() {
                 description: "Daily photos sent directly to your phone.",
               },
             ].map((feature) => (
-              <Card key={feature.title}>
+              <ScaleIn key={feature.title}>
+                <Card className="luxury-card h-full border-border/60">
                 <CardHeader>
                   <div className="mb-2 text-primary">{feature.icon}</div>
                   <CardTitle>{feature.title}</CardTitle>
@@ -125,7 +142,8 @@ export default function BoardingPage() {
                     {feature.description}
                   </p>
                 </CardContent>
-              </Card>
+                </Card>
+              </ScaleIn>
             ))}
           </div>
         </div>
@@ -332,22 +350,26 @@ export default function BoardingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20">
+      <section className="section-padding-tight">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-4 text-3xl font-bold">
-            Ready to Book Your Dog&apos;s Stay?
-          </h2>
-          <p className="mb-8 text-lg text-muted-foreground">
-            Reserve your spot today - spaces fill up fast!
-          </p>
-          <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <Button size="lg" asChild>
-              <Link href="/book">Book Now</Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/contact">Schedule a Tour</Link>
-            </Button>
-          </div>
+          <FadeUp>
+            <div className="luxury-shell mx-auto max-w-4xl p-8 md:p-10">
+              <h2 className="headline-display mb-4 text-3xl font-semibold text-foreground md:text-4xl">
+                Ready to Book Your Dog&apos;s Stay?
+              </h2>
+              <p className="mb-8 text-lg text-muted-foreground">
+                Reserve your spot today. Availability stays intentionally limited.
+              </p>
+              <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+                <Button size="lg" className="focus-ring" asChild>
+                  <Link href="/book">Book Now</Link>
+                </Button>
+                <Button size="lg" variant="outline" className="focus-ring" asChild>
+                  <Link href="/contact">Schedule a Tour</Link>
+                </Button>
+              </div>
+            </div>
+          </FadeUp>
         </div>
       </section>
     </div>

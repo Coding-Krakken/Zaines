@@ -399,7 +399,7 @@ export function StepPets({
   };
 
   return (
-    <Card>
+    <Card className="border-border/70 bg-background">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <PawPrint className="h-5 w-5" />
@@ -466,7 +466,7 @@ export function StepPets({
                                 value={selectedVaccineRecord?.vaccineId || ""}
                                 onValueChange={(value) => applyExistingVaccineForPet(pet, value)}
                               >
-                                <SelectTrigger>
+                                <SelectTrigger className="focus-ring">
                                   <SelectValue placeholder="Choose a saved vaccine record" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -600,7 +600,7 @@ export function StepPets({
           <Button
             variant="outline"
             onClick={() => setShowNewPetForm(true)}
-            className="w-full"
+            className="focus-ring w-full"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add New Pet Profile
@@ -608,7 +608,7 @@ export function StepPets({
         )}
 
         {showNewPetForm && (
-          <div className="space-y-4 rounded-lg border p-4">
+          <div className="space-y-4 rounded-xl border border-border/70 bg-muted/20 p-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">Add New Pet</h3>
               <Button
@@ -629,6 +629,7 @@ export function StepPets({
                   onChange={(e) =>
                     setNewPetForm({ ...newPetForm, name: e.target.value })
                   }
+                  className="focus-ring"
                 />
               </div>
 
@@ -640,6 +641,7 @@ export function StepPets({
                   onChange={(e) =>
                     setNewPetForm({ ...newPetForm, breed: e.target.value })
                   }
+                  className="focus-ring"
                 />
               </div>
 
@@ -657,6 +659,7 @@ export function StepPets({
                       age: parseInt(e.target.value) || 0,
                     })
                   }
+                  className="focus-ring"
                 />
               </div>
 
@@ -674,6 +677,7 @@ export function StepPets({
                       weight: parseFloat(e.target.value) || 0,
                     })
                   }
+                  className="focus-ring"
                 />
               </div>
 
@@ -688,7 +692,7 @@ export function StepPets({
                     })
                   }
                 >
-                  <SelectTrigger id="gender">
+                  <SelectTrigger id="gender" className="focus-ring">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -714,7 +718,7 @@ export function StepPets({
                     })
                   }
                 >
-                  <SelectTrigger id="temperament">
+                  <SelectTrigger id="temperament" className="focus-ring">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -737,6 +741,7 @@ export function StepPets({
                   setNewPetForm({ ...newPetForm, specialNeeds: e.target.value })
                 }
                 placeholder="Allergies, medications, disabilities, etc."
+                className="focus-ring"
               />
             </div>
 
@@ -754,10 +759,11 @@ export function StepPets({
                   })
                 }
                 placeholder="Diet, portion sizes, feeding times, etc."
+                className="focus-ring"
               />
             </div>
 
-            <Button onClick={handleAddNewPet} className="w-full">
+            <Button onClick={handleAddNewPet} className="focus-ring w-full">
               <Plus className="mr-2 h-4 w-4" />
               Add Pet
             </Button>
@@ -779,17 +785,18 @@ export function StepPets({
         {/* Navigation */}
         <div className="flex justify-between pt-4">
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onBack}>
+            <Button variant="outline" className="focus-ring" onClick={onBack}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>
             {onCancel && (
-              <Button variant="destructive" onClick={onCancel}>
+              <Button variant="destructive" className="focus-ring" onClick={onCancel}>
                 Cancel Booking
               </Button>
             )}
           </div>
           <Button
+            className="focus-ring"
             onClick={handleNext}
             disabled={selectedPetIds.length + newPets.length === 0}
           >

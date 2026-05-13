@@ -34,8 +34,9 @@ export default async function BookingsPage() {
         eyebrow="Reservations"
         title="My Bookings"
         description="Review upcoming stays, payment status, and next actions for each reservation."
+        className="luxury-shell"
         actions={(
-          <Button asChild size="sm">
+          <Button asChild size="sm" className="focus-ring">
             <Link href="/book">New Booking</Link>
           </Button>
         )}
@@ -58,7 +59,7 @@ export default async function BookingsPage() {
             bookingPets: Array<{ pet?: { name?: string } | null }>;
             bookingNumber: string;
           }) => (
-            <div key={b.id} className="flex flex-wrap justify-between gap-4 rounded-xl border bg-card p-4 shadow-sm">
+            <div key={b.id} className="luxury-card flex flex-wrap justify-between gap-4 p-4 shadow-sm">
               <div className="min-w-0">
                 <div className="font-medium">{b.suite?.name || "Suite"}</div>
                 <div className="text-sm text-muted-foreground">

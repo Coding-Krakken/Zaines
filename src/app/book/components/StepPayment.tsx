@@ -117,7 +117,7 @@ function PricingDisclosureCard({
 }) {
   return (
     <>
-      <div className="rounded-lg border bg-muted/50 p-4">
+      <div className="rounded-xl border border-border/70 bg-muted/40 p-4">
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span>Subtotal</span>
@@ -135,7 +135,7 @@ function PricingDisclosureCard({
         <p className="mt-2 text-xs text-muted-foreground">{disclosure}</p>
       </div>
 
-      <div className="flex items-start space-x-3 rounded-lg border p-4">
+      <div className="flex items-start space-x-3 rounded-xl border border-border/70 p-4">
         <Checkbox
           id="pricing-disclosure"
           checked={pricingDisclosureAccepted}
@@ -255,6 +255,7 @@ function PaymentForm({
         <Button
           type="button"
           variant="outline"
+          className="focus-ring"
           onClick={onBack}
           disabled={isProcessing}
         >
@@ -263,6 +264,7 @@ function PaymentForm({
         </Button>
         <Button
           type="submit"
+          className="focus-ring"
           disabled={!stripe || isProcessing || !disclosureAccepted}
         >
           {isProcessing ? (
@@ -810,7 +812,7 @@ export function StepPayment({
 
   if (!bookingId) {
     return (
-      <Card>
+      <Card className="border-border/70 bg-background">
         <CardContent className="flex flex-col items-center justify-center space-y-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p>
@@ -822,18 +824,20 @@ export function StepPayment({
             <p className="text-sm text-destructive">{bookingError}</p>
           ) : null}
           <Button
+            className="focus-ring"
             onClick={initializeBookingAndPayment}
             disabled={isLoading && !bookingError}
           >
             Retry
           </Button>
-          <Button variant="outline" onClick={onBack} disabled={isLoading}>
+          <Button variant="outline" className="focus-ring" onClick={onBack} disabled={isLoading}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
           <Button
             type="button"
             variant="destructive"
+            className="focus-ring"
             onClick={onCancel}
             disabled={isLoading}
           >
@@ -846,7 +850,7 @@ export function StepPayment({
 
   if (!clientSecret) {
     return (
-      <Card>
+      <Card className="border-border/70 bg-background">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5" />
@@ -871,7 +875,7 @@ export function StepPayment({
             <p className="text-sm text-destructive">{bookingError}</p>
           ) : null}
           <div className="flex justify-between pt-4">
-            <Button type="button" variant="outline" onClick={onBack}>
+            <Button type="button" variant="outline" className="focus-ring" onClick={onBack}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>
@@ -879,6 +883,7 @@ export function StepPayment({
               <Button
                 type="button"
                 variant="destructive"
+                className="focus-ring"
                 onClick={onCancel}
                 disabled={isRecoveringPayment}
               >
@@ -887,6 +892,7 @@ export function StepPayment({
               <Button
                 type="button"
                 variant="outline"
+                className="focus-ring"
                 onClick={setupPaymentForExistingBooking}
                 disabled={!pricingDisclosureAccepted || isRecoveringPayment}
               >
@@ -900,6 +906,7 @@ export function StepPayment({
                 )}
               </Button>
               <Button
+                className="focus-ring"
                 onClick={finalizeBooking}
                 disabled={!pricingDisclosureAccepted || isRecoveringPayment}
               >
@@ -914,7 +921,7 @@ export function StepPayment({
   }
 
   return (
-    <Card>
+    <Card className="border-border/70 bg-background">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <CheckCircle2 className="h-5 w-5" />
@@ -959,6 +966,7 @@ export function StepPayment({
               <Button
                 type="button"
                 variant="outline"
+                className="focus-ring"
                 onClick={() => {
                   void handleOneClickPayment();
                 }}
@@ -1006,6 +1014,7 @@ export function StepPayment({
               <Button
                 type="button"
                 variant="outline"
+                className="focus-ring"
                 size="sm"
                 onClick={() => {
                   if (typeof window !== "undefined") {
@@ -1018,6 +1027,7 @@ export function StepPayment({
               <Button
                 type="button"
                 variant="ghost"
+                className="focus-ring"
                 size="sm"
                 onClick={() => {
                   void loadDefaultSavedMethod();
@@ -1038,6 +1048,7 @@ export function StepPayment({
               <Button
                 type="button"
                 variant="outline"
+                className="focus-ring"
                 onClick={setupPaymentForExistingBooking}
                 disabled={isRecoveringPayment}
               >
@@ -1050,11 +1061,11 @@ export function StepPayment({
                   "Refresh Payment Session"
                 )}
               </Button>
-              <Button type="button" variant="outline" onClick={onBack}>
+              <Button type="button" variant="outline" className="focus-ring" onClick={onBack}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
               </Button>
-              <Button type="button" variant="destructive" onClick={onCancel}>
+              <Button type="button" variant="destructive" className="focus-ring" onClick={onCancel}>
                 Cancel Booking
               </Button>
             </div>
@@ -1073,13 +1084,14 @@ export function StepPayment({
               </EmbeddedCheckoutProvider>
               <div className="flex justify-start">
                 <div className="flex gap-2">
-                  <Button type="button" variant="outline" onClick={onBack}>
+                  <Button type="button" variant="outline" className="focus-ring" onClick={onBack}>
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back
                   </Button>
                   <Button
                     type="button"
                     variant="destructive"
+                    className="focus-ring"
                     onClick={onCancel}
                   >
                     Cancel Booking
@@ -1094,13 +1106,14 @@ export function StepPayment({
               </p>
               <div className="flex justify-start">
                 <div className="flex gap-2">
-                  <Button type="button" variant="outline" onClick={onBack}>
+                  <Button type="button" variant="outline" className="focus-ring" onClick={onBack}>
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back
                   </Button>
                   <Button
                     type="button"
                     variant="destructive"
+                    className="focus-ring"
                     onClick={onCancel}
                   >
                     Cancel Booking

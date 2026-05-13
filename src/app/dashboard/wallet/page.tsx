@@ -30,8 +30,11 @@ export default async function WalletPage() {
         eyebrow="Billing"
         title="Payment Wallet"
         description="Add, remove, and set your default payment methods for one-click rebooking."
+        className="luxury-shell"
       />
-      <WalletManager />
+      <div className="rounded-2xl border border-border/70 bg-card/70 p-4 md:p-5">
+        <WalletManager />
+      </div>
     </div>
   );
 }

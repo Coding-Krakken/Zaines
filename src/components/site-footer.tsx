@@ -1,6 +1,7 @@
 'use client';
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { Facebook, Instagram, Twitter, MapPin, Phone, Mail, Clock } from "lucide-react";
 
@@ -16,13 +17,16 @@ export function SiteFooter() {
           <div className="lg:col-span-2">
             <Link
               href="/"
-              className="flex items-center gap-2.5 mb-5 group w-fit"
+              className="focus-ring group mb-5 flex w-fit items-center gap-2.5 rounded-md"
               aria-label="Zaine's Stay & Play — Home"
             >
               {websiteProfile.logoImageUrl ? (
-                <img
+                <Image
                   src={websiteProfile.logoImageUrl}
                   alt="Site logo"
+                  width={32}
+                  height={32}
+                  unoptimized
                   className="h-8 w-8 rounded-full object-cover"
                 />
               ) : (
@@ -45,7 +49,7 @@ export function SiteFooter() {
               <Link
                 href={socialLinks.facebook}
                 aria-label="Zaine's Stay & Play on Facebook"
-                className="text-background/40 hover:text-primary transition-colors"
+                className="focus-ring rounded-sm text-background/40 hover:text-primary transition-colors"
                 rel="noopener noreferrer"
                 target="_blank"
               >
@@ -54,7 +58,7 @@ export function SiteFooter() {
               <Link
                 href={socialLinks.instagram}
                 aria-label="Zaine's Stay & Play on Instagram"
-                className="text-background/40 hover:text-primary transition-colors"
+                className="focus-ring rounded-sm text-background/40 hover:text-primary transition-colors"
                 rel="noopener noreferrer"
                 target="_blank"
               >
@@ -63,7 +67,7 @@ export function SiteFooter() {
               <Link
                 href={socialLinks.twitter}
                 aria-label="Zaine's Stay & Play on X (Twitter)"
-                className="text-background/40 hover:text-primary transition-colors"
+                className="focus-ring rounded-sm text-background/40 hover:text-primary transition-colors"
                 rel="noopener noreferrer"
                 target="_blank"
               >
@@ -88,7 +92,7 @@ export function SiteFooter() {
                   <Link
                     href={href}
                     prefetch={href === "/suites" ? false : undefined}
-                    className="hover:text-primary transition-colors"
+                    className="focus-ring rounded-sm hover:text-primary transition-colors"
                   >
                     {label}
                   </Link>
@@ -113,7 +117,7 @@ export function SiteFooter() {
                 <li key={href}>
                   <Link
                     href={href}
-                    className="hover:text-primary transition-colors"
+                    className="focus-ring rounded-sm hover:text-primary transition-colors"
                   >
                     {label}
                   </Link>
@@ -162,7 +166,7 @@ export function SiteFooter() {
                 />
                 <a
                   href={`tel:${contactInfo.phone}`}
-                  className="hover:text-primary transition-colors"
+                  className="focus-ring rounded-sm hover:text-primary transition-colors"
                   itemProp="telephone"
                 >
                   {contactInfo.phone}
@@ -175,7 +179,7 @@ export function SiteFooter() {
                 />
                 <a
                   href={`mailto:${contactInfo.email}`}
-                  className="hover:text-primary transition-colors break-all"
+                  className="focus-ring break-all rounded-sm hover:text-primary transition-colors"
                   itemProp="email"
                 >
                   {contactInfo.email}
@@ -216,10 +220,10 @@ export function SiteFooter() {
             &copy; {currentYear} {businessName}. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <Link href="/privacy" className="hover:text-primary transition-colors">
+            <Link href="/privacy" className="focus-ring rounded-sm hover:text-primary transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="hover:text-primary transition-colors">
+            <Link href="/terms" className="focus-ring rounded-sm hover:text-primary transition-colors">
               Terms of Service
             </Link>
           </div>

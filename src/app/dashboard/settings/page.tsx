@@ -62,7 +62,7 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="luxury-shell space-y-6 rounded-2xl border border-border/60 bg-card/70 p-4 md:p-6">
       <DashboardPageHeader
         eyebrow="Account"
         title="Settings"

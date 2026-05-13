@@ -7,11 +7,15 @@ import { getAdminSettings } from "@/lib/api/admin-settings";
 export {
   seoBaseUrl,
   type LocalGrowthPage,
+  type SeoRouteIntent,
   syracusePillarRoute,
   localGrowthPages,
   type LocalGrowthSlug,
   keywordRouteMap,
+  seoRouteArchitecture,
+  seoIntentRouteMap,
   publicSeoRoutes,
+  robotsDisallowRoutes,
   conversionFunnelLinks,
   localFaqs,
 } from "./seo.data";

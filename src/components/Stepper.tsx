@@ -38,6 +38,7 @@ export function Stepper({
                 "relative",
                 stepIdx !== steps.length - 1 ? "flex-1" : "",
               )}
+              aria-current={isCurrent ? "step" : undefined}
             >
               {/* Connector line */}
               {stepIdx !== steps.length - 1 && (
@@ -79,6 +80,9 @@ export function Stepper({
                   )}
                 >
                   {step.label}
+                  <span className="sr-only">
+                    {isCompleted ? " (completed)" : isCurrent ? " (current step)" : " (upcoming)"}
+                  </span>
                 </span>
 
                 {/* Optional description */}

@@ -2,14 +2,20 @@
 
 import type { ComponentType } from "react";
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { Camera, ClipboardList, MessageSquareMore, NotebookPen } from "lucide-react";
 import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
-import { PhotoGallery } from "@/components/PhotoGallery";
 import { MessageThread } from "@/components/MessageThread";
 import { NotificationBanner } from "@/components/NotificationBanner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getBookingStatusMeta } from "@/lib/dashboard-status";
 import { useSettings } from "@/providers/settings-provider";
+
+const PhotoGallery = dynamic(
+  () => import("@/components/PhotoGallery").then((m) => ({ default: m.PhotoGallery })),
+  { loading: () => <Skeleton className="h-64 w-full rounded-2xl" /> },
+);
 
 interface BookingDetailClientProps {
   booking: {
@@ -99,15 +105,17 @@ export default function BookingDetailClient({
         eyebrow="Booking Details"
         title={`Booking ${booking.bookingNumber}`}
         description={`${formatDate(booking.checkInDate)} - ${formatDate(booking.checkOutDate)}`}
+        className="luxury-shell"
       />
 
       {/* Tab Navigation */}
       <div
-        className="flex gap-2 overflow-x-auto border-b"
+        className="rounded-2xl border border-border/70 bg-card/80 p-2"
         role="tablist"
         aria-label="Booking details navigation"
         aria-orientation="horizontal"
       >
+        <div className="flex gap-2 overflow-x-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const panelId = `tab-panel-${tab.id}`;
@@ -117,10 +125,10 @@ export default function BookingDetailClient({
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`whitespace-nowrap border-b-2 px-3 py-3 text-sm transition-colors sm:px-4 sm:text-base ${
+              className={`focus-ring whitespace-nowrap rounded-xl border px-3 py-3 text-sm transition-colors sm:px-4 sm:text-base ${
                 activeTab === tab.id
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-transparent text-muted-foreground hover:border-border hover:bg-muted/50 hover:text-foreground"
               }`}
               role="tab"
               aria-selected={activeTab === tab.id}
@@ -132,6 +140,7 @@ export default function BookingDetailClient({
             </button>
           );
         })}
+        </div>
       </div>
 
       {/* Tab Content */}
@@ -147,7 +156,7 @@ export default function BookingDetailClient({
         >
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Suite Information */}
-            <div className="space-y-4 rounded-xl border bg-card p-6 shadow-sm">
+            <div className="luxury-card space-y-4 rounded-xl p-6 shadow-sm">
               <h2 className="text-lg font-semibold">Suite Information</h2>
               <div className="space-y-3">
                 <div>
@@ -178,7 +187,7 @@ export default function BookingDetailClient({
             </div>
 
             {/* Pets Information */}
-            <div className="space-y-4 rounded-xl border bg-card p-6 shadow-sm">
+            <div className="luxury-card space-y-4 rounded-xl p-6 shadow-sm">
               <h2 className="text-lg font-semibold">Pets</h2>
               <div className="space-y-2">
                 {booking.bookingPets.length === 0 ? (
@@ -199,7 +208,7 @@ export default function BookingDetailClient({
             </div>
 
             {/* Payment Information */}
-            <div className="space-y-4 rounded-xl border bg-card p-6 shadow-sm md:col-span-2">
+            <div className="luxury-card space-y-4 rounded-xl p-6 shadow-sm md:col-span-2">
               <h2 className="text-lg font-semibold">Payment</h2>
               <div className="space-y-3">
                 <div className="flex justify-between">
@@ -241,7 +250,7 @@ export default function BookingDetailClient({
                     </p>
                     <a
                       href={`/book/recover/${booking.id}`}
-                      className="mt-2 inline-flex rounded-md bg-amber-600 px-3 py-2 text-sm font-medium text-white hover:bg-amber-700"
+                      className="focus-ring mt-2 inline-flex rounded-md bg-amber-600 px-3 py-2 text-sm font-medium text-white hover:bg-amber-700"
                     >
                       Complete Payment
                     </a>
@@ -274,7 +283,7 @@ export default function BookingDetailClient({
           hidden={activeTab !== "timeline"}
           tabIndex={0}
         >
-          <div className="rounded-xl border bg-card p-6 shadow-sm">
+          <div className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-sm">
             <ActivityTimeline bookingId={booking.id} />
           </div>
         </section>
@@ -287,7 +296,7 @@ export default function BookingDetailClient({
           hidden={activeTab !== "gallery"}
           tabIndex={0}
         >
-          <div className="rounded-xl border bg-card p-6 shadow-sm">
+          <div className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-sm">
             <PhotoGallery bookingId={booking.id} />
           </div>
         </section>

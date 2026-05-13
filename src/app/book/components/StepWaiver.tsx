@@ -172,7 +172,7 @@ export function StepWaiver({
   };
 
   return (
-    <Card>
+    <Card className="border-border/70 bg-background">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <CheckCircle2 className="h-5 w-5" />
@@ -200,7 +200,7 @@ export function StepWaiver({
         )}
 
         {savedWaiverTypes.length > 0 && (
-          <div className="flex items-center gap-3 rounded-lg border bg-muted/40 p-4">
+          <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-muted/40 p-4">
             <Checkbox
               id="reuse-waivers"
               checked={reuseExistingWaivers}
@@ -221,7 +221,7 @@ export function StepWaiver({
         )}
 
         {/* Liability Waiver */}
-        <div className="space-y-2">
+        <div className="space-y-2 rounded-xl border border-border/70 p-4">
           <Checkbox
             id="liability"
             checked={liabilityAccepted}
@@ -237,7 +237,7 @@ export function StepWaiver({
         </div>
 
         {/* Medical Authorization */}
-        <div className="space-y-2">
+        <div className="space-y-2 rounded-xl border border-border/70 p-4">
           <Checkbox
             id="medical"
             checked={medicalAuthorizationAccepted}
@@ -253,7 +253,7 @@ export function StepWaiver({
         </div>
 
         {/* Photo Release */}
-        <div className="space-y-2">
+        <div className="space-y-2 rounded-xl border border-border/70 p-4">
           <Checkbox
             id="photo"
             checked={photoReleaseAccepted}
@@ -267,7 +267,7 @@ export function StepWaiver({
           </Label>
         </div>
 
-        <div className="space-y-2 rounded-lg border p-4">
+        <div className="space-y-2 rounded-xl border border-border/70 p-4">
           <Checkbox
             id="policy-acknowledgment"
             checked={policyAcknowledgmentAccepted}
@@ -297,6 +297,7 @@ export function StepWaiver({
                 <Button
                   variant="outline"
                   size="sm"
+                  className="focus-ring"
                   onClick={handleClearSignature}
                 >
                   Clear
@@ -304,6 +305,7 @@ export function StepWaiver({
                 <Button
                   variant="secondary"
                   size="sm"
+                  className="focus-ring"
                   onClick={handleSaveSignature}
                 >
                   Save Signature
@@ -316,17 +318,18 @@ export function StepWaiver({
         {/* Navigation Buttons */}
         <div className="flex justify-between pt-4">
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onBack}>
+            <Button variant="outline" className="focus-ring" onClick={onBack}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>
             {onCancel && (
-              <Button variant="destructive" onClick={onCancel}>
+              <Button variant="destructive" className="focus-ring" onClick={onCancel}>
                 Cancel Booking
               </Button>
             )}
           </div>
           <Button
+            className="focus-ring"
             onClick={handleNext}
             disabled={reuseExistingWaivers ? false : (!liabilityAccepted ||
               !medicalAuthorizationAccepted ||

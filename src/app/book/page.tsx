@@ -11,7 +11,7 @@ import { useBookingWizard } from "@/hooks/useBookingWizard";
 import { Stepper } from "@/components/Stepper";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck, Clock3, Sparkles } from "lucide-react";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 
 type BookingValidationPricing = {
@@ -232,32 +232,46 @@ export default function BookPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-background py-12">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 py-12">
       <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 text-4xl font-bold">Book Your Stay</h1>
-          <p className="text-lg text-muted-foreground">
-            Just a few steps to reserve your pet&apos;s vacation
-          </p>
-          <p className="mt-3 text-sm text-muted-foreground">
-            {trustCopy.trustEvidenceClaim}
-          </p>
-          <p className="mt-2 text-sm text-muted-foreground">
+        <div className="luxury-shell grain-overlay mx-auto mb-8 max-w-5xl p-6 md:p-8">
+          <div className="mb-6 text-center">
+            <p className="eyebrow mb-3">Premium booking flow</p>
+            <h1 className="headline-display mb-2 text-4xl font-semibold md:text-5xl">Reserve Your Stay</h1>
+            <p className="text-lg text-muted-foreground">
+              A guided, step-by-step booking path with transparent pricing before confirmation.
+            </p>
+            <p className="mt-3 text-sm text-muted-foreground">{trustCopy.trustEvidenceClaim}</p>
+          </div>
+
+          <div className="grid gap-3 rounded-2xl border border-border/70 bg-background/70 p-4 text-sm text-muted-foreground md:grid-cols-3">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-primary" aria-hidden="true" />
+              <span>Owner-on-site supervision</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock3 className="h-4 w-4 text-primary" aria-hidden="true" />
+              <span>Fast, guided checkout flow</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
+              <span>No hidden fee surprises</span>
+            </div>
+          </div>
+
+          <p className="mt-4 text-center text-sm text-muted-foreground">
             {trustCopy.pricingDisclosure}
           </p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="mx-auto mb-8 max-w-4xl">
+        <div className="mx-auto mb-8 max-w-5xl rounded-2xl border border-border/70 bg-background/75 p-4 shadow-sm md:p-6">
           <Stepper
             steps={steps}
             currentStep={steps.findIndex((s) => s.id === currentStep)}
           />
         </div>
 
-        {/* Step Content */}
-        <div id="booking-wizard" className="mx-auto max-w-2xl">
+        <div id="booking-wizard" className="mx-auto max-w-2xl rounded-2xl border border-border/70 bg-background/85 p-2 shadow-sm md:p-3">
           {currentStep === "dates" && (
             <StepDates
               data={wizardData.dates || {}}

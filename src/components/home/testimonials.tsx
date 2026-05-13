@@ -74,7 +74,7 @@ export function Testimonials() {
 
   return (
     <section
-      className="section-padding bg-foreground overflow-hidden"
+      className="section-padding overflow-hidden bg-foreground"
       aria-labelledby="testimonials-heading"
     >
       {/* Reads ?testimonial= query param to deep-link to a specific item */}
@@ -87,17 +87,20 @@ export function Testimonials() {
       <div className="container mx-auto px-4">
         <FadeUp>
           <div className="text-center mb-16">
-            <p className="text-sm uppercase tracking-[0.25em] text-primary font-semibold mb-4">
+            <p className="eyebrow mb-4 border-primary/35 bg-primary/12 text-primary">
               Client Stories
             </p>
             <h2
               id="testimonials-heading"
-              className="font-display text-4xl md:text-5xl font-semibold text-background mb-4 text-balance"
+              className="headline-display mb-4 text-4xl font-semibold text-background text-balance md:text-5xl"
             >
               What Families
               <br />
               <em className="text-primary not-italic">Are Saying</em>
             </h2>
+            <p className="mx-auto max-w-xl text-background/70">
+              Every review is from real bookings and reflects a small-capacity experience families can feel from check-in to pickup.
+            </p>
           </div>
         </FadeUp>
 
@@ -105,7 +108,7 @@ export function Testimonials() {
         <div className="max-w-3xl mx-auto">
           <div
             id={`testimonial-${t.id}`}
-            className="bg-background/5 border border-background/10 rounded-2xl p-10 md:p-14 relative"
+            className="relative rounded-3xl border border-background/15 bg-background/6 p-10 md:p-14"
             aria-live="polite"
             aria-atomic="true"
           >
@@ -137,7 +140,7 @@ export function Testimonials() {
                   size="icon"
                   onClick={prev}
                   aria-label="Previous testimonial"
-                  className="text-background/50 hover:text-background hover:bg-background/10"
+                  className="focus-ring text-background/50 hover:bg-background/10 hover:text-background"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </Button>
@@ -146,7 +149,7 @@ export function Testimonials() {
                   size="icon"
                   onClick={next}
                   aria-label="Next testimonial"
-                  className="text-background/50 hover:text-background hover:bg-background/10"
+                  className="focus-ring text-background/50 hover:bg-background/10 hover:text-background"
                 >
                   <ChevronRight className="h-5 w-5" />
                 </Button>
@@ -167,7 +170,7 @@ export function Testimonials() {
                 aria-selected={i === current}
                 aria-label={`Go to testimonial ${i + 1}`}
                 onClick={() => setCurrent(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
+                className={`focus-ring h-1.5 rounded-full transition-all duration-300 ${
                   i === current
                     ? "w-6 bg-primary"
                     : "w-1.5 bg-background/20 hover:bg-background/40"

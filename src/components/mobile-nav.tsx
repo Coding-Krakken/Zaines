@@ -26,17 +26,24 @@ export function MobileNav() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="focus-ring md:hidden"
+          aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={open}
+          aria-controls="mobile-site-nav"
+        >
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+      <SheetContent side="left" className="w-[300px] sm:w-[400px]" id="mobile-site-nav">
         <SheetHeader>
           <SheetTitle>
             <Link
               href="/"
-              className="flex items-center space-x-2"
+              className="focus-ring flex items-center space-x-2 rounded-md"
               onClick={() => setOpen(false)}
             >
               <span className="text-2xl">🐾</span>
@@ -44,7 +51,7 @@ export function MobileNav() {
             </Link>
           </SheetTitle>
         </SheetHeader>
-        <div className="mt-8 flex flex-col gap-4">
+        <nav className="mt-8 flex flex-col gap-4" aria-label="Mobile site navigation">
           <Button asChild className="w-full">
             <Link href="/book" onClick={() => setOpen(false)}>
               Book Now
@@ -54,7 +61,7 @@ export function MobileNav() {
             {navItems.map((item, index) =>
               item.children ? (
                 <AccordionItem key={item.href} value={`item-${index}`}>
-                  <AccordionTrigger className="text-sm font-medium">
+                  <AccordionTrigger className="focus-ring rounded-md text-sm font-medium">
                     {item.title}
                   </AccordionTrigger>
                   <AccordionContent>
@@ -64,7 +71,7 @@ export function MobileNav() {
                           key={child.href}
                           href={child.href}
                           onClick={() => setOpen(false)}
-                          className="text-sm text-muted-foreground hover:text-foreground py-2"
+                          className="focus-ring rounded-md py-2 text-sm text-muted-foreground hover:text-foreground"
                         >
                           {child.title}
                         </Link>
@@ -77,7 +84,7 @@ export function MobileNav() {
                   <Link
                     href={item.href}
                     onClick={() => setOpen(false)}
-                    className="text-sm font-medium hover:text-primary"
+                    className="focus-ring rounded-md text-sm font-medium hover:text-primary"
                   >
                     {item.title}
                   </Link>
@@ -85,7 +92,7 @@ export function MobileNav() {
               ),
             )}
           </Accordion>
-        </div>
+        </nav>
       </SheetContent>
     </Sheet>
   );

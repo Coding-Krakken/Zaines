@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { SlideInLeft, SlideInRight } from "@/components/motion";
-import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { useSiteSettings } from "@/hooks/use-site-settings";
+import { Button } from "@/components/ui/button";
+import { SlideInLeft, SlideInRight } from "@/components/motion";
 
 const stats = [
   { value: "3", label: "Private suites — intentionally" },
@@ -25,9 +26,11 @@ export function MeetOwner() {
           <SlideInLeft>
             <div className="relative">
               <div className="relative h-[520px] w-full rounded-2xl overflow-hidden bg-gradient-to-br from-muted to-accent flex items-center justify-center">
-                <img
+                <Image
                   src={websiteProfile.ownerImageUrl || '/images/owner-placeholder.svg'}
                   alt="Owner portrait"
+                  fill
+                  unoptimized
                   className="h-full w-full object-cover"
                 />
               </div>

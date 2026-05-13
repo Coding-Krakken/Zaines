@@ -127,7 +127,7 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
         />
       )}
 
-      <section className="rounded-lg border p-4">
+      <section className="rounded-xl border border-border/70 bg-card/80 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold">Waiver Signing</h2>
@@ -165,7 +165,7 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="mt-2 h-auto p-0 text-xs"
+                      className="focus-ring mt-2 h-auto p-0 text-xs"
                       onClick={() => handleReviewWaiver(type)}
                     >
                       View Waiver
@@ -177,7 +177,7 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="mt-2 h-auto p-0 text-xs"
+                      className="focus-ring mt-2 h-auto p-0 text-xs"
                       onClick={() => handleReviewWaiver(type)}
                     >
                       Review & Sign
@@ -193,7 +193,7 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
           <Label htmlFor="waiver-signature" className="text-sm font-medium">Type Your Signature</Label>
           <Input
             id="waiver-signature"
-            className="mt-2"
+            className="focus-ring mt-2"
             value={signature}
             onChange={(event) => setSignature(event.target.value)}
             placeholder="Jane Doe"
@@ -218,18 +218,18 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
               type="button"
               disabled={isSigning}
               onClick={() => void handleSignWaivers()}
-              className="w-full sm:w-auto"
+              className="focus-ring w-full sm:w-auto"
             >
               {isSigning ? 'Signing...' : 'Sign / Refresh Waivers'}
             </Button>
-            <Button asChild type="button" variant="outline" className="w-full sm:w-auto">
+            <Button asChild type="button" variant="outline" className="focus-ring w-full sm:w-auto">
               <Link href="/book">Use in Booking</Link>
             </Button>
           </div>
         </div>
       </section>
 
-      <section className="rounded-lg border bg-card p-4 shadow-sm">
+      <section className="rounded-xl border border-border/70 bg-card/80 p-4 shadow-sm">
         <h2 className="text-lg font-semibold">Medical Records</h2>
         <p className="text-sm text-muted-foreground">
           Track medications and other medical information for each pet.
@@ -237,7 +237,7 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
         <MedicalRecordsForm pets={pets} />
       </section>
 
-      <section className="rounded-lg border bg-card p-4 shadow-sm">
+      <section className="rounded-xl border border-border/70 bg-card/80 p-4 shadow-sm">
         <h2 className="text-lg font-semibold">Pet Vaccination Records</h2>
         <p className="text-sm text-muted-foreground">
           Persistent, pet-specific vaccination records available during booking.
@@ -258,7 +258,7 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
                     {pet.vaccines.length} vaccine record{pet.vaccines.length === 1 ? '' : 's'}
                   </p>
                 </div>
-                <Button asChild size="sm" variant="outline">
+                <Button asChild size="sm" variant="outline" className="focus-ring">
                   <Link href={`/dashboard/pets/${pet.id}`}>Manage Records</Link>
                 </Button>
               </div>

@@ -38,6 +38,7 @@ import {
   calculateNights,
 } from "@/app/book/components/step-dates-contract";
 import { useSiteSettings } from "@/hooks/use-site-settings";
+import { cn } from "@/lib/utils";
 
 interface StepDatesProps {
   data: Partial<StepDatesData>;
@@ -281,7 +282,7 @@ export function StepDates({ data, onUpdate, onNext, onCancel }: StepDatesProps) 
   };
 
   return (
-    <Card>
+    <Card className="border-border/70 bg-background">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5" />
@@ -337,7 +338,7 @@ export function StepDates({ data, onUpdate, onNext, onCancel }: StepDatesProps) 
               onUpdate({ serviceType: value as "boarding" })
             }
           >
-            <SelectTrigger id="serviceType">
+            <SelectTrigger id="serviceType" className="focus-ring">
               <SelectValue placeholder="Select a service" />
             </SelectTrigger>
             <SelectContent>
@@ -365,6 +366,7 @@ export function StepDates({ data, onUpdate, onNext, onCancel }: StepDatesProps) 
               id="petCount"
               aria-labelledby="petCountLabel"
               aria-label="Number of Pets"
+              className="focus-ring"
             >
               <SelectValue />
             </SelectTrigger>
@@ -435,11 +437,12 @@ export function StepDates({ data, onUpdate, onNext, onCancel }: StepDatesProps) 
 
         <div className="flex justify-between">
           {onCancel && (
-            <Button variant="destructive" onClick={onCancel}>
+            <Button variant="destructive" className="focus-ring" onClick={onCancel}>
               Cancel Booking
             </Button>
           )}
           <Button
+            className={cn("focus-ring", !onCancel ? "ml-auto" : "")}
             onClick={handleNext}
             disabled={
               !data.checkIn ||
@@ -449,7 +452,6 @@ export function StepDates({ data, onUpdate, onNext, onCancel }: StepDatesProps) 
               availabilityState === "checking_availability" ||
               availabilityState !== "available"
             }
-            className={!onCancel ? "ml-auto" : ""}
           >
             Continue to Suite Selection
             <ArrowRight className="ml-2 h-4 w-4" />

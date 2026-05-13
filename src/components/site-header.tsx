@@ -38,7 +38,7 @@ export function SiteHeader() {
         {/* Wordmark */}
         <Link
           href="/"
-          className="flex items-center gap-2.5 group flex-shrink-0"
+          className="focus-ring group flex flex-shrink-0 items-center gap-2.5 rounded-lg"
           aria-label="Zaine's Stay & Play — Home"
         >
           <span
@@ -62,7 +62,7 @@ export function SiteHeader() {
                 href={item.href}
                 prefetch={item.href === "/suites" ? false : undefined}
                 className={cn(
-                  "px-3.5 py-2 rounded-lg text-sm font-medium transition-colors",
+                  "focus-ring rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
                   pathname === item.href
                     ? "text-primary bg-primary/8"
                     : "text-muted-foreground hover:text-foreground hover:bg-accent"

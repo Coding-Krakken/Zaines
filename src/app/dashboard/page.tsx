@@ -129,13 +129,13 @@ export default async function DashboardPage() {
         eyebrow="Customer Dashboard"
         title={`Welcome back, ${firstName}.`}
         description="Track stays, monitor pet profile readiness, and manage your account in one place."
-        className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 text-white"
+        className="luxury-shell grain-overlay border-border/50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 text-white"
         actions={(
           <>
-            <Button asChild variant="secondary">
+            <Button asChild variant="secondary" className="focus-ring">
               <Link href="/book">Book a Stay</Link>
             </Button>
-            <Button asChild variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10">
+            <Button asChild variant="outline" className="focus-ring border-white/40 bg-transparent text-white hover:bg-white/10">
               <Link href="/dashboard/bookings">View All Bookings</Link>
             </Button>
           </>
@@ -143,22 +143,22 @@ export default async function DashboardPage() {
       />
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-lg border bg-card p-4">
+        <div className="luxury-card p-4">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Active Stays</p>
           <p className="mt-2 text-2xl font-semibold">{activeStays}</p>
           <p className="text-xs text-muted-foreground">Pending, confirmed, and checked-in bookings</p>
         </div>
-        <div className="rounded-lg border bg-card p-4">
+        <div className="luxury-card p-4">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Completed Stays</p>
           <p className="mt-2 text-2xl font-semibold">{completedStays}</p>
           <p className="text-xs text-muted-foreground">Your total completed reservations</p>
         </div>
-        <div className="rounded-lg border bg-card p-4">
+        <div className="luxury-card p-4">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Lifetime Spend</p>
           <p className="mt-2 text-2xl font-semibold">{formatCurrency(lifetimeValue)}</p>
           <p className="text-xs text-muted-foreground">Across non-cancelled bookings</p>
         </div>
-        <div className="rounded-lg border bg-card p-4">
+        <div className="luxury-card p-4">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Unread Messages</p>
           <p className="mt-2 text-2xl font-semibold">{unreadStaffMessages}</p>
           <p className="text-xs text-muted-foreground">New updates from the care team</p>
@@ -169,7 +169,7 @@ export default async function DashboardPage() {
       </section>
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="rounded-lg border p-4 lg:col-span-2">
+        <div className="rounded-2xl border border-border/70 bg-card/80 p-4 lg:col-span-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-lg font-medium">Upcoming Stays</h2>
             <Link href="/dashboard/bookings" className="text-sm text-primary">
@@ -226,25 +226,25 @@ export default async function DashboardPage() {
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-lg border p-4">
+          <div className="rounded-2xl border border-border/70 bg-card/80 p-4">
             <h3 className="text-base font-medium">Quick Actions</h3>
             <div className="mt-3 grid grid-cols-1 gap-2">
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm" className="focus-ring">
                 <Link href="/dashboard/pets/new">Add a Pet</Link>
               </Button>
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm" className="focus-ring">
                 <Link href="/dashboard/updates">Open Updates</Link>
               </Button>
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm" className="focus-ring">
                 <Link href="/dashboard/records">Manage Records</Link>
               </Button>
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm" className="focus-ring">
                 <Link href="/dashboard/settings">Update Account Settings</Link>
               </Button>
             </div>
           </div>
 
-          <div className="rounded-lg border p-4">
+          <div className="rounded-2xl border border-border/70 bg-card/80 p-4">
             <h3 className="text-base font-medium">Pet Profile Readiness</h3>
             <p className="mt-2 text-3xl font-semibold">{profileReadiness}%</p>
             <div className="mt-2 h-2 rounded-full bg-muted">
@@ -263,7 +263,7 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      <section className="rounded-lg border p-4">
+      <section className="rounded-2xl border border-border/70 bg-card/80 p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-lg font-medium">Recent Booking Activity</h2>
           <span className="text-xs text-muted-foreground">Last {totalBookings} booking{totalBookings === 1 ? "" : "s"}</span>
@@ -297,7 +297,7 @@ export default async function DashboardPage() {
       </section>
 
       <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="rounded-lg border p-4">
+        <div className="rounded-2xl border border-border/70 bg-card/80 p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-lg font-medium">My Pets</h2>
             <Link href="/dashboard/pets" className="text-sm text-primary">

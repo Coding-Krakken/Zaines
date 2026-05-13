@@ -91,13 +91,13 @@ export default function PricingPage() {
     <div className="flex min-h-screen flex-col bg-background">
       {/* Hero */}
       <FadeUp>
-        <section className="relative bg-gradient-to-br from-primary/5 via-primary/2 to-secondary/3 py-20 md:py-32">
+        <section className="section-padding relative bg-gradient-to-br from-primary/5 via-primary/2 to-secondary/3">
           <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-3xl text-center">
-              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+            <div className="luxury-shell grain-overlay mx-auto max-w-4xl p-8 text-center md:p-12">
+              <Badge className="mb-4 border-primary/20 bg-primary/10 text-primary">
                 Transparent Pricing
               </Badge>
-              <h1 className="mb-6 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight">
+              <h1 className="headline-display mb-6 text-4xl font-semibold tracking-tight md:text-5xl lg:text-6xl">
                 Premium Pricing, Premium Care
               </h1>
               <p className="mb-8 text-lg md:text-xl text-foreground/70">
@@ -109,7 +109,7 @@ export default function PricingPage() {
       </FadeUp>
 
       {/* Suite Pricing */}
-      <section className="py-20 md:py-28">
+      <section className="section-padding">
         <div className="container mx-auto px-4">
           <FadeUp>
             <div className="mb-16 text-center">
@@ -180,14 +180,14 @@ export default function PricingPage() {
                       </ul>
 
                       <Button
-                        className="mt-8 w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                        className="focus-ring mt-8 w-full bg-primary text-primary-foreground hover:bg-primary/90"
                         size="lg"
                         asChild
                       >
                         <Link href="/book">Book This Suite</Link>
                       </Button>
                       <Button
-                        className="mt-3 w-full"
+                        className="focus-ring mt-3 w-full"
                         size="lg"
                         variant="outline"
                         asChild
@@ -340,7 +340,7 @@ export default function PricingPage() {
 
       {/* CTA */}
       <FadeUp>
-        <section className="bg-gradient-to-r from-primary/90 to-primary py-16 md:py-24 text-primary-foreground">
+        <section className="section-padding-tight bg-gradient-to-r from-primary/90 to-primary text-primary-foreground">
           <div className="container mx-auto px-4 text-center">
             <h2 className="mb-4 font-display text-3xl md:text-4xl font-semibold">
               Ready to Book?
@@ -351,7 +351,7 @@ export default function PricingPage() {
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button
                 size="lg"
-                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                className="focus-ring bg-primary-foreground text-primary hover:bg-primary-foreground/90"
                 asChild
               >
                 <Link href="/book">Check Availability</Link>
@@ -359,7 +359,7 @@ export default function PricingPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10"
+                className="focus-ring border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10"
                 asChild
               >
                 <Link href="/contact">Talk With Our Team</Link>

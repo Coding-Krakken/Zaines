@@ -99,9 +99,9 @@ export function PetProfileForm({ mode, petId, defaults }: PetProfileFormProps) {
   }
 
   return (
-    <Card className="mx-auto w-full max-w-2xl">
+    <Card className="luxury-card mx-auto w-full max-w-2xl border-border/60 bg-background/85">
       <CardHeader>
-        <CardTitle>{isEditMode ? "Update Pet Profile" : "Add a Pet"}</CardTitle>
+        <CardTitle className="text-base font-semibold">{isEditMode ? "Update Pet Profile" : "Add a Pet"}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -114,12 +114,12 @@ export function PetProfileForm({ mode, petId, defaults }: PetProfileFormProps) {
 
           <div className="space-y-1">
             <Label htmlFor="name">Name *</Label>
-            <Input id="name" name="name" defaultValue={initialValues.name} required />
+            <Input id="name" name="name" defaultValue={initialValues.name} required className="focus-ring" />
           </div>
 
           <div className="space-y-1">
             <Label htmlFor="breed">Breed *</Label>
-            <Input id="breed" name="breed" defaultValue={initialValues.breed} required />
+            <Input id="breed" name="breed" defaultValue={initialValues.breed} required className="focus-ring" />
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -133,6 +133,7 @@ export function PetProfileForm({ mode, petId, defaults }: PetProfileFormProps) {
                 max="30"
                 defaultValue={initialValues.age || undefined}
                 required
+                className="focus-ring"
               />
             </div>
             <div className="space-y-1">
@@ -145,6 +146,7 @@ export function PetProfileForm({ mode, petId, defaults }: PetProfileFormProps) {
                 min="0.1"
                 defaultValue={initialValues.weight || undefined}
                 required
+                className="focus-ring"
               />
             </div>
           </div>
@@ -152,7 +154,7 @@ export function PetProfileForm({ mode, petId, defaults }: PetProfileFormProps) {
           <div className="space-y-1">
             <Label htmlFor="gender">Gender *</Label>
             <Select value={gender} onValueChange={setGender}>
-              <SelectTrigger id="gender">
+              <SelectTrigger id="gender" className="focus-ring">
                 <SelectValue placeholder="Select gender" />
               </SelectTrigger>
               <SelectContent>
@@ -178,6 +180,7 @@ export function PetProfileForm({ mode, petId, defaults }: PetProfileFormProps) {
               name="specialNeeds"
               rows={2}
               defaultValue={initialValues.specialNeeds}
+              className="focus-ring"
             />
           </div>
 
@@ -188,6 +191,7 @@ export function PetProfileForm({ mode, petId, defaults }: PetProfileFormProps) {
               name="feedingInstructions"
               rows={2}
               defaultValue={initialValues.feedingInstructions}
+              className="focus-ring"
             />
           </div>
 

@@ -256,10 +256,11 @@ export function UpdatesHubClient() {
         eyebrow="Customer Updates"
         title="One Timeline for Messages and Photos"
         description="Stay in sync with care updates in one place. Send account-level messages without choosing a booking, or attach context when it matters."
+        className="luxury-shell"
       />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)]">
-        <Card>
+        <Card className="border-border/70 bg-card/80">
           <CardHeader>
             <CardTitle>Send Message</CardTitle>
           </CardHeader>
@@ -267,7 +268,7 @@ export function UpdatesHubClient() {
             <div className="space-y-1">
               <Label htmlFor="updates-context-select" className="text-sm font-medium">Context (optional)</Label>
               <Select value={selectedBookingId} onValueChange={setSelectedBookingId}>
-                <SelectTrigger id="updates-context-select" aria-label="Message context">
+                <SelectTrigger id="updates-context-select" aria-label="Message context" className="focus-ring">
                   <SelectValue placeholder="No booking (account-level)" />
                 </SelectTrigger>
                 <SelectContent>
@@ -290,6 +291,7 @@ export function UpdatesHubClient() {
                 placeholder="Ask a question or share an update..."
                 rows={4}
                 maxLength={5000}
+                className="focus-ring"
               />
               <p className="text-xs text-muted-foreground">{messageDraft.length}/5000</p>
             </div>
@@ -298,7 +300,7 @@ export function UpdatesHubClient() {
               <Button
                 onClick={handleSendMessage}
                 disabled={isSending || !messageDraft.trim()}
-                className="w-full sm:w-auto"
+                className="focus-ring w-full sm:w-auto"
               >
                 {isSending ? "Sending..." : "Send Message"}
               </Button>
@@ -306,7 +308,7 @@ export function UpdatesHubClient() {
                 variant="outline"
                 onClick={() => void loadUpdates()}
                 disabled={isLoading}
-                className="w-full sm:w-auto"
+                className="focus-ring w-full sm:w-auto"
               >
                 Refresh Feed
               </Button>

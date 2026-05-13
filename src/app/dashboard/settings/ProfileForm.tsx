@@ -130,9 +130,9 @@ export function ProfileForm({
   };
 
   return (
-    <Card className="shadow-sm">
+    <Card className="luxury-card border-border/60 bg-background/85 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Profile</CardTitle>
+        <CardTitle className="text-base font-semibold">Profile</CardTitle>
         {!isEditing && (
           <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">
             Edit
@@ -163,9 +163,10 @@ export function ProfileForm({
               value={formData.name}
               onChange={(e) => handleChange('name', e.target.value)}
               disabled={isSaving}
+              className="focus-ring"
             />
           ) : (
-            <p className="mt-1 text-sm">{user.name || 'Not provided'}</p>
+            <p className="mt-1 rounded-md border border-dashed border-border/70 bg-muted/40 px-3 py-2 text-sm">{user.name || 'Not provided'}</p>
           )}
         </div>
 
@@ -178,9 +179,10 @@ export function ProfileForm({
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
               disabled={isSaving}
+              className="focus-ring"
             />
           ) : (
-            <p className="mt-1 text-sm">{user.email || 'Not provided'}</p>
+            <p className="mt-1 rounded-md border border-dashed border-border/70 bg-muted/40 px-3 py-2 text-sm">{user.email || 'Not provided'}</p>
           )}
         </div>
 
@@ -194,9 +196,10 @@ export function ProfileForm({
               onChange={(e) => handleChange('phone', e.target.value)}
               disabled={isSaving}
               placeholder="(555) 123-4567"
+              className="focus-ring"
             />
           ) : (
-            <p className="mt-1 text-sm">{user.phone || 'Not provided'}</p>
+            <p className="mt-1 rounded-md border border-dashed border-border/70 bg-muted/40 px-3 py-2 text-sm">{user.phone || 'Not provided'}</p>
           )}
         </div>
 
@@ -209,9 +212,10 @@ export function ProfileForm({
               onChange={(e) => handleChange('address', e.target.value)}
               disabled={isSaving}
               placeholder="123 Main St"
+              className="focus-ring"
             />
           ) : (
-            <p className="mt-1 text-sm">{user.address || 'Not provided'}</p>
+            <p className="mt-1 rounded-md border border-dashed border-border/70 bg-muted/40 px-3 py-2 text-sm">{user.address || 'Not provided'}</p>
           )}
         </div>
 
@@ -224,9 +228,10 @@ export function ProfileForm({
                 value={formData.city}
                 onChange={(e) => handleChange('city', e.target.value)}
                 disabled={isSaving}
+                className="focus-ring"
               />
             ) : (
-              <p className="mt-1 text-sm">{user.city || 'N/A'}</p>
+              <p className="mt-1 rounded-md border border-dashed border-border/70 bg-muted/40 px-3 py-2 text-sm">{user.city || 'N/A'}</p>
             )}
           </div>
 
@@ -240,9 +245,10 @@ export function ProfileForm({
                 disabled={isSaving}
                 maxLength={2}
                 placeholder="NY"
+                className="focus-ring"
               />
             ) : (
-              <p className="mt-1 text-sm">{user.state || 'N/A'}</p>
+              <p className="mt-1 rounded-md border border-dashed border-border/70 bg-muted/40 px-3 py-2 text-sm">{user.state || 'N/A'}</p>
             )}
           </div>
 
@@ -255,9 +261,10 @@ export function ProfileForm({
                 onChange={(e) => handleChange('zip', e.target.value)}
                 disabled={isSaving}
                 placeholder="12345"
+                className="focus-ring"
               />
             ) : (
-              <p className="mt-1 text-sm">{user.zip || 'N/A'}</p>
+              <p className="mt-1 rounded-md border border-dashed border-border/70 bg-muted/40 px-3 py-2 text-sm">{user.zip || 'N/A'}</p>
             )}
           </div>
         </div>
