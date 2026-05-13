@@ -224,6 +224,10 @@ RESEND_API_KEY="re_..."
 #### Google OAuth (Optional)
 
 ```env
+AUTH_GOOGLE_CLIENT_ID="your-id.apps.googleusercontent.com"
+AUTH_GOOGLE_CLIENT_SECRET="your-secret"
+
+# Legacy aliases (still supported)
 GOOGLE_CLIENT_ID="your-id.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="your-secret"
 ```
@@ -233,6 +237,8 @@ GOOGLE_CLIENT_SECRET="your-secret"
 1. Go to https://console.cloud.google.com/apis/credentials
 2. Create OAuth 2.0 Client ID
 3. Add authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
+4. For production, add: `https://zainesstayandplay.com/api/auth/callback/google`
+5. Redirect URIs must match exactly (scheme, host, and path).
 
 4. **Run database migrations** (if database is configured)
 
@@ -264,6 +270,8 @@ npm run dev
 | `STRIPE_WEBHOOK_SECRET`              | No\*     | -                          | Stripe webhook signing secret. \*Required for webhook handling               |
 | `EMAIL_FROM`                         | No       | `noreply@pawfectstays.com` | Default sender email address                                                 |
 | `RESEND_API_KEY`                     | No       | -                          | Resend API key for sending emails                                            |
+| `AUTH_GOOGLE_CLIENT_ID`              | No       | -                          | Canonical Auth.js v5 Google OAuth client ID                                  |
+| `AUTH_GOOGLE_CLIENT_SECRET`          | No       | -                          | Canonical Auth.js v5 Google OAuth client secret                              |
 | `GOOGLE_CLIENT_ID`                   | No       | -                          | Google OAuth client ID                                                       |
 | `GOOGLE_CLIENT_SECRET`               | No       | -                          | Google OAuth client secret                                                   |
 | `NODE_ENV`                           | No       | `development`              | Node environment (`development` or `production`)                             |

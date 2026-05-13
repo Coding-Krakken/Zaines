@@ -1,3 +1,5 @@
+import { getOauthProviderCredentials } from "@/lib/auth/oauth-env";
+
 type ProviderKind = "oauth" | "passwordless" | "credentials" | "guest";
 
 export type AuthProviderCapability = {
@@ -13,10 +15,6 @@ type OauthProviderId = Extract<AuthProviderCapability["id"], "google" | "faceboo
 type OauthProviderDefinition = {
   id: OauthProviderId;
   label: string;
-  configuredProvider?: {
-    clientIdEnv: string;
-    clientSecretEnv: string;
-  };
   staticDisabledReason?: string;
 };
 
@@ -24,18 +22,10 @@ const OAUTH_PROVIDER_REGISTRY: OauthProviderDefinition[] = [
   {
     id: "google",
     label: "Continue with Google",
-    configuredProvider: {
-      clientIdEnv: "GOOGLE_CLIENT_ID",
-      clientSecretEnv: "GOOGLE_CLIENT_SECRET",
-    },
   },
   {
     id: "facebook",
     label: "Continue with Facebook",
-    configuredProvider: {
-      clientIdEnv: "FACEBOOK_CLIENT_ID",
-      clientSecretEnv: "FACEBOOK_CLIENT_SECRET",
-    },
   },
   {
     id: "apple",
@@ -121,7 +111,7 @@ function buildOauthCapability(definition: OauthProviderDefinition): AuthProvider
     };
   }
 
-  if (!definition.configuredProvider) {
+  if (!["google", "facebook"].includes(definition.id)) {
     return {
       id: definition.id,
       kind: "oauth",
@@ -131,11 +121,15 @@ function buildOauthCapability(definition: OauthProviderDefinition): AuthProvider
     };
   }
 
+  const credentials = getOauthProviderCredentials(
+    definition.id as "google" | "facebook",
+  );
+
   return getOauthCapability({
     id: definition.id,
     label: definition.label,
-    clientId: process.env[definition.configuredProvider.clientIdEnv],
-    clientSecret: process.env[definition.configuredProvider.clientSecretEnv],
+    clientId: credentials.clientId,
+    clientSecret: credentials.clientSecret,
   });
 }
 

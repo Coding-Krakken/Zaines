@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthProviderCapabilities } from "@/lib/auth/provider-capabilities";
+import { getOauthProviderDebugInfo } from "@/lib/auth/oauth-env";
 import { getAuthRuntimeConfig } from "@/lib/auth/runtime-config";
 import { isDatabaseConfigured } from "@/lib/prisma";
 
@@ -30,10 +31,16 @@ export async function GET() {
     authIssues.push("no_auth_provider_enabled");
   }
 
+  const oauthDebug = {
+    google: getOauthProviderDebugInfo("google"),
+    facebook: getOauthProviderDebugInfo("facebook"),
+  };
+
   return NextResponse.json({
     capabilities,
     authOperational: authIssues.length === 0,
     authIssues,
+    oauthDebug,
     generatedAt: new Date().toISOString(),
   });
 }
