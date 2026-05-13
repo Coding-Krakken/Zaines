@@ -49,6 +49,7 @@ interface StepPaymentProps {
   ) => void;
   onNext: () => void;
   onBack: () => void;
+  onCancel: () => void;
   totalAmount: number; // From previous steps
   pricingQuote: {
     subtotal: number;
@@ -235,6 +236,7 @@ export function StepPayment({
   onUpdate,
   onNext,
   onBack,
+  onCancel,
   totalAmount,
   pricingQuote,
   bookingPayload,
@@ -560,6 +562,14 @@ export function StepPayment({
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={onCancel}
+            disabled={isLoading}
+          >
+            Cancel Booking
+          </Button>
         </CardContent>
       </Card>
     );
@@ -597,6 +607,14 @@ export function StepPayment({
               Back
             </Button>
             <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={onCancel}
+                disabled={isRecoveringPayment}
+              >
+                Cancel Booking
+              </Button>
               <Button
                 type="button"
                 variant="outline"
@@ -672,6 +690,9 @@ export function StepPayment({
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
               </Button>
+              <Button type="button" variant="destructive" onClick={onCancel}>
+                Cancel Booking
+              </Button>
             </div>
           </div>
         ) : paymentMode === "embedded_checkout" ? (
@@ -687,10 +708,19 @@ export function StepPayment({
                 <EmbeddedCheckout />
               </EmbeddedCheckoutProvider>
               <div className="flex justify-start">
-                <Button type="button" variant="outline" onClick={onBack}>
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back
-                </Button>
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" onClick={onBack}>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={onCancel}
+                  >
+                    Cancel Booking
+                  </Button>
+                </div>
               </div>
             </div>
           ) : (
@@ -699,10 +729,19 @@ export function StepPayment({
                 Acknowledge pricing disclosure above to unlock secure checkout.
               </p>
               <div className="flex justify-start">
-                <Button type="button" variant="outline" onClick={onBack}>
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back
-                </Button>
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" onClick={onBack}>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={onCancel}
+                  >
+                    Cancel Booking
+                  </Button>
+                </div>
               </div>
             </div>
           )

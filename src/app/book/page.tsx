@@ -30,8 +30,14 @@ type BookingValidationResponse = {
 
 export default function BookPage() {
   const { trustCopy } = useSiteSettings();
-  const { currentStep, wizardData, nextStep, prevStep, updateStepData } =
-    useBookingWizard();
+  const {
+    currentStep,
+    wizardData,
+    nextStep,
+    prevStep,
+    updateStepData,
+    resetWizard,
+  } = useBookingWizard();
   const [pricingQuote, setPricingQuote] =
     useState<BookingValidationPricing | null>(null);
   const [isQuoteLoading, setIsQuoteLoading] = useState(false);
@@ -201,6 +207,26 @@ export default function BookPage() {
     { id: "payment", label: "Payment" },
   ];
 
+  const handleCancelBooking = () => {
+    const shouldCancel = window.confirm(
+      "Cancel this booking and start over from the first step?",
+    );
+
+    if (!shouldCancel) {
+      return;
+    }
+
+    const bookingId = wizardData.payment?.bookingId;
+    if (bookingId) {
+      sessionStorage.removeItem(`booking-${bookingId}`);
+    }
+
+    resetWizard();
+    setPricingQuote(null);
+    setQuoteError(null);
+    setQuoteRetryNonce(0);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-background py-12">
       <div className="container mx-auto px-4">
@@ -320,6 +346,7 @@ export default function BookPage() {
                 onUpdate={(data) => updateStepData("payment", data)}
                 onNext={nextStep}
                 onBack={prevStep}
+                onCancel={handleCancelBooking}
                 totalAmount={visiblePricingQuote?.total || 0}
                 pricingQuote={visiblePricingQuote}
                 bookingPayload={bookingPayload}
