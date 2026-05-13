@@ -118,6 +118,25 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Verify PasswordCredential model is available at runtime before proceeding
+  if (!((prisma as unknown as { passwordCredential?: unknown }).passwordCredential)) {
+    logSecurityEvent({
+      route: "/api/auth/register",
+      event: "AUTH_REGISTER_SCHEMA_MISMATCH",
+      correlationId,
+      level: "error",
+    });
+    return NextResponse.json(
+      publicError({
+        code: "AUTH_SCHEMA_NOT_READY",
+        message: "Account setup is temporarily unavailable. Please retry.",
+        correlationId,
+        retryable: true,
+      }),
+      { status: 503 },
+    );
+  }
+
   const email = parsedBody.email.trim().toLowerCase();
   const displayName = parsedBody.name?.trim() || email.split("@")[0] || "Customer";
 
@@ -196,12 +215,20 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 },
     );
-  } catch {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorCode = (error as { code?: string }).code ?? "UNKNOWN";
+    
     logSecurityEvent({
       route: "/api/auth/register",
       event: "AUTH_REGISTER_FAILED",
       correlationId,
       level: "error",
+      context: {
+        errorType: typeof error,
+        errorCode,
+        errorSummary: errorMessage.slice(0, 100),
+      },
     });
     return NextResponse.json(
       publicError({
