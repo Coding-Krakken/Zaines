@@ -6,13 +6,19 @@ import {
 
 export type AuthRuntimeConfig = {
   hasDatabase: boolean;
+  hasAuthSecret: boolean;
   enablePasswordLogin: boolean;
   enableGuestFlow: boolean;
   sessionStrategy: AuthSessionStrategy;
   useDatabaseSessions: boolean;
 };
 
+function hasValue(value: string | undefined): boolean {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
 export function getAuthRuntimeConfig(hasDatabase: boolean): AuthRuntimeConfig {
+  const hasAuthSecret = hasValue(process.env.AUTH_SECRET) || hasValue(process.env.NEXTAUTH_SECRET);
   const enablePasswordLogin = isAuthFeatureEnabled(
     process.env.AUTH_ENABLE_PASSWORD_LOGIN,
     true,
@@ -25,6 +31,7 @@ export function getAuthRuntimeConfig(hasDatabase: boolean): AuthRuntimeConfig {
 
   return {
     hasDatabase,
+    hasAuthSecret,
     enablePasswordLogin,
     enableGuestFlow,
     sessionStrategy,

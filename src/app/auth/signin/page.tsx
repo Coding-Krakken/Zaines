@@ -26,6 +26,8 @@ type AuthCapability = {
 
 type CapabilitiesResponse = {
   capabilities: AuthCapability[];
+  authOperational?: boolean;
+  authIssues?: string[];
 };
 
 type RegisterResponse = {
@@ -72,6 +74,7 @@ function SignInForm() {
   const [capabilities, setCapabilities] = useState<AuthCapability[]>([]);
   const [providerIds, setProviderIds] = useState<Set<string>>(new Set());
   const [loadingCapabilities, setLoadingCapabilities] = useState(true);
+  const [authOperational, setAuthOperational] = useState(true);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -98,6 +101,17 @@ function SignInForm() {
         if (capabilityResponse.ok) {
           const payload = (await capabilityResponse.json()) as CapabilitiesResponse;
           setCapabilities(payload.capabilities || []);
+
+          if (payload.authOperational === false) {
+            setAuthOperational(false);
+            const issueCodes = Array.isArray(payload.authIssues)
+              ? payload.authIssues.join(",")
+              : "configuration";
+            setMessage(
+              "Sign-in is temporarily unavailable due to an authentication configuration issue. Please contact support.",
+            );
+            setCorrelationId(issueCodes);
+          }
         }
 
         if (providerResponse.ok) {
@@ -132,6 +146,11 @@ function SignInForm() {
     event.preventDefault();
     setMessage("");
     setCorrelationId(null);
+
+    if (!authOperational) {
+      updateError("Sign-in is temporarily unavailable. Please contact support.");
+      return;
+    }
 
     if (!EMAIL_PATTERN.test(email.trim())) {
       updateError("Enter a valid email address.");
@@ -169,6 +188,11 @@ function SignInForm() {
     event.preventDefault();
     setMessage("");
     setCorrelationId(null);
+
+    if (!authOperational) {
+      updateError("Account creation is temporarily unavailable. Please contact support.");
+      return;
+    }
 
     if (!EMAIL_PATTERN.test(email.trim())) {
       updateError("Enter a valid email address.");
@@ -225,6 +249,11 @@ function SignInForm() {
     setMessage("");
     setCorrelationId(null);
 
+    if (!authOperational) {
+      updateError("Magic-link sign-in is temporarily unavailable. Please contact support.");
+      return;
+    }
+
     if (!EMAIL_PATTERN.test(email.trim())) {
       updateError("Enter a valid email address.");
       return;
@@ -254,6 +283,11 @@ function SignInForm() {
   };
 
   const handleOAuth = async (providerId: string) => {
+    if (!authOperational) {
+      updateError("Social sign-in is temporarily unavailable. Please contact support.");
+      return;
+    }
+
     setBusy(true);
     setMessage("");
     try {
@@ -352,7 +386,7 @@ function SignInForm() {
                         value={name}
                         onChange={(event) => setName(event.target.value)}
                         placeholder="Alex Morgan"
-                        disabled={busy || loadingCapabilities}
+                        disabled={busy || loadingCapabilities || !authOperational}
                       />
                     </div>
                   ) : null}
@@ -365,7 +399,7 @@ function SignInForm() {
                       value={email}
                       onChange={(event) => setEmail(event.target.value)}
                       placeholder="you@example.com"
-                      disabled={busy || loadingCapabilities}
+                      disabled={busy || loadingCapabilities || !authOperational}
                       required
                     />
                   </div>
@@ -378,7 +412,7 @@ function SignInForm() {
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
                       placeholder={mode === "create_account" ? "Create a strong password" : "Enter your password"}
-                      disabled={busy || loadingCapabilities || !hasCredentials}
+                      disabled={busy || loadingCapabilities || !hasCredentials || !authOperational}
                       required={hasCredentials}
                     />
                   </div>
@@ -398,7 +432,7 @@ function SignInForm() {
                     </div>
                   ) : null}
 
-                  <Button type="submit" className="w-full bg-stone-900 text-white hover:bg-stone-800" disabled={busy || loadingCapabilities || !hasCredentials}>
+                  <Button type="submit" className="w-full bg-stone-900 text-white hover:bg-stone-800" disabled={busy || loadingCapabilities || !hasCredentials || !authOperational}>
                     {busy ? "Working..." : mode === "sign_in" ? "Sign In Securely" : "Create My Account"}
                   </Button>
                 </form>
@@ -417,7 +451,7 @@ function SignInForm() {
                       type="button"
                       variant="outline"
                       className="w-full border-stone-300"
-                      disabled={busy || loadingCapabilities}
+                      disabled={busy || loadingCapabilities || !authOperational}
                       onClick={() => {
                         setMagicLinkSent(false);
                         void handleMagicLink();
@@ -447,7 +481,7 @@ function SignInForm() {
                           variant="outline"
                           className="w-full border-stone-300"
                           onClick={() => handleOAuth(provider.id)}
-                          disabled={busy || loadingCapabilities}
+                          disabled={busy || loadingCapabilities || !authOperational}
                         >
                           {providerGlyph(provider.id)}
                           {provider.label}

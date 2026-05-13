@@ -22,6 +22,8 @@ describe("auth capabilities route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env = { ...originalEnv };
+    process.env.AUTH_SECRET = "test-auth-secret";
+    delete process.env.NEXTAUTH_SECRET;
     delete process.env.GOOGLE_CLIENT_ID;
     delete process.env.GOOGLE_CLIENT_SECRET;
     delete process.env.FACEBOOK_CLIENT_ID;
@@ -46,6 +48,8 @@ describe("auth capabilities route", () => {
     expect(response.status).toBe(200);
     expect(Array.isArray(body.capabilities)).toBe(true);
     expect(typeof body.generatedAt).toBe("string");
+    expect(body.authOperational).toBe(true);
+    expect(body.authIssues).toEqual([]);
 
     const byId = new Map<string, Capability>(
       (body.capabilities as Capability[]).map((capability) => [
@@ -86,6 +90,8 @@ describe("auth capabilities route", () => {
     expect(byId.get("credentials")?.reasonDisabled).toBe("password_login_disabled");
     expect(byId.get("guest")?.enabled).toBe(false);
     expect(byId.get("guest")?.reasonDisabled).toBe("guest_flow_disabled");
+    expect(body.authOperational).toBe(true);
+    expect(body.authIssues).toEqual([]);
   });
 
   it("treats non-false feature flag strings as enabled", async () => {
@@ -107,6 +113,8 @@ describe("auth capabilities route", () => {
 
     expect(byId.get("credentials")?.enabled).toBe(true);
     expect(byId.get("guest")?.enabled).toBe(true);
+    expect(body.authOperational).toBe(true);
+    expect(body.authIssues).toEqual([]);
   });
 
   it("disables database-dependent providers when database is unavailable", async () => {
@@ -130,5 +138,20 @@ describe("auth capabilities route", () => {
     expect(byId.get("resend")?.reasonDisabled).toBe("database_unavailable");
     expect(byId.get("credentials")?.enabled).toBe(false);
     expect(byId.get("credentials")?.reasonDisabled).toBe("database_unavailable");
+    expect(body.authOperational).toBe(false);
+    expect(body.authIssues).toContain("no_auth_provider_enabled");
+  });
+
+  it("reports non-operational auth when secret is missing", async () => {
+    isDatabaseConfiguredMock.mockReturnValueOnce(true);
+    delete process.env.AUTH_SECRET;
+    delete process.env.NEXTAUTH_SECRET;
+
+    const response = await GET();
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.authOperational).toBe(false);
+    expect(body.authIssues).toContain("missing_auth_secret");
   });
 });
