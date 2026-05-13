@@ -70,7 +70,7 @@ export default async function BookingDetail({ params }: Props) {
 
   if (!isDatabaseConfigured()) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="space-y-3">
         <h1 className="text-2xl font-semibold">Booking</h1>
         <p className="mt-4 text-muted-foreground">Database not configured.</p>
       </div>
@@ -88,7 +88,7 @@ export default async function BookingDetail({ params }: Props) {
 
   if (!booking || booking.userId !== session.user.id) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="space-y-3">
         <h1 className="text-2xl font-semibold">Booking</h1>
         <p className="mt-4 text-muted-foreground">
           Booking not found or access denied.

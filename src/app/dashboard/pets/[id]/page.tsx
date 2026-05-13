@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { HealthTimeline } from "@/components/HealthTimeline";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import Link from "next/link";
 import { PetRecordsManager } from "./PetRecordsManager";
 
@@ -23,7 +24,7 @@ export default async function PetDetail({ params }: Props) {
 
   if (!isDatabaseConfigured()) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="space-y-3">
         <h1 className="text-2xl font-semibold">Pet</h1>
         <p className="mt-4 text-muted-foreground">Database not configured.</p>
       </div>
@@ -58,7 +59,7 @@ export default async function PetDetail({ params }: Props) {
 
   if (!pet || pet.userId !== session.user.id) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="space-y-3">
         <h1 className="text-2xl font-semibold">Pet</h1>
         <p className="mt-4 text-muted-foreground">
           Pet not found or access denied.
@@ -68,22 +69,26 @@ export default async function PetDetail({ params }: Props) {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-semibold">{pet.name}</h1>
-        <Link href={`/dashboard/pets/${pet.id}/edit`} className="text-sm text-primary">
-          Edit Profile
-        </Link>
-      </div>
+    <div className="space-y-6">
+      <DashboardPageHeader
+        eyebrow="Pet Profile"
+        title={pet.name}
+        description="Review health information, records, and timeline updates for this pet."
+        actions={(
+          <Link href={`/dashboard/pets/${pet.id}/edit`} className="text-sm text-primary">
+            Edit Profile
+          </Link>
+        )}
+      />
 
       {healthDataCompatibilityMode && (
-        <p className="mb-4 text-sm text-amber-700">
+        <p className="text-sm text-amber-700">
           Health history is temporarily unavailable in compatibility mode. Run database migrations
           to restore vaccine and medication records.
         </p>
       )}
 
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="p-4 border rounded">
           <h2 className="font-medium">Profile</h2>
           <p className="text-sm">Breed: {pet.breed || "Unknown"}</p>
@@ -129,7 +134,7 @@ export default async function PetDetail({ params }: Props) {
         </div>
       </div>
 
-      <div className="mt-6">
+      <div>
         <PetRecordsManager
           petId={pet.id}
           petName={pet.name}
@@ -146,7 +151,7 @@ export default async function PetDetail({ params }: Props) {
       </div>
 
       {/* Health Timeline for this pet */}
-      <div className="mt-6">
+      <div>
         <HealthTimeline petId={pet.id} />
       </div>
     </div>

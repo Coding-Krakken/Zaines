@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
 import { getHealthRecordsForUser } from '@/lib/health-records';
 import { RecordsClient } from './RecordsClient';
 
@@ -17,13 +18,12 @@ export default async function DashboardRecordsPage() {
   const records = await getHealthRecordsForUser(session.user.id);
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Records Center</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Upload and manage pet-specific medical records, plus sign account waivers.
-        </p>
-      </div>
+    <div className="space-y-6">
+      <DashboardPageHeader
+        eyebrow="Health & Legal"
+        title="Records Center"
+        description="Upload and manage pet-specific medical records, plus sign account waivers."
+      />
 
       <RecordsClient
         accountWaivers={records.accountWaivers.map((waiver) => ({

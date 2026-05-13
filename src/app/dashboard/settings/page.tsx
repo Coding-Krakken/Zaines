@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { getAdminSettings } from "@/lib/api/admin-settings";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { ProfileForm } from "./ProfileForm";
 
 export const metadata = {
@@ -22,7 +23,7 @@ export default async function SettingsPage() {
 
   if (!isDatabaseConfigured()) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="space-y-3">
         <h1 className="text-2xl font-semibold">Settings</h1>
         <p className="mt-4 text-muted-foreground">
           Database is not configured. Settings are unavailable in this environment.
@@ -59,8 +60,12 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-6">Settings</h1>
+    <div className="space-y-6">
+      <DashboardPageHeader
+        eyebrow="Account"
+        title="Settings"
+        description="Update profile details and billing preferences for your customer portal access."
+      />
       <ProfileForm user={user} billingPortalEnabled={billingPortalEnabled} />
     </div>
   );

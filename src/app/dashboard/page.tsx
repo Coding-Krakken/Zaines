@@ -3,7 +3,9 @@ import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { HealthTimeline } from "@/components/HealthTimeline";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { Button } from "@/components/ui/button";
+import { getBookingStatusMeta } from "@/lib/dashboard-status";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -20,23 +22,6 @@ function daysUntil(date: Date): number {
   return Math.ceil((target - start) / (1000 * 60 * 60 * 24));
 }
 
-function statusClasses(status: string): string {
-  switch (status) {
-    case "confirmed":
-      return "bg-emerald-100 text-emerald-800";
-    case "pending":
-      return "bg-amber-100 text-amber-800";
-    case "checked_in":
-      return "bg-sky-100 text-sky-800";
-    case "completed":
-      return "bg-slate-100 text-slate-800";
-    case "cancelled":
-      return "bg-rose-100 text-rose-800";
-    default:
-      return "bg-muted text-foreground";
-  }
-}
-
 export default async function DashboardPage() {
   const session = await auth();
 
@@ -48,7 +33,7 @@ export default async function DashboardPage() {
   // If DB not configured, render a helpful message
   if (!isDatabaseConfigured()) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="space-y-4">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <p className="mt-4 text-muted-foreground">
           Database is not configured. Dashboard data is unavailable in this
@@ -141,26 +126,23 @@ export default async function DashboardPage() {
   const firstName = session.user.name?.split(" ")[0] ?? "there";
 
   return (
-    <div className="container mx-auto space-y-6 p-6">
-      <section className="rounded-xl border bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 p-6 text-white">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-slate-300">Customer Dashboard</p>
-            <h1 className="mt-2 text-3xl font-semibold">Welcome back, {firstName}.</h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-200">
-              Track stays, monitor pet profile readiness, and manage your account in one place.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
+    <div className="space-y-6">
+      <DashboardPageHeader
+        eyebrow="Customer Dashboard"
+        title={`Welcome back, ${firstName}.`}
+        description="Track stays, monitor pet profile readiness, and manage your account in one place."
+        className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 text-white"
+        actions={(
+          <>
             <Button asChild variant="secondary">
               <Link href="/book">Book a Stay</Link>
             </Button>
             <Button asChild variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10">
               <Link href="/dashboard/bookings">View All Bookings</Link>
             </Button>
-          </div>
-        </div>
-      </section>
+          </>
+        )}
+      />
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-lg border bg-card p-4">
@@ -225,8 +207,8 @@ export default async function DashboardPage() {
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-medium">{booking.bookingNumber}</p>
-                        <p className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-xs ${statusClasses(booking.status)}`}>
-                          {booking.status.replace("_", " ")}
+                        <p className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-xs ${getBookingStatusMeta(booking.status).toneClass}`}>
+                          {getBookingStatusMeta(booking.status).label}
                         </p>
                       </div>
                     </div>
@@ -303,8 +285,8 @@ export default async function DashboardPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium">{formatCurrency(booking.total)}</span>
-                  <span className={`inline-flex rounded-full px-2 py-0.5 text-xs ${statusClasses(booking.status)}`}>
-                    {booking.status.replace("_", " ")}
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-xs ${getBookingStatusMeta(booking.status).toneClass}`}>
+                    {getBookingStatusMeta(booking.status).label}
                   </span>
                   <Link href={`/dashboard/bookings/${booking.id}`} className="text-sm text-primary">
                     Details

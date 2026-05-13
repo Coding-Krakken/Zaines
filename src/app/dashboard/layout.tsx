@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { CustomerDashboardMobileNav, CustomerDashboardNav } from "@/components/dashboard/customer-dashboard-nav";
 import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
@@ -14,14 +15,20 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+      <div className="mx-auto w-full max-w-[1440px] px-4 py-6 lg:px-6">
+        <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+          <div className="hidden lg:block">
+            <CustomerDashboardNav />
+          </div>
+
+          <main className="min-w-0 space-y-6">
+            <div className="lg:hidden">
+              <CustomerDashboardMobileNav />
+            </div>
+            {children}
+          </main>
         </div>
       </div>
-      <main className="container mx-auto px-4 py-8">
-        {children}
-      </main>
     </div>
   );
 }

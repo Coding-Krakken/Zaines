@@ -4,24 +4,9 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
+import { getBookingStatusMeta } from "@/lib/dashboard-status";
 import { CancelBookingButton } from "./[id]/CancelBookingButton";
-
-function statusBadgeVariant(
-  status: string,
-): "default" | "secondary" | "destructive" | "outline" {
-  switch (status) {
-    case "confirmed":
-      return "default";
-    case "checked_in":
-      return "secondary";
-    case "cancelled":
-      return "destructive";
-    case "completed":
-      return "outline";
-    default:
-      return "outline";
-  }
-}
 
 export default async function BookingsPage() {
   const session = await auth();
@@ -29,7 +14,7 @@ export default async function BookingsPage() {
 
   if (!isDatabaseConfigured()) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="space-y-3">
         <h1 className="text-2xl font-semibold">My Bookings</h1>
         <p className="mt-4 text-muted-foreground">Database not configured.</p>
       </div>
@@ -43,19 +28,23 @@ export default async function BookingsPage() {
   });
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">My Bookings</h1>
-        <Button asChild size="sm">
-          <Link href="/book">
-            New Booking
-          </Link>
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <DashboardPageHeader
+        eyebrow="Reservations"
+        title="My Bookings"
+        description="Review upcoming stays, payment status, and next actions for each reservation."
+        actions={(
+          <Button asChild size="sm">
+            <Link href="/book">New Booking</Link>
+          </Button>
+        )}
+      />
 
-      <div className="mt-6 space-y-4">
+      <div className="space-y-4">
         {bookings.length === 0 && (
-          <p className="text-muted-foreground">You have no bookings.</p>
+          <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">
+            You have no bookings yet. Start a reservation to secure your preferred suite and dates.
+          </div>
         )}
         {bookings.map(
           (b: {
@@ -67,7 +56,7 @@ export default async function BookingsPage() {
             bookingPets: Array<{ pet?: { name?: string } | null }>;
             bookingNumber: string;
           }) => (
-            <div key={b.id} className="p-4 border rounded flex justify-between">
+            <div key={b.id} className="flex flex-wrap justify-between gap-4 rounded-xl border bg-card p-4 shadow-sm">
               <div>
                 <div className="font-medium">{b.suite?.name || "Suite"}</div>
                 <div className="text-sm text-muted-foreground">
@@ -84,8 +73,8 @@ export default async function BookingsPage() {
                     .join(", ")}
                 </div>
                 <div className="mt-2">
-                  <Badge variant={statusBadgeVariant(b.status)}>
-                    {b.status.replace("_", " ")}
+                  <Badge variant={getBookingStatusMeta(b.status).badgeVariant}>
+                    {getBookingStatusMeta(b.status).label}
                   </Badge>
                 </div>
               </div>

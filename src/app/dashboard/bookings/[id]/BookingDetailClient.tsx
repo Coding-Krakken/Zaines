@@ -2,10 +2,13 @@
 
 import type { ComponentType } from "react";
 import { useState } from "react";
+import { Camera, ClipboardList, MessageSquareMore, NotebookPen } from "lucide-react";
 import { ActivityTimeline } from "@/components/ActivityTimeline";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { PhotoGallery } from "@/components/PhotoGallery";
 import { MessageThread } from "@/components/MessageThread";
 import { NotificationBanner } from "@/components/NotificationBanner";
+import { getBookingStatusMeta } from "@/lib/dashboard-status";
 import { useSettings } from "@/providers/settings-provider";
 
 interface BookingDetailClientProps {
@@ -76,11 +79,11 @@ export default function BookingDetailClient({
   const partialRefundPercent =
     settings?.cancellationPolicySettings.partialRefundPercent ?? 50;
 
-  const tabs: Array<{ id: TabType; label: string; icon: string }> = [
-    { id: "overview", label: "Overview", icon: "📋" },
-    { id: "timeline", label: "Activity", icon: "📝" },
-    { id: "gallery", label: "Photos", icon: "📸" },
-    { id: "messages", label: "Messages", icon: "💬" },
+  const tabs: Array<{ id: TabType; label: string; icon: ComponentType<{ className?: string }> }> = [
+    { id: "overview", label: "Overview", icon: ClipboardList },
+    { id: "timeline", label: "Activity", icon: NotebookPen },
+    { id: "gallery", label: "Photos", icon: Camera },
+    { id: "messages", label: "Messages", icon: MessageSquareMore },
   ];
 
   const canRecoverPayment =
@@ -88,41 +91,43 @@ export default function BookingDetailClient({
     !booking.payments.some((payment) => payment.status === "succeeded");
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       {/* Notification Banner */}
       <NotificationBanner bookingId={booking.id} />
 
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Booking {booking.bookingNumber}</h1>
-        <p className="text-gray-600 mt-2">
-          {formatDate(booking.checkInDate)} → {formatDate(booking.checkOutDate)}
-        </p>
-      </div>
+      <DashboardPageHeader
+        eyebrow="Booking Details"
+        title={`Booking ${booking.bookingNumber}`}
+        description={`${formatDate(booking.checkInDate)} - ${formatDate(booking.checkOutDate)}`}
+      />
 
       {/* Tab Navigation */}
       <div
-        className="border-b flex gap-2 overflow-x-auto"
+        className="flex gap-2 overflow-x-auto border-b"
         role="tablist"
         aria-label="Booking details navigation"
       >
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-3 whitespace-nowrap border-b-2 transition-colors ${
-              activeTab === tab.id
-                ? "border-blue-600 text-blue-600 font-medium"
-                : "border-transparent text-gray-600 hover:text-gray-900"
-            }`}
-            role="tab"
-            aria-selected={activeTab === tab.id}
-            aria-controls={`tab-${tab.id}`}
-          >
-            <span className="mr-2">{tab.icon}</span>
-            {tab.label}
-          </button>
-        ))}
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`whitespace-nowrap border-b-2 px-4 py-3 transition-colors ${
+                activeTab === tab.id
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              aria-controls={`tab-${tab.id}`}
+            >
+              <Icon className="mr-2 inline size-4" />
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Tab Content */}
@@ -152,17 +157,9 @@ export default function BookingDetailClient({
                   <p className="text-sm text-gray-600">Status</p>
                   <p className="font-medium capitalize">
                     <span
-                      className={`px-2 py-1 rounded text-xs font-semibold ${
-                        booking.status === "confirmed"
-                          ? "bg-green-100 text-green-800"
-                          : booking.status === "checked_in"
-                          ? "bg-blue-100 text-blue-800"
-                          : booking.status === "completed"
-                          ? "bg-gray-100 text-gray-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
+                      className={`rounded px-2 py-1 text-xs font-semibold ${getBookingStatusMeta(booking.status).toneClass}`}
                     >
-                      {booking.status}
+                      {getBookingStatusMeta(booking.status).label}
                     </span>
                   </p>
                 </div>

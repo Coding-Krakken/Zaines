@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { Button } from "@/components/ui/button";
 
 function isSchemaDriftError(error: unknown): boolean {
@@ -19,7 +20,7 @@ export default async function PetsPage() {
 
   if (!isDatabaseConfigured()) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="space-y-3">
         <h1 className="text-2xl font-semibold">My Pets</h1>
         <p className="mt-4 text-muted-foreground">Database not configured.</p>
       </div>
@@ -45,13 +46,17 @@ export default async function PetsPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">My Pets</h1>
-        <Button asChild>
-          <Link href="/dashboard/pets/new">Add Pet</Link>
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <DashboardPageHeader
+        eyebrow="Pet Profiles"
+        title="My Pets"
+        description="Manage pet details, health profile completeness, and records access for faster booking workflows."
+        actions={(
+          <Button asChild>
+            <Link href="/dashboard/pets/new">Add Pet</Link>
+          </Button>
+        )}
+      />
 
       {usedFallbackQuery && (
         <p className="mt-3 text-sm text-amber-700">
@@ -60,7 +65,7 @@ export default async function PetsPage() {
         </p>
       )}
 
-      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         {pets.length === 0 && (
           <p className="text-muted-foreground">No pets yet.</p>
         )}
