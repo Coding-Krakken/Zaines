@@ -88,6 +88,7 @@ function PaymentElementRecoveryForm({ bookingId }: { bookingId: string }) {
 }
 
 export default function RecoverPaymentClient({ bookingId, bookingNumber, total }: Props) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [setup, setSetup] = useState<SetupResponse | null>(null);

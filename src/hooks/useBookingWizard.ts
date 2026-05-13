@@ -32,7 +32,12 @@ interface BookingWizardData {
   account?: StepAccountData;
   pets?: StepPetsData;
   waiver?: StepWaiverData;
-  payment?: StepPaymentData;
+  payment?: StepPaymentData & {
+    bookingId?: string;
+    clientSecret?: string;
+    paymentMode?: "payment_element" | "embedded_checkout";
+    pricingDisclosureAccepted?: boolean;
+  };
 }
 
 const STEPS: BookingStep[] = [
