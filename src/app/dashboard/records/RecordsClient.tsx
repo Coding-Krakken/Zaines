@@ -1,7 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { AlertCircle, CircleCheckBig } from 'lucide-react';
 import Link from 'next/link';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { WaiverReviewDialog } from './WaiverReviewDialog';
@@ -131,15 +134,15 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
               Sign once and reuse active waivers during booking.
             </p>
           </div>
-          <span
-            className={`rounded-full px-3 py-1 text-xs font-medium ${
+          <Badge
+            className={`px-3 py-1 text-xs font-medium ${
               waiverHealth
                 ? 'bg-emerald-100 text-emerald-800'
                 : 'bg-amber-100 text-amber-800'
             }`}
           >
             {waiverHealth ? 'All waivers active' : 'Waivers need attention'}
-          </span>
+          </Badge>
         </div>
 
         <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -196,16 +199,18 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
           <p className="mt-1 text-xs text-muted-foreground">
             This updates liability, medical, and photo release waivers for your account.
           </p>
-          {error && (
-            <div className="mt-2 rounded border border-red-200 bg-red-50 p-2 text-sm text-red-700">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="mt-2 rounded border border-emerald-200 bg-emerald-50 p-2 text-sm text-emerald-700">
-              {success}
-            </div>
-          )}
+          {error ? (
+            <Alert variant="destructive" className="mt-2">
+              <AlertCircle className="size-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          ) : null}
+          {success ? (
+            <Alert className="mt-2 border-emerald-200 bg-emerald-50 text-emerald-700">
+              <CircleCheckBig className="size-4" />
+              <AlertDescription className="text-emerald-700">{success}</AlertDescription>
+            </Alert>
+          ) : null}
           <div className="mt-3 flex gap-2">
             <Button type="button" disabled={isSigning} onClick={() => void handleSignWaivers()}>
               {isSigning ? 'Signing...' : 'Sign / Refresh Waivers'}
@@ -217,7 +222,7 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
         </div>
       </section>
 
-      <section className="rounded-lg border p-4">
+      <section className="rounded-lg border bg-card p-4 shadow-sm">
         <h2 className="text-lg font-semibold">Medical Records</h2>
         <p className="text-sm text-muted-foreground">
           Track medications and other medical information for each pet.
@@ -225,7 +230,7 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
         <MedicalRecordsForm pets={pets} />
       </section>
 
-      <section className="rounded-lg border p-4">
+      <section className="rounded-lg border bg-card p-4 shadow-sm">
         <h2 className="text-lg font-semibold">Pet Vaccination Records</h2>
         <p className="text-sm text-muted-foreground">
           Persistent, pet-specific vaccination records available during booking.

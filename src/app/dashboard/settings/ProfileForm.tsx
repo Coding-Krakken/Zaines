@@ -1,8 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -116,23 +119,24 @@ export function ProfileForm({ user, billingPortalEnabled = false }: ProfileFormP
   };
 
   return (
-    <div className="p-4 border rounded">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="font-medium text-lg">Profile</h2>
+    <Card className="shadow-sm">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Profile</CardTitle>
         {!isEditing && (
           <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">
             Edit
           </Button>
         )}
-      </div>
+      </CardHeader>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-          {error}
-        </div>
-      )}
+      <CardContent className="space-y-4">
+        {error ? (
+          <Alert variant="destructive">
+            <AlertCircle className="size-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : null}
 
-      <div className="space-y-4">
         <div>
           <Label htmlFor="name">Name</Label>
           {isEditing ? (
@@ -193,7 +197,7 @@ export function ProfileForm({ user, billingPortalEnabled = false }: ProfileFormP
           )}
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div>
             <Label htmlFor="city">City</Label>
             {isEditing ? (
@@ -252,16 +256,17 @@ export function ProfileForm({ user, billingPortalEnabled = false }: ProfileFormP
         )}
 
         {billingPortalEnabled && (
-          <div className="pt-4 border-t">
+          <div className="border-t pt-4">
             <p className="text-sm font-medium">Billing and Subscriptions</p>
             <p className="text-xs text-muted-foreground mt-1">
               Open Stripe&apos;s secure customer billing portal to manage payment methods and subscription settings.
             </p>
-            {portalError && (
-              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-                {portalError}
-              </div>
-            )}
+            {portalError ? (
+              <Alert variant="destructive" className="mt-3">
+                <AlertCircle className="size-4" />
+                <AlertDescription>{portalError}</AlertDescription>
+              </Alert>
+            ) : null}
             <div className="mt-3">
               <Button
                 type="button"
@@ -274,7 +279,7 @@ export function ProfileForm({ user, billingPortalEnabled = false }: ProfileFormP
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

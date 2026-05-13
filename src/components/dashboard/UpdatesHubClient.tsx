@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Download, ExternalLink, Share2 } from "lucide-react";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -188,6 +189,7 @@ export function UpdatesHubClient() {
   }, [feedMode]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadUpdates();
   }, [loadUpdates]);
 
@@ -242,14 +244,11 @@ export function UpdatesHubClient() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 p-6 text-white">
-        <p className="text-sm uppercase tracking-[0.22em] text-slate-300">Customer Updates</p>
-        <h1 className="mt-2 text-3xl font-semibold">One timeline for messages and photos</h1>
-        <p className="mt-3 max-w-3xl text-sm text-slate-200">
-          Stay in sync with care updates in one place. Send account-level messages without choosing a
-          booking, or attach context when it matters.
-        </p>
-      </section>
+      <DashboardPageHeader
+        eyebrow="Customer Updates"
+        title="One Timeline for Messages and Photos"
+        description="Stay in sync with care updates in one place. Send account-level messages without choosing a booking, or attach context when it matters."
+      />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)]">
         <Card>

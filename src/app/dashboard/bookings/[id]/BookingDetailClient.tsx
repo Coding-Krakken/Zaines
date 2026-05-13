@@ -134,27 +134,27 @@ export default function BookingDetailClient({
       <div role="tabpanel" id={`tab-${activeTab}`} className="space-y-6">
         {/* Overview Tab */}
         {activeTab === "overview" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Suite Information */}
-            <div className="p-6 border rounded-lg space-y-4">
+            <div className="space-y-4 rounded-xl border bg-card p-6 shadow-sm">
               <h2 className="text-lg font-semibold">Suite Information</h2>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-gray-600">Suite</p>
+                  <p className="text-sm text-muted-foreground">Suite</p>
                   <p className="font-medium">
                     {booking.suite?.name} ({booking.suite?.tier})
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Check-in</p>
+                  <p className="text-sm text-muted-foreground">Check-in</p>
                   <p className="font-medium">{formatDateTime(booking.checkInDate)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Check-out</p>
+                  <p className="text-sm text-muted-foreground">Check-out</p>
                   <p className="font-medium">{formatDateTime(booking.checkOutDate)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Status</p>
+                  <p className="text-sm text-muted-foreground">Status</p>
                   <p className="font-medium capitalize">
                     <span
                       className={`rounded px-2 py-1 text-xs font-semibold ${getBookingStatusMeta(booking.status).toneClass}`}
@@ -167,16 +167,16 @@ export default function BookingDetailClient({
             </div>
 
             {/* Pets Information */}
-            <div className="p-6 border rounded-lg space-y-4">
+            <div className="space-y-4 rounded-xl border bg-card p-6 shadow-sm">
               <h2 className="text-lg font-semibold">Pets</h2>
               <div className="space-y-2">
                 {booking.bookingPets.length === 0 ? (
-                  <p className="text-gray-600">No pets for this booking.</p>
+                  <p className="text-muted-foreground">No pets for this booking.</p>
                 ) : (
                   booking.bookingPets.map((bp) => (
                     <div
                       key={bp.id}
-                      className="p-3 bg-gray-50 rounded-lg border border-gray-200"
+                      className="rounded-lg border bg-muted/30 p-3"
                     >
                       <p className="font-medium text-lg">
                         {bp.pet?.name || "Pet"}
@@ -188,22 +188,22 @@ export default function BookingDetailClient({
             </div>
 
             {/* Payment Information */}
-            <div className="p-6 border rounded-lg md:col-span-2 space-y-4">
+            <div className="space-y-4 rounded-xl border bg-card p-6 shadow-sm md:col-span-2">
               <h2 className="text-lg font-semibold">Payment</h2>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <p className="text-gray-600">Total Amount:</p>
+                  <p className="text-muted-foreground">Total Amount:</p>
                   <p className="font-semibold text-lg">${booking.total}</p>
                 </div>
 
                 {booking.payments.length > 0 && (
                   <div>
-                    <p className="text-sm text-gray-600 mb-2">Payment History:</p>
+                    <p className="mb-2 text-sm text-muted-foreground">Payment History:</p>
                     <div className="space-y-2">
                       {booking.payments.map((pay) => (
                         <div
                           key={pay.id}
-                          className="flex justify-between text-sm p-2 bg-gray-50 rounded"
+                          className="flex justify-between rounded bg-muted/30 p-2 text-sm"
                         >
                           <span>
                             {pay.status} - ${pay.amount}
@@ -211,8 +211,8 @@ export default function BookingDetailClient({
                           <span
                             className={`font-medium ${
                               pay.status === "succeeded"
-                                ? "text-green-600"
-                                : "text-gray-600"
+                                ? "text-emerald-700"
+                                : "text-muted-foreground"
                             }`}
                           >
                             {pay.status === "succeeded" ? "✓" : "◯"}
@@ -238,7 +238,7 @@ export default function BookingDetailClient({
                 ) : null}
 
                 <div className="pt-2 border-t">
-                  <p className="text-xs text-gray-600 mb-3">
+                  <p className="mb-3 text-xs text-muted-foreground">
                       Cancellation policy: {fullRefundHours}+ hours full refund, {partialRefundHours}-{fullRefundHours} hours {partialRefundPercent}%
                       refund, under {partialRefundHours} hours no refund.
                   </p>
@@ -257,30 +257,30 @@ export default function BookingDetailClient({
 
         {/* Activity Timeline Tab */}
         {activeTab === "timeline" && (
-          <div className="p-6 border rounded-lg">
+          <div className="rounded-xl border bg-card p-6 shadow-sm">
             <ActivityTimeline bookingId={booking.id} />
           </div>
         )}
 
         {/* Photo Gallery Tab */}
         {activeTab === "gallery" && (
-          <div className="p-6 border rounded-lg">
+          <div className="rounded-xl border bg-card p-6 shadow-sm">
             <PhotoGallery bookingId={booking.id} />
           </div>
         )}
 
         {/* Messages Tab */}
         {activeTab === "messages" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <MessageThread
                 bookingId={booking.id}
                 bookingNumber={booking.bookingNumber}
               />
             </div>
-            <div className="p-6 border rounded-lg bg-blue-50">
+            <div className="rounded-xl border bg-muted/30 p-6">
               <h3 className="font-semibold mb-3">Quick Tips</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
+              <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>✓ Get real-time updates on your pet&apos;s activities</li>
                 <li>✓ Receive notifications of new photos</li>
                 <li>✓ Direct messaging with staff</li>

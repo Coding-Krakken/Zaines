@@ -235,7 +235,7 @@ export default async function DashboardPage() {
                 <Link href="/dashboard/pets/new">Add a Pet</Link>
               </Button>
               <Button asChild variant="outline" size="sm">
-                <Link href="/dashboard/messages">Open Messages</Link>
+                <Link href="/dashboard/updates">Open Updates</Link>
               </Button>
               <Button asChild variant="outline" size="sm">
                 <Link href="/dashboard/records">Manage Records</Link>

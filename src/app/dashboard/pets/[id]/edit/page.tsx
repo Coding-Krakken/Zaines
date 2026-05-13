@@ -1,7 +1,8 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { prisma, isDatabaseConfigured } from '@/lib/prisma';
-import { EditPetForm } from './EditPetForm';
+import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
+import { PetProfileForm } from '@/components/dashboard/pet-profile-form';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -15,5 +16,27 @@ export default async function EditPetPage({ params }: Props) {
   const pet = await prisma.pet.findUnique({ where: { id } });
   if (!pet || pet.userId !== session.user.id) redirect('/dashboard/pets');
 
-  return <EditPetForm pet={pet} />;
+  return (
+    <div className="space-y-6">
+      <DashboardPageHeader
+        eyebrow="Pet Profiles"
+        title={`Edit ${pet.name}`}
+        description="Update profile details to keep care instructions and records current."
+      />
+      <PetProfileForm
+        mode="edit"
+        petId={pet.id}
+        defaults={{
+          name: pet.name,
+          breed: pet.breed,
+          age: pet.age,
+          weight: pet.weight,
+          gender: pet.gender,
+          spayedNeutered: pet.spayedNeutered,
+          specialNeeds: pet.specialNeeds ?? '',
+          feedingInstructions: pet.feedingInstructions ?? '',
+        }}
+      />
+    </div>
+  );
 }
