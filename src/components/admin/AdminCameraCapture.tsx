@@ -271,35 +271,44 @@ export function AdminCameraCapture() {
         }
       }
 
-      // Fallback: occupancy feed can include currently checked-in pets even if bookings feed is stale.
-      if (nextBookings.length === 0) {
-        const occupancyResponse = await fetch("/api/admin/occupancy", { cache: "no-store" });
-        const occupancyPayload = (await occupancyResponse.json()) as {
-          suites?: Array<{
-            bookings?: Array<{
-              id: string;
-              bookingNumber: string;
-              checkInDate?: string;
-              guest?: { name?: string | null; email?: string | null } | null;
-              pets?: Array<{ id: string; name: string; breed: string } | null>;
-            }>;
+      // Occupancy feed can include currently checked-in pets even if bookings feed is stale.
+      const occupancyResponse = await fetch("/api/admin/occupancy", { cache: "no-store" });
+      const occupancyPayload = (await occupancyResponse.json()) as {
+        suites?: Array<{
+          bookings?: Array<{
+            id: string;
+            bookingNumber: string;
+            checkInDate?: string;
+            guest?: { id?: string; name?: string | null; email?: string | null } | null;
+            pets?: Array<{ id: string; name: string; breed: string } | null>;
           }>;
-        };
+        }>;
+      };
 
-        if (occupancyResponse.ok) {
-          nextBookings = (occupancyPayload.suites ?? [])
-            .flatMap((suite) => suite.bookings ?? [])
-            .map((booking) => ({
-              id: booking.id,
-              bookingNumber: booking.bookingNumber,
-              status: "checked_in",
-              checkInDate: booking.checkInDate,
-              user: {
-                name: booking.guest?.name ?? null,
-                email: booking.guest?.email ?? null,
-              },
-              bookingPets: (booking.pets ?? []).map((pet) => ({ pet })),
-            }));
+      if (occupancyResponse.ok) {
+        const occupancyBookings: BookingOption[] = (occupancyPayload.suites ?? [])
+          .flatMap((suite) => suite.bookings ?? [])
+          .map((booking) => ({
+            id: booking.id,
+            bookingNumber: booking.bookingNumber,
+            status: "checked_in",
+            checkInDate: booking.checkInDate,
+            user: {
+              id: booking.guest?.id,
+              name: booking.guest?.name ?? null,
+              email: booking.guest?.email ?? null,
+            },
+            bookingPets: (booking.pets ?? []).map((pet) => ({ pet })),
+          }));
+
+        if (nextBookings.length === 0) {
+          nextBookings = occupancyBookings;
+        } else {
+          const existingBookingIds = new Set(nextBookings.map((booking) => booking.id));
+          const missingBookings = occupancyBookings.filter((booking) => !existingBookingIds.has(booking.id));
+          if (missingBookings.length > 0) {
+            nextBookings = [...nextBookings, ...missingBookings];
+          }
         }
       }
 
@@ -406,9 +415,7 @@ export function AdminCameraCapture() {
     }
 
     // Non-blocking preload so the click interaction stays responsive.
-    if (bookings.length === 0) {
-      void loadBookedPets();
-    }
+    void loadBookedPets();
   }
 
   useEffect(() => {
