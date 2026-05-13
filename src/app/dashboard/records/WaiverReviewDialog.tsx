@@ -1,6 +1,16 @@
 'use client';
 
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 
 function formatWaiverTitle(type: 'liability' | 'medical' | 'photo_release'): string {
   if (type === 'photo_release') return 'Photo Release Waiver';
@@ -24,54 +34,55 @@ export function WaiverReviewDialog({
   onClose,
 }: WaiverReviewDialogProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-2xl rounded-xl border bg-card shadow-xl">
-        <div className="border-b p-4 sm:p-6">
-          <h2 className="text-xl font-semibold">{formatWaiverTitle(waiverType)}</h2>
-        </div>
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[88vh] overflow-hidden p-0 sm:max-w-2xl">
+        <DialogHeader className="border-b px-6 py-4">
+          <DialogTitle>{formatWaiverTitle(waiverType)}</DialogTitle>
+          <DialogDescription>
+            Review the waiver details before continuing.
+          </DialogDescription>
+        </DialogHeader>
 
-        <div className="max-h-96 overflow-y-auto p-4 sm:p-6">
+        <div className="max-h-[52vh] overflow-y-auto px-6 py-4">
           <div className="whitespace-pre-wrap rounded-md bg-muted/30 p-4 text-sm leading-relaxed text-muted-foreground">
             {waiverContent}
           </div>
         </div>
 
-        <div className="border-t p-4 sm:p-6">
-          <label className="mb-4 flex items-start gap-3">
-            <input
-              type="checkbox"
+        <DialogFooter className="border-t px-6 py-4 sm:justify-between">
+          <div className="flex w-full items-start gap-3 sm:mr-4">
+            <Checkbox
+              id="waiver-acknowledge"
               checked={isAcknowledged}
-              onChange={(e) => {
-                if (e.target.checked) {
+              onCheckedChange={(checked) => {
+                if (checked === true) {
                   onAcknowledge();
                 }
               }}
-              className="mt-1"
             />
-            <span className="text-sm">
-              I have read and understand the {formatWaiverTitle(waiverType).toLowerCase()}.
-              I agree to the terms outlined above.
-            </span>
-          </label>
+            <Label htmlFor="waiver-acknowledge" className="text-sm font-normal text-muted-foreground">
+              I have read and understand the {formatWaiverTitle(waiverType).toLowerCase()}. I agree to the terms outlined above.
+            </Label>
+          </div>
 
-          <div className="flex gap-2">
+          <div className="flex w-full gap-2 sm:w-auto">
             <Button
               variant="outline"
               onClick={onClose}
-              className="flex-1"
+              className="flex-1 sm:flex-none"
             >
               Close
             </Button>
             <Button
               onClick={onClose}
               disabled={!isAcknowledged}
-              className="flex-1"
+              className="flex-1 sm:flex-none"
             >
               Continue
             </Button>
           </div>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

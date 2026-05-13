@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { WaiverReviewDialog } from './WaiverReviewDialog';
 import { MedicalRecordsForm } from './MedicalRecordsForm';
 import { WAIVER_CONTENT_BY_TYPE } from '@/lib/waiver-content';
@@ -189,8 +190,9 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
         </div>
 
         <div className="mt-4 rounded-md border p-3">
-          <label className="text-sm font-medium">Type Your Signature</label>
+          <Label htmlFor="waiver-signature" className="text-sm font-medium">Type Your Signature</Label>
           <Input
+            id="waiver-signature"
             className="mt-2"
             value={signature}
             onChange={(event) => setSignature(event.target.value)}
@@ -211,11 +213,16 @@ export function RecordsClient({ accountWaivers, pets }: RecordsClientProps) {
               <AlertDescription className="text-emerald-700">{success}</AlertDescription>
             </Alert>
           ) : null}
-          <div className="mt-3 flex gap-2">
-            <Button type="button" disabled={isSigning} onClick={() => void handleSignWaivers()}>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+            <Button
+              type="button"
+              disabled={isSigning}
+              onClick={() => void handleSignWaivers()}
+              className="w-full sm:w-auto"
+            >
               {isSigning ? 'Signing...' : 'Sign / Refresh Waivers'}
             </Button>
-            <Button asChild type="button" variant="outline">
+            <Button asChild type="button" variant="outline" className="w-full sm:w-auto">
               <Link href="/book">Use in Booking</Link>
             </Button>
           </div>

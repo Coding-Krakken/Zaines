@@ -68,7 +68,7 @@ function DashboardNavLinks({ compact = false }: { compact?: boolean }) {
   };
 
   return (
-    <ul className={cn("gap-2", compact ? "grid grid-cols-2 sm:grid-cols-3" : "space-y-1") }>
+    <ul className={cn("gap-2", compact ? "grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3" : "space-y-1") }>
       {dashboardNavItems.map((item) => {
         const active = item.match(pathname);
         const Icon = item.icon;

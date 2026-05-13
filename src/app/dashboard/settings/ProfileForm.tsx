@@ -257,11 +257,16 @@ export function ProfileForm({ user, billingPortalEnabled = false }: ProfileFormP
         </div>
 
         {isEditing && (
-          <div className="flex gap-2 pt-2">
-            <Button onClick={handleSave} disabled={isSaving}>
+          <div className="flex flex-col gap-2 pt-2 sm:flex-row">
+            <Button onClick={handleSave} disabled={isSaving} className="w-full sm:w-auto">
               {isSaving ? 'Saving...' : 'Save'}
             </Button>
-            <Button onClick={handleCancel} variant="outline" disabled={isSaving}>
+            <Button
+              onClick={handleCancel}
+              variant="outline"
+              disabled={isSaving}
+              className="w-full sm:w-auto"
+            >
               Cancel
             </Button>
           </div>

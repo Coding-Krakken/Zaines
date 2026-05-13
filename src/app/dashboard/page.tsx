@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { HealthTimeline } from "@/components/HealthTimeline";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
+import { DashboardUnavailableState } from "@/components/dashboard/dashboard-states";
 import { Button } from "@/components/ui/button";
 import { getBookingStatusMeta } from "@/lib/dashboard-status";
 
@@ -33,13 +34,10 @@ export default async function DashboardPage() {
   // If DB not configured, render a helpful message
   if (!isDatabaseConfigured()) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <p className="mt-4 text-muted-foreground">
-          Database is not configured. Dashboard data is unavailable in this
-          environment.
-        </p>
-      </div>
+      <DashboardUnavailableState
+        title="Dashboard unavailable"
+        description="Database is not configured. Dashboard data is unavailable in this environment."
+      />
     );
   }
 
@@ -172,7 +170,7 @@ export default async function DashboardPage() {
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="rounded-lg border p-4 lg:col-span-2">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-lg font-medium">Upcoming Stays</h2>
             <Link href="/dashboard/bookings" className="text-sm text-primary">
               See all
@@ -199,21 +197,21 @@ export default async function DashboardPage() {
                 {upcomingBookings.map((booking) => (
                   <li key={booking.id} className="rounded-md border p-3">
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
+                      <div className="min-w-0">
                         <p className="font-medium">{booking.suite?.name || "Suite"}</p>
                         <p className="text-sm text-muted-foreground">
                           {new Date(booking.checkInDate).toLocaleDateString()} - {new Date(booking.checkOutDate).toLocaleDateString()}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium">{booking.bookingNumber}</p>
+                      <div className="min-w-0 sm:text-right">
+                        <p className="break-all text-sm font-medium">{booking.bookingNumber}</p>
                         <p className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-xs ${getBookingStatusMeta(booking.status).toneClass}`}>
                           {getBookingStatusMeta(booking.status).label}
                         </p>
                       </div>
                     </div>
-                    <div className="mt-2 flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">
+                    <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-sm">
+                      <span className="min-w-0 break-words text-muted-foreground">
                         Pets: {booking.bookingPets.map((bp) => bp.pet?.name).filter(Boolean).join(", ") || "Not listed"}
                       </span>
                       <Link href={`/dashboard/bookings/${booking.id}`} className="text-primary">
@@ -266,7 +264,7 @@ export default async function DashboardPage() {
       </section>
 
       <section className="rounded-lg border p-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-lg font-medium">Recent Booking Activity</h2>
           <span className="text-xs text-muted-foreground">Last {totalBookings} booking{totalBookings === 1 ? "" : "s"}</span>
         </div>
@@ -277,13 +275,13 @@ export default async function DashboardPage() {
           <ul className="mt-3 space-y-2">
             {recentBookings.map((booking) => (
               <li key={booking.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3">
-                <div>
-                  <p className="font-medium">{booking.bookingNumber}</p>
+                <div className="min-w-0">
+                  <p className="break-all font-medium">{booking.bookingNumber}</p>
                   <p className="text-sm text-muted-foreground">
                     {new Date(booking.checkInDate).toLocaleDateString()} - {new Date(booking.checkOutDate).toLocaleDateString()} in {booking.suite?.name || "Suite"}
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3 sm:justify-end">
                   <span className="text-sm font-medium">{formatCurrency(booking.total)}</span>
                   <span className={`inline-flex rounded-full px-2 py-0.5 text-xs ${getBookingStatusMeta(booking.status).toneClass}`}>
                     {getBookingStatusMeta(booking.status).label}
@@ -300,7 +298,7 @@ export default async function DashboardPage() {
 
       <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="rounded-lg border p-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-lg font-medium">My Pets</h2>
             <Link href="/dashboard/pets" className="text-sm text-primary">
               Manage

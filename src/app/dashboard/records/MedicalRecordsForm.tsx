@@ -1,8 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { AlertCircle, CircleCheckBig } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { DashboardEmptyState, DashboardLoadingState } from '@/components/dashboard/dashboard-states';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 type PetRecord = {
   id: string;
@@ -71,7 +83,7 @@ export function MedicalRecordsForm({ pets }: MedicalRecordsFormProps) {
     prescribedBy: '',
   });
 
-  const loadMedicationsForPet = async (petId: string) => {
+  const loadMedicationsForPet = useCallback(async (petId: string) => {
     if (!petId) return;
     setIsLoading(true);
     setError(null);
@@ -91,7 +103,16 @@ export function MedicalRecordsForm({ pets }: MedicalRecordsFormProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedPetId) {
+      return;
+    }
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadMedicationsForPet(selectedPetId);
+  }, [loadMedicationsForPet, selectedPetId]);
 
   const handleSelectPet = async (petId: string) => {
     setSelectedPetId(petId);
@@ -214,49 +235,53 @@ export function MedicalRecordsForm({ pets }: MedicalRecordsFormProps) {
 
   if (pets.length === 0) {
     return (
-      <div className="mt-4 rounded border p-3 text-sm text-muted-foreground">
-        No pets on file yet. Add a pet to track medications.
-      </div>
+      <DashboardEmptyState
+        title="No pets on file"
+        description="Add a pet profile first to track medications and treatment schedules."
+      />
     );
   }
 
   return (
     <div className="mt-4 space-y-4">
       <div>
-        <label className="text-sm font-medium">Select Pet</label>
-        <select
-          value={selectedPetId}
-          onChange={(e) => void handleSelectPet(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
-        >
+        <Label className="text-sm font-medium">Select Pet</Label>
+        <Select value={selectedPetId} onValueChange={(value) => void handleSelectPet(value)}>
+          <SelectTrigger className="mt-1 w-full">
+            <SelectValue placeholder="Select a pet" />
+          </SelectTrigger>
+          <SelectContent>
           {pets.map((pet) => (
-            <option key={pet.id} value={pet.id}>
+            <SelectItem key={pet.id} value={pet.id}>
               {pet.name}
-            </option>
+            </SelectItem>
           ))}
-        </select>
+          </SelectContent>
+        </Select>
       </div>
 
-      {error && (
-        <div className="rounded border border-red-200 bg-red-50 p-2 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="rounded border border-emerald-200 bg-emerald-50 p-2 text-sm text-emerald-700">
-          {success}
-        </div>
-      )}
+      {error ? (
+        <Alert variant="destructive">
+          <AlertCircle className="size-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      ) : null}
+      {success ? (
+        <Alert className="border-emerald-200 bg-emerald-50 text-emerald-700">
+          <CircleCheckBig className="size-4" />
+          <AlertDescription className="text-emerald-700">{success}</AlertDescription>
+        </Alert>
+      ) : null}
 
       {showForm ? (
-        <form onSubmit={(e) => void handleSubmit(e)} className="rounded border p-3 space-y-3">
+        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-3 rounded-lg border bg-card p-3 shadow-sm">
           <h3 className="font-medium">
             {editingMedicationId ? 'Edit Medication' : 'Add Medication'}
           </h3>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="text-xs font-medium">Name *</label>
+              <Label className="text-xs font-medium">Name *</Label>
               <Input
                 value={form.name}
                 onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
@@ -265,7 +290,7 @@ export function MedicalRecordsForm({ pets }: MedicalRecordsFormProps) {
               />
             </div>
             <div>
-              <label className="text-xs font-medium">Dosage *</label>
+              <Label className="text-xs font-medium">Dosage *</Label>
               <Input
                 value={form.dosage}
                 onChange={(e) => setForm((prev) => ({ ...prev, dosage: e.target.value }))}
@@ -275,9 +300,9 @@ export function MedicalRecordsForm({ pets }: MedicalRecordsFormProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="text-xs font-medium">Frequency *</label>
+              <Label className="text-xs font-medium">Frequency *</Label>
               <Input
                 value={form.frequency}
                 onChange={(e) => setForm((prev) => ({ ...prev, frequency: e.target.value }))}
@@ -286,7 +311,7 @@ export function MedicalRecordsForm({ pets }: MedicalRecordsFormProps) {
               />
             </div>
             <div>
-              <label className="text-xs font-medium">Prescribed By</label>
+              <Label className="text-xs font-medium">Prescribed By</Label>
               <Input
                 value={form.prescribedBy}
                 onChange={(e) => setForm((prev) => ({ ...prev, prescribedBy: e.target.value }))}
@@ -296,9 +321,9 @@ export function MedicalRecordsForm({ pets }: MedicalRecordsFormProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="text-xs font-medium">Start Date *</label>
+              <Label className="text-xs font-medium">Start Date *</Label>
               <Input
                 type="date"
                 value={form.startDate}
@@ -307,7 +332,7 @@ export function MedicalRecordsForm({ pets }: MedicalRecordsFormProps) {
               />
             </div>
             <div>
-              <label className="text-xs font-medium">End Date (if applicable)</label>
+              <Label className="text-xs font-medium">End Date (if applicable)</Label>
               <Input
                 type="date"
                 value={form.endDate}
@@ -318,21 +343,22 @@ export function MedicalRecordsForm({ pets }: MedicalRecordsFormProps) {
           </div>
 
           <div>
-            <label className="text-xs font-medium">Instructions</label>
-            <textarea
+            <Label className="text-xs font-medium">Instructions</Label>
+            <Textarea
               value={form.instructions}
               onChange={(e) => setForm((prev) => ({ ...prev, instructions: e.target.value }))}
               placeholder="e.g., Take with food, avoid dairy"
-              className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
+              className="mt-1"
               rows={2}
             />
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <Button
               type="submit"
               disabled={isSaving}
               size="sm"
+              className="w-full sm:w-auto"
             >
               {isSaving ? 'Saving...' : 'Save Medication'}
             </Button>
@@ -342,6 +368,7 @@ export function MedicalRecordsForm({ pets }: MedicalRecordsFormProps) {
               size="sm"
               onClick={resetForm}
               disabled={isSaving}
+              className="w-full sm:w-auto"
             >
               Cancel
             </Button>
@@ -359,15 +386,16 @@ export function MedicalRecordsForm({ pets }: MedicalRecordsFormProps) {
       )}
 
       {isLoading ? (
-        <div className="text-sm text-muted-foreground">Loading medications...</div>
+        <DashboardLoadingState message="Loading medications..." />
       ) : medications.length === 0 ? (
-        <div className="rounded border p-3 text-sm text-muted-foreground">
-          No medications on file for {selectedPetId ? pets.find((p) => p.id === selectedPetId)?.name : 'this pet'}.
-        </div>
+        <DashboardEmptyState
+          title="No medications on file"
+          description={`No medications on file for ${selectedPetId ? pets.find((p) => p.id === selectedPetId)?.name : 'this pet'}.`}
+        />
       ) : (
         <div className="space-y-2">
           {medications.map((med) => (
-            <div key={med.id} className="rounded border p-3">
+            <div key={med.id} className="rounded-lg border bg-card p-3 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="font-medium">{med.name}</p>
@@ -389,11 +417,12 @@ export function MedicalRecordsForm({ pets }: MedicalRecordsFormProps) {
                     {med.endDate ? ` • End: ${new Date(med.endDate).toLocaleDateString()}` : ' • Ongoing'}
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => startEditing(med)}
+                    className="w-full sm:w-auto"
                   >
                     Edit
                   </Button>
@@ -401,7 +430,7 @@ export function MedicalRecordsForm({ pets }: MedicalRecordsFormProps) {
                     size="sm"
                     variant="outline"
                     onClick={() => void handleDelete(med.id)}
-                    className="text-red-600 hover:text-red-700"
+                    className="w-full text-destructive hover:text-destructive sm:w-auto"
                   >
                     Delete
                   </Button>

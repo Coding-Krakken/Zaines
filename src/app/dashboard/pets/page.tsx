@@ -3,7 +3,7 @@ import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
-import { DashboardEmptyState } from "@/components/dashboard/dashboard-states";
+import { DashboardEmptyState, DashboardUnavailableState } from "@/components/dashboard/dashboard-states";
 import { Button } from "@/components/ui/button";
 
 function isSchemaDriftError(error: unknown): boolean {
@@ -21,10 +21,10 @@ export default async function PetsPage() {
 
   if (!isDatabaseConfigured()) {
     return (
-      <div className="space-y-3">
-        <h1 className="text-2xl font-semibold">My Pets</h1>
-        <p className="mt-4 text-muted-foreground">Database not configured.</p>
-      </div>
+      <DashboardUnavailableState
+        title="Pets unavailable"
+        description="Database is not configured in this environment."
+      />
     );
   }
 
@@ -76,21 +76,21 @@ export default async function PetsPage() {
           </div>
         )}
         {pets.map((p: { id: string; name: string; breed?: string | null }) => (
-          <div key={p.id} className="p-4 border rounded">
+          <div key={p.id} className="rounded-xl border bg-card p-4 shadow-sm">
             <div className="font-medium">{p.name}</div>
             <div className="text-sm text-muted-foreground">
               {p.breed || "Unknown"}
             </div>
-            <div className="mt-3 flex gap-3">
+            <div className="mt-3 flex flex-wrap gap-2">
               <Link
                 href={`/dashboard/pets/${p.id}`}
-                className="text-sm text-primary"
+                className="inline-flex items-center rounded-md border px-2.5 py-1.5 text-sm text-primary hover:bg-muted/60"
               >
                 View
               </Link>
               <Link
                 href={`/dashboard/pets/${p.id}/edit`}
-                className="text-sm text-primary"
+                className="inline-flex items-center rounded-md border px-2.5 py-1.5 text-sm text-primary hover:bg-muted/60"
               >
                 Edit
               </Link>

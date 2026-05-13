@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DashboardEmptyState } from "@/components/dashboard/dashboard-states";
+import { DashboardEmptyState, DashboardUnavailableState } from "@/components/dashboard/dashboard-states";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { getBookingStatusMeta } from "@/lib/dashboard-status";
 import { CancelBookingButton } from "./[id]/CancelBookingButton";
@@ -15,10 +15,10 @@ export default async function BookingsPage() {
 
   if (!isDatabaseConfigured()) {
     return (
-      <div className="space-y-3">
-        <h1 className="text-2xl font-semibold">My Bookings</h1>
-        <p className="mt-4 text-muted-foreground">Database not configured.</p>
-      </div>
+      <DashboardUnavailableState
+        title="Bookings unavailable"
+        description="Database is not configured in this environment."
+      />
     );
   }
 
@@ -59,7 +59,7 @@ export default async function BookingsPage() {
             bookingNumber: string;
           }) => (
             <div key={b.id} className="flex flex-wrap justify-between gap-4 rounded-xl border bg-card p-4 shadow-sm">
-              <div>
+              <div className="min-w-0">
                 <div className="font-medium">{b.suite?.name || "Suite"}</div>
                 <div className="text-sm text-muted-foreground">
                   {new Date(b.checkInDate).toLocaleDateString()} →{" "}
@@ -80,15 +80,15 @@ export default async function BookingsPage() {
                   </Badge>
                 </div>
               </div>
-              <div className="text-right space-y-3">
-                <div className="font-medium">{b.bookingNumber}</div>
+              <div className="w-full min-w-0 space-y-3 sm:w-auto sm:text-right">
+                <div className="break-all font-medium">{b.bookingNumber}</div>
                 <Link
                   href={`/dashboard/bookings/${b.id}`}
                   className="text-sm text-primary"
                 >
                   View details
                 </Link>
-                <div className="flex justify-end">
+                <div className="flex sm:justify-end">
                   <CancelBookingButton
                     bookingId={b.id}
                     bookingStatus={b.status}

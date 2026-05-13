@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { isDatabaseConfigured } from "@/lib/prisma";
-import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
+import { DashboardUnavailableState } from "@/components/dashboard/dashboard-states";
 import { UpdatesHubClient } from "@/components/dashboard/UpdatesHubClient";
 
 export const metadata = {
@@ -18,13 +18,10 @@ export default async function UpdatesPage() {
 
   if (!isDatabaseConfigured()) {
     return (
-      <div className="space-y-3">
-        <DashboardPageHeader
-          eyebrow="Customer Updates"
-          title="Updates"
-          description="Database is not configured. Updates are unavailable in this environment."
-        />
-      </div>
+      <DashboardUnavailableState
+        title="Updates unavailable"
+        description="Database is not configured. Updates are unavailable in this environment."
+      />
     );
   }
 

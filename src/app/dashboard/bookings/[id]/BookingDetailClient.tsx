@@ -106,22 +106,26 @@ export default function BookingDetailClient({
         className="flex gap-2 overflow-x-auto border-b"
         role="tablist"
         aria-label="Booking details navigation"
+        aria-orientation="horizontal"
       >
         {tabs.map((tab) => {
           const Icon = tab.icon;
+          const panelId = `tab-panel-${tab.id}`;
 
           return (
             <button
               key={tab.id}
+              type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`whitespace-nowrap border-b-2 px-4 py-3 transition-colors ${
+              className={`whitespace-nowrap border-b-2 px-3 py-3 text-sm transition-colors sm:px-4 sm:text-base ${
                 activeTab === tab.id
                   ? "border-primary text-primary"
                   : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
               role="tab"
               aria-selected={activeTab === tab.id}
-              aria-controls={`tab-${tab.id}`}
+              aria-controls={panelId}
+              id={`tab-${tab.id}`}
             >
               <Icon className="mr-2 inline size-4" />
               {tab.label}
@@ -131,9 +135,16 @@ export default function BookingDetailClient({
       </div>
 
       {/* Tab Content */}
-      <div role="tabpanel" id={`tab-${activeTab}`} className="space-y-6">
+      <div className="space-y-6">
         {/* Overview Tab */}
-        {activeTab === "overview" && (
+        <section
+          role="tabpanel"
+          id="tab-panel-overview"
+          aria-labelledby="tab-overview"
+          hidden={activeTab !== "overview"}
+          tabIndex={0}
+          className="space-y-6"
+        >
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Suite Information */}
             <div className="space-y-4 rounded-xl border bg-card p-6 shadow-sm">
@@ -253,24 +264,42 @@ export default function BookingDetailClient({
               </div>
             </div>
           </div>
-        )}
+        </section>
 
         {/* Activity Timeline Tab */}
-        {activeTab === "timeline" && (
+        <section
+          role="tabpanel"
+          id="tab-panel-timeline"
+          aria-labelledby="tab-timeline"
+          hidden={activeTab !== "timeline"}
+          tabIndex={0}
+        >
           <div className="rounded-xl border bg-card p-6 shadow-sm">
             <ActivityTimeline bookingId={booking.id} />
           </div>
-        )}
+        </section>
 
         {/* Photo Gallery Tab */}
-        {activeTab === "gallery" && (
+        <section
+          role="tabpanel"
+          id="tab-panel-gallery"
+          aria-labelledby="tab-gallery"
+          hidden={activeTab !== "gallery"}
+          tabIndex={0}
+        >
           <div className="rounded-xl border bg-card p-6 shadow-sm">
             <PhotoGallery bookingId={booking.id} />
           </div>
-        )}
+        </section>
 
         {/* Messages Tab */}
-        {activeTab === "messages" && (
+        <section
+          role="tabpanel"
+          id="tab-panel-messages"
+          aria-labelledby="tab-messages"
+          hidden={activeTab !== "messages"}
+          tabIndex={0}
+        >
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <MessageThread
@@ -288,7 +317,7 @@ export default function BookingDetailClient({
               </ul>
             </div>
           </div>
-        )}
+        </section>
       </div>
     </div>
   );

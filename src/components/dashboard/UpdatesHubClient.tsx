@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 type BookingOption = {
@@ -63,6 +64,7 @@ export function UpdatesHubClient() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [items, setItems] = useState<TimelineItem[]>([]);
   const [bookings, setBookings] = useState<BookingOption[]>([]);
   const [feedMode, setFeedMode] = useState<FeedMode>("all");
@@ -84,6 +86,7 @@ export function UpdatesHubClient() {
     async (photo: Extract<TimelineItem, { type: "photo" }>) => {
       setSharingPhotoId(photo.id);
       setError("");
+      setSuccess("");
       try {
         const shareTitle = `${photo.pet.name} update photo`;
         const shareText = photo.caption || `${photo.pet.name} photo update`;
@@ -214,6 +217,7 @@ export function UpdatesHubClient() {
 
     setIsSending(true);
     setError("");
+    setSuccess("");
 
     try {
       const response = await fetch("/api/dashboard/messages", {
@@ -238,6 +242,7 @@ export function UpdatesHubClient() {
       setMessageDraft("");
       setSelectedBookingId("none");
       await loadUpdates();
+      setSuccess("Message sent successfully.");
     } catch (sendError) {
       setError(sendError instanceof Error ? sendError.message : "Unable to send message");
     } finally {
@@ -260,9 +265,9 @@ export function UpdatesHubClient() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="space-y-1">
-              <p className="text-sm font-medium">Context (optional)</p>
+              <Label htmlFor="updates-context-select" className="text-sm font-medium">Context (optional)</Label>
               <Select value={selectedBookingId} onValueChange={setSelectedBookingId}>
-                <SelectTrigger>
+                <SelectTrigger id="updates-context-select" aria-label="Message context">
                   <SelectValue placeholder="No booking (account-level)" />
                 </SelectTrigger>
                 <SelectContent>
@@ -277,8 +282,9 @@ export function UpdatesHubClient() {
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium">Message</p>
+              <Label htmlFor="updates-message-input" className="text-sm font-medium">Message</Label>
               <Textarea
+                id="updates-message-input"
                 value={messageDraft}
                 onChange={(event) => setMessageDraft(event.target.value)}
                 placeholder="Ask a question or share an update..."
@@ -288,11 +294,20 @@ export function UpdatesHubClient() {
               <p className="text-xs text-muted-foreground">{messageDraft.length}/5000</p>
             </div>
 
-            <div className="flex gap-2">
-              <Button onClick={handleSendMessage} disabled={isSending || !messageDraft.trim()}>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                onClick={handleSendMessage}
+                disabled={isSending || !messageDraft.trim()}
+                className="w-full sm:w-auto"
+              >
                 {isSending ? "Sending..." : "Send Message"}
               </Button>
-              <Button variant="outline" onClick={() => void loadUpdates()} disabled={isLoading}>
+              <Button
+                variant="outline"
+                onClick={() => void loadUpdates()}
+                disabled={isLoading}
+                className="w-full sm:w-auto"
+              >
                 Refresh Feed
               </Button>
             </div>
@@ -309,7 +324,7 @@ export function UpdatesHubClient() {
             <CardTitle>Unified Timeline</CardTitle>
             <div className="flex flex-wrap gap-2">
               <Select value={feedMode} onValueChange={(value) => setFeedMode(value as FeedMode)}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px]" aria-label="Filter by content type">
                   <SelectValue placeholder="Content" />
                 </SelectTrigger>
                 <SelectContent>
@@ -323,7 +338,7 @@ export function UpdatesHubClient() {
                 value={contextMode}
                 onValueChange={(value) => setContextMode(value as ContextMode)}
               >
-                <SelectTrigger className="w-[210px]">
+                <SelectTrigger className="w-full sm:w-[210px]" aria-label="Filter by context type">
                   <SelectValue placeholder="Context" />
                 </SelectTrigger>
                 <SelectContent>
@@ -339,6 +354,12 @@ export function UpdatesHubClient() {
               <Alert variant="destructive" className="mb-3">
                 <AlertCircle className="size-4" />
                 <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            ) : null}
+
+            {success ? (
+              <Alert className="mb-3 border-emerald-200 bg-emerald-50 text-emerald-700">
+                <AlertDescription className="text-emerald-700">{success}</AlertDescription>
               </Alert>
             ) : null}
 

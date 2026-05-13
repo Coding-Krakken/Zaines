@@ -3,9 +3,12 @@
 import { useMemo, useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { DashboardEmptyState } from '@/components/dashboard/dashboard-states';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 type VaccineRecord = {
   id: string;
@@ -251,7 +254,12 @@ export function PetRecordsManager({
 
         <ul className="mt-4 space-y-2">
           {vaccines.length === 0 && (
-            <li className="rounded border p-3 text-sm text-muted-foreground">No vaccine records yet.</li>
+            <li>
+              <DashboardEmptyState
+                title="No vaccine records yet"
+                description="Upload a PDF or add a vaccine record manually to keep this pet compliant."
+              />
+            </li>
           )}
           {vaccines.map((record) => (
             <li key={record.id} className="rounded border p-3">
@@ -299,7 +307,7 @@ export function PetRecordsManager({
         </h3>
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
           <div>
-            <label className="text-sm">Vaccine Name</label>
+            <Label className="text-sm">Vaccine Name</Label>
             <Input
               value={form.name}
               onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
@@ -307,7 +315,7 @@ export function PetRecordsManager({
             />
           </div>
           <div>
-            <label className="text-sm">Veterinarian (optional)</label>
+            <Label className="text-sm">Veterinarian (optional)</Label>
             <Input
               value={form.veterinarian}
               onChange={(event) => setForm((prev) => ({ ...prev, veterinarian: event.target.value }))}
@@ -315,7 +323,7 @@ export function PetRecordsManager({
             />
           </div>
           <div>
-            <label className="text-sm">Administered Date</label>
+            <Label className="text-sm">Administered Date</Label>
             <Input
               type="date"
               value={form.administeredDate}
@@ -325,7 +333,7 @@ export function PetRecordsManager({
             />
           </div>
           <div>
-            <label className="text-sm">Expiry Date</label>
+            <Label className="text-sm">Expiry Date</Label>
             <Input
               type="date"
               value={form.expiryDate}
@@ -334,11 +342,12 @@ export function PetRecordsManager({
           </div>
         </div>
         <div className="mt-3">
-          <label className="text-sm">Notes (optional)</label>
-          <Input
+          <Label className="text-sm">Notes (optional)</Label>
+          <Textarea
             value={form.notes}
             onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
             placeholder="Booster due next spring"
+            rows={2}
           />
         </div>
         <div className="mt-4 flex flex-wrap gap-2">

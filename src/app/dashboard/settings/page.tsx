@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { getAdminSettings } from "@/lib/api/admin-settings";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
+import { DashboardUnavailableState } from "@/components/dashboard/dashboard-states";
 import { ProfileForm } from "./ProfileForm";
 
 export const metadata = {
@@ -23,12 +24,10 @@ export default async function SettingsPage() {
 
   if (!isDatabaseConfigured()) {
     return (
-      <div className="space-y-3">
-        <h1 className="text-2xl font-semibold">Settings</h1>
-        <p className="mt-4 text-muted-foreground">
-          Database is not configured. Settings are unavailable in this environment.
-        </p>
-      </div>
+      <DashboardUnavailableState
+        title="Settings unavailable"
+        description="Database is not configured. Settings are unavailable in this environment."
+      />
     );
   }
 

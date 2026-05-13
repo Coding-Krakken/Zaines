@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { DashboardEmptyState } from "@/components/dashboard/dashboard-states";
+import { DashboardUnavailableState } from "@/components/dashboard/dashboard-states";
 import { CancelBookingButton } from "./CancelBookingButton";
 import BookingDetailClient from "./BookingDetailClient";
 
@@ -71,7 +71,7 @@ export default async function BookingDetail({ params }: Props) {
 
   if (!isDatabaseConfigured()) {
     return (
-      <DashboardEmptyState
+      <DashboardUnavailableState
         title="Booking unavailable"
         description="Database is not configured in this environment."
       />
@@ -89,7 +89,7 @@ export default async function BookingDetail({ params }: Props) {
 
   if (!booking || booking.userId !== session.user.id) {
     return (
-      <DashboardEmptyState
+      <DashboardUnavailableState
         title="Booking unavailable"
         description="Booking not found or access denied."
       />
@@ -100,7 +100,7 @@ export default async function BookingDetail({ params }: Props) {
     booking.status === "pending" || booking.status === "confirmed";
 
   return (
-    <BookingDetailClient 
+    <BookingDetailClient
       booking={booking}
       canCancel={canCancel}
       CancelButton={CancelBookingButton}

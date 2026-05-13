@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { AlertCircle } from "lucide-react";
+import { DashboardUnavailableState } from "@/components/dashboard/dashboard-states";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HealthTimeline } from "@/components/HealthTimeline";
@@ -27,10 +28,10 @@ export default async function PetDetail({ params }: Props) {
 
   if (!isDatabaseConfigured()) {
     return (
-      <div className="space-y-3">
-        <h1 className="text-2xl font-semibold">Pet</h1>
-        <p className="mt-4 text-muted-foreground">Database not configured.</p>
-      </div>
+      <DashboardUnavailableState
+        title="Pet profile unavailable"
+        description="Database is not configured in this environment."
+      />
     );
   }
 
@@ -62,12 +63,10 @@ export default async function PetDetail({ params }: Props) {
 
   if (!pet || pet.userId !== session.user.id) {
     return (
-      <div className="space-y-3">
-        <h1 className="text-2xl font-semibold">Pet</h1>
-        <p className="mt-4 text-muted-foreground">
-          Pet not found or access denied.
-        </p>
-      </div>
+      <DashboardUnavailableState
+        title="Pet profile unavailable"
+        description="Pet not found or access denied."
+      />
     );
   }
 
@@ -128,7 +127,11 @@ export default async function PetDetail({ params }: Props) {
                   </li>
                 ),
               )}
-              {pet.vaccines.length === 0 && <li>No vaccine records</li>}
+              {pet.vaccines.length === 0 && (
+                <li className="list-none rounded-md border border-dashed border-border bg-muted/40 px-3 py-2 text-muted-foreground">
+                  No vaccine records on file.
+                </li>
+              )}
               </ul>
             </div>
             <div className="mt-3">
@@ -141,7 +144,11 @@ export default async function PetDetail({ params }: Props) {
                   </li>
                 ),
               )}
-              {pet.medications.length === 0 && <li>No medications</li>}
+              {pet.medications.length === 0 && (
+                <li className="list-none rounded-md border border-dashed border-border bg-muted/40 px-3 py-2 text-muted-foreground">
+                  No medications on file.
+                </li>
+              )}
               </ul>
             </div>
           </CardContent>
