@@ -143,10 +143,32 @@ type EmailQueueContactEntry = {
   error?: string;
 };
 
+type EmailQueuePasswordResetEntry = {
+  type: "password_reset_notification";
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+  response?: unknown;
+  error?: string;
+};
+
+type EmailQueueBookingClaimEntry = {
+  type: "booking_claim_notification";
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+  response?: unknown;
+  error?: string;
+};
+
 type EmailQueueEntry =
   | EmailQueueBookingEntry
   | EmailQueuePaymentEntry
   | EmailQueueContactEntry
+  | EmailQueuePasswordResetEntry
+  | EmailQueueBookingClaimEntry
   | { type?: string };
 
 async function processQueuedEntries() {
@@ -172,12 +194,16 @@ async function processQueuedEntries() {
         if (
           entry.type === "booking_confirmation" ||
           entry.type === "payment_notification" ||
-          entry.type === "contact_submission_notification"
+          entry.type === "contact_submission_notification" ||
+          entry.type === "password_reset_notification" ||
+          entry.type === "booking_claim_notification"
         ) {
           const e = entry as
             | EmailQueueBookingEntry
             | EmailQueuePaymentEntry
-            | EmailQueueContactEntry;
+            | EmailQueueContactEntry
+            | EmailQueuePasswordResetEntry
+            | EmailQueueBookingClaimEntry;
           const payload = {
             from: e.from,
             to: e.to,
@@ -553,6 +579,137 @@ export async function sendContactSubmissionNotification(payload: {
       subject,
       html,
       submissionId: payload.submissionId,
+      error: String(err),
+    });
+    return { sent: false, provider: "dev-queue", detail: String(err) };
+  }
+}
+
+export async function sendPasswordResetNotification(payload: {
+  email: string;
+  resetUrl: string;
+  firstName?: string | null;
+}): Promise<SendResult> {
+  const from = process.env.EMAIL_FROM || "noreply@pawfectstays.com";
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = payload.email;
+  const subject = "Reset your Zaine's Stay & Play password";
+  const safeResetUrl = escapeHtml(payload.resetUrl);
+  const safeName = escapeHtml(payload.firstName || "there");
+
+  const html = `
+    <div style="font-family: Georgia, serif; color: #18212a; line-height: 1.6; max-width: 620px; margin: 0 auto;">
+      <h1 style="margin-bottom: 8px;">Secure password reset</h1>
+      <p style="margin-top: 0; color: #4e5a67;">Hi ${safeName}, we received a request to reset your account password.</p>
+      <p>
+        <a href="${safeResetUrl}" style="display: inline-block; background: #111827; color: #fff; text-decoration: none; padding: 10px 14px; border-radius: 8px;">
+          Reset Password
+        </a>
+      </p>
+      <p style="color: #4e5a67;">This link expires in 30 minutes. If you did not request this, you can safely ignore this email.</p>
+      <p style="font-size: 13px; color: #4e5a67;">Need help? Contact our concierge team at (315) 657-1332.</p>
+    </div>
+  `;
+
+  if (!apiKey) {
+    await appendToDevQueue({
+      type: "password_reset_notification",
+      to,
+      from,
+      subject,
+      html,
+    });
+    return { sent: false, provider: "dev-queue" };
+  }
+
+  try {
+    const resp = await sendEmailViaResend({ from, to, subject, html });
+    if (resp && resp.ok) {
+      return { sent: true, provider: "resend", detail: resp.json };
+    }
+
+    await appendToDevQueue({
+      type: "password_reset_notification",
+      to,
+      from,
+      subject,
+      html,
+      response: resp.json,
+    });
+    return { sent: false, provider: "dev-queue", detail: resp.json };
+  } catch (err) {
+    await appendToDevQueue({
+      type: "password_reset_notification",
+      to,
+      from,
+      subject,
+      html,
+      error: String(err),
+    });
+    return { sent: false, provider: "dev-queue", detail: String(err) };
+  }
+}
+
+export async function sendBookingClaimNotification(payload: {
+  email: string;
+  claimUrl: string;
+  bookingNumber: string;
+  firstName?: string | null;
+}): Promise<SendResult> {
+  const from = process.env.EMAIL_FROM || "noreply@pawfectstays.com";
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = payload.email;
+  const subject = `Claim booking ${payload.bookingNumber} in your dashboard`;
+  const safeClaimUrl = escapeHtml(payload.claimUrl);
+  const safeBookingNumber = escapeHtml(payload.bookingNumber);
+  const safeName = escapeHtml(payload.firstName || "there");
+
+  const html = `
+    <div style="font-family: Georgia, serif; color: #18212a; line-height: 1.6; max-width: 620px; margin: 0 auto;">
+      <h1 style="margin-bottom: 8px;">Claim your booking access</h1>
+      <p style="margin-top: 0; color: #4e5a67;">Hi ${safeName}, claim booking <strong>${safeBookingNumber}</strong> to manage updates, pet details, and future reservations.</p>
+      <p>
+        <a href="${safeClaimUrl}" style="display: inline-block; background: #111827; color: #fff; text-decoration: none; padding: 10px 14px; border-radius: 8px;">
+          Claim Booking Access
+        </a>
+      </p>
+      <p style="color: #4e5a67;">This secure claim link expires in 48 hours.</p>
+    </div>
+  `;
+
+  if (!apiKey) {
+    await appendToDevQueue({
+      type: "booking_claim_notification",
+      to,
+      from,
+      subject,
+      html,
+    });
+    return { sent: false, provider: "dev-queue" };
+  }
+
+  try {
+    const resp = await sendEmailViaResend({ from, to, subject, html });
+    if (resp && resp.ok) {
+      return { sent: true, provider: "resend", detail: resp.json };
+    }
+
+    await appendToDevQueue({
+      type: "booking_claim_notification",
+      to,
+      from,
+      subject,
+      html,
+      response: resp.json,
+    });
+    return { sent: false, provider: "dev-queue", detail: resp.json };
+  } catch (err) {
+    await appendToDevQueue({
+      type: "booking_claim_notification",
+      to,
+      from,
+      subject,
+      html,
       error: String(err),
     });
     return { sent: false, provider: "dev-queue", detail: String(err) };

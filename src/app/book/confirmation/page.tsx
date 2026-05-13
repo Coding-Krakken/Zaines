@@ -37,6 +37,10 @@ function ConfirmationContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloadingReceipt, setIsDownloadingReceipt] = useState(false);
   const [isPreparingPdf, setIsPreparingPdf] = useState(false);
+  const [claimEmail, setClaimEmail] = useState("");
+  const [claimBookingNumber, setClaimBookingNumber] = useState("");
+  const [claimRequesting, setClaimRequesting] = useState(false);
+  const [claimMessage, setClaimMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const loadAndApplyBookingData = async () => {
@@ -47,6 +51,8 @@ function ConfirmationContent() {
         if (storedBooking) {
           const parsed = JSON.parse(storedBooking);
           setBooking(parsed);
+          setClaimEmail(parsed.email || "");
+          setClaimBookingNumber(parsed.bookingNumber || "");
         }
 
         try {
@@ -97,6 +103,8 @@ function ConfirmationContent() {
                 email:
                   payload.receipt?.customerEmail || current?.email || "unknown",
               }));
+              setClaimEmail(payload.receipt.customerEmail || "");
+              setClaimBookingNumber(payload.receipt.bookingNumber || "");
             }
           }
         } catch {
@@ -205,6 +213,45 @@ function ConfirmationContent() {
   const total = booking.pricing?.total ?? booking.total;
   const currency = booking.pricing?.currency || "USD";
 
+  const requestClaimLink = async () => {
+    setClaimMessage(null);
+
+    if (!claimEmail || !claimBookingNumber) {
+      setClaimMessage("Enter your booking number and email to request a claim link.");
+      return;
+    }
+
+    setClaimRequesting(true);
+    try {
+      const response = await fetch('/api/auth/claim-booking/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookingNumber: claimBookingNumber,
+          email: claimEmail,
+        }),
+      });
+
+      const payload = (await response.json().catch(() => ({}))) as {
+        message?: string;
+        claimUrl?: string;
+      };
+
+      if (!response.ok) {
+        setClaimMessage(payload.message || 'Unable to request booking claim link right now.');
+        return;
+      }
+
+      setClaimMessage(
+        payload.claimUrl
+          ? `Claim link sent. Dev link: ${payload.claimUrl}`
+          : 'If your booking details match, a secure claim link has been sent to your email.',
+      );
+    } finally {
+      setClaimRequesting(false);
+    }
+  };
+
   return (
     <Card className="border-green-500 bg-green-50">
       <CardHeader>
@@ -278,6 +325,31 @@ function ConfirmationContent() {
           <p className="mt-2 text-sm text-blue-900">
             Need help? Visit our <Link href="/contact" className="underline font-medium">support page</Link> or call the front desk.
           </p>
+        </div>
+        <div className="rounded-lg border p-4 space-y-3">
+          <h4 className="font-semibold">Claim this booking to your account</h4>
+          <p className="text-sm text-muted-foreground">
+            Continue as guest now and claim account access afterward with a secure email link.
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <input
+              className="h-10 rounded-md border border-border bg-background px-3 text-sm"
+              value={claimBookingNumber}
+              onChange={(event) => setClaimBookingNumber(event.target.value)}
+              placeholder="Booking number"
+            />
+            <input
+              className="h-10 rounded-md border border-border bg-background px-3 text-sm"
+              value={claimEmail}
+              onChange={(event) => setClaimEmail(event.target.value)}
+              placeholder="Email"
+              type="email"
+            />
+          </div>
+          <Button variant="outline" onClick={() => { void requestClaimLink(); }} disabled={claimRequesting}>
+            {claimRequesting ? 'Sending...' : 'Send Claim Link'}
+          </Button>
+          {claimMessage ? <p className="text-xs text-muted-foreground">{claimMessage}</p> : null}
         </div>
         <div className="flex flex-col gap-2">
           <Button onClick={handleDownloadCalendar} variant="outline">

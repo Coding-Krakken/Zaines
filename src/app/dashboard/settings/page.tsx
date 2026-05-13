@@ -5,6 +5,8 @@ import { getAdminSettings } from "@/lib/api/admin-settings";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { DashboardUnavailableState } from "@/components/dashboard/dashboard-states";
 import { ProfileForm } from "./ProfileForm";
+import { AccessPreferencesPanel } from "./AccessPreferencesPanel";
+import { SecurityPanel } from "./SecurityPanel";
 
 export const metadata = {
   title: "Settings | Dashboard",
@@ -73,6 +75,8 @@ export default async function SettingsPage() {
         billingPortalEnabled={billingPortalEnabled}
         walletEnabled={walletEnabled}
       />
+      <AccessPreferencesPanel />
+      <SecurityPanel />
     </div>
   );
 }

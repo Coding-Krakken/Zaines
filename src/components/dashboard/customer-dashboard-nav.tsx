@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useRef } from "react";
 import type { ComponentType } from "react";
-import { CalendarDays, ClipboardList, House, MessageSquareMore, PawPrint, Settings2 } from "lucide-react";
+import { CalendarDays, ClipboardList, House, MessageSquareMore, PawPrint, Settings2, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type DashboardNavItem = {
@@ -49,6 +49,12 @@ const dashboardNavItems: DashboardNavItem[] = [
     href: "/dashboard/settings",
     label: "Settings",
     icon: Settings2,
+    match: (pathname) => pathname.startsWith("/dashboard/settings"),
+  },
+  {
+    href: "/dashboard/settings#security",
+    label: "Security",
+    icon: Shield,
     match: (pathname) => pathname.startsWith("/dashboard/settings"),
   },
 ];

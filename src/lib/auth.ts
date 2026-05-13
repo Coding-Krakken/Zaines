@@ -3,8 +3,19 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import Resend from "next-auth/providers/resend";
 import Google from "next-auth/providers/google";
 import Facebook from "next-auth/providers/facebook";
+import Credentials from "next-auth/providers/credentials";
 import { prisma } from "./prisma";
 import { isDatabaseConfigured } from "./prisma";
+import {
+  getAuthProviderCapabilities,
+  getEnabledCapabilityIds,
+} from "@/lib/auth/provider-capabilities";
+import { getAuthRuntimeConfig } from "@/lib/auth/runtime-config";
+import { verifyPassword } from "@/lib/auth/password";
+import { extractRequestFingerprint } from "@/lib/auth/security-heuristics";
+import { logSecurityEvent } from "@/lib/security/logging";
+import { headers } from "next/headers";
+import { persistSignInActivity } from "@/lib/auth/signin-activity";
 
 // NextAuth v5 uses AUTH_SECRET; fall back to NEXTAUTH_SECRET for deployments
 // that have not yet migrated their environment variables.
@@ -14,63 +25,198 @@ const authSecret =
 
 const isProduction = process.env.NODE_ENV === "production";
 const hasDatabase = isDatabaseConfigured();
-const hasResendProviderConfig =
-  Boolean(process.env.AUTH_RESEND_KEY || process.env.RESEND_API_KEY) &&
-  Boolean(process.env.EMAIL_FROM);
-const useDatabaseSessions =
-  process.env.AUTH_ENABLE_DATABASE_SESSIONS === "true" && hasDatabase;
+const authRuntime = getAuthRuntimeConfig(hasDatabase);
+const enablePasswordLogin = authRuntime.enablePasswordLogin;
+const enableGuestFlow = authRuntime.enableGuestFlow;
+const authSessionStrategy = authRuntime.sessionStrategy;
+const useDatabaseSessions = authRuntime.useDatabaseSessions;
+
+const capabilities = getAuthProviderCapabilities({
+  hasDatabase,
+  enablePasswordLogin,
+  enableGuestFlow,
+});
+const enabledCapabilityIds = getEnabledCapabilityIds(capabilities);
 
 const normalizeRole = (value: unknown): string =>
   typeof value === "string" && value.length > 0 ? value : "customer";
 
 const providers: NonNullable<NextAuthConfig["providers"]> = [
-  ...(useDatabaseSessions && hasResendProviderConfig
+  ...(enabledCapabilityIds.has("resend")
     ? [
         Resend({
           from: process.env.EMAIL_FROM || "noreply@pawfectstays.com",
         }),
       ]
     : []),
-  ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+  ...(enabledCapabilityIds.has("google")
     ? [
         Google({
           clientId: process.env.GOOGLE_CLIENT_ID,
           clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          allowDangerousEmailAccountLinking: true,
         }),
       ]
     : []),
-  ...(process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET
+  ...(enabledCapabilityIds.has("facebook")
     ? [
         Facebook({
           clientId: process.env.FACEBOOK_CLIENT_ID,
           clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+          allowDangerousEmailAccountLinking: true,
         }),
       ]
     : []),
-  // FIXED (Issue #101): Facebook provider is only included if BOTH environment variables
-  // are set AND contain valid (non-placeholder) values. If Facebook provider is not included,
-  // the signin page will automatically hide the Facebook button.
-  // 
-  // IMPLEMENTATION DETAILS:
-  // - Provider is conditionally included only when FACEBOOK_CLIENT_ID is set and is NOT a placeholder
-  // - If either env var is missing or contains placeholder value ("your_facebook_app_id_here"), 
-  //   the Facebook provider is not added to the providers array
-  // - This means the signin page won't show the Facebook button for incomplete configurations
-  // - NextAuth automatically hides unavailable providers from signin UI
-  // - This approach is safer than runtime checks and fails-fast during app initialization
-  // 
-  // TO ENABLE FACEBOOK OAUTH:
-  // 1. Create a Facebook App at https://developers.facebook.com/apps/
-  // 2. Copy Client ID and Client Secret
-  // 3. Set FACEBOOK_CLIENT_ID and FACEBOOK_CLIENT_SECRET in your environment variables
-  // 4. VERIFY values are NOT placeholder strings like "your_facebook_app_id_here"
-  // 5. Deploy to staging first to test the signin flow
-  // 6. Do NOT deploy to production with unset or placeholder Facebook credentials
-  // 
-  // TROUBLESHOOTING:
-  // - Facebook button not appearing? Check if FACEBOOK_CLIENT_ID is set in environment
-  // - OAuth flow failing? Verify Facebook app is properly configured in Facebook Developer Console
-  // - Invalid app ID error? Check that FACEBOOK_CLIENT_ID matches your Facebook app ID exactly
+  ...(enabledCapabilityIds.has("credentials")
+    ? [
+        Credentials({
+          id: "credentials",
+          name: "Email and Password",
+          credentials: {
+            email: { label: "Email", type: "email" },
+            password: { label: "Password", type: "password" },
+          },
+          authorize: async (credentials) => {
+            if (!credentials?.email || !credentials.password || !hasDatabase) {
+              return null;
+            }
+
+            const email = String(credentials.email).trim().toLowerCase();
+            const password = String(credentials.password);
+
+            if (!email || !password) {
+              return null;
+            }
+
+            const dbUser = await prisma.user.findUnique({
+              where: { email },
+              select: {
+                id: true,
+                email: true,
+                name: true,
+                role: true,
+              },
+            });
+
+            if (!dbUser) {
+              logSecurityEvent({
+                route: "/api/auth/callback/credentials",
+                event: "AUTH_CREDENTIALS_LOGIN_FAILED",
+                correlationId: "credentials-user-missing",
+                level: "warn",
+              });
+              return null;
+            }
+
+            const credentialStore = (
+              prisma as unknown as {
+                passwordCredential?: {
+                  findUnique: (args: {
+                    where: { userId: string };
+                    select: { passwordHash: true; lockedUntil: true; failedAttempts: true };
+                  }) => Promise<{ passwordHash: string; lockedUntil: Date | null; failedAttempts: number } | null>;
+                };
+              }
+            ).passwordCredential;
+
+            if (!credentialStore) {
+              return null;
+            }
+
+            const record = await credentialStore.findUnique({
+              where: { userId: dbUser.id },
+              select: { passwordHash: true, lockedUntil: true, failedAttempts: true },
+            });
+
+            if (!record?.passwordHash) {
+              logSecurityEvent({
+                route: "/api/auth/callback/credentials",
+                event: "AUTH_CREDENTIALS_LOGIN_FAILED",
+                correlationId: "credentials-password-missing",
+                level: "warn",
+              });
+              return null;
+            }
+
+            if (record.lockedUntil && record.lockedUntil.getTime() > Date.now()) {
+              logSecurityEvent({
+                route: "/api/auth/callback/credentials",
+                event: "AUTH_CREDENTIALS_LOCKED",
+                correlationId: "credentials-account-locked",
+                level: "warn",
+              });
+              return null;
+            }
+
+            if (!verifyPassword(password, record.passwordHash)) {
+              const failedAttempts = (
+                prisma as unknown as {
+                  passwordCredential?: {
+                    update: (args: {
+                      where: { userId: string };
+                      data: {
+                        failedAttempts: { increment: number };
+                        lockedUntil?: Date;
+                      };
+                    }) => Promise<unknown>;
+                  };
+                }
+              ).passwordCredential;
+
+              if (failedAttempts) {
+                const nextFailures = (record.failedAttempts ?? 0) + 1;
+                const lockUntil = nextFailures >= 5 ? new Date(Date.now() + 15 * 60_000) : undefined;
+                await failedAttempts.update({
+                  where: { userId: dbUser.id },
+                  data: {
+                    failedAttempts: { increment: 1 },
+                    ...(lockUntil ? { lockedUntil: lockUntil } : {}),
+                  },
+                }).catch(() => undefined);
+              }
+
+              logSecurityEvent({
+                route: "/api/auth/callback/credentials",
+                event: "AUTH_CREDENTIALS_LOGIN_FAILED",
+                correlationId: "credentials-password-invalid",
+                level: "warn",
+                context: {
+                  failedAttempts: (record.failedAttempts ?? 0) + 1,
+                },
+              });
+
+              return null;
+            }
+
+            const credentialStoreForReset = (
+              prisma as unknown as {
+                passwordCredential?: {
+                  update: (args: {
+                    where: { userId: string };
+                    data: { failedAttempts: number; lockedUntil: null };
+                  }) => Promise<unknown>;
+                };
+              }
+            ).passwordCredential;
+
+            if (credentialStoreForReset) {
+              await credentialStoreForReset.update({
+                where: { userId: dbUser.id },
+                data: { failedAttempts: 0, lockedUntil: null },
+              }).catch(() => undefined);
+            }
+
+            return {
+              id: dbUser.id,
+              email: dbUser.email,
+              name: dbUser.name,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              role: (dbUser as any).role ?? "customer",
+            };
+          },
+        }),
+      ]
+    : []),
 ];
 
 export const authConfig: NextAuthConfig = {
@@ -185,8 +331,61 @@ export const authConfig: NextAuthConfig = {
       return token;
     },
   },
+  events: {
+    async signIn({ user, account }) {
+      if (!hasDatabase || !user?.id) return;
+
+      const requestHeaders = await headers().catch(() => null);
+      const { ipAddress, userAgent } = requestHeaders
+        ? extractRequestFingerprint(requestHeaders)
+        : { ipAddress: null, userAgent: null };
+
+      await prisma.user
+        .update({
+          where: { id: user.id },
+          data: { lastLoginAt: new Date() },
+        })
+        .catch(() => undefined);
+
+      const activityStore = (
+        prisma as unknown as {
+          loginActivity?: {
+            findFirst: (args: {
+              where: { userId: string; eventType: string };
+              orderBy: { createdAt: "desc" };
+              select: {
+                ipAddress: true;
+                userAgent: true;
+              };
+            }) => Promise<{ ipAddress: string | null; userAgent: string | null } | null>;
+            create: (args: {
+              data: {
+                userId: string;
+                eventType: string;
+                provider?: string;
+                ipAddress?: string | null;
+                userAgent?: string | null;
+                isSuspicious: boolean;
+              };
+            }) => Promise<unknown>;
+          };
+        }
+      ).loginActivity;
+
+      if (!activityStore) return;
+
+      await persistSignInActivity({
+        userId: user.id,
+        provider: account?.provider,
+        ipAddress,
+        userAgent,
+        activityStore,
+        logEvent: logSecurityEvent,
+      }).catch(() => undefined);
+    },
+  },
   session: {
-    strategy: useDatabaseSessions ? "database" : "jwt",
+    strategy: authSessionStrategy,
   },
   debug: process.env.NODE_ENV === "development",
 };

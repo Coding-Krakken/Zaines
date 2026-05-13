@@ -25,11 +25,17 @@ model User {
   state         String?
   zip           String?
   role          String    @default("customer") // customer | staff | admin
+  bookingStatusEmailsEnabled Boolean @default(true)
+  productUpdatesEmailsEnabled Boolean @default(false)
+  marketingEmailsEnabled Boolean @default(false)
+  lastLoginAt   DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   accounts          Account[]
   sessions          Session[]
+  passwordCredential PasswordCredential?
+  loginActivities   LoginActivity[]
   pets              Pet[]
   bookings          Booking[]
   accountWaivers    AccountWaiver[]
@@ -38,6 +44,7 @@ model User {
   petPhotos         PetPhoto[]
   emergencyContacts EmergencyContact[]
   credits           Credit[]
+  claimedBookingTokens BookingClaimToken[] @relation("ClaimedByUser")
 
   @@map("users")
 }
@@ -81,6 +88,40 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+model PasswordCredential {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  passwordHash      String
+  passwordUpdatedAt DateTime @default(now())
+  failedAttempts    Int      @default(0)
+  lockedUntil       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([lockedUntil])
+  @@map("password_credentials")
+}
+
+model LoginActivity {
+  id          String   @id @default(cuid())
+  userId      String
+  eventType   String
+  provider    String?
+  ipAddress   String?
+  userAgent   String?
+  isSuspicious Boolean @default(false)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([eventType])
+  @@map("login_activities")
 }
 
 // ============================================================================
@@ -285,6 +326,7 @@ model Booking {
   photos        PetPhoto[]
   messages      Message[]
   photoNotifications PhotoNotification[]
+  claimTokens   BookingClaimToken[]
 
   @@index([userId])
   @@index([suiteId])
@@ -292,6 +334,25 @@ model Booking {
   @@index([checkOutDate])
   @@index([status])
   @@map("bookings")
+}
+
+model BookingClaimToken {
+  id              String   @id @default(cuid())
+  bookingId       String
+  email           String
+  token           String   @unique
+  expiresAt       DateTime
+  claimedAt       DateTime?
+  claimedByUserId String?
+  createdAt       DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  claimedByUser User? @relation("ClaimedByUser", fields: [claimedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([bookingId])
+  @@index([email])
+  @@index([expiresAt])
+  @@map("booking_claim_tokens")
 }
 
 model BookingPet {

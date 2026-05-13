@@ -46,6 +46,8 @@ describe("magic-link route", () => {
     expect(res.status).toBe(422);
     const body = await res.json();
     expect(body.errorCode).toBe("INVALID_EMAIL");
+    expect(body.retryable).toBe(false);
+    expect(typeof body.correlationId).toBe("string");
   });
 
   it("returns 422 when email is missing", async () => {
@@ -62,6 +64,16 @@ describe("magic-link route", () => {
     expect(body.errorCode).toBe("INVALID_EMAIL");
   });
 
+  it("returns 422 when intent is invalid", async () => {
+    const res = await POST(
+      makeRequest({ email: "user@example.com", intent: "not_valid" }),
+    );
+    expect(res.status).toBe(422);
+    const body = await res.json();
+    expect(body.errorCode).toBe("INVALID_EMAIL");
+    expect(body.retryable).toBe(false);
+  });
+
   it("returns 500 when auth is misconfigured (no keys)", async () => {
     delete process.env.AUTH_RESEND_KEY;
     delete process.env.RESEND_API_KEY;
@@ -71,6 +83,8 @@ describe("magic-link route", () => {
     expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.errorCode).toBe("AUTH_PROVIDER_MISCONFIGURED");
+    expect(body.retryable).toBe(false);
+    expect(body.correlationId).toBe("ml-test");
   });
 
   it("returns 500 when EMAIL_FROM is missing", async () => {
@@ -87,6 +101,7 @@ describe("magic-link route", () => {
     expect(res.status).toBe(202);
     const body = await res.json();
     expect(body.state).toBe("sent");
+    expect(body.message).toBe("If an account exists, a sign-in link has been sent.");
   });
 
   it("uses manage_booking callbackUrl when intent is manage_booking", async () => {
@@ -121,6 +136,7 @@ describe("magic-link route", () => {
     const body = await res.json();
     expect(body.errorCode).toBe("AUTH_PROVIDER_MISCONFIGURED");
     expect(body.retryable).toBe(false);
+    expect(body.correlationId).toBe("ml-test");
   });
 
   it("returns 500 when signIn returns an error object (transient)", async () => {
@@ -131,6 +147,7 @@ describe("magic-link route", () => {
     const body = await res.json();
     expect(body.errorCode).toBe("AUTH_TRANSIENT_FAILURE");
     expect(body.retryable).toBe(true);
+    expect(body.correlationId).toBe("ml-test");
   });
 
   it("returns 500 when signIn throws (misconfigured error)", async () => {
