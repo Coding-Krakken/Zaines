@@ -236,9 +236,16 @@ export default function BookPage() {
           <p className="text-lg text-muted-foreground">
             Just a few steps to reserve your pet&apos;s vacation
           </p>
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex justify-center gap-4">
             <Button asChild>
               <a href="#booking-wizard">Start Booking</a>
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleCancelBooking}
+            >
+              Cancel Booking
             </Button>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
