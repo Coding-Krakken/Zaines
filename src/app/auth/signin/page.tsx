@@ -374,11 +374,7 @@ function SignInForm() {
                           ? "text-stone-600"
                           : "cursor-not-allowed text-stone-400"
                     }`}
-                    onClick={() => {
-                      if (hasCredentials) {
-                        setMode("create_account");
-                      }
-                    }}
+                    onClick={() => setMode("create_account")}
                     disabled={!hasCredentials}
                   >
                     Create Account
@@ -432,8 +428,8 @@ function SignInForm() {
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
                       placeholder={mode === "create_account" ? "Create a strong password" : "Enter your password"}
-                      disabled={busy || loadingCapabilities || !hasCredentials || !authOperational}
-                      required={hasCredentials}
+                      disabled={busy || loadingCapabilities || !authOperational || (mode === "create_account" && !hasCredentials)}
+                      required={mode === "sign_in" || hasCredentials}
                     />
                   </div>
 
@@ -452,7 +448,7 @@ function SignInForm() {
                     </div>
                   ) : null}
 
-                  <Button type="submit" className="w-full bg-stone-900 text-white hover:bg-stone-800" disabled={busy || loadingCapabilities || !hasCredentials || !authOperational}>
+                  <Button type="submit" className="w-full bg-stone-900 text-white hover:bg-stone-800" disabled={busy || loadingCapabilities || !authOperational || (mode === "create_account" && !hasCredentials)}>
                     {busy ? "Working..." : mode === "sign_in" ? "Sign In Securely" : "Create My Account"}
                   </Button>
                 </form>
