@@ -298,6 +298,17 @@ export function StepPayment({
     router.push(`/book/confirmation?bookingId=${bookingId}`);
   };
 
+  const handleAlreadyCompletedPayment = useCallback(() => {
+    if (!bookingId) {
+      return;
+    }
+
+    toast.success("Payment already completed. Redirecting to confirmation.");
+    onUpdate({ bookingId, pricingDisclosureAccepted });
+    onNext();
+    router.push(`/book/confirmation?bookingId=${bookingId}`);
+  }, [bookingId, onNext, onUpdate, pricingDisclosureAccepted, router]);
+
   const initializeBookingAndPayment = useCallback(async () => {
     if (!bookingPayload) {
       setBookingError("Complete all previous steps before submitting payment.");
@@ -419,7 +430,15 @@ export function StepPayment({
         paymentMode?: "payment_element" | "embedded_checkout";
         message?: string;
         error?: string;
+        errorCode?: string;
+        code?: string;
       };
+
+      const paymentErrorCode = payload.errorCode || payload.code;
+      if (!response.ok && paymentErrorCode === "PAYMENT_ALREADY_COMPLETED") {
+        handleAlreadyCompletedPayment();
+        return;
+      }
 
       if (!response.ok || !payload.clientSecret) {
         throw new Error(
@@ -447,7 +466,12 @@ export function StepPayment({
     } finally {
       setIsRecoveringPayment(false);
     }
-  }, [bookingId, onUpdate, paymentMode]);
+  }, [
+    bookingId,
+    handleAlreadyCompletedPayment,
+    onUpdate,
+    paymentMode,
+  ]);
 
   const hasValidSecretForMode =
     paymentMode === "embedded_checkout"

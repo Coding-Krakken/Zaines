@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getStripe } from "@/lib/stripe-client";
+import { toast } from "sonner";
 
 type SetupResponse = {
   paymentMode: "payment_element" | "embedded_checkout";
@@ -107,7 +108,16 @@ export default function RecoverPaymentClient({ bookingId, bookingNumber, total }
 
       const payload = (await response.json().catch(() => ({}))) as
         | SetupResponse
-        | { error?: string; message?: string };
+        | { error?: string; message?: string; errorCode?: string; code?: string };
+
+      const paymentErrorCode =
+        "errorCode" in payload ? payload.errorCode : "code" in payload ? payload.code : undefined;
+      if (!response.ok && paymentErrorCode === "PAYMENT_ALREADY_COMPLETED") {
+        toast.success("Payment already completed. Redirecting to confirmation.");
+        router.push(`/book/confirmation?bookingId=${bookingId}`);
+        router.refresh();
+        return;
+      }
 
       if (!response.ok || !("clientSecret" in payload)) {
         throw new Error(
