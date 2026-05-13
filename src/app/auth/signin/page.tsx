@@ -137,6 +137,12 @@ function SignInForm() {
     [capabilities, providerIds],
   );
 
+  useEffect(() => {
+    if (!hasCredentials && mode === "create_account") {
+      setMode("sign_in");
+    }
+  }, [hasCredentials, mode]);
+
   const updateError = (value: string, supportId?: string) => {
     setMessage(value);
     setCorrelationId(supportId ?? null);
@@ -188,6 +194,11 @@ function SignInForm() {
     event.preventDefault();
     setMessage("");
     setCorrelationId(null);
+
+    if (!hasCredentials) {
+      updateError("Account setup is temporarily unavailable. Please retry.");
+      return;
+    }
 
     if (!authOperational) {
       updateError("Account creation is temporarily unavailable. Please contact support.");
@@ -357,9 +368,18 @@ function SignInForm() {
                   <button
                     type="button"
                     className={`rounded-md px-3 py-2 transition ${
-                      mode === "create_account" ? "bg-white text-stone-900 shadow" : "text-stone-600"
+                      mode === "create_account"
+                        ? "bg-white text-stone-900 shadow"
+                        : hasCredentials
+                          ? "text-stone-600"
+                          : "cursor-not-allowed text-stone-400"
                     }`}
-                    onClick={() => setMode("create_account")}
+                    onClick={() => {
+                      if (hasCredentials) {
+                        setMode("create_account");
+                      }
+                    }}
+                    disabled={!hasCredentials}
                   >
                     Create Account
                   </button>

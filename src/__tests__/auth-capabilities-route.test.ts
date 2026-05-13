@@ -1,10 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { isDatabaseConfiguredMock } = vi.hoisted(() => ({
+const { isDatabaseConfiguredMock, passwordCredentialFindFirstMock } = vi.hoisted(() => ({
   isDatabaseConfiguredMock: vi.fn(),
+  passwordCredentialFindFirstMock: vi.fn(),
 }));
 
 vi.mock("@/lib/prisma", () => ({
+  prisma: {
+    passwordCredential: {
+      findFirst: passwordCredentialFindFirstMock,
+    },
+  },
   isDatabaseConfigured: isDatabaseConfiguredMock,
 }));
 
@@ -21,6 +27,7 @@ const originalEnv = { ...process.env };
 describe("auth capabilities route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    passwordCredentialFindFirstMock.mockResolvedValue({ id: "cred-1" });
     process.env = { ...originalEnv };
     process.env.AUTH_SECRET = "test-auth-secret";
     delete process.env.NEXTAUTH_SECRET;
@@ -137,7 +144,29 @@ describe("auth capabilities route", () => {
     expect(byId.get("resend")?.enabled).toBe(false);
     expect(byId.get("resend")?.reasonDisabled).toBe("database_unavailable");
     expect(byId.get("credentials")?.enabled).toBe(false);
-    expect(byId.get("credentials")?.reasonDisabled).toBe("database_unavailable");
+    expect(byId.get("credentials")?.reasonDisabled).toBe("credential_store_unavailable");
+    expect(body.authOperational).toBe(false);
+    expect(body.authIssues).toContain("no_auth_provider_enabled");
+  });
+
+  it("marks credentials unavailable when credential store health check fails", async () => {
+    isDatabaseConfiguredMock.mockReturnValueOnce(true);
+    passwordCredentialFindFirstMock.mockRejectedValueOnce(new Error("relation does not exist"));
+
+    const response = await GET();
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+
+    const byId = new Map<string, Capability>(
+      (body.capabilities as Capability[]).map((capability) => [
+        capability.id,
+        capability,
+      ]),
+    );
+
+    expect(byId.get("credentials")?.enabled).toBe(false);
+    expect(byId.get("credentials")?.reasonDisabled).toBe("credential_store_unavailable");
     expect(body.authOperational).toBe(false);
     expect(body.authIssues).toContain("no_auth_provider_enabled");
   });
