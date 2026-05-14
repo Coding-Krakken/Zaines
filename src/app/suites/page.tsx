@@ -203,7 +203,7 @@ export default async function SuitesPage() {
                       <div className="absolute -inset-1 rounded-xl bg-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     )}
                     <Card
-                      className={`relative flex flex-col h-full border-border/50 hover:border-primary/30 transition-all duration-300 ${
+                      className={`relative flex h-full flex-col overflow-hidden border-border/50 transition-all duration-300 hover:border-primary/30 ${
                         suite.popular ? "border-primary/50 shadow-lg" : ""
                       }`}
                     >
@@ -212,7 +212,7 @@ export default async function SuitesPage() {
                           Most Popular
                         </Badge>
                       )}
-                      <CardHeader>
+                      <CardHeader className="pb-4">
                         <div className="mb-4 flex items-start justify-between">
                           <div>
                             <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
@@ -238,8 +238,8 @@ export default async function SuitesPage() {
                           Suite Size: {suite.size}
                         </div>
                       </CardHeader>
-                      <CardContent className="flex-1 flex flex-col">
-                        <div className="mb-6 h-40 rounded-lg bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center overflow-hidden">
+                      <CardContent className="flex flex-1 flex-col pt-0">
+                        <div className="mb-6 aspect-[16/10] overflow-hidden rounded-lg bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
                           <img
                             src={imageUrl}
                             alt={`${suite.name} suite image`}
@@ -259,23 +259,13 @@ export default async function SuitesPage() {
                             </li>
                           ))}
                         </ul>
-                        <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                        <div className="mt-8 flex justify-center">
                           <Button
-                            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto sm:min-w-56"
                             size="lg"
                             asChild
                           >
                             <Link href="/book?fresh=true">Reserve This Suite</Link>
-                          </Button>
-                          <Button
-                            variant="outline"
-                            className="w-full"
-                            size="lg"
-                            asChild
-                          >
-                            <Link href={`/checkout/${suite.name.split(" ")[0].toLowerCase()}`}>
-                              Pay with Stripe
-                            </Link>
                           </Button>
                         </div>
                       </CardContent>
