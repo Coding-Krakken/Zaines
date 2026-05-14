@@ -41,6 +41,7 @@ function PaymentElementRecoveryForm({ bookingId }: { bookingId: string }) {
     setIsSubmitting(true);
 
     try {
+      // With Checkout Sessions (ui_mode: "elements"), confirmPayment works seamlessly
       const { error: stripeError } = await stripe.confirmPayment({
         elements,
         confirmParams: {
@@ -193,7 +194,7 @@ export default function RecoverPaymentClient({ bookingId, bookingNumber, total }
   const hasValidSetupSecret = setup
     ? setup.paymentMode === "embedded_checkout"
       ? setup.clientSecret.startsWith("cs_")
-      : setup.clientSecret.startsWith("pi_")
+      : setup.clientSecret.startsWith("cs_")
     : false;
 
   useEffect(() => {

@@ -221,7 +221,7 @@ export function StepWaiver({
         )}
 
         {/* Liability Waiver */}
-        <div className="space-y-2 rounded-xl border border-border/70 p-4">
+        <div className="flex items-start gap-3 rounded-xl border border-border/70 p-4">
           <Checkbox
             id="liability"
             checked={liabilityAccepted}
@@ -237,7 +237,7 @@ export function StepWaiver({
         </div>
 
         {/* Medical Authorization */}
-        <div className="space-y-2 rounded-xl border border-border/70 p-4">
+        <div className="flex items-start gap-3 rounded-xl border border-border/70 p-4">
           <Checkbox
             id="medical"
             checked={medicalAuthorizationAccepted}
@@ -253,7 +253,7 @@ export function StepWaiver({
         </div>
 
         {/* Photo Release */}
-        <div className="space-y-2 rounded-xl border border-border/70 p-4">
+        <div className="flex items-start gap-3 rounded-xl border border-border/70 p-4">
           <Checkbox
             id="photo"
             checked={photoReleaseAccepted}
@@ -267,7 +267,7 @@ export function StepWaiver({
           </Label>
         </div>
 
-        <div className="space-y-2 rounded-xl border border-border/70 p-4">
+        <div className="flex items-start gap-3 rounded-xl border border-border/70 p-4">
           <Checkbox
             id="policy-acknowledgment"
             checked={policyAcknowledgmentAccepted}

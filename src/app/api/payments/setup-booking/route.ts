@@ -142,25 +142,45 @@ async function createPaymentObject(args: {
     };
   }
 
-  const intent = await stripe.paymentIntents.create({
-    amount: formatAmountForStripe(booking.total),
-    currency: "usd",
-    automatic_payment_methods: { enabled: true },
+  // Use Checkout Session for Payment Element (recommended over Payment Intents per Stripe best practices)
+  // No ui_mode needed - client uses client_secret with Elements/PaymentElement
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    line_items: [
+      {
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: `Booking #${booking.bookingNumber}`,
+            description: "Zaine's Stay & Play booking payment",
+          },
+          unit_amount: formatAmountForStripe(booking.total),
+        },
+        quantity: 1,
+      },
+    ],
     metadata: {
       bookingId: booking.id,
       bookingNumber: booking.bookingNumber,
       userId: booking.userId,
     },
-    description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
-    receipt_email: booking.user.email || undefined,
+    payment_intent_data: {
+      metadata: {
+        bookingId: booking.id,
+        bookingNumber: booking.bookingNumber,
+        userId: booking.userId,
+      },
+      description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
+      receipt_email: booking.user.email || undefined,
+    },
   }, {
     idempotencyKey: `booking:${booking.id}:mode:payment_element`,
   });
 
   return {
     mode,
-    stripeObjectId: intent.id,
-    clientSecret: intent.client_secret,
+    stripeObjectId: session.id,
+    clientSecret: session.client_secret,
   };
 }
 
@@ -174,12 +194,18 @@ async function resolveExistingClientSecret(
       return { clientSecret: null, mode: null };
     }
 
+    // Determine mode based on ui_mode property
+    // "embedded" = embedded_checkout, otherwise (hosted or undefined) = payment_element
+    const mode = session.ui_mode === "embedded" ? "embedded_checkout" : "payment_element";
+
     return {
       clientSecret: session.client_secret,
-      mode: "embedded_checkout",
+      mode,
     };
   }
 
+  // Legacy support: Payment Intents are no longer created for payment_element mode
+  // but this handles existing sessions that may have used them
   if (stripePaymentId.startsWith("pi_")) {
     const intent = await stripe.paymentIntents.retrieve(stripePaymentId);
 

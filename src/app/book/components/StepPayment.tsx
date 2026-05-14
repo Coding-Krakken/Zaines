@@ -190,6 +190,7 @@ function PaymentForm({
     setSubmitError("");
 
     try {
+      // With Checkout Sessions (ui_mode: "elements"), confirmPayment works seamlessly
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         redirect: "if_required",
