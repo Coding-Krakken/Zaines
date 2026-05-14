@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   Card,
   CardContent,
@@ -33,6 +34,7 @@ interface BookingData {
 
 function ConfirmationContent() {
   const searchParams = useSearchParams();
+  const { status } = useSession();
   const [booking, setBooking] = useState<BookingData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloadingReceipt, setIsDownloadingReceipt] = useState(false);
@@ -212,6 +214,8 @@ function ConfirmationContent() {
   const tax = booking.pricing?.tax ?? 0;
   const total = booking.pricing?.total ?? booking.total;
   const currency = booking.pricing?.currency || "USD";
+  const shouldShowClaimBooking = status === "unauthenticated";
+  const shouldShowLinkedBookingMessage = status === "authenticated";
 
   const requestClaimLink = async () => {
     setClaimMessage(null);
@@ -326,31 +330,40 @@ function ConfirmationContent() {
             Need help? Visit our <Link href="/contact" className="underline font-medium">support page</Link> or call the front desk.
           </p>
         </div>
-        <div className="rounded-lg border p-4 space-y-3">
-          <h4 className="font-semibold">Claim this booking to your account</h4>
-          <p className="text-sm text-muted-foreground">
-            Continue as guest now and claim account access afterward with a secure email link.
-          </p>
-          <div className="grid gap-2 sm:grid-cols-2">
-            <input
-              className="h-10 rounded-md border border-border bg-background px-3 text-sm"
-              value={claimBookingNumber}
-              onChange={(event) => setClaimBookingNumber(event.target.value)}
-              placeholder="Booking number"
-            />
-            <input
-              className="h-10 rounded-md border border-border bg-background px-3 text-sm"
-              value={claimEmail}
-              onChange={(event) => setClaimEmail(event.target.value)}
-              placeholder="Email"
-              type="email"
-            />
+        {shouldShowClaimBooking ? (
+          <div className="rounded-lg border p-4 space-y-3">
+            <h4 className="font-semibold">Claim this booking to your account</h4>
+            <p className="text-sm text-muted-foreground">
+              Continue as guest now and claim account access afterward with a secure email link.
+            </p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <input
+                className="h-10 rounded-md border border-border bg-background px-3 text-sm"
+                value={claimBookingNumber}
+                onChange={(event) => setClaimBookingNumber(event.target.value)}
+                placeholder="Booking number"
+              />
+              <input
+                className="h-10 rounded-md border border-border bg-background px-3 text-sm"
+                value={claimEmail}
+                onChange={(event) => setClaimEmail(event.target.value)}
+                placeholder="Email"
+                type="email"
+              />
+            </div>
+            <Button variant="outline" onClick={() => { void requestClaimLink(); }} disabled={claimRequesting}>
+              {claimRequesting ? 'Sending...' : 'Send Claim Link'}
+            </Button>
+            {claimMessage ? <p className="text-xs text-muted-foreground">{claimMessage}</p> : null}
           </div>
-          <Button variant="outline" onClick={() => { void requestClaimLink(); }} disabled={claimRequesting}>
-            {claimRequesting ? 'Sending...' : 'Send Claim Link'}
-          </Button>
-          {claimMessage ? <p className="text-xs text-muted-foreground">{claimMessage}</p> : null}
-        </div>
+        ) : shouldShowLinkedBookingMessage ? (
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+            <h4 className="font-semibold text-emerald-900">Booking linked to your account</h4>
+            <p className="mt-1 text-sm text-emerald-800">
+              You are signed in, so this reservation is already managed from your dashboard.
+            </p>
+          </div>
+        ) : null}
         <div className="flex flex-col gap-2">
           <Button onClick={handleDownloadCalendar} variant="outline">
             <CalendarDays className="mr-2 h-4 w-4" />

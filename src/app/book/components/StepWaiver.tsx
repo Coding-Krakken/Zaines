@@ -230,9 +230,7 @@ export function StepWaiver({
             }
           />
           <Label htmlFor="liability" className="text-sm">
-            I accept the <strong>liability waiver</strong> and understand that
-            supervised dogs may still experience normal dog-behavior risks such
-            as scratches, scrapes, or property damage.
+            I accept the <strong>liability waiver</strong> and understand that supervised dogs may still experience normal dog-behavior risks such as scratches, scrapes, or property damage.
           </Label>
         </div>
 
