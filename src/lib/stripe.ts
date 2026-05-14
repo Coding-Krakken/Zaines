@@ -36,9 +36,33 @@ export function areStripeKeysModeAligned(): boolean {
   return secretMode === publishableMode;
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
-  apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion,
-});
+let stripeClient: Stripe | null = null;
+
+function getStripeClient(): Stripe {
+  if (stripeClient) return stripeClient;
+
+  const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
+  if (!secretKey) {
+    throw new Error("STRIPE_SECRET_KEY is not configured");
+  }
+
+  stripeClient = new Stripe(secretKey, {
+    apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion,
+  });
+
+  return stripeClient;
+}
+
+export const stripe = new Proxy({} as Stripe, {
+  get(_target, prop, _receiver) {
+    const client = getStripeClient();
+    const value = Reflect.get(client as object, prop);
+    if (typeof value === "function") {
+      return value.bind(client);
+    }
+    return value;
+  },
+}) as Stripe;
 
 // Helper function to format amount for Stripe (cents)
 export function formatAmountForStripe(amount: number): number {
