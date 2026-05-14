@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { StepDates } from "@/app/book/components/StepDates";
 import { StepSuites } from "@/app/book/components/StepSuites";
 import { StepAccount } from "@/app/book/components/StepAccount";
@@ -28,7 +29,8 @@ type BookingValidationResponse = {
   pricing: BookingValidationPricing;
 };
 
-export default function BookPage() {
+function BookPageContent() {
+  const searchParams = useSearchParams();
   const { trustCopy } = useSiteSettings();
   const {
     currentStep,
@@ -38,6 +40,13 @@ export default function BookPage() {
     updateStepData,
     resetWizard,
   } = useBookingWizard();
+
+  // Reset wizard if coming from a fresh "Reserve a Suite" click
+  useEffect(() => {
+    if (searchParams.get("fresh") === "true") {
+      resetWizard();
+    }
+  }, [searchParams, resetWizard]);
   const [pricingQuote, setPricingQuote] =
     useState<BookingValidationPricing | null>(null);
   const [isQuoteLoading, setIsQuoteLoading] = useState(false);
@@ -375,5 +384,13 @@ export default function BookPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function BookPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <BookPageContent />
+    </Suspense>
   );
 }

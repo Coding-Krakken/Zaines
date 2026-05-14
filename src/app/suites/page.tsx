@@ -265,7 +265,7 @@ export default async function SuitesPage() {
                             size="lg"
                             asChild
                           >
-                            <Link href="/book">Reserve This Suite</Link>
+                            <Link href="/book?fresh=true">Reserve This Suite</Link>
                           </Button>
                           <Button
                             variant="outline"
