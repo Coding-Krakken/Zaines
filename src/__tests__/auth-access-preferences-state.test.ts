@@ -49,10 +49,10 @@ describe("access preferences state helpers", () => {
   it("derives connectable providers by excluding already linked ones", () => {
     const result = getConnectableProviders({
       linkedProviders: ["google"],
-      linkableProviders: ["google", "facebook", "resend"],
+      linkableProviders: ["google", "facebook"],
     });
 
-    expect(result).toEqual(["facebook", "resend"]);
+    expect(result).toEqual(["facebook"]);
   });
 
   it("returns empty array when no linkable providers are available", () => {
@@ -66,8 +66,8 @@ describe("access preferences state helpers", () => {
 
   it("returns empty array when all linkable providers are already linked", () => {
     const result = getConnectableProviders({
-      linkedProviders: ["google", "facebook", "resend"],
-      linkableProviders: ["google", "facebook", "resend"],
+      linkedProviders: ["google", "facebook"],
+      linkableProviders: ["google", "facebook"],
     });
 
     expect(result).toEqual([]);
@@ -76,10 +76,10 @@ describe("access preferences state helpers", () => {
   it("preserves input order for mixed connectable providers", () => {
     const result = getConnectableProviders({
       linkedProviders: ["google"],
-      linkableProviders: ["facebook", "google", "resend"],
+      linkableProviders: ["facebook", "google"],
     });
 
-    expect(result).toEqual(["facebook", "resend"]);
+    expect(result).toEqual(["facebook"]);
   });
 
   it("updates a preference key immutably", () => {

@@ -58,8 +58,6 @@ describe("auth runtime config parity", () => {
     process.env.AUTH_ENABLE_PASSWORD_LOGIN = "true";
     process.env.AUTH_ENABLE_GUEST_FLOW = "true";
     process.env.AUTH_ENABLE_DATABASE_SESSIONS = "true";
-    process.env.AUTH_RESEND_KEY = "resend-key";
-    process.env.EMAIL_FROM = "noreply@example.com";
 
     const runtime = getAuthRuntimeConfig(false);
     const capabilities = getAuthProviderCapabilities({
@@ -74,8 +72,6 @@ describe("auth runtime config parity", () => {
     expect(runtime.hasAuthSecret).toBe(true);
     expect(byId.get("credentials")?.enabled).toBe(false);
     expect(byId.get("credentials")?.reasonDisabled).toBe("database_unavailable");
-    expect(byId.get("resend")?.enabled).toBe(false);
-    expect(byId.get("resend")?.reasonDisabled).toBe("database_unavailable");
   });
 
   it("marks auth secret unavailable when neither auth secret env variable is set", () => {

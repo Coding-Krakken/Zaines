@@ -29,10 +29,7 @@ describe("auth provider capabilities", () => {
     expect(byId.get("guest")?.enabled).toBe(true);
   });
 
-  it("disables password and magic-link auth without database", () => {
-    process.env.AUTH_RESEND_KEY = "resend-key";
-    process.env.EMAIL_FROM = "hello@example.com";
-
+  it("disables password auth without database", () => {
     const capabilities = getAuthProviderCapabilities({
       hasDatabase: false,
       enablePasswordLogin: true,
@@ -41,9 +38,7 @@ describe("auth provider capabilities", () => {
 
     const byId = new Map(capabilities.map((capability) => [capability.id, capability]));
 
-    expect(byId.get("resend")?.enabled).toBe(false);
     expect(byId.get("credentials")?.enabled).toBe(false);
-    expect(byId.get("resend")?.reasonDisabled).toBe("database_unavailable");
     expect(byId.get("credentials")?.reasonDisabled).toBe("database_unavailable");
   });
 
@@ -63,9 +58,6 @@ describe("auth provider capabilities", () => {
   });
 
   it("disables guest and password when feature flags are disabled", () => {
-    process.env.AUTH_RESEND_KEY = "resend-key";
-    process.env.EMAIL_FROM = "hello@example.com";
-
     const capabilities = getAuthProviderCapabilities({
       hasDatabase: true,
       enablePasswordLogin: false,
@@ -93,7 +85,6 @@ describe("auth provider capabilities", () => {
     });
 
     expect(capabilities.map((capability) => capability.id)).toEqual([
-      "resend",
       "credentials",
       "google",
       "facebook",

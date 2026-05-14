@@ -46,7 +46,7 @@ describe("Issue #66 platform hardening", () => {
   });
 
   it("enforces fixed-window throttles by client and subject", () => {
-    const request = new Request("http://localhost/api/auth/magic-link", {
+    const request = new Request("http://localhost/api/auth/signin", {
       headers: { "x-forwarded-for": "203.0.113.10" },
     });
 

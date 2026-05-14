@@ -1,9 +1,9 @@
 import { getOauthProviderCredentials } from "@/lib/auth/oauth-env";
 
-type ProviderKind = "oauth" | "passwordless" | "credentials" | "guest";
+type ProviderKind = "oauth" | "credentials" | "guest";
 
 export type AuthProviderCapability = {
-  id: "google" | "facebook" | "apple" | "microsoft" | "resend" | "credentials" | "guest";
+  id: "google" | "facebook" | "apple" | "microsoft" | "credentials" | "guest";
   kind: ProviderKind;
   label: string;
   enabled: boolean;
@@ -138,24 +138,9 @@ export function getAuthProviderCapabilities(params: {
   enablePasswordLogin: boolean;
   enableGuestFlow: boolean;
 }): AuthProviderCapability[] {
-  const magicLinkConfigured =
-    hasValue(process.env.AUTH_RESEND_KEY || process.env.RESEND_API_KEY) &&
-    hasValue(process.env.EMAIL_FROM);
-
   const oauthCapabilities = OAUTH_PROVIDER_REGISTRY.map(buildOauthCapability);
 
   return [
-    {
-      id: "resend",
-      kind: "passwordless",
-      label: "Email me a magic link",
-      enabled: params.hasDatabase && magicLinkConfigured,
-      reasonDisabled: !params.hasDatabase
-        ? "database_unavailable"
-        : !magicLinkConfigured
-          ? "missing_magic_link_credentials"
-          : undefined,
-    },
     {
       id: "credentials",
       kind: "credentials",

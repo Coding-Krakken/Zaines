@@ -25,7 +25,6 @@ const { mockNextAuth } = vi.hoisted(() => ({
 }));
 
 vi.mock("next-auth", () => ({ default: mockNextAuth }));
-vi.mock("next-auth/providers/resend", () => ({ default: vi.fn(() => ({})) }));
 vi.mock("next-auth/providers/google", () => ({ default: vi.fn(() => ({})) }));
 vi.mock("next-auth/providers/facebook", () => ({ default: vi.fn(() => ({})) }));
 vi.mock("@auth/prisma-adapter", () => ({ PrismaAdapter: vi.fn(() => ({})) }));

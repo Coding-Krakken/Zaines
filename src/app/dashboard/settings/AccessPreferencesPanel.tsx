@@ -19,7 +19,6 @@ import {
 function displayProvider(provider: string): string {
   if (provider === 'google') return 'Google';
   if (provider === 'facebook') return 'Facebook';
-  if (provider === 'resend') return 'Magic Link';
   return provider;
 }
 

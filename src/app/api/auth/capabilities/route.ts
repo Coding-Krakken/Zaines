@@ -57,7 +57,6 @@ export async function GET() {
   );
   const hasEnabledAuthProvider =
     enabledProviderIds.has("credentials") ||
-    enabledProviderIds.has("resend") ||
     enabledProviderIds.has("google") ||
     enabledProviderIds.has("facebook");
 

@@ -35,9 +35,6 @@ describe("auth capabilities route", () => {
     delete process.env.GOOGLE_CLIENT_SECRET;
     delete process.env.FACEBOOK_CLIENT_ID;
     delete process.env.FACEBOOK_CLIENT_SECRET;
-    delete process.env.AUTH_RESEND_KEY;
-    delete process.env.RESEND_API_KEY;
-    delete process.env.EMAIL_FROM;
     delete process.env.AUTH_ENABLE_PASSWORD_LOGIN;
     delete process.env.AUTH_ENABLE_GUEST_FLOW;
   });
@@ -67,15 +64,12 @@ describe("auth capabilities route", () => {
 
     expect(byId.get("credentials")?.enabled).toBe(true);
     expect(byId.get("guest")?.enabled).toBe(true);
-    expect(byId.get("resend")?.enabled).toBe(false);
   });
 
   it("reflects configured providers and disabled feature flags", async () => {
     isDatabaseConfiguredMock.mockReturnValueOnce(true);
     process.env.GOOGLE_CLIENT_ID = "google-client";
     process.env.GOOGLE_CLIENT_SECRET = "google-secret";
-    process.env.AUTH_RESEND_KEY = "resend-key";
-    process.env.EMAIL_FROM = "noreply@example.com";
     process.env.AUTH_ENABLE_PASSWORD_LOGIN = "false";
     process.env.AUTH_ENABLE_GUEST_FLOW = "false";
 
@@ -92,7 +86,6 @@ describe("auth capabilities route", () => {
     );
 
     expect(byId.get("google")?.enabled).toBe(true);
-    expect(byId.get("resend")?.enabled).toBe(true);
     expect(byId.get("credentials")?.enabled).toBe(false);
     expect(byId.get("credentials")?.reasonDisabled).toBe("password_login_disabled");
     expect(byId.get("guest")?.enabled).toBe(false);
@@ -126,8 +119,6 @@ describe("auth capabilities route", () => {
 
   it("disables database-dependent providers when database is unavailable", async () => {
     isDatabaseConfiguredMock.mockReturnValueOnce(false);
-    process.env.AUTH_RESEND_KEY = "resend-key";
-    process.env.EMAIL_FROM = "noreply@example.com";
 
     const response = await GET();
     const body = await response.json();
@@ -141,8 +132,6 @@ describe("auth capabilities route", () => {
       ]),
     );
 
-    expect(byId.get("resend")?.enabled).toBe(false);
-    expect(byId.get("resend")?.reasonDisabled).toBe("database_unavailable");
     expect(byId.get("credentials")?.enabled).toBe(false);
     expect(byId.get("credentials")?.reasonDisabled).toBe("credential_store_unavailable");
     expect(body.authOperational).toBe(false);

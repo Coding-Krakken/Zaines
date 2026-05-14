@@ -25,10 +25,6 @@ vi.mock("next-auth", () => ({
   })),
 }));
 
-vi.mock("next-auth/providers/resend", () => ({
-  default: vi.fn((config: unknown) => config),
-}));
-
 vi.mock("next-auth/providers/google", () => ({
   default: vi.fn((config: unknown) => config),
 }));

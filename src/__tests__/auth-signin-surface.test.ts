@@ -14,10 +14,9 @@ describe("deriveSignInSurface", () => {
     expect(surface.oauthProviders.map((provider) => provider.id)).toEqual(["google"]);
   });
 
-  it("enables magic-link and credentials only when capability and provider are both present", () => {
+  it("enables credentials only when capability and provider are both present", () => {
     const surface = deriveSignInSurface({
       capabilities: [
-        { id: "resend", kind: "passwordless", label: "Email me a magic link", enabled: true },
         {
           id: "credentials",
           kind: "credentials",
@@ -25,10 +24,9 @@ describe("deriveSignInSurface", () => {
           enabled: true,
         },
       ],
-      providerIds: new Set(["resend"]),
+      providerIds: new Set(["google"]),
     });
 
-    expect(surface.hasMagicLink).toBe(true);
     expect(surface.hasCredentials).toBe(false);
   });
 
@@ -47,7 +45,6 @@ describe("deriveSignInSurface", () => {
     const surface = deriveSignInSurface({
       capabilities: [
         { id: "google", kind: "oauth", label: "Continue with Google", enabled: true },
-        { id: "resend", kind: "passwordless", label: "Email me a magic link", enabled: true },
         {
           id: "credentials",
           kind: "credentials",
@@ -56,11 +53,10 @@ describe("deriveSignInSurface", () => {
         },
         { id: "guest", kind: "guest", label: "Continue as guest", enabled: true },
       ],
-      providerIds: new Set(["google", "resend", "credentials"]),
+      providerIds: new Set(["google", "credentials"]),
     });
 
     expect(surface.oauthProviders.map((provider) => provider.id)).toEqual(["google"]);
-    expect(surface.hasMagicLink).toBe(true);
     expect(surface.hasCredentials).toBe(true);
     expect(surface.hasGuest).toBe(true);
   });

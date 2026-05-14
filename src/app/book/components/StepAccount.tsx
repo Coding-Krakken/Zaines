@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import {
@@ -15,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   User,
-  Mail,
   CheckCircle2,
   ArrowRight,
   ArrowLeft,
@@ -36,23 +36,6 @@ interface StepAccountProps {
   onCancel?: () => void;
 }
 
-type MagicLinkErrorCode =
-  | "INVALID_EMAIL"
-  | "AUTH_PROVIDER_MISCONFIGURED"
-  | "AUTH_TRANSIENT_FAILURE";
-
-type MagicLinkErrorResponse = {
-  errorCode?: MagicLinkErrorCode;
-  message?: string;
-  retryable?: boolean;
-  correlationId?: string;
-};
-
-type MagicLinkSuccessResponse = {
-  state?: "sent";
-  message?: string;
-};
-
 export function StepAccount({
   data,
   onUpdate,
@@ -65,12 +48,6 @@ export function StepAccount({
   const [lastName, setLastName] = useState(data.lastName || "");
   const [phone, setPhone] = useState(data.phone || "");
   const [email, setEmail] = useState(data.email || session?.user?.email || "");
-  const [isSendingMagicLink, setIsSendingMagicLink] = useState(false);
-  const [magicLinkSent, setMagicLinkSent] = useState(false);
-  const [magicLinkError, setMagicLinkError] = useState<string>("");
-  const [magicLinkCorrelationId, setMagicLinkCorrelationId] = useState<
-    string | null
-  >(null);
 
   const isAuthenticated = status === "authenticated";
   const isLoading = status === "loading";
@@ -89,93 +66,6 @@ export function StepAccount({
   const resolvedFirstName = firstName || sessionDefaults.firstName;
   const resolvedLastName = lastName || sessionDefaults.lastName;
   const resolvedEmail = email || sessionDefaults.email;
-
-  const handleSendMagicLink = async () => {
-    setMagicLinkError("");
-    setMagicLinkCorrelationId(null);
-
-    // Validate email
-    const validation = stepAccountSchema.shape.email.safeParse(
-      resolvedEmail.trim(),
-    );
-
-    if (!validation.success) {
-      toast.error(validation.error.issues[0].message);
-      return;
-    }
-
-    setIsSendingMagicLink(true);
-
-    try {
-      const response = await fetch("/api/auth/magic-link", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: resolvedEmail.trim(),
-          intent: "manage_booking",
-        }),
-      });
-
-      if (response.status === 202) {
-        const body = (await response
-          .json()
-          .catch(() => ({}))) as MagicLinkSuccessResponse;
-        setMagicLinkSent(true);
-        onUpdate({
-          firstName: resolvedFirstName,
-          lastName: resolvedLastName,
-          email: resolvedEmail.trim(),
-          phone,
-        });
-        toast.success(
-          body.message || "Check your email for your secure sign-in link.",
-        );
-        return;
-      }
-
-      const errorPayload = (await response
-        .json()
-        .catch(() => ({}))) as MagicLinkErrorResponse;
-      setMagicLinkCorrelationId(errorPayload.correlationId ?? null);
-
-      if (
-        errorPayload.errorCode === "INVALID_EMAIL" ||
-        response.status === 422
-      ) {
-        setMagicLinkError("Enter a valid email address.");
-        toast.error("Enter a valid email address.");
-        return;
-      }
-
-      if (errorPayload.errorCode === "AUTH_PROVIDER_MISCONFIGURED") {
-        setMagicLinkError(
-          "Sign-in is temporarily unavailable. Please contact support.",
-        );
-        toast.error(
-          "Sign-in is temporarily unavailable. Please contact support.",
-        );
-        return;
-      }
-
-      setMagicLinkError(
-        "We couldn't send your sign-in link right now. Please retry.",
-      );
-      toast.error(
-        "We couldn't send your sign-in link right now. Please retry.",
-      );
-    } catch {
-      setMagicLinkError(
-        "We couldn't send your sign-in link right now. Please retry.",
-      );
-      toast.error(
-        "We couldn't send your sign-in link right now. Please retry.",
-      );
-    } finally {
-      setIsSendingMagicLink(false);
-    }
-  };
 
   const handleNext = () => {
     const accountData = {
@@ -335,67 +225,20 @@ export function StepAccount({
                   placeholder="you@example.com"
                   value={resolvedEmail}
                   onChange={(e) => setEmail(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleSendMagicLink();
-                    }
-                  }}
                   required
                   className="focus-ring"
                 />
               </div>
 
-              {magicLinkSent ? (
-                <Alert className="border-blue-500 bg-blue-50 dark:bg-blue-950">
-                  <Mail className="h-4 w-4 text-blue-600" />
-                  <AlertDescription className="text-blue-800 dark:text-blue-200">
-                    <div className="space-y-2">
-                      <p className="font-semibold">
-                        Magic link sent to {resolvedEmail}
-                      </p>
-                      <p className="text-sm">
-                        Check your email and click the link to sign in. You can
-                        continue booking while waiting for the email, or sign in
-                        to sync your booking.
-                      </p>
-                    </div>
-                  </AlertDescription>
-                </Alert>
-              ) : (
-                <div className="space-y-3">
-                  {magicLinkError ? (
-                    <Alert variant="destructive">
-                      <AlertDescription>
-                        {magicLinkError}
-                        {magicLinkCorrelationId ? (
-                          <span className="mt-2 block text-xs">
-                            Reference ID: {magicLinkCorrelationId}
-                          </span>
-                        ) : null}
-                      </AlertDescription>
-                    </Alert>
-                  ) : null}
+              <Alert className="border-blue-500 bg-blue-50 dark:bg-blue-950">
+                <AlertDescription className="text-blue-800 dark:text-blue-200">
+                  Sign in with your email/password or Google account to manage bookings in your dashboard.
+                </AlertDescription>
+              </Alert>
 
-                  <Button
-                    onClick={handleSendMagicLink}
-                    disabled={!resolvedEmail || isSendingMagicLink}
-                    className="focus-ring w-full"
-                    variant="outline"
-                  >
-                    {isSendingMagicLink ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Sending Magic Link...
-                      </>
-                    ) : (
-                      <>
-                        <Mail className="mr-2 h-4 w-4" />
-                        Send Magic Link to Sign In
-                      </>
-                    )}
-                  </Button>
-                </div>
-              )}
+              <Button asChild className="focus-ring w-full" variant="outline">
+                <Link href="/auth/signin?callbackUrl=/dashboard/bookings">Sign In to Existing Account</Link>
+              </Button>
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">

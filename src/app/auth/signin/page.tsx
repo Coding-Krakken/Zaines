@@ -4,7 +4,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { ShieldCheck, Sparkles, KeyRound, Mail, PawPrint, ArrowLeft } from "lucide-react";
+import { ShieldCheck, Sparkles, KeyRound, PawPrint, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ type UiMode = "sign_in" | "create_account";
 
 type AuthCapability = {
   id: string;
-  kind: "oauth" | "passwordless" | "credentials" | "guest";
+  kind: "oauth" | "credentials" | "guest";
   label: string;
   enabled: boolean;
   reasonDisabled?: string;
@@ -34,12 +34,6 @@ type CapabilitiesResponse = {
 type RegisterResponse = {
   errorCode?: string;
   message?: string;
-};
-
-type MagicLinkErrorResponse = {
-  errorCode?: "INVALID_EMAIL" | "AUTH_PROVIDER_MISCONFIGURED" | "AUTH_TRANSIENT_FAILURE";
-  message?: string;
-  correlationId?: string;
 };
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -83,8 +77,6 @@ function SignInForm() {
   const [rememberMe, setRememberMe] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  const [magicLinkSent, setMagicLinkSent] = useState(false);
-  const [magicLinkRuntimeAvailable, setMagicLinkRuntimeAvailable] = useState(true);
   const [message, setMessage] = useState("");
   const [correlationId, setCorrelationId] = useState<string | null>(null);
 
@@ -103,7 +95,6 @@ function SignInForm() {
         if (capabilityResponse.ok) {
           const payload = (await capabilityResponse.json()) as CapabilitiesResponse;
           setCapabilities(payload.capabilities || []);
-          setMagicLinkRuntimeAvailable(true);
 
           if (payload.authOperational === false) {
             setAuthOperational(false);
@@ -135,7 +126,7 @@ function SignInForm() {
     };
   }, []);
 
-  const { oauthProviders, hasMagicLink, hasCredentials, hasGuest } = useMemo(
+  const { oauthProviders, hasCredentials, hasGuest } = useMemo(
     () => deriveSignInSurface({ capabilities, providerIds }),
     [capabilities, providerIds],
   );
@@ -151,7 +142,7 @@ function SignInForm() {
     if (!credentialsReason) return "Account creation is temporarily unavailable. Please retry.";
     switch (credentialsReason) {
       case "credential_store_unavailable":
-        return "Account setup is temporarily unavailable while account storage is being repaired. Please use magic link or social sign-in.";
+        return "Account setup is temporarily unavailable while account storage is being repaired. Please use social sign-in.";
       case "database_unavailable":
         return "Account setup is temporarily unavailable because the account database is offline.";
       case "password_login_disabled":
@@ -280,46 +271,6 @@ function SignInForm() {
     }
   };
 
-  const handleMagicLink = async () => {
-    setMessage("");
-    setCorrelationId(null);
-
-    if (!authOperational) {
-      updateError("Magic-link sign-in is temporarily unavailable. Please contact support.");
-      return;
-    }
-
-    if (!EMAIL_PATTERN.test(email.trim())) {
-      updateError("Enter a valid email address.");
-      return;
-    }
-
-    setBusy(true);
-    try {
-      const response = await fetch("/api/auth/magic-link", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), intent: "sign_in" }),
-      });
-
-      if (response.status === 202) {
-        setMagicLinkSent(true);
-        setMessage("Magic link sent. Check your inbox.");
-        return;
-      }
-
-      const payload = (await response.json()) as MagicLinkErrorResponse;
-      if (payload.errorCode === "AUTH_PROVIDER_MISCONFIGURED") {
-        setMagicLinkRuntimeAvailable(false);
-      }
-      updateError(payload.message || "Unable to send a magic link right now.", payload.correlationId);
-    } catch {
-      updateError("Unable to send a magic link right now. Please retry.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
   const handleOAuth = async (providerId: string) => {
     if (!authOperational) {
       updateError("Social sign-in is temporarily unavailable. Please contact support.");
@@ -377,7 +328,7 @@ function SignInForm() {
                 </div>
                 <div className="rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-700">
                   <KeyRound className="mb-2 h-4 w-4 text-blue-700" />
-                  Choice of password or magic-link login
+                  Secure email/password and social sign-in
                 </div>
               </div>
 
@@ -414,7 +365,7 @@ function SignInForm() {
                 ) : null}
 
                 {message ? (
-                  <Alert variant={magicLinkSent ? "default" : "destructive"}>
+                  <Alert variant="destructive">
                     <AlertDescription>
                       {message}
                       {correlationId ? ` (Support code: ${correlationId})` : ""}
@@ -484,37 +435,6 @@ function SignInForm() {
                     {busy ? "Working..." : mode === "sign_in" ? "Sign In Securely" : "Create My Account"}
                   </Button>
                 </form>
-
-                {hasMagicLink ? (
-                  <>
-                    <div className="my-5 relative">
-                      <div className="absolute inset-0 flex items-center">
-                        <Separator />
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase tracking-wide">
-                        <span className="bg-white px-2 text-stone-500">or passwordless</span>
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full border-stone-300"
-                      disabled={busy || loadingCapabilities || !authOperational || !magicLinkRuntimeAvailable}
-                      onClick={() => {
-                        setMagicLinkSent(false);
-                        void handleMagicLink();
-                      }}
-                    >
-                      <Mail className="mr-2 h-4 w-4" />
-                      Email Me a Magic Link
-                    </Button>
-                    {!magicLinkRuntimeAvailable ? (
-                      <p className="mt-2 text-xs text-stone-500">
-                        Magic-link delivery is currently misconfigured. Please use another sign-in method or contact support.
-                      </p>
-                    ) : null}
-                  </>
-                ) : null}
 
                 {oauthProviders.length > 0 ? (
                   <>

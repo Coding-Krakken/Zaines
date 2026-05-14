@@ -4,11 +4,6 @@ import { NextRequest } from "next/server";
 const settingsStore = new Map<string, string>();
 let suiteCount = 3;
 let bookingCount = 0;
-const { signInMock } = vi.hoisted(() => ({
-  signInMock: vi.fn(),
-}));
-
-vi.mock("@/lib/auth", () => ({ signIn: signInMock }));
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
@@ -51,7 +46,6 @@ vi.mock("@/lib/prisma", () => ({
 }));
 
 import { POST as bookingAvailabilityPost } from "@/app/api/booking/availability/route";
-import { POST as magicLinkPost } from "@/app/api/auth/magic-link/route";
 import { POST as contactPost } from "@/app/api/contact/submissions/route";
 import { POST as reviewPost } from "@/app/api/reviews/submissions/route";
 import { GET as reviewsGet } from "@/app/api/reviews/route";
@@ -87,7 +81,6 @@ describe("Issue #26 API contracts", () => {
     settingsStore.clear();
     suiteCount = 3;
     bookingCount = 0;
-    signInMock.mockReset();
     __resetIssue26InMemoryState();
     process.env.RESEND_API_KEY = "test";
     process.env.EMAIL_FROM = "noreply@example.com";
@@ -113,21 +106,6 @@ describe("Issue #26 API contracts", () => {
 
     expect(response.status).toBe(400);
     expect(data.errorCode).toBe("INVALID_DATE_RANGE");
-    expectPublicErrorEnvelope(data);
-  });
-
-  it("returns invalid email contract", async () => {
-    const request = new Request("http://localhost:3000/api/auth/magic-link", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: "bad-email", intent: "sign_in" }),
-    });
-
-    const response = await magicLinkPost(request as NextRequest);
-    const data = await response.json();
-
-    expect(response.status).toBe(422);
-    expect(data.errorCode).toBe("INVALID_EMAIL");
     expectPublicErrorEnvelope(data);
   });
 

@@ -1,6 +1,5 @@
 import NextAuth, { NextAuthConfig } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import Resend from "next-auth/providers/resend";
 import Google from "next-auth/providers/google";
 import Facebook from "next-auth/providers/facebook";
 import Credentials from "next-auth/providers/credentials";
@@ -38,7 +37,6 @@ const capabilities = getAuthProviderCapabilities({
   enableGuestFlow,
 });
 const enabledCapabilityIds = getEnabledCapabilityIds(capabilities);
-const resendApiKey = process.env.AUTH_RESEND_KEY || process.env.RESEND_API_KEY;
 const googleOauthCredentials = getOauthProviderCredentials("google");
 const facebookOauthCredentials = getOauthProviderCredentials("facebook");
 
@@ -46,14 +44,6 @@ const normalizeRole = (value: unknown): string =>
   typeof value === "string" && value.length > 0 ? value : "customer";
 
 const providers: NonNullable<NextAuthConfig["providers"]> = [
-  ...(enabledCapabilityIds.has("resend")
-    ? [
-        Resend({
-          apiKey: resendApiKey,
-          from: process.env.EMAIL_FROM || "noreply@pawfectstays.com",
-        }),
-      ]
-    : []),
   ...(enabledCapabilityIds.has("google")
     ? [
         Google({
@@ -225,9 +215,7 @@ const providers: NonNullable<NextAuthConfig["providers"]> = [
 ];
 
 export const authConfig: NextAuthConfig = {
-  // Keep adapter available whenever the database is configured. Some providers
-  // (for example email/magic-link) require adapter storage even when session
-  // strategy is JWT.
+  // Keep adapter available whenever the database is configured.
   ...(hasDatabase ? { adapter: PrismaAdapter(prisma) } : {}),
 
   // Required for Vercel / AWS Lambda deployments: allows NextAuth to trust

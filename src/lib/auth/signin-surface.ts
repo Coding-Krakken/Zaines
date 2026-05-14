@@ -1,6 +1,6 @@
 type AuthCapability = {
   id: string;
-  kind: "oauth" | "passwordless" | "credentials" | "guest";
+  kind: "oauth" | "credentials" | "guest";
   label: string;
   enabled: boolean;
 };
@@ -20,7 +20,6 @@ export function deriveSignInSurface(params: {
   return {
     enabledCapabilityIds,
     oauthProviders,
-    hasMagicLink: enabledCapabilityIds.has("resend") && params.providerIds.has("resend"),
     hasCredentials:
       enabledCapabilityIds.has("credentials") && params.providerIds.has("credentials"),
     hasGuest: enabledCapabilityIds.has("guest"),
