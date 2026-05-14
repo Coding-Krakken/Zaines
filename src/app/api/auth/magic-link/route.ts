@@ -9,25 +9,36 @@ import {
 import { rateLimitedResponse } from "@/lib/security/api";
 
 function isAuthMisconfigured(): boolean {
+  const hasAuthSecret = Boolean(
+    process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  );
   const hasResendKey = Boolean(
     process.env.AUTH_RESEND_KEY || process.env.RESEND_API_KEY,
   );
   const hasEmailFrom = Boolean(process.env.EMAIL_FROM);
-  return !hasResendKey || !hasEmailFrom;
+  return !hasAuthSecret || !hasResendKey || !hasEmailFrom;
 }
 
 function classifyAuthFailure(
   error: unknown,
 ): "AUTH_PROVIDER_MISCONFIGURED" | "AUTH_TRANSIENT_FAILURE" {
-  const rawMessage = error instanceof Error ? error.message : "";
+  const rawMessage =
+    typeof error === "string"
+      ? error
+      : error instanceof Error
+        ? error.message
+        : "";
   const message = rawMessage.toLowerCase();
 
   if (
     message.includes("nextauth") ||
+    message.includes("authjs") ||
     message.includes("resend") ||
     message.includes("configuration") ||
+    message.includes("missing") ||
     message.includes("secret") ||
-    message.includes("url")
+    message.includes("url") ||
+    message.includes("invalid provider")
   ) {
     return "AUTH_PROVIDER_MISCONFIGURED";
   }
@@ -86,7 +97,7 @@ export async function POST(request: NextRequest) {
         retryable: false,
         correlationId,
       }),
-      { status: 500 },
+      { status: 503 },
     );
   }
 
@@ -108,6 +119,7 @@ export async function POST(request: NextRequest) {
       result.error
     ) {
       const errorCode = classifyAuthFailure(result.error);
+      logServerFailure("/api/auth/magic-link", errorCode, correlationId, result.error);
       return NextResponse.json(
         createPublicErrorEnvelope({
           errorCode,
@@ -118,7 +130,7 @@ export async function POST(request: NextRequest) {
           retryable: errorCode === "AUTH_TRANSIENT_FAILURE",
           correlationId,
         }),
-        { status: 500 },
+        { status: 503 },
       );
     }
 
@@ -143,7 +155,7 @@ export async function POST(request: NextRequest) {
         retryable: errorCode === "AUTH_TRANSIENT_FAILURE",
         correlationId,
       }),
-      { status: 500 },
+      { status: 503 },
     );
   }
 }

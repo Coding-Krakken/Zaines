@@ -22,6 +22,7 @@ type AuthCapability = {
   kind: "oauth" | "passwordless" | "credentials" | "guest";
   label: string;
   enabled: boolean;
+  reasonDisabled?: string;
 };
 
 type CapabilitiesResponse = {
@@ -83,6 +84,7 @@ function SignInForm() {
   const [busy, setBusy] = useState(false);
 
   const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [magicLinkRuntimeAvailable, setMagicLinkRuntimeAvailable] = useState(true);
   const [message, setMessage] = useState("");
   const [correlationId, setCorrelationId] = useState<string | null>(null);
 
@@ -101,6 +103,7 @@ function SignInForm() {
         if (capabilityResponse.ok) {
           const payload = (await capabilityResponse.json()) as CapabilitiesResponse;
           setCapabilities(payload.capabilities || []);
+          setMagicLinkRuntimeAvailable(true);
 
           if (payload.authOperational === false) {
             setAuthOperational(false);
@@ -136,6 +139,33 @@ function SignInForm() {
     () => deriveSignInSurface({ capabilities, providerIds }),
     [capabilities, providerIds],
   );
+
+  const capabilityById = useMemo(
+    () => new Map(capabilities.map((capability) => [capability.id, capability])),
+    [capabilities],
+  );
+
+  const credentialsReason = capabilityById.get("credentials")?.reasonDisabled;
+
+  const credentialsUnavailableMessage = useMemo(() => {
+    if (!credentialsReason) return "Account creation is temporarily unavailable. Please retry.";
+    switch (credentialsReason) {
+      case "credential_store_unavailable":
+        return "Account setup is temporarily unavailable while account storage is being repaired. Please use magic link or social sign-in.";
+      case "database_unavailable":
+        return "Account setup is temporarily unavailable because the account database is offline.";
+      case "password_login_disabled":
+        return "Email/password account creation is disabled in this environment.";
+      default:
+        return "Account creation is temporarily unavailable. Please retry.";
+    }
+  }, [credentialsReason]);
+
+  useEffect(() => {
+    if (!hasCredentials && mode === "create_account") {
+      setMode("sign_in");
+    }
+  }, [hasCredentials, mode]);
 
   const updateError = (value: string, supportId?: string) => {
     setMessage(value);
@@ -188,6 +218,11 @@ function SignInForm() {
     event.preventDefault();
     setMessage("");
     setCorrelationId(null);
+
+    if (!hasCredentials) {
+      updateError(credentialsUnavailableMessage);
+      return;
+    }
 
     if (!authOperational) {
       updateError("Account creation is temporarily unavailable. Please contact support.");
@@ -274,6 +309,9 @@ function SignInForm() {
       }
 
       const payload = (await response.json()) as MagicLinkErrorResponse;
+      if (payload.errorCode === "AUTH_PROVIDER_MISCONFIGURED") {
+        setMagicLinkRuntimeAvailable(false);
+      }
       updateError(payload.message || "Unable to send a magic link right now.", payload.correlationId);
     } catch {
       updateError("Unable to send a magic link right now. Please retry.");
@@ -357,13 +395,23 @@ function SignInForm() {
                   <button
                     type="button"
                     className={`rounded-md px-3 py-2 transition ${
-                      mode === "create_account" ? "bg-white text-stone-900 shadow" : "text-stone-600"
+                      mode === "create_account"
+                        ? "bg-white text-stone-900 shadow"
+                        : hasCredentials
+                          ? "text-stone-600"
+                          : "text-stone-500"
                     }`}
                     onClick={() => setMode("create_account")}
                   >
                     Create Account
                   </button>
                 </div>
+
+                {mode === "create_account" && !hasCredentials ? (
+                  <Alert>
+                    <AlertDescription>{credentialsUnavailableMessage}</AlertDescription>
+                  </Alert>
+                ) : null}
 
                 {message ? (
                   <Alert variant={magicLinkSent ? "default" : "destructive"}>
@@ -412,8 +460,8 @@ function SignInForm() {
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
                       placeholder={mode === "create_account" ? "Create a strong password" : "Enter your password"}
-                      disabled={busy || loadingCapabilities || !hasCredentials || !authOperational}
-                      required={hasCredentials}
+                      disabled={busy || loadingCapabilities || !authOperational || (mode === "create_account" && !hasCredentials)}
+                      required={mode === "sign_in" || hasCredentials}
                     />
                   </div>
 
@@ -432,7 +480,7 @@ function SignInForm() {
                     </div>
                   ) : null}
 
-                  <Button type="submit" className="w-full bg-stone-900 text-white hover:bg-stone-800" disabled={busy || loadingCapabilities || !hasCredentials || !authOperational}>
+                  <Button type="submit" className="w-full bg-stone-900 text-white hover:bg-stone-800" disabled={busy || loadingCapabilities || !authOperational || (mode === "create_account" && !hasCredentials)}>
                     {busy ? "Working..." : mode === "sign_in" ? "Sign In Securely" : "Create My Account"}
                   </Button>
                 </form>
@@ -451,7 +499,7 @@ function SignInForm() {
                       type="button"
                       variant="outline"
                       className="w-full border-stone-300"
-                      disabled={busy || loadingCapabilities || !authOperational}
+                      disabled={busy || loadingCapabilities || !authOperational || !magicLinkRuntimeAvailable}
                       onClick={() => {
                         setMagicLinkSent(false);
                         void handleMagicLink();
@@ -460,6 +508,11 @@ function SignInForm() {
                       <Mail className="mr-2 h-4 w-4" />
                       Email Me a Magic Link
                     </Button>
+                    {!magicLinkRuntimeAvailable ? (
+                      <p className="mt-2 text-xs text-stone-500">
+                        Magic-link delivery is currently misconfigured. Please use another sign-in method or contact support.
+                      </p>
+                    ) : null}
                   </>
                 ) : null}
 

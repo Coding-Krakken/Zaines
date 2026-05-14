@@ -21,6 +21,15 @@ const {
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
+    $transaction: async (callback: (tx: unknown) => Promise<unknown>) =>
+      callback({
+        user: {
+          create: userCreateMock,
+        },
+        passwordCredential: {
+          create: passwordCredentialCreateMock,
+        },
+      }),
     user: {
       findUnique: userFindUniqueMock,
       create: userCreateMock,

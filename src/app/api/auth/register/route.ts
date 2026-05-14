@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { hashPassword, validatePasswordStrength } from "@/lib/auth/password";
@@ -23,6 +24,18 @@ function publicError(params: {
     retryable: Boolean(params.retryable),
     correlationId: params.correlationId,
   };
+}
+
+function getPrismaErrorCode(error: unknown): string | null {
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    return error.code;
+  }
+  return null;
+}
+
+function isSchemaOrAvailabilityError(errorCode: string | null): boolean {
+  if (!errorCode) return false;
+  return ["P1001", "P1002", "P1008", "P1017", "P2021", "P2022"].includes(errorCode);
 }
 
 export async function POST(request: NextRequest) {
@@ -118,6 +131,25 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Verify PasswordCredential model is available at runtime before proceeding
+  if (!((prisma as unknown as { passwordCredential?: unknown }).passwordCredential)) {
+    logSecurityEvent({
+      route: "/api/auth/register",
+      event: "AUTH_REGISTER_SCHEMA_MISMATCH",
+      correlationId,
+      level: "error",
+    });
+    return NextResponse.json(
+      publicError({
+        code: "AUTH_SCHEMA_NOT_READY",
+        message: "Account setup is temporarily unavailable. Please retry.",
+        correlationId,
+        retryable: true,
+      }),
+      { status: 503 },
+    );
+  }
+
   const email = parsedBody.email.trim().toLowerCase();
   const displayName = parsedBody.name?.trim() || email.split("@")[0] || "Customer";
 
@@ -146,30 +178,67 @@ export async function POST(request: NextRequest) {
 
     const passwordHash = hashPassword(parsedBody.password);
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        name: displayName,
-        role: "customer",
-      },
-      select: { id: true, email: true, name: true },
+    const user = await prisma.$transaction(async (tx) => {
+      const createdUser = await tx.user.create({
+        data: {
+          email,
+          name: displayName,
+          role: "customer",
+        },
+        select: { id: true, email: true, name: true },
+      });
+
+      const credentialStore = (
+        tx as unknown as {
+          passwordCredential?: {
+            create: (args: {
+              data: {
+                userId: string;
+                passwordHash: string;
+                passwordUpdatedAt: Date;
+              };
+            }) => Promise<unknown>;
+          };
+        }
+      ).passwordCredential;
+
+      if (!credentialStore) {
+        throw new Error("AUTH_SCHEMA_NOT_READY");
+      }
+
+      await credentialStore.create({
+        data: {
+          userId: createdUser.id,
+          passwordHash,
+          passwordUpdatedAt: new Date(),
+        },
+      });
+
+      return createdUser;
     });
 
-    const credentialStore = (
-      prisma as unknown as {
-        passwordCredential?: {
-          create: (args: {
-            data: {
-              userId: string;
-              passwordHash: string;
-              passwordUpdatedAt: Date;
-            };
-          }) => Promise<unknown>;
-        };
-      }
-    ).passwordCredential;
+    return NextResponse.json(
+      {
+        state: "registered",
+        user,
+      },
+      { status: 201 },
+    );
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const prismaErrorCode = getPrismaErrorCode(error);
+    const errorCode = prismaErrorCode ?? (error as { code?: string }).code ?? "UNKNOWN";
 
-    if (!credentialStore) {
+    if (errorMessage === "AUTH_SCHEMA_NOT_READY" || isSchemaOrAvailabilityError(prismaErrorCode)) {
+      logSecurityEvent({
+        route: "/api/auth/register",
+        event: "AUTH_REGISTER_SCHEMA_MISMATCH",
+        correlationId,
+        level: "error",
+        context: {
+          errorCode,
+        },
+      });
       return NextResponse.json(
         publicError({
           code: "AUTH_SCHEMA_NOT_READY",
@@ -181,27 +250,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await credentialStore.create({
-      data: {
-        userId: user.id,
-        passwordHash,
-        passwordUpdatedAt: new Date(),
-      },
-    });
-
-    return NextResponse.json(
-      {
-        state: "registered",
-        user,
-      },
-      { status: 201 },
-    );
-  } catch {
+    if (prismaErrorCode === "P2002") {
+      logSecurityEvent({
+        route: "/api/auth/register",
+        event: "AUTH_REGISTER_EXISTS",
+        correlationId,
+        level: "warn",
+      });
+      return NextResponse.json(
+        publicError({
+          code: "ACCOUNT_ALREADY_EXISTS",
+          message: "An account with that email already exists.",
+          correlationId,
+        }),
+        { status: 409 },
+      );
+    }
+    
     logSecurityEvent({
       route: "/api/auth/register",
       event: "AUTH_REGISTER_FAILED",
       correlationId,
       level: "error",
+      context: {
+        errorType: typeof error,
+        errorCode,
+        errorSummary: errorMessage.slice(0, 100),
+      },
     });
     return NextResponse.json(
       publicError({

@@ -11,6 +11,7 @@ import {
   getEnabledCapabilityIds,
 } from "@/lib/auth/provider-capabilities";
 import { getAuthRuntimeConfig } from "@/lib/auth/runtime-config";
+import { getOauthProviderCredentials } from "@/lib/auth/oauth-env";
 import { verifyPassword } from "@/lib/auth/password";
 import { extractRequestFingerprint } from "@/lib/auth/security-heuristics";
 import { logSecurityEvent } from "@/lib/security/logging";
@@ -37,6 +38,9 @@ const capabilities = getAuthProviderCapabilities({
   enableGuestFlow,
 });
 const enabledCapabilityIds = getEnabledCapabilityIds(capabilities);
+const resendApiKey = process.env.AUTH_RESEND_KEY || process.env.RESEND_API_KEY;
+const googleOauthCredentials = getOauthProviderCredentials("google");
+const facebookOauthCredentials = getOauthProviderCredentials("facebook");
 
 const normalizeRole = (value: unknown): string =>
   typeof value === "string" && value.length > 0 ? value : "customer";
@@ -45,6 +49,7 @@ const providers: NonNullable<NextAuthConfig["providers"]> = [
   ...(enabledCapabilityIds.has("resend")
     ? [
         Resend({
+          apiKey: resendApiKey,
           from: process.env.EMAIL_FROM || "noreply@pawfectstays.com",
         }),
       ]
@@ -52,8 +57,8 @@ const providers: NonNullable<NextAuthConfig["providers"]> = [
   ...(enabledCapabilityIds.has("google")
     ? [
         Google({
-          clientId: process.env.GOOGLE_CLIENT_ID,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          clientId: googleOauthCredentials.clientId,
+          clientSecret: googleOauthCredentials.clientSecret,
           allowDangerousEmailAccountLinking: true,
         }),
       ]
@@ -61,8 +66,8 @@ const providers: NonNullable<NextAuthConfig["providers"]> = [
   ...(enabledCapabilityIds.has("facebook")
     ? [
         Facebook({
-          clientId: process.env.FACEBOOK_CLIENT_ID,
-          clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+          clientId: facebookOauthCredentials.clientId,
+          clientSecret: facebookOauthCredentials.clientSecret,
           allowDangerousEmailAccountLinking: true,
         }),
       ]
@@ -220,7 +225,10 @@ const providers: NonNullable<NextAuthConfig["providers"]> = [
 ];
 
 export const authConfig: NextAuthConfig = {
-  ...(useDatabaseSessions ? { adapter: PrismaAdapter(prisma) } : {}),
+  // Keep adapter available whenever the database is configured. Some providers
+  // (for example email/magic-link) require adapter storage even when session
+  // strategy is JWT.
+  ...(hasDatabase ? { adapter: PrismaAdapter(prisma) } : {}),
 
   // Required for Vercel / AWS Lambda deployments: allows NextAuth to trust
   // the x-forwarded-host header when computing cookie domains during the
