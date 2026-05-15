@@ -53,7 +53,7 @@ export function HeroSection() {
 
             <FadeUp delay={0.1}>
               <p className="text-lg leading-relaxed text-white/90 mb-8 max-w-xl">
-                Safe, supervised, tail-wagging doggy daycare in Syracuse, NY with playtime, 
+                Safe, supervised, tail-wagging doggy daycare in Syracuse, NY with playtime,
                 enrichment, rest breaks, and photo updates for peace of mind.
               </p>
             </FadeUp>

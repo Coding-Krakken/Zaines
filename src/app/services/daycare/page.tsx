@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { FadeUp, ScaleIn } from "@/components/motion";
 import {
   Shield,
-  Users,
   Heart,
   Camera,
   Clock,

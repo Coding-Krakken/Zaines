@@ -60,7 +60,7 @@ export function PricingPreviewSection() {
         <div className={`grid gap-6 ${activeTiers.length === 4 ? 'md:grid-cols-2 lg:grid-cols-4' : activeTiers.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'} max-w-6xl mx-auto mb-8`}>
           {activeTiers.map((tier, index) => {
             const isPopular = index === 1;
-            
+
             return (
               <FadeUp key={tier.id} delay={index * 0.08}>
                 <div className={`paw-card relative ${isPopular ? "ring-2 ring-primary shadow-xl" : ""}`}>

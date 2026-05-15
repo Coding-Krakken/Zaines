@@ -1,4 +1,3 @@
-import { siteConfig } from "@/config/site";
 import { getAdminSettings } from "@/lib/api/admin-settings";
 
 export async function localBusinessSchema() {

@@ -14,6 +14,13 @@ export function SiteFooter() {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterMessage, setNewsletterMessage] = useState("");
 
+  const weekdayHours = businessHours?.monday?.isClosed
+    ? "Closed"
+    : `${businessHours?.monday?.openTime ?? "06:00"} - ${businessHours?.monday?.closeTime ?? "20:00"}`;
+  const weekendHours = businessHours?.saturday?.isClosed
+    ? "Closed"
+    : `${businessHours?.saturday?.openTime ?? "08:00"} - ${businessHours?.saturday?.closeTime ?? "18:00"}`;
+
   const handleNewsletterSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -206,30 +213,9 @@ export function SiteFooter() {
                   aria-hidden="true"
                 />
                 <span className="text-background/70">
-                  {(() => {
-                    // Extract weekday/weekend hours from businessHours object
-                    const monday = businessHours?.monday;
-                    const saturday = businessHours?.saturday;
-                    
-                    if (monday && !monday.isClosed && saturday && !saturday.isClosed) {
-                      return (
-                        <>
-                          Mon-Fri: {monday.openTime} - {monday.closeTime}
-                          <br />
-                          Sat-Sun: {saturday.openTime} - {saturday.closeTime}
-                        </>
-                      );
-                    }
-                    
-                    // Fallback to default hours
-                    return (
-                      <>
-                        Mon-Fri: 6:30am - 7:00pm
-                        <br />
-                        Sat-Sun: 8:00am - 6:00pm
-                      </>
-                    );
-                  })()}
+                  Mon-Fri: {weekdayHours}
+                  <br />
+                  Sat-Sun: {weekendHours}
                 </span>
               </li>
             </ul>

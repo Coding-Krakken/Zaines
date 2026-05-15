@@ -15,9 +15,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, ShieldCheck, Clock3, Sparkles } from "lucide-react";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 
-const PRICING_POLICY_COPY_CONTRACT =
-  "Premium pricing with no hidden fees and no surprise add-ons. Total is shown before confirmation.";
-
 type BookingValidationPricing = {
   subtotal: number;
   tax: number;

@@ -122,7 +122,7 @@ export default function AboutPageContent() {
                     At {displayName}, we believe every dog deserves a day filled with joy, exercise, socialization, and rest — not just supervision in a kennel.
                   </p>
                   <p>
-                    That's why we've built a daycare focused on <strong className="text-foreground">supervised play groups</strong>, 
+                    That's why we've built a daycare focused on <strong className="text-foreground">supervised play groups</strong>,
                     enrichment activities, and individualized attention for each pup's personality and energy level.
                   </p>
                   <p>

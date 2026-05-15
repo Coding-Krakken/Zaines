@@ -11,23 +11,6 @@ import {
   type SecurityPayload,
 } from '@/lib/auth/security-panel-state';
 
-type SessionEntry = {
-  id: string;
-  expiresAt: string;
-  current: boolean;
-  deviceHint: string | null;
-};
-
-type ActivityEntry = {
-  id: string;
-  eventType: string;
-  provider: string | null;
-  ipAddress: string | null;
-  userAgent: string | null;
-  isSuspicious: boolean;
-  createdAt: string;
-};
-
 function formatDateTime(value: string): string {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return value;

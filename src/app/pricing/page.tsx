@@ -6,9 +6,6 @@ import { CheckCircle2, HelpCircle } from "lucide-react";
 import { FadeUp, ScaleIn } from "@/components/motion";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 
-const PRICING_POLICY_COPY_CONTRACT =
-  "Premium pricing with no hidden fees and no surprise add-ons. Total is shown before confirmation.";
-
 export default function PricingPage() {
   const { serviceSettings, addOnsSettings, pricingSettings } = useSiteSettings();
 

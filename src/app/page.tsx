@@ -11,9 +11,6 @@ import { FinalCTASection } from "@/components/home/final-cta";
 import { serviceSchema } from "@/lib/structured-data";
 import { homeMetadataFromSettings } from "@/lib/seo";
 
-const PRICING_POLICY_COPY_CONTRACT =
-  "Premium pricing with no hidden fees and no surprise add-ons. Total is shown before confirmation.";
-
 export async function generateMetadata(): Promise<Metadata> {
   return homeMetadataFromSettings();
 }

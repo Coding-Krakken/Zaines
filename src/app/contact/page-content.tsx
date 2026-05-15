@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { useSiteSettings } from "@/hooks/use-site-settings";
-import { siteConfig } from "@/config/site";
 import {
   MapPin,
   Phone,
@@ -17,7 +16,7 @@ import { ContactSubmissionForm } from "@/app/contact/components/ContactSubmissio
 import { FadeUp, ScaleIn } from "@/components/motion";
 
 export default function ContactPageContent() {
-  const { contactInfo, businessHours } = useSiteSettings();
+  const { contactInfo, businessHours, socialLinks } = useSiteSettings();
 
   return (
     <div className="flex flex-col bg-background">
@@ -221,21 +220,21 @@ export default function ContactPageContent() {
                     </h3>
                     <div className="flex gap-4">
                       <Link
-                        href={siteConfig.links.facebook}
+                        href={socialLinks.facebook}
                         className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary transition-all hover:scale-110 hover:bg-primary hover:text-white"
                       >
                         <span className="sr-only">Visit our Facebook page</span>
                         <Facebook className="h-6 w-6" />
                       </Link>
                       <Link
-                        href={siteConfig.links.instagram}
+                        href={socialLinks.instagram}
                         className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary transition-all hover:scale-110 hover:bg-primary hover:text-white"
                       >
                         <span className="sr-only">Visit our Instagram page</span>
                         <Instagram className="h-6 w-6" />
                       </Link>
                       <Link
-                        href={siteConfig.links.twitter}
+                        href={socialLinks.twitter}
                         className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary transition-all hover:scale-110 hover:bg-primary hover:text-white"
                       >
                         <span className="sr-only">Visit our X profile</span>

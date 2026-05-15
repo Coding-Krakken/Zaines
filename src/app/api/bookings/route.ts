@@ -784,7 +784,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!stripeLib.isStripeConfigured()) {
+    const stripeConfigured = stripeLib.isStripeConfigured();
+
+    if (!stripeConfigured) {
       if (
         process.env.NODE_ENV !== "test" &&
         !hasLoggedStripeUnavailableWarning
@@ -799,8 +801,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const stripeConfigured = stripeLib.isStripeConfigured();
-
     let stripeKeysModeAligned = true;
     try {
       stripeKeysModeAligned =
@@ -809,7 +809,7 @@ export async function POST(request: NextRequest) {
       stripeKeysModeAligned = true;
     }
 
-    if (stripeLib.isStripeConfigured() && !stripeKeysModeAligned) {
+    if (stripeConfigured && !stripeKeysModeAligned) {
       return errorResponse({
         status: 503,
         errorCode: "PAYMENT_PROVIDER_MISCONFIGURED",
@@ -822,7 +822,7 @@ export async function POST(request: NextRequest) {
     // Create Stripe payment session if Stripe is configured
     let clientSecret: string | undefined;
     let paymentMode: BookingPaymentMode = "payment_element";
-    if (stripeLib.isStripeConfigured()) {
+    if (stripeConfigured) {
       try {
         paymentMode = getBookingPaymentMode();
 
