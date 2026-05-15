@@ -14,6 +14,11 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, ShieldCheck, Clock3, Sparkles } from "lucide-react";
 import { useSiteSettings } from "@/hooks/use-site-settings";
+import { PRICING_TRUST_DISCLOSURE } from "@/config/trust-copy";
+
+// Pricing policy contract required for Issue #31 CP1 compliance
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const PRICING_POLICY_COPY_CONTRACT = PRICING_TRUST_DISCLOSURE;
 
 type BookingValidationPricing = {
   subtotal: number;

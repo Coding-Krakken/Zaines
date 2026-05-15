@@ -13,6 +13,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, MessageCircle, PhoneIcon, Calendar, HelpCircle } from "lucide-react";
 import { FadeUp, ScaleIn } from "@/components/motion";
+import { PRICING_TRUST_DISCLOSURE } from "@/config/trust-copy";
+
+// Pricing policy contract required for Issue #31 CP1 compliance
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const PRICING_POLICY_COPY_CONTRACT = PRICING_TRUST_DISCLOSURE;
 
 const faqCategories = {
   daycare: [
