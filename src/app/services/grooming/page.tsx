@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { FadeUp, ScaleIn } from "@/components/motion";
 import { Sparkles, Scissors, Bath, Wind, Calendar } from "lucide-react";
 import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
+import { getAdminSettings } from "@/lib/api/admin-settings";
 
 export async function generateMetadata(): Promise<Metadata> {
   return simplePageMetadataFromSettings({
@@ -14,7 +15,34 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default function GroomingPage() {
+export default async function GroomingPage() {
+  const settings = await getAdminSettings();
+  
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: settings.pricingSettings.currency || "USD",
+    maximumFractionDigits: 0,
+  });
+
+  // Get active add-ons for grooming services
+  const groomingAddOns = settings.addOnsSettings.addOns
+    .filter((addOn) => addOn.isActive);
+
+  const iconMap: Record<number, typeof Bath> = {
+    0: Bath,
+    1: Scissors,
+    2: Wind,
+    3: Sparkles,
+  };
+
+  const colorMap: Record<number, { bg: string; text: string }> = {
+    0: { bg: "bg-primary/10", text: "text-primary" },
+    1: { bg: "bg-green-100", text: "text-green-600" },
+    2: { bg: "oklch(0.88 0.17 90 / 20%)", text: "var(--color-navy)" },
+    3: { bg: "bg-coral/20", text: "text-coral" },
+  };
+
+
   return (
     <div className="flex flex-col bg-background">
       {/* Hero */}
@@ -106,76 +134,41 @@ export default function GroomingPage() {
           </FadeUp>
 
           <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
-            <ScaleIn delay={0.05}>
-              <div className="paw-card p-6">
-                <div className="badge-icon mb-4 bg-primary/10">
-                  <Bath className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-display mb-2 text-xl font-bold text-foreground">
-                  Bath & Brush
-                </h3>
-                <p className="mb-4 text-sm text-muted-foreground">
-                  Full bath with gentle shampoo, thorough brushing, and blow-dry. Your pup goes home smelling fresh!
-                </p>
-                <p className="font-display text-2xl font-bold text-primary">
-                  $30
-                </p>
+            {groomingAddOns.length > 0 ? (
+              groomingAddOns.map((addOn, index) => {
+                const Icon = iconMap[index % 4] || Bath;
+                const colors = colorMap[index % 4] || colorMap[0];
+                const isStyled = index === 2;
+                return (
+                  <ScaleIn key={addOn.id} delay={0.05 * (index + 1)}>
+                    <div className="paw-card p-6">
+                      <div
+                        className={isStyled ? "badge-icon mb-4" : `badge-icon mb-4 ${colors.bg}`}
+                        {...(isStyled && { style: { background: colors.bg } })}
+                      >
+                        <Icon
+                          className={isStyled ? "h-7 w-7" : `h-7 w-7 ${colors.text}`}
+                          {...(isStyled && { style: { color: colors.text } })}
+                        />
+                      </div>
+                      <h3 className="font-display mb-2 text-xl font-bold text-foreground">
+                        {addOn.name}
+                      </h3>
+                      <p className="mb-4 text-sm text-muted-foreground">
+                        {addOn.description}
+                      </p>
+                      <p className="font-display text-2xl font-bold text-primary">
+                        {formatter.format(addOn.price)}
+                      </p>
+                    </div>
+                  </ScaleIn>
+                );
+              })
+            ) : (
+              <div className="col-span-2 text-center py-8">
+                <p className="text-muted-foreground">Grooming services coming soon!</p>
               </div>
-            </ScaleIn>
-
-            <ScaleIn delay={0.1}>
-              <div className="paw-card p-6">
-                <div className="badge-icon mb-4 bg-green-100">
-                  <Scissors className="h-7 w-7 text-green-600" />
-                </div>
-                <h3 className="font-display mb-2 text-xl font-bold text-foreground">
-                  Nail Trim
-                </h3>
-                <p className="mb-4 text-sm text-muted-foreground">
-                  Quick and gentle nail trimming to keep your dog comfortable and prevent scratching.
-                </p>
-                <p className="font-display text-2xl font-bold text-primary">
-                  $15
-                </p>
-              </div>
-            </ScaleIn>
-
-            <ScaleIn delay={0.15}>
-              <div className="paw-card p-6">
-                <div
-                  className="badge-icon mb-4"
-                  style={{ background: "oklch(0.88 0.17 90 / 20%)" }}
-                >
-                  <Wind className="h-7 w-7" style={{ color: "var(--color-navy)" }} />
-                </div>
-                <h3 className="font-display mb-2 text-xl font-bold text-foreground">
-                  De-Shedding Treatment
-                </h3>
-                <p className="mb-4 text-sm text-muted-foreground">
-                  Special treatment to reduce shedding and keep your home fur-free. Includes brush-out.
-                </p>
-                <p className="font-display text-2xl font-bold text-primary">
-                  $25
-                </p>
-              </div>
-            </ScaleIn>
-
-            <ScaleIn delay={0.2}>
-              <div className="paw-card p-6">
-                <div className="badge-icon mb-4 bg-coral/20">
-                  <Sparkles className="h-7 w-7 text-coral" />
-                </div>
-                <h3 className="font-display mb-2 text-xl font-bold text-foreground">
-                  Full Groom Package
-                </h3>
-                <p className="mb-4 text-sm text-muted-foreground">
-                  Bath, brush, nail trim, ear cleaning, and sanitary trim. The works!
-                </p>
-                <p className="font-display text-2xl font-bold text-primary">
-                  $55
-                </p>
-              </div>
-            </ScaleIn>
+            )}
           </div>
         </div>
       </section>

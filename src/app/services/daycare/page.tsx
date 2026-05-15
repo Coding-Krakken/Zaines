@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
+import { getAdminSettings } from "@/lib/api/admin-settings";
 
 export async function generateMetadata(): Promise<Metadata> {
   return simplePageMetadataFromSettings({
@@ -78,6 +79,7 @@ const daycareFeatures = [
 const pricingOptions = [
   {
     name: "Half Day",
+    configuredName: "Half Day Daycare",
     price: "$28",
     duration: "Up to 4 hours",
     features: [
@@ -88,6 +90,7 @@ const pricingOptions = [
   },
   {
     name: "Full Day",
+    configuredName: "Full Day Daycare",
     price: "$38",
     duration: "Up to 10 hours",
     popular: true,
@@ -99,6 +102,7 @@ const pricingOptions = [
   },
   {
     name: "5 Day Package",
+    configuredName: "5 Day Daycare Package",
     price: "$171",
     duration: "5 days",
     features: [
@@ -109,7 +113,20 @@ const pricingOptions = [
   },
 ];
 
-export default function DaycarePage() {
+export default async function DaycarePage() {
+  const settings = await getAdminSettings();
+  
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: settings.pricingSettings.currency || "USD",
+    maximumFractionDigits: 0,
+  });
+
+  // Create a map of configured service tiers for price lookup
+  const configuredServiceMap = new Map(
+    settings.serviceSettings.serviceTiers.map((tier) => [tier.name, tier]),
+  );
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Hero Section */}
@@ -259,53 +276,60 @@ export default function DaycarePage() {
           </FadeUp>
 
           <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
-            {pricingOptions.map((option, index) => (
-              <ScaleIn key={option.name} delay={index * 0.1}>
-                <div
-                  className={`paw-card relative h-full p-6 ${
-                    option.popular ? "border-2 border-primary shadow-lg" : ""
-                  }`}
-                >
-                  {option.popular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-sm font-bold text-white">
-                      Most Popular
-                    </div>
-                  )}
-                  <div className="mb-4 text-center">
-                    <h3 className="font-display mb-2 text-2xl font-bold text-foreground">
-                      {option.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {option.duration}
-                    </p>
-                    <p className="mt-4 text-4xl font-bold text-primary">
-                      {option.price}
-                    </p>
-                  </div>
-                  <ul className="mb-6 space-y-2">
-                    {option.features.map((feature) => (
-                      <li
-                        key={feature}
-                        className="flex items-start gap-2 text-sm text-muted-foreground"
-                      >
-                        <CheckCircle2
-                          className="mt-0.5 h-5 w-5 shrink-0 text-green-600"
-                          aria-hidden="true"
-                        />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <Button
-                    asChild
-                    className="w-full"
-                    variant={option.popular ? "default" : "outline"}
+            {pricingOptions.map((option, index) => {
+              const configuredTier = configuredServiceMap.get(option.configuredName);
+              const displayPrice = configuredTier
+                ? formatter.format(configuredTier.baseNightlyRate)
+                : option.price;
+              
+              return (
+                <ScaleIn key={option.name} delay={index * 0.1}>
+                  <div
+                    className={`paw-card relative h-full p-6 ${
+                      option.popular ? "border-2 border-primary shadow-lg" : ""
+                    }`}
                   >
+                    {option.popular && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-sm font-bold text-white">
+                        Most Popular
+                      </div>
+                    )}
+                    <div className="mb-4 text-center">
+                      <h3 className="font-display mb-2 text-2xl font-bold text-foreground">
+                        {option.name}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {option.duration}
+                      </p>
+                      <p className="mt-4 text-4xl font-bold text-primary">
+                        {displayPrice}
+                      </p>
+                    </div>
+                    <ul className="mb-6 space-y-2">
+                      {option.features.map((feature) => (
+                        <li
+                          key={feature}
+                          className="flex items-start gap-2 text-sm text-muted-foreground"
+                        >
+                          <CheckCircle2
+                            className="mt-0.5 h-5 w-5 shrink-0 text-green-600"
+                            aria-hidden="true"
+                          />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Button
+                      asChild
+                      className="w-full"
+                      variant={option.popular ? "default" : "outline"}
+                    >
                     <Link href="/book">Book Now</Link>
                   </Button>
                 </div>
               </ScaleIn>
-            ))}
+            );
+            })}
           </div>
 
           <FadeUp delay={0.3}>
