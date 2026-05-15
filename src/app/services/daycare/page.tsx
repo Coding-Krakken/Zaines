@@ -17,7 +17,7 @@ import { getAdminSettings } from "@/lib/api/admin-settings";
 
 export async function generateMetadata(): Promise<Metadata> {
   return simplePageMetadataFromSettings({
-    title: "Doggy Daycare Syracuse NY | Safe Supervised Play | Paws & Play",
+    title: "Doggy Daycare Syracuse NY | Safe Supervised Play | Zaine's Stay & Play",
     description:
       "Premium doggy daycare in Syracuse with supervised play groups, enrichment activities, temperament screening, and photo updates. Full day and half day options available.",
     canonicalPath: "/services/daycare",

@@ -77,7 +77,7 @@ const stats = [
 
 export default function ReviewsPage() {
   const { businessName } = useSiteSettings();
-  const displayName = businessName || "Paws & Play";
+  const displayName = businessName || "Zaine's Stay & Play";
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

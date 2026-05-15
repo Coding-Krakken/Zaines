@@ -14,7 +14,7 @@ import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   return simplePageMetadataFromSettings({
-    title: "Overnight Dog Boarding | Paws & Play Doggy Daycare",
+    title: "Overnight Dog Boarding | Zaine's Stay & Play",
     description:
       "Overnight dog boarding in Syracuse with 24/7 supervision, daily photo updates, and comfortable accommodations. Book your pup's overnight stay today!",
     canonicalPath: "/services/boarding",

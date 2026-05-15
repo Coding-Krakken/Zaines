@@ -55,7 +55,7 @@ export function SiteHeader() {
           </span>
           <div className="hidden sm:flex flex-col">
             <span className="font-display text-xl font-bold text-foreground tracking-tight leading-none">
-              {businessName || "Paws & Play"}
+              {businessName || "Zaine's Stay & Play"}
             </span>
             <span className="text-[0.7rem] font-semibold uppercase tracking-wider text-muted-foreground">
               Doggy Daycare

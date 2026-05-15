@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Paws & Play Doggy Daycare",
-    short_name: "Paws & Play",
+    name: "Zaine's Stay & Play",
+    short_name: "Zaine's Stay & Play",
     description:
       'Fun, safe doggy daycare in Syracuse, NY with supervised play, enrichment activities, and tail-wagging care.',
     start_url: '/',

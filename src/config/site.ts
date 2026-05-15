@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: "Paws & Play Doggy Daycare",
+  name: "Zaine's Stay & Play",
   description:
     "Fun, safe doggy daycare in Syracuse, NY with supervised play, enrichment activities, and tail-wagging care for your best friend.",
   url: "https://zainesstayandplay.com",

@@ -138,7 +138,7 @@ export default function GalleryPage() {
                 </span>
               </h1>
               <p className="mb-2 text-lg leading-relaxed text-white/90 md:text-xl">
-                See what a day at Paws & Play looks like — tails wagging, friends
+                See what a day at Zaine's Stay & Play looks like — tails wagging, friends
                 playing, and pups having the time of their lives!
               </p>
             </div>

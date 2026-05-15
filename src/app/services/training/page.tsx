@@ -7,7 +7,7 @@ import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   return simplePageMetadataFromSettings({
-    title: "Enrichment Activities | Paws & Play Doggy Daycare",
+    title: "Enrichment Activities | Zaine's Stay & Play",
     description:
       "Fun mental and physical enrichment activities for dogs in Syracuse. Puzzle games, scent work, agility, and more to keep tails wagging!",
     canonicalPath: "/services/training",

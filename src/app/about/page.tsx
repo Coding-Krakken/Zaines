@@ -4,9 +4,9 @@ import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   return simplePageMetadataFromSettings({
-    title: "About Paws & Play | Best Doggy Daycare in Syracuse NY",
+    title: "About Zaine's Stay & Play | Best Doggy Daycare in Syracuse NY",
     description:
-      "Learn about Syracuse's happiest doggy daycare. Safe supervised play, enrichment activities, photo updates, and a team that truly loves dogs. Meet the Paws & Play family.",
+      "Learn about Syracuse's happiest doggy daycare. Safe supervised play, enrichment activities, photo updates, and a team that truly loves dogs. Meet the Zaine's Stay & Play family.",
     keywords: [
       "doggy daycare Syracuse",
       "dog daycare team",

@@ -72,7 +72,7 @@ export function SiteFooter() {
               )}
               <div className="flex flex-col">
                 <span className="font-display text-xl font-bold text-white tracking-tight leading-none">
-                  {businessName || "Paws & Play"}
+                  {businessName || "Zaine's Stay & Play"}
                 </span>
                 <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-background/50">
                   Doggy Daycare

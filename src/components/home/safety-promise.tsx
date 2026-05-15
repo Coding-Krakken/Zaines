@@ -64,7 +64,7 @@ export function SafetyPromiseSection() {
             <div className="relative aspect-[4/3] lg:aspect-auto lg:h-full">
               <Image
                 src="https://images.unsplash.com/photo-1558788353-f76d92427f16?w=600&h=600&fit=crop"
-                alt="Happy dog enjoying safe care at Paws & Play"
+                alt="Happy dog enjoying safe care at Zaine's Stay & Play"
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"

@@ -46,7 +46,7 @@ const values = [
 
 export default function AboutPageContent() {
   const { businessName } = useSiteSettings();
-  const displayName = businessName || "Paws & Play";
+  const displayName = businessName || "Zaine's Stay & Play";
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

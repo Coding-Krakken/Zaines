@@ -8,7 +8,7 @@ import { getAdminSettings } from "@/lib/api/admin-settings";
 
 export async function generateMetadata(): Promise<Metadata> {
   return simplePageMetadataFromSettings({
-    title: "Grooming Add-Ons | Paws & Play Doggy Daycare",
+    title: "Grooming Add-Ons | Zaine's Stay & Play",
     description:
       "Professional grooming services available as add-ons to daycare and boarding stays. Baths, nail trims, brushing, and more!",
     canonicalPath: "/services/grooming",

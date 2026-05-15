@@ -3,6 +3,7 @@
 import * as React from "react";
 /* eslint-disable react/no-unescaped-entities */
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,9 +20,14 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { navItems } from "@/config/site";
+import { UserNav } from "@/components/user-nav";
+import { AdminCameraCapture } from "@/components/admin/AdminCameraCapture";
 
 export function MobileNav() {
   const [open, setOpen] = React.useState(false);
+  const { data: session, status } = useSession();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  const showAdminCamera = status === "authenticated" && role === "admin";
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -52,6 +58,16 @@ export function MobileNav() {
           </SheetTitle>
         </SheetHeader>
         <nav className="mt-8 flex flex-col gap-4" aria-label="Mobile site navigation">
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <UserNav />
+            </div>
+            {showAdminCamera ? (
+              <div className="flex-shrink-0">
+                <AdminCameraCapture />
+              </div>
+            ) : null}
+          </div>
           <Button asChild className="w-full">
             <Link href="/book" onClick={() => setOpen(false)}>
               Book Now
