@@ -4,7 +4,6 @@ import { FadeUp } from "@/components/motion";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 
 export function TestimonialsSection() {

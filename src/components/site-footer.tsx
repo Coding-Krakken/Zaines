@@ -1,5 +1,6 @@
 'use client';
 
+import { type FormEvent, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSiteSettings } from "@/hooks/use-site-settings";
@@ -10,6 +11,32 @@ import { Input } from "@/components/ui/input";
 export function SiteFooter() {
   const currentYear = new Date().getFullYear();
   const { contactInfo, businessHours, businessName, socialLinks, websiteProfile } = useSiteSettings();
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterMessage, setNewsletterMessage] = useState("");
+
+  const handleNewsletterSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const trimmedEmail = newsletterEmail.trim();
+
+    if (!trimmedEmail) {
+      setNewsletterMessage("Please enter your email address.");
+      return;
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(trimmedEmail)) {
+      setNewsletterMessage("Please enter a valid email address.");
+      return;
+    }
+
+    const subject = encodeURIComponent("Newsletter Signup");
+    const body = encodeURIComponent(`Please add ${trimmedEmail} to newsletter updates.`);
+    window.location.href = `mailto:${contactInfo.email}?subject=${subject}&body=${body}`;
+
+    setNewsletterMessage("Opening your email app to confirm subscription.");
+    setNewsletterEmail("");
+  };
 
   return (
     <footer id="site-footer" style={{ backgroundColor: "var(--color-navy)" }} className="text-background/85">
@@ -51,7 +78,7 @@ export function SiteFooter() {
             <div className="flex gap-4 mb-6">
               <Link
                 href={socialLinks.facebook}
-                aria-label="Paws & Play on Facebook"
+                aria-label={`${businessName} on Facebook`}
                 className="focus-ring rounded-sm text-background/50 hover:text-white transition-colors"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -60,7 +87,7 @@ export function SiteFooter() {
               </Link>
               <Link
                 href={socialLinks.instagram}
-                aria-label="Paws & Play on Instagram"
+                aria-label={`${businessName} on Instagram`}
                 className="focus-ring rounded-sm text-background/50 hover:text-white transition-colors"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -69,7 +96,7 @@ export function SiteFooter() {
               </Link>
               <Link
                 href={socialLinks.twitter}
-                aria-label="Paws & Play on X (Twitter)"
+                aria-label={`${businessName} on X (Twitter)`}
                 className="focus-ring rounded-sm text-background/50 hover:text-white transition-colors"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -143,10 +170,7 @@ export function SiteFooter() {
                   aria-hidden="true"
                 />
                 <span className="text-background/70">
-                  {contactInfo.address && contactInfo.address !== '123 Pet Paradise Lane' 
-                    ? `${contactInfo.address}, ${contactInfo.city}, ${contactInfo.state} ${contactInfo.zip}`
-                    : `${contactInfo.city}, ${contactInfo.state} ${contactInfo.zip}`
-                  }
+                  {`${contactInfo.address}, ${contactInfo.city}, ${contactInfo.state} ${contactInfo.zip}`}
                 </span>
               </li>
               <li className="flex items-center gap-2">
@@ -218,12 +242,19 @@ export function SiteFooter() {
               <p className="text-xs text-background/60 mb-3">
                 Get special offers, fun updates, and photo highlights!
               </p>
-              <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
+              <form className="flex gap-2" onSubmit={handleNewsletterSubmit}>
                 <Input
                   type="email"
                   placeholder="Enter your email"
                   className="h-9 text-sm bg-white/10 border-white/20 text-white placeholder:text-background/40 focus:border-white/40"
                   aria-label="Email address for newsletter"
+                  value={newsletterEmail}
+                  onChange={(event) => {
+                    setNewsletterEmail(event.target.value);
+                    if (newsletterMessage) {
+                      setNewsletterMessage("");
+                    }
+                  }}
                 />
                 <Button
                   type="submit"
@@ -237,6 +268,11 @@ export function SiteFooter() {
                   Subscribe
                 </Button>
               </form>
+              {newsletterMessage ? (
+                <p className="mt-2 text-xs text-background/70" aria-live="polite">
+                  {newsletterMessage}
+                </p>
+              ) : null}
             </div>
           </div>
         </div>
@@ -244,7 +280,7 @@ export function SiteFooter() {
         {/* Bottom strip */}
         <div className="mt-14 border-t border-background/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-background/40">
           <p>
-            &copy; {currentYear} Paws &amp; Play Doggy Daycare. All rights reserved.
+            &copy; {currentYear} {businessName}. All rights reserved.
           </p>
           <div className="flex gap-6">
             <Link href="/privacy" className="focus-ring rounded-sm hover:text-white transition-colors">

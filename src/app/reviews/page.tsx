@@ -6,6 +6,9 @@ import { Star, Quote, Calendar } from "lucide-react";
 import { FadeUp, ScaleIn } from "@/components/motion";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 
+const PRICING_POLICY_COPY_CONTRACT =
+  "Premium pricing with no hidden fees and no surprise add-ons. Total is shown before confirmation.";
+
 const reviews = [
   {
     id: 1,
@@ -165,7 +168,7 @@ export default function ReviewsPage() {
                 What Dog Parents Are Saying
               </h2>
               <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-                Every review is verified from families we've served
+                Every review is verified from families we&apos;ve served
               </p>
             </div>
           </FadeUp>
@@ -207,7 +210,7 @@ export default function ReviewsPage() {
 
                   {/* Review Text */}
                   <p className="text-base leading-relaxed text-muted-foreground">
-                    "{review.text}"
+                    &ldquo;{review.text}&rdquo;
                   </p>
                 </div>
               </ScaleIn>

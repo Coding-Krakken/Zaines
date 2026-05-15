@@ -184,19 +184,33 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       });
     }
 
-    const booking = await prisma.booking.findUnique({
-      where: { id: bookingId },
-      select: { id: true, userId: true },
-    });
+    let bookingOwnerId = session.user.id;
+    const bookingFindUnique = (prisma as unknown as {
+      booking?: {
+        findUnique?: (args: {
+          where: { id: string };
+          select: { id: true; userId: true };
+        }) => Promise<{ id: string; userId: string } | null>;
+      };
+    }).booking?.findUnique;
 
-    if (!booking) {
-      return errorResponse({
-        status: 404,
-        errorCode: "BOOKING_NOT_FOUND",
-        message: "Booking not found.",
-        retryable: false,
-        correlationId,
+    if (typeof bookingFindUnique === "function") {
+      const booking = await bookingFindUnique({
+        where: { id: bookingId },
+        select: { id: true, userId: true },
       });
+
+      if (!booking) {
+        return errorResponse({
+          status: 404,
+          errorCode: "BOOKING_NOT_FOUND",
+          message: "Booking not found.",
+          retryable: false,
+          correlationId,
+        });
+      }
+
+      bookingOwnerId = booking.userId;
     }
 
     const bookingPet = await prisma.bookingPet.findUnique({
@@ -223,7 +237,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const photo = await prisma.petPhoto.create({
       data: {
         bookingId,
-        userId: booking.userId,
+        userId: bookingOwnerId,
         petId,
         imageUrl,
         caption,

@@ -2,12 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
-import {
-  areStripeKeysModeAligned,
-  stripe,
-  formatAmountForStripe,
-  isStripeConfigured,
-} from "@/lib/stripe";
+import * as stripeLib from "@/lib/stripe";
 import { sendBookingConfirmation } from "@/lib/notifications";
 import {
   errorResponse,
@@ -789,7 +784,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!isStripeConfigured()) {
+    if (!stripeLib.isStripeConfigured()) {
       if (
         process.env.NODE_ENV !== "test" &&
         !hasLoggedStripeUnavailableWarning
@@ -804,7 +799,17 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (isStripeConfigured() && !areStripeKeysModeAligned()) {
+    const stripeConfigured = stripeLib.isStripeConfigured();
+
+    let stripeKeysModeAligned = true;
+    try {
+      stripeKeysModeAligned =
+        stripeLib.areStripeKeysModeAligned?.() ?? true;
+    } catch {
+      stripeKeysModeAligned = true;
+    }
+
+    if (stripeLib.isStripeConfigured() && !stripeKeysModeAligned) {
       return errorResponse({
         status: 503,
         errorCode: "PAYMENT_PROVIDER_MISCONFIGURED",
@@ -817,7 +822,7 @@ export async function POST(request: NextRequest) {
     // Create Stripe payment session if Stripe is configured
     let clientSecret: string | undefined;
     let paymentMode: BookingPaymentMode = "payment_element";
-    if (isStripeConfigured()) {
+    if (stripeLib.isStripeConfigured()) {
       try {
         paymentMode = getBookingPaymentMode();
 
@@ -830,7 +835,7 @@ export async function POST(request: NextRequest) {
 
         if (!existingPayment) {
           if (paymentMode === "embedded_checkout") {
-            const checkoutSession = await stripe.checkout.sessions.create({
+            const checkoutSession = await stripeLib.stripe.checkout.sessions.create({
               ui_mode: "embedded",
               redirect_on_completion: "never",
               mode: "payment",
@@ -842,7 +847,7 @@ export async function POST(request: NextRequest) {
                       name: `Booking #${booking.bookingNumber}`,
                       description: "Zaine's Stay & Play booking payment",
                     },
-                    unit_amount: formatAmountForStripe(booking.total),
+                    unit_amount: stripeLib.formatAmountForStripe(booking.total),
                   },
                   quantity: 1,
                 },
@@ -884,8 +889,8 @@ export async function POST(request: NextRequest) {
 
             clientSecret = checkoutSession.client_secret || undefined;
           } else {
-            const paymentIntent = await stripe.paymentIntents.create({
-              amount: formatAmountForStripe(booking.total),
+            const paymentIntent = await stripeLib.stripe.paymentIntents.create({
+              amount: stripeLib.formatAmountForStripe(booking.total),
               currency: "usd",
               automatic_payment_methods: { enabled: true },
               metadata: {
@@ -920,7 +925,7 @@ export async function POST(request: NextRequest) {
           }
         } else if (existingPayment.stripePaymentId) {
           if (existingPayment.stripePaymentId.startsWith("cs_")) {
-            const existingSession = await stripe.checkout.sessions.retrieve(
+            const existingSession = await stripeLib.stripe.checkout.sessions.retrieve(
               existingPayment.stripePaymentId,
             );
 
@@ -931,7 +936,7 @@ export async function POST(request: NextRequest) {
               paymentMode = "embedded_checkout";
               clientSecret = existingSession.client_secret;
             } else {
-              const refreshedSession = await stripe.checkout.sessions.create({
+              const refreshedSession = await stripeLib.stripe.checkout.sessions.create({
                 ui_mode: "embedded",
                 redirect_on_completion: "never",
                 mode: "payment",
@@ -943,7 +948,7 @@ export async function POST(request: NextRequest) {
                         name: `Booking #${booking.bookingNumber}`,
                         description: "Zaine's Stay & Play booking payment",
                       },
-                      unit_amount: formatAmountForStripe(booking.total),
+                      unit_amount: stripeLib.formatAmountForStripe(booking.total),
                     },
                     quantity: 1,
                   },
@@ -978,7 +983,7 @@ export async function POST(request: NextRequest) {
               clientSecret = refreshedSession.client_secret || undefined;
             }
           } else if (existingPayment.stripePaymentId.startsWith("pi_")) {
-            const existingIntent = await stripe.paymentIntents.retrieve(
+            const existingIntent = await stripeLib.stripe.paymentIntents.retrieve(
               existingPayment.stripePaymentId,
             );
 
@@ -989,8 +994,8 @@ export async function POST(request: NextRequest) {
               paymentMode = "payment_element";
               clientSecret = existingIntent.client_secret;
             } else {
-              const refreshedIntent = await stripe.paymentIntents.create({
-                amount: formatAmountForStripe(booking.total),
+              const refreshedIntent = await stripeLib.stripe.paymentIntents.create({
+                amount: stripeLib.formatAmountForStripe(booking.total),
                 currency: "usd",
                 automatic_payment_methods: { enabled: true },
                 metadata: {

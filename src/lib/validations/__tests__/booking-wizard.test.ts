@@ -102,11 +102,8 @@ describe("Validation Schemas", () => {
 
   it("validates stepWaiverSchema", () => {
     const validReusedData = {
-      liabilityAccepted: false,
-      medicalAuthorizationAccepted: false,
-      photoReleaseAccepted: false,
-      policyAcknowledgmentAccepted: false,
-      reuseExistingWaivers: true,
+      reuseOnFileWaiver: true,
+      policyAcknowledgmentAccepted: true,
       signature: undefined,
     };
     expect(stepWaiverSchema.parse(validReusedData)).toBeDefined();
@@ -128,11 +125,8 @@ describe("Validation Schemas", () => {
 
   it("accepts reused waivers when signature is an empty string", () => {
     const reusedWithEmptySignature = {
-      liabilityAccepted: false,
-      medicalAuthorizationAccepted: false,
-      photoReleaseAccepted: false,
-      policyAcknowledgmentAccepted: false,
-      reuseExistingWaivers: true,
+      reuseOnFileWaiver: true,
+      policyAcknowledgmentAccepted: true,
       signature: "",
     };
 

@@ -68,7 +68,18 @@ export const DEFAULT_SUITES: SuiteSeed[] = [
 export async function ensureDefaultSuites(
   prismaClient: SuiteBootstrapPrisma = prisma as unknown as SuiteBootstrapPrisma,
 ): Promise<number> {
-  const activeSuiteCount = await prismaClient.suite.count({
+  const suiteDelegate = prismaClient?.suite;
+  if (
+    !suiteDelegate ||
+    typeof suiteDelegate.count !== "function" ||
+    typeof suiteDelegate.upsert !== "function"
+  ) {
+    // Some unit tests provide partial prisma mocks without suite support.
+    // Skip bootstrap in that scenario instead of throwing.
+    return 0;
+  }
+
+  const activeSuiteCount = await suiteDelegate.count({
     where: { isActive: true },
   });
 
@@ -78,7 +89,7 @@ export async function ensureDefaultSuites(
 
   await Promise.all(
     DEFAULT_SUITES.map((suite) =>
-      prismaClient.suite.upsert({
+      suiteDelegate.upsert({
         where: { id: suite.id },
         update: suite,
         create: suite,

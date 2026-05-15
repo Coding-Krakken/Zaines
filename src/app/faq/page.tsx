@@ -14,6 +14,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, MessageCircle, PhoneIcon, MapPin, Calendar, HelpCircle } from "lucide-react";
 import { FadeUp, ScaleIn } from "@/components/motion";
 
+const PRICING_POLICY_COPY_CONTRACT =
+  "Premium pricing with no hidden fees and no surprise add-ons. Total is shown before confirmation.";
+
 const faqCategories = {
   daycare: [
     {

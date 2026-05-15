@@ -11,8 +11,8 @@ export const siteConfig = {
     twitter: "https://twitter.com/zainesstayandplay",
   },
   contact: {
-    phone: "(315) 555-PAWS",
-    email: "hello@pawsandplaydaycare.com",
+    phone: "(315) 657-1332",
+    email: "jgibbs@zainesstayandplay.com",
     address: "123 Pet Paradise Lane",
     city: "Syracuse",
     state: "NY",

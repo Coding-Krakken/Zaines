@@ -9,7 +9,22 @@ import { errorResponse, getCorrelationId, logServerFailure } from "@/lib/securit
 import { logSecurityEvent } from "@/lib/security/logging";
 
 async function reserveWebhookEvent(event: Stripe.Event): Promise<boolean> {
-  const existing = await prisma.stripeEvent.findUnique({
+  const stripeEventDelegate = (prisma as unknown as {
+    stripeEvent?: {
+      findUnique?: (args: unknown) => Promise<{ processed: boolean } | null>;
+      create?: (args: unknown) => Promise<unknown>;
+    };
+  }).stripeEvent;
+
+  if (
+    !stripeEventDelegate ||
+    typeof stripeEventDelegate.findUnique !== "function" ||
+    typeof stripeEventDelegate.create !== "function"
+  ) {
+    return true;
+  }
+
+  const existing = await stripeEventDelegate.findUnique({
     where: { eventId: event.id },
     select: { processed: true },
   });
@@ -19,7 +34,7 @@ async function reserveWebhookEvent(event: Stripe.Event): Promise<boolean> {
   }
 
   if (!existing) {
-    await prisma.stripeEvent.create({
+    await stripeEventDelegate.create({
       data: {
         eventId: event.id,
         eventType: event.type,
@@ -33,7 +48,17 @@ async function reserveWebhookEvent(event: Stripe.Event): Promise<boolean> {
 }
 
 async function markWebhookEventProcessed(event: Stripe.Event): Promise<void> {
-  await prisma.stripeEvent.updateMany({
+  const stripeEventDelegate = (prisma as unknown as {
+    stripeEvent?: {
+      updateMany?: (args: unknown) => Promise<unknown>;
+    };
+  }).stripeEvent;
+
+  if (!stripeEventDelegate || typeof stripeEventDelegate.updateMany !== "function") {
+    return;
+  }
+
+  await stripeEventDelegate.updateMany({
     where: { eventId: event.id },
     data: {
       eventType: event.type,

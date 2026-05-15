@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { siteConfig } from "@/config/site";
 import {
@@ -12,7 +11,6 @@ import {
   Facebook,
   Instagram,
   Twitter,
-  Calendar,
 } from "lucide-react";
 import Link from "next/link";
 import { ContactSubmissionForm } from "@/app/contact/components/ContactSubmissionForm";
@@ -49,7 +47,7 @@ export default function ContactPageContent() {
                 </span>
               </h1>
               <p className="mb-8 text-lg leading-relaxed text-white/90 md:text-xl">
-                Have questions? We'd love to hear from you! Schedule a tour, give us a call, or send a message.
+                Have questions? We&apos;d love to hear from you! Schedule a tour, give us a call, or send a message.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <Button

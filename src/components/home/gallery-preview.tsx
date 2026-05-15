@@ -2,7 +2,6 @@
 
 import { FadeUp } from "@/components/motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
