@@ -52,20 +52,24 @@ export const navItems: NavItem[] = [
     href: "/",
   },
   {
-    title: "Suites",
-    href: "/suites",
+    title: "About Us",
+    href: "/about",
+  },
+  {
+    title: "Services",
+    href: "/services/daycare",
   },
   {
     title: "Pricing",
     href: "/pricing",
   },
   {
-    title: "Book Now",
-    href: "/book",
+    title: "Photo Gallery",
+    href: "/gallery",
   },
   {
-    title: "About",
-    href: "/about",
+    title: "Reviews",
+    href: "/reviews",
   },
   {
     title: "Contact",

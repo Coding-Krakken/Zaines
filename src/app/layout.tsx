@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, DM_Sans } from "next/font/google";
+import { Fredoka, Nunito_Sans } from "next/font/google";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
@@ -10,18 +10,17 @@ import { Providers } from "@/components/providers";
 import { localBusinessSchema } from "@/lib/structured-data";
 import { rootMetadataFromSettings } from "@/lib/seo";
 
-const cormorant = Cormorant_Garamond({
+const fredoka = Fredoka({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-cormorant",
+  variable: "--font-fredoka",
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const nunitoSans = Nunito_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-  variable: "--font-dm-sans",
+  variable: "--font-nunito-sans",
   display: "swap",
 });
 
@@ -47,7 +46,7 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body
-        className={`${cormorant.variable} ${dmSans.variable} font-sans antialiased`}
+        className={`${fredoka.variable} ${nunitoSans.variable} font-sans antialiased`}
       >
         <a
           href="#main-content"

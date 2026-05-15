@@ -1,120 +1,150 @@
 "use client";
 
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { FadeUp } from "@/components/motion";
-import { Shield, Camera, Home, Sparkles, ChevronRight } from "lucide-react";
-import { useSiteSettings } from "@/hooks/use-site-settings";
+import { FadeUp, ScaleIn } from "@/components/motion";
+import { Calendar, Shield, Camera, Home } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+
+const trustBadges = [
+  { icon: Shield, label: "Supervised Play", color: "var(--color-sky)" },
+  { icon: Home, label: "Safe & Clean Facility", color: "var(--color-green)" },
+  { icon: Camera, label: "Photo Updates", color: "var(--color-coral)" },
+];
 
 export function HeroSection() {
-  const { websiteProfile, trustCopy } = useSiteSettings();
-  const primaryArea = websiteProfile.serviceArea[0] || "Syracuse";
-
   return (
     <section
-      className="relative flex min-h-[92vh] items-center overflow-hidden section-padding"
-      aria-label="Hero"
+      className="relative overflow-hidden"
+      style={{
+        background: "linear-gradient(135deg, var(--color-deep-sky) 0%, var(--color-sky) 100%)",
+      }}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-[oklch(0.988_0.012_80)] via-[oklch(0.975_0.022_72)] to-[oklch(0.95_0.038_62)]" />
+      {/* Decorative wave bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 bg-background" style={{
+        clipPath: "ellipse(70% 100% at 50% 100%)",
+        transform: "translateY(50%)",
+      }}></div>
 
-      <div
-        className="absolute top-1/4 right-1/3 w-[600px] h-[600px] rounded-full pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(circle, oklch(0.55 0.14 55 / 0.10) 0%, transparent 70%)",
-        }}
-      />
-      <div
-        className="absolute bottom-1/4 -left-24 w-[400px] h-[400px] rounded-full pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(circle, oklch(0.93 0.025 155 / 0.18) 0%, transparent 70%)",
-        }}
-      />
+      <div className="container relative z-10 px-4 py-16 md:py-24 lg:py-28">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
+          {/* Left: Content */}
+          <div className="text-white">
+            <FadeUp>
+              <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-balance md:text-5xl lg:text-6xl mb-6">
+                A Better Day for Your{" "}
+                <span className="relative inline-block">
+                  Best Friend.
+                  {/* Decorative doodle */}
+                  <svg
+                    className="absolute -right-8 -top-6 h-12 w-12 text-yellow-300 opacity-80"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="2" />
+                    <circle cx="6" cy="6" r="1.5" />
+                    <circle cx="18" cy="8" r="1" />
+                    <circle cx="16" cy="16" r="1.5" />
+                  </svg>
+                </span>
+              </h1>
+            </FadeUp>
 
-      <div
-        className="absolute inset-0 opacity-[0.02] pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-        }}
-      />
+            <FadeUp delay={0.1}>
+              <p className="text-lg leading-relaxed text-white/90 mb-8 max-w-xl">
+                Safe, supervised, tail-wagging doggy daycare in Syracuse, NY with playtime, 
+                enrichment, rest breaks, and photo updates for peace of mind.
+              </p>
+            </FadeUp>
 
-      <div className="container relative z-10 mx-auto px-4">
-        <div className="luxury-shell grain-overlay mx-auto max-w-6xl p-8 md:p-12 lg:p-14">
-          <div className="mx-auto max-w-4xl text-center">
-          <FadeUp delay={0}>
-            <p className="eyebrow mb-6">
-              <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-              Private Boutique Dog Boarding · {primaryArea}, NY
-            </p>
-          </FadeUp>
-
-          <FadeUp delay={0.12}>
-            <h1 className="headline-display mb-6 text-5xl font-semibold text-foreground text-balance md:text-7xl lg:text-8xl">
-              Your Dog Deserves
-              <br />
-              <em className="text-primary not-italic">More Than a Kennel.</em>
-            </h1>
-          </FadeUp>
-
-          <FadeUp delay={0.24}>
-            <p className="mx-auto mb-10 max-w-2xl text-lg font-light leading-relaxed text-muted-foreground md:text-2xl">
-              Three private suites. Owner always present. Calm routines, real
-              daily updates, and the individualized care your family member
-              genuinely deserves.
-            </p>
-          </FadeUp>
-
-          <FadeUp delay={0.36}>
-            <div className="mb-12 flex flex-col justify-center gap-4 sm:flex-row">
-              <Button
-                size="lg"
-                className="focus-ring h-auto px-10 py-7 text-base shadow-lg shadow-primary/20 hover:-translate-y-0.5 hover:shadow-primary/35"
-                asChild
-              >
-                <Link href="/book" className="inline-flex items-center gap-2">
-                  Reserve a Suite
-                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="focus-ring h-auto border-foreground/20 px-10 py-7 text-base hover:-translate-y-0.5 hover:border-primary hover:text-primary"
-                asChild
-              >
-                <Link href="/suites">Explore Our Suites</Link>
-              </Button>
-            </div>
-          </FadeUp>
-
-          <FadeUp delay={0.48}>
-            <div className="mx-auto grid max-w-3xl gap-4 rounded-2xl border border-border/70 bg-background/70 p-4 text-sm text-muted-foreground sm:grid-cols-3 sm:gap-3 sm:p-5">
-              <div className="flex items-center justify-center gap-2">
-                <Home className="h-4 w-4 text-primary flex-shrink-0" aria-hidden="true" />
-                <span>{trustCopy.trustEvidenceClaim.includes("Only 3 private suites") ? "Only 3 private suites" : "Private suites"}</span>
+            <FadeUp delay={0.2}>
+              <div className="flex flex-wrap gap-4 mb-10">
+                <Button
+                  asChild
+                  size="lg"
+                  className="font-bold text-base shadow-lg transition-all hover:shadow-xl"
+                  style={{
+                    background: "var(--color-yellow)",
+                    color: "var(--color-navy)",
+                  }}
+                >
+                  <Link href="/book">
+                    <span className="mr-2 text-xl" aria-hidden="true">🐾</span>
+                    Book a Playday
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="font-semibold text-base bg-white/10 border-2 border-white text-white hover:bg-white hover:text-primary backdrop-blur-sm"
+                >
+                  <Link href="/contact">
+                    <Calendar className="mr-2 h-5 w-5" aria-hidden="true" />
+                    Schedule a Tour
+                  </Link>
+                </Button>
               </div>
-              <div className="flex items-center justify-center gap-2">
-                <Shield className="h-4 w-4 text-primary flex-shrink-0" aria-hidden="true" />
-                <span>Owner always on-site</span>
-              </div>
-              <div className="flex items-center justify-center gap-2">
-                <Camera className="h-4 w-4 text-primary flex-shrink-0" aria-hidden="true" />
-                <span>Camera-monitored 24/7</span>
-              </div>
-            </div>
-          </FadeUp>
+            </FadeUp>
 
-          <FadeUp delay={0.56}>
-            <p className="mx-auto mt-6 max-w-2xl text-center text-sm text-muted-foreground">
-              Next openings are limited by design. Families typically reserve 2-6 weeks in advance for holidays and long weekends.
-            </p>
-          </FadeUp>
+            {/* Trust micro-badges */}
+            <FadeUp delay={0.3}>
+              <div className="flex flex-wrap gap-4 items-center">
+                {trustBadges.map((badge, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 text-sm font-medium text-white/80"
+                  >
+                    <div
+                      className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm"
+                      style={{ color: badge.color }}
+                    >
+                      <badge.icon className="h-4 w-4" aria-hidden="true" />
+                    </div>
+                    <span className="hidden sm:inline">{badge.label}</span>
+                  </div>
+                ))}
+              </div>
+            </FadeUp>
           </div>
+
+          {/* Right: Dog Image */}
+          <ScaleIn delay={0.2}>
+            <div className="relative">
+              {/* Decorative paw prints */}
+              <div className="absolute -left-4 top-8 text-6xl opacity-20 animate-bounce" style={{ animationDelay: "0s", animationDuration: "3s" }}>
+                🐾
+              </div>
+              <div className="absolute -right-2 top-20 text-4xl opacity-20 animate-bounce" style={{ animationDelay: "1s", animationDuration: "2.5s" }}>
+                🐾
+              </div>
+
+              <div className="relative aspect-[4/3] overflow-hidden rounded-3xl shadow-2xl">
+                <Image
+                  src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&h=600&fit=crop"
+                  alt="Happy dogs playing outdoors"
+                  fill
+                  className="object-cover"
+                  priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              </div>
+
+              {/* Floating heart doodle */}
+              <svg
+                className="absolute -bottom-4 -left-6 h-16 w-16 text-yellow-300 opacity-60"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+            </div>
+          </ScaleIn>
         </div>
       </div>
-
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none" />
     </section>
   );
 }
+

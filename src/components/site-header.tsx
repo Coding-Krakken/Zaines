@@ -10,6 +10,7 @@ import { MobileNav } from "@/components/mobile-nav";
 import { UserNav } from "@/components/user-nav";
 import { cn } from "@/lib/utils";
 import { navItems } from "@/config/site";
+import { Phone } from "lucide-react";
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -28,28 +29,36 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
+        "sticky top-0 z-50 w-full bg-card transition-all duration-300",
         scrolled
-          ? "bg-background/96 backdrop-blur-md border-b border-border shadow-sm"
-          : "bg-background/80 backdrop-blur-sm border-b border-transparent"
+          ? "border-b shadow-sm"
+          : "border-b border-transparent"
       )}
+      style={{
+        borderBottomColor: scrolled ? "var(--color-sky)" : "transparent",
+      }}
     >
       <div className="container flex h-18 min-h-[4.5rem] items-center justify-between gap-4">
-        {/* Wordmark */}
+        {/* Logo & Brand */}
         <Link
           href="/"
           className="focus-ring group flex flex-shrink-0 items-center gap-2.5 rounded-lg"
-          aria-label="Zaine's Stay & Play — Home"
+          aria-label="Paws & Play Doggy Daycare — Home"
         >
           <span
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-base transition-colors group-hover:bg-primary/20"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-2xl transition-transform group-hover:scale-110"
             aria-hidden="true"
           >
             🐾
           </span>
-          <span className="font-display text-lg font-semibold text-foreground hidden sm:block tracking-tight">
-            Zaine&apos;s Stay &amp; Play
-          </span>
+          <div className="hidden sm:flex flex-col">
+            <span className="font-display text-xl font-bold text-foreground tracking-tight leading-none">
+              Paws &amp; Play
+            </span>
+            <span className="text-[0.7rem] font-semibold uppercase tracking-wider text-muted-foreground">
+              Doggy Daycare
+            </span>
+          </div>
         </Link>
 
         {/* Desktop nav */}
@@ -60,11 +69,10 @@ export function SiteHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                prefetch={item.href === "/suites" ? false : undefined}
                 className={cn(
                   "focus-ring rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
                   pathname === item.href
-                    ? "text-primary bg-primary/8"
+                    ? "text-primary bg-primary/10"
                     : "text-muted-foreground hover:text-foreground hover:bg-accent"
                 )}
               >
@@ -74,13 +82,28 @@ export function SiteHeader() {
         </nav>
 
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <a
+            href="tel:3155555PAWS"
+            className="hidden lg:flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-colors"
+            aria-label="Call Paws & Play"
+          >
+            <Phone className="h-4 w-4" aria-hidden="true" />
+            <span>(315) 555-PAWS</span>
+          </a>
           <Button
             asChild
             size="sm"
-            className="hidden md:inline-flex shadow-sm shadow-primary/15 hover:shadow-primary/25 transition-shadow"
+            className="hidden md:inline-flex font-bold transition-all"
+            style={{
+              background: "var(--color-yellow)",
+              color: "var(--color-navy)",
+            }}
           >
-            <Link href="/book">Reserve a Suite</Link>
+            <Link href="/book">
+              <span className="mr-1.5" aria-hidden="true">🐾</span>
+              Book a Playday
+            </Link>
           </Button>
           {showAdminCamera ? <AdminCameraCapture /> : null}
           <UserNav />

@@ -1,373 +1,386 @@
 import Link from "next/link";
 import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, AlertCircle } from "lucide-react";
-import { FadeUp, StaggerContainer, StaggerItem } from "@/components/motion";
+import { CheckCircle2, HelpCircle } from "lucide-react";
+import { FadeUp, ScaleIn } from "@/components/motion";
 import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   return simplePageMetadataFromSettings({
-    title: "Pricing | Luxury Dog Boarding Syracuse NY | Zaine's Stay & Play",
+    title: "Pricing | Doggy Daycare Syracuse NY | Paws & Play",
     description:
-      "Transparent pricing for luxury dog boarding in Syracuse. Standard ($65), Deluxe ($85), and Luxury ($120) suites. No hidden fees, no surprise charges.",
+      "Simple, transparent daycare pricing. Half Day $28, Full Day $38, 5 Day Package $171, Monthly Membership $520. No hidden fees, no contracts.",
     keywords: [
-      "dog boarding pricing",
-      "luxury dog boarding rates",
-      "Syracuse dog boarding costs",
-      "pet boarding suites",
+      "doggy daycare pricing Syracuse",
+      "dog daycare rates",
+      "Syracuse dog daycare costs",
+      "daycare packages",
     ],
     canonicalPath: "/pricing",
   });
 }
 
-const suites = [
+const daycareOptions = [
   {
-    name: "Standard Suite",
-    price: "$65",
-    period: "/ night",
-    description: "Comfortable, clean, and secure",
+    name: "Half Day",
+    price: "$28",
+    duration: "Up to 4 hours",
+    description: "Perfect for short schedules",
     features: [
-      "6' x 8' private suite",
-      "Climate controlled",
-      "Professional daily cleaning",
-      "2 potty breaks",
-      "2 group play sessions",
-      "Meals included (2x daily)",
+      "Morning or afternoon session",
+      "Supervised play groups",
+      "Fun & enrichment",
+      "Photo updates",
     ],
   },
   {
-    name: "Deluxe Suite",
-    price: "$85",
-    period: "/ night",
+    name: "Full Day",
+    price: "$38",
+    duration: "Up to 10 hours",
     popular: true,
-    description: "Premium comfort with premium care",
+    description: "Most popular option",
     features: [
-      "8' x 10' private suite",
-      "Climate controlled with air purification",
-      "Live webcam access (24/7)",
-      "3 potty breaks + solo enrichment",
-      "3 group play sessions",
-      "Meals included (3x daily, custom options)",
-      "Weekly photo updates",
+      "Full day of play",
+      "Supervised play groups",
+      "Enrichment activities",
+      "Rest & quiet time",
+      "Photo updates",
     ],
   },
   {
-    name: "Luxury Suite",
-    price: "$120",
-    period: "/ night",
-    description: "VIP experience for VIP pups",
+    name: "5 Day Package",
+    price: "$171",
+    duration: "5 full days",
+    description: "Great value package",
     features: [
-      "10' x 12' private suite with outdoor patio",
-      "Climate + humidity controlled",
-      "HD webcam access + live chat support",
-      "4 potty breaks + on-demand access",
-      "4 customized play sessions",
-      "Meals included (custom schedule)",
-      "Daily video updates & photo album",
-      "Priority support line",
+      "Use within 30 days",
+      "Anytime flexibility",
+      "All Full Day benefits",
+      "$9 savings",
+    ],
+  },
+  {
+    name: "Monthly Membership",
+    price: "$520",
+    duration: "20 days/month",
+    description: "Best value for regulars",
+    features: [
+      "Best weekly value",
+      "Priority scheduling",
+      "10% off add-on services",
+      "Flexible scheduling",
     ],
   },
 ];
 
 const addOns = [
-  { name: "Extra Playtime (30 min)", price: "$15" },
-  { name: "Private Walk (30 min)", price: "$20" },
-  { name: "Photo Package (10 photos)", price: "$25" },
-  { name: "Spa Treatment (bath & nails)", price: "$35" },
+  { name: "Bath & Brush", price: "$30" },
+  { name: "Nail Trim", price: "$15" },
+  { name: "Teeth Brushing", price: "$10" },
+  { name: "Ear Cleaning", price: "$10" },
   { name: "Birthday Party Package", price: "$75" },
-  { name: "Comfort Care Package", price: "$50" },
+  { name: "Extra Enrichment (30 min)", price: "$20" },
+];
+
+const faqs = [
+  {
+    question: "Do I need to commit to a membership?",
+    answer:
+      "No! All our options are drop-in friendly. Memberships are optional for families who want the best value.",
+  },
+  {
+    question: "What if my dog doesn't like group play?",
+    answer:
+      "We do a free temperament screening first. If your dog prefers solo play, we'll create a custom plan with individual activities.",
+  },
+  {
+    question: "Are meals included?",
+    answer:
+      "You can bring your dog's food or we can provide it at no extra charge. Just let us know your pup's dietary needs.",
+  },
+  {
+    question: "What's your cancellation policy?",
+    answer:
+      "Cancel up to 24 hours before for a full refund. We understand plans change!",
+  },
+  {
+    question: "Do you offer boarding too?",
+    answer:
+      "Yes! We offer overnight boarding in addition to daycare. Visit our Boarding page for overnight pricing.",
+  },
 ];
 
 export default function PricingPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Hero */}
-      <FadeUp>
-        <section className="section-padding relative bg-gradient-to-br from-primary/5 via-primary/2 to-secondary/3">
-          <div className="container mx-auto px-4">
-            <div className="luxury-shell grain-overlay mx-auto max-w-4xl p-8 text-center md:p-12">
-              <Badge className="mb-4 border-primary/20 bg-primary/10 text-primary">
-                Transparent Pricing
-              </Badge>
-              <h1 className="headline-display mb-6 text-4xl font-semibold tracking-tight md:text-5xl lg:text-6xl">
-                Premium Pricing, Premium Care
+      <section
+        className="relative overflow-hidden py-16 md:py-20"
+        style={{
+          background:
+            "linear-gradient(135deg, var(--color-deep-sky) 0%, var(--color-sky) 100%)",
+        }}
+      >
+        <div className="container mx-auto px-4">
+          <FadeUp>
+            <div className="mx-auto max-w-3xl text-center text-white">
+              <h1 className="font-display mb-6 text-4xl font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl">
+                Simple, Transparent{" "}
+                <span className="relative inline-block">
+                  Pricing
+                  <svg
+                    className="absolute -right-4 -top-3 h-8 w-8 text-yellow-300 opacity-80"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="2" />
+                    <circle cx="6" cy="6" r="1.5" />
+                  </svg>
+                </span>
               </h1>
-              <p className="mb-8 text-lg md:text-xl text-foreground/70">
-                No hidden fees. No surprise add-ons. Just honest, luxury dog boarding with complete price transparency before you confirm.
+              <p className="mb-2 text-lg leading-relaxed text-white/90 md:text-xl">
+                Choose the option that works best for you and your pup!
+              </p>
+              <p className="text-base text-white/75">
+                No contracts. No hidden fees. Just happy dogs and transparent
+                pricing.
               </p>
             </div>
-          </div>
-        </section>
-      </FadeUp>
+          </FadeUp>
+        </div>
 
-      {/* Suite Pricing */}
+        {/* Wave bottom */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-16 bg-background"
+          style={{
+            clipPath: "ellipse(70% 100% at 50% 100%)",
+            transform: "translateY(50%)",
+          }}
+        ></div>
+      </section>
+
+      {/* Daycare Pricing */}
       <section className="section-padding">
         <div className="container mx-auto px-4">
           <FadeUp>
-            <div className="mb-16 text-center">
-              <h2 className="mb-4 font-display text-3xl md:text-4xl font-semibold">
-                Boarding Suite Pricing
+            <div className="mb-12 text-center">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+                Daycare Options
+              </p>
+              <h2 className="font-display mb-4 text-3xl font-bold text-foreground md:text-4xl">
+                Choose What Works for You
               </h2>
-              <p className="text-lg text-foreground/60">
-                All-inclusive rates. No hourly charges. No surprise costs at checkout.
+              <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+                From occasional playdays to full-time care, we've got options
+                for every schedule.
               </p>
             </div>
           </FadeUp>
 
-          <StaggerContainer>
-            {suites.map((suite) => (
-              <StaggerItem key={suite.name}>
-                <div className={`relative group transition-all duration-300 ${
-                  suite.popular ? "md:scale-105" : ""
-                }`}>
-                  {suite.popular && (
-                    <div className="absolute -inset-1 rounded-xl bg-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {daycareOptions.map((option, index) => (
+              <ScaleIn key={option.name} delay={index * 0.1}>
+                <div
+                  className={`paw-card relative h-full p-6 transition-all ${
+                    option.popular
+                      ? "border-2 border-primary shadow-xl scale-105"
+                      : ""
+                  }`}
+                >
+                  {option.popular && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-sm font-bold text-white">
+                      Most Popular
+                    </div>
                   )}
-                  <Card
-                    className={`relative flex flex-col h-full border-border/50 hover:border-primary/30 transition-all duration-300 ${
-                      suite.popular ? "border-primary/50 shadow-lg" : ""
-                    }`}
+                  <div className="mb-6 text-center">
+                    <h3 className="font-display mb-2 text-2xl font-bold text-foreground">
+                      {option.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {option.duration}
+                    </p>
+                    <p className="mt-4 text-5xl font-bold text-primary">
+                      {option.price}
+                    </p>
+                    <p className="mt-2 text-sm font-medium text-muted-foreground">
+                      {option.description}
+                    </p>
+                  </div>
+                  <ul className="mb-6 space-y-3">
+                    {option.features.map((feature) => (
+                      <li
+                        key={feature}
+                        className="flex items-start gap-2 text-sm text-muted-foreground"
+                      >
+                        <CheckCircle2
+                          className="mt-0.5 h-5 w-5 shrink-0 text-green-600"
+                          aria-hidden="true"
+                        />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    asChild
+                    className="w-full"
+                    variant={option.popular ? "default" : "outline"}
                   >
-                    {suite.popular && (
-                      <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground shadow-lg">
-                        Most Popular
-                      </Badge>
-                    )}
-                    <CardHeader>
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <CardTitle className="font-display text-2xl md:text-3xl">
-                            {suite.name}
-                          </CardTitle>
-                          <CardDescription className="text-base mt-2">
-                            {suite.description}
-                          </CardDescription>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="flex-1 flex flex-col">
-                      <div className="mb-6">
-                        <div className="flex items-baseline gap-1 mb-2">
-                          <span className="font-display text-4xl font-semibold text-primary">
-                            {suite.price}
-                          </span>
-                          <span className="text-sm text-foreground/60">
-                            {suite.period}
-                          </span>
-                        </div>
-                        <p className="text-sm text-foreground/50">
-                          All features included. No extra charges.
-                        </p>
-                      </div>
-
-                      <ul className="space-y-3 flex-1">
-                        {suite.features.map((feature) => (
-                          <li key={feature} className="flex items-start gap-3">
-                            <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-primary flex-shrink-0" />
-                            <span className="text-sm text-foreground/70">
-                              {feature}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-
-                      <Button
-                        className="focus-ring mt-8 w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                        size="lg"
-                        asChild
-                      >
-                        <Link href="/book">Book This Suite</Link>
-                      </Button>
-                      <Button
-                        className="focus-ring mt-3 w-full"
-                        size="lg"
-                        variant="outline"
-                        asChild
-                      >
-                        <Link href={`/checkout/${suite.name.split(" ")[0].toLowerCase()}`}>
-                          Stripe Checkout
-                        </Link>
-                      </Button>
-                    </CardContent>
-                  </Card>
+                    <Link href="/book">Book Now</Link>
+                  </Button>
                 </div>
-              </StaggerItem>
+              </ScaleIn>
             ))}
-          </StaggerContainer>
+          </div>
         </div>
       </section>
 
-      {/* Multi-Dog & Extended Stays */}
-      <FadeUp>
-        <section className="bg-secondary/40 py-16 md:py-20">
-          <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-2xl rounded-xl border border-primary/20 bg-background/80 backdrop-blur-sm p-8">
-              <h3 className="mb-4 font-display text-2xl font-semibold">
-                Special Pricing
-              </h3>
-              <div className="space-y-4 text-foreground/70">
-                <div>
-                  <strong className="text-foreground">Multiple Dogs (Same Family):</strong>
-                  <p className="mt-1 text-sm">Additional dogs receive a discounted rate. Exact pricing shown in your pre-confirmation quote.</p>
-                </div>
-                <div>
-                  <strong className="text-foreground">Extended Stays (14+ Nights):</strong>
-                  <p className="mt-1 text-sm">We offer special rates for longer stays. Contact us for a custom quote.</p>
-                </div>
-                <div>
-                  <strong className="text-foreground">Holiday Surcharge:</strong>
-                  <p className="mt-1 text-sm">A 20% surcharge applies to Thanksgiving, Christmas, and New Year's holidays. Book early.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </FadeUp>
-
-      {/* Optional Add-Ons */}
-      <section className="py-20 md:py-28">
+      {/* Add-Ons Section */}
+      <section className="section-padding bg-accent/30">
         <div className="container mx-auto px-4">
           <FadeUp>
-            <div className="mb-16 text-center">
-              <h2 className="mb-4 font-display text-3xl md:text-4xl font-semibold">
-                Optional Enhancements
+            <div className="mb-12 text-center">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+                Optional Extras
+              </p>
+              <h2 className="font-display mb-4 text-3xl font-bold text-foreground md:text-4xl">
+                Pamper Your Pup
               </h2>
-              <p className="text-lg text-foreground/60">
-                Customize your stay with premium care options (all optional, all clearly itemized)
+              <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+                Add grooming, special treats, or celebration packages to make
+                their day extra special.
               </p>
             </div>
           </FadeUp>
 
-          <div className="mx-auto max-w-4xl">
-            <StaggerContainer>
-              {addOns.map((addOn) => (
-                <StaggerItem key={addOn.name}>
-                  <div className="flex items-center justify-between p-4 rounded-lg hover:bg-primary/5 transition-colors duration-300 border border-border/30">
-                    <span className="font-medium text-foreground">
-                      {addOn.name}
-                    </span>
-                    <span className="font-semibold text-primary">
-                      {addOn.price}
-                    </span>
-                  </div>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
+          <div className="mx-auto grid max-w-3xl gap-4">
+            {addOns.map((addOn, index) => (
+              <ScaleIn key={addOn.name} delay={index * 0.05}>
+                <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-5 transition-all hover:border-primary/50 hover:shadow-md">
+                  <span className="font-medium text-foreground">
+                    {addOn.name}
+                  </span>
+                  <span className="text-xl font-bold text-primary">
+                    {addOn.price}
+                  </span>
+                </div>
+              </ScaleIn>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Trust & Transparency */}
-      <FadeUp>
-        <section className="bg-primary/5 py-16 md:py-20">
-          <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-3xl rounded-xl border border-primary/20 p-8 md:p-12">
-              <div className="flex items-start gap-4">
-                <AlertCircle className="h-6 w-6 text-primary shrink-0 mt-1" />
-                <div>
-                  <h3 className="mb-4 font-display text-xl font-semibold">
-                    Our Promise: Zero Hidden Fees
-                  </h3>
-                  <ul className="space-y-2 text-foreground/70 text-sm">
-                    <li>✓ All prices confirmed before booking</li>
-                    <li>✓ No surprise charges at checkout</li>
-                    <li>✓ Optional add-ons clearly itemized</li>
-                    <li>✓ Multi-dog totals disclosed upfront</li>
-                    <li>✓ Holiday rates disclosed at booking</li>
-                    <li>✓ Transparent cancellation policy</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </FadeUp>
-
-      {/* Policies */}
-      <FadeUp>
-        <section className="py-16 md:py-20">
-          <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-3xl">
-              <h2 className="mb-12 text-center font-display text-3xl md:text-4xl font-semibold">
-                Policies & Terms
+      {/* FAQ Section */}
+      <section className="section-padding">
+        <div className="container mx-auto px-4">
+          <FadeUp>
+            <div className="mb-12 text-center">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+                Common Questions
+              </p>
+              <h2 className="font-display mb-4 text-3xl font-bold text-foreground md:text-4xl">
+                Pricing FAQs
               </h2>
-              <div className="space-y-8">
-                <div>
-                  <h3 className="mb-3 font-display text-lg font-semibold">
-                    Payment
-                  </h3>
-                  <p className="text-foreground/70">
-                    Payment is required at booking. We accept all major credit cards, debit cards, and digital wallets (Apple Pay, Google Pay). Secure checkout guaranteed.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="mb-3 font-display text-lg font-semibold">
-                    Cancellation Policy
-                  </h3>
-                  <p className="text-foreground/70">
-                    <strong className="text-foreground">30+ days before stay:</strong> Full refund. <strong className="text-foreground">15-29 days:</strong> 50% refund. <strong className="text-foreground">Less than 15 days:</strong> Booking retained (reschedule available). No fees charged.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="mb-3 font-display text-lg font-semibold">
-                    What's Included
-                  </h3>
-                  <p className="text-foreground/70">
-                    All meals, treats, bedding, climate control, cleaning, activities, and supervision are included in your nightly rate. No additional fees for these core services.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="mb-3 font-display text-lg font-semibold">
-                    Questions?
-                  </h3>
-                  <p className="text-foreground/70">
-                    Contact us anytime at <strong>(315) 657-1332</strong> or <strong>info@zainesstayandplay.com</strong>. We're happy to walk you through pricing details.
-                  </p>
-                </div>
-              </div>
             </div>
-          </div>
-        </section>
-      </FadeUp>
+          </FadeUp>
 
-      {/* CTA */}
-      <FadeUp>
-        <section className="section-padding-tight bg-gradient-to-r from-primary/90 to-primary text-primary-foreground">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="mb-4 font-display text-3xl md:text-4xl font-semibold">
-              Ready to Book?
+          <div className="mx-auto max-w-3xl space-y-4">
+            {faqs.map((faq, index) => (
+              <ScaleIn key={faq.question} delay={index * 0.06}>
+                <div className="paw-card p-6">
+                  <div className="mb-2 flex items-start gap-3">
+                    <HelpCircle
+                      className="mt-1 h-5 w-5 shrink-0 text-primary"
+                      aria-hidden="true"
+                    />
+                    <h3 className="font-display text-lg font-bold text-foreground">
+                      {faq.question}
+                    </h3>
+                  </div>
+                  <p className="ml-8 text-base text-muted-foreground">
+                    {faq.answer}
+                  </p>
+                </div>
+              </ScaleIn>
+            ))}
+          </div>
+
+          <FadeUp delay={0.3}>
+            <div className="mt-12 text-center">
+              <p className="mb-4 text-base text-muted-foreground">
+                More questions? We're here to help!
+              </p>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/faq">View All FAQs</Link>
+              </Button>
+            </div>
+          </FadeUp>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section
+        className="section-padding relative overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(135deg, var(--color-deep-sky) 0%, var(--color-sky) 100%)",
+        }}
+      >
+        <div className="container relative z-10 mx-auto px-4 text-center">
+          <FadeUp>
+            <h2 className="font-display mb-6 text-3xl font-bold text-white md:text-4xl lg:text-5xl">
+              Ready to Book Your Dog's{" "}
+              <span className="relative inline-block">
+                First Playday?
+                <svg
+                  className="absolute -right-4 -top-3 h-8 w-8 text-yellow-300 opacity-80"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </svg>
+              </span>
             </h2>
-            <p className="mb-8 text-lg opacity-90 max-w-2xl mx-auto">
-              Choose your suite and secure your dog's stay. Your full price is confirmed before checkout.
+            <p className="mx-auto mb-8 max-w-2xl text-lg text-white/90">
+              Start with a free meet & greet to make sure your pup is a good fit
+              for our pack!
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-4">
               <Button
-                size="lg"
-                className="focus-ring bg-primary-foreground text-primary hover:bg-primary-foreground/90"
                 asChild
+                size="lg"
+                className="font-bold text-base shadow-lg"
+                style={{
+                  background: "var(--color-yellow)",
+                  color: "var(--color-navy)",
+                }}
               >
-                <Link href="/book">Check Availability</Link>
+                <Link href="/book">
+                  <span className="mr-2 text-xl" aria-hidden="true">
+                    🐾
+                  </span>
+                  Book a Playday
+                </Link>
               </Button>
               <Button
+                asChild
                 size="lg"
                 variant="outline"
-                className="focus-ring border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10"
-                asChild
+                className="font-semibold text-base border-2 border-white bg-white/10 text-white backdrop-blur-sm hover:bg-white hover:text-primary"
               >
-                <Link href="/contact">Talk With Our Team</Link>
+                <Link href="/contact">Contact Us</Link>
               </Button>
             </div>
-          </div>
-        </section>
-      </FadeUp>
+          </FadeUp>
+        </div>
+
+        {/* Decorative paw prints */}
+        <div className="absolute left-8 top-8 text-6xl opacity-10">🐾</div>
+        <div className="absolute bottom-12 right-12 text-5xl opacity-10">
+          🐾
+        </div>
+      </section>
     </div>
   );
 }

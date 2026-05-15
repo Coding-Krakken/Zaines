@@ -1,11 +1,9 @@
 'use client';
 
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Star, Quote } from "lucide-react";
-import { FadeUp, StaggerContainer, StaggerItem } from "@/components/motion";
+import { Star, Quote, Calendar } from "lucide-react";
+import { FadeUp, ScaleIn } from "@/components/motion";
 
 const reviews = [
   {
@@ -75,226 +73,199 @@ export default function ReviewsPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Hero Section */}
-      <FadeUp>
-        <section className="relative bg-gradient-to-br from-primary/5 via-primary/2 to-secondary/3 py-20 md:py-32">
-          <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-3xl text-center">
-              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
-                Reviews & Testimonials
-              </Badge>
-              <h1 className="mb-6 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight">
-                Trusted by Families Across Syracuse
+      <section
+        className="relative overflow-hidden py-16 md:py-20"
+        style={{
+          background:
+            "linear-gradient(135deg, var(--color-deep-sky) 0%, var(--color-sky) 100%)",
+        }}
+      >
+        <div className="container mx-auto px-4">
+          <FadeUp>
+            <div className="mx-auto max-w-3xl text-center text-white">
+              <h1 className="font-display mb-6 text-4xl font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl">
+                Loved by{" "}
+                <span className="relative inline-block">
+                  Syracuse Dog Parents
+                  <svg
+                    className="absolute -right-4 -top-3 h-8 w-8 text-yellow-300 opacity-80"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                  </svg>
+                </span>
               </h1>
-              <p className="mb-8 text-lg md:text-xl text-foreground/70">
-                Read what pet parents say about their experience with Zaine's Stay & Play
+              <p className="mb-8 text-lg leading-relaxed text-white/90 md:text-xl">
+                Real reviews from real families who trust us with their furry friends
               </p>
               
               {/* Star Rating Display */}
-              <div className="flex items-center justify-center gap-3 mb-8">
+              <div className="flex items-center justify-center gap-3">
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
-                      className="h-6 w-6 fill-primary text-primary"
+                      className="h-7 w-7 fill-yellow-300 text-yellow-300"
                       aria-hidden="true"
                     />
                   ))}
                 </div>
-                <span className="font-display text-3xl font-semibold text-primary">4.9/5</span>
-                <span className="text-foreground/60">(150+ verified reviews)</span>
+                <span className="text-3xl font-bold text-white">4.9/5</span>
+                <span className="text-white/80">(150+ verified reviews)</span>
               </div>
             </div>
-          </div>
-        </section>
-      </FadeUp>
+          </FadeUp>
+        </div>
+
+        {/* Wave bottom */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-16 bg-background"
+          style={{
+            clipPath: "ellipse(70% 100% at 50% 100%)",
+            transform: "translateY(50%)",
+          }}
+        ></div>
+      </section>
 
       {/* Stats */}
-      <FadeUp>
-        <section className="py-16 md:py-20">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-              {stats.map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <div className="mb-3 font-display text-3xl md:text-4xl font-semibold text-primary">
+      <section className="section-padding-tight">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+            {stats.map((stat, index) => (
+              <FadeUp key={stat.label} delay={index * 0.1}>
+                <div className="text-center">
+                  <div className="mb-3 font-display text-4xl font-bold text-primary md:text-5xl">
                     {stat.value}
                   </div>
-                  <div className="text-sm text-foreground/60 font-medium">
+                  <div className="text-sm font-medium text-muted-foreground">
                     {stat.label}
                   </div>
                 </div>
-              ))}
-            </div>
+              </FadeUp>
+            ))}
           </div>
-        </section>
-      </FadeUp>
+        </div>
+      </section>
 
       {/* Reviews Grid */}
-      <section className="py-20 md:py-28">
+      <section className="section-padding bg-accent/20">
         <div className="container mx-auto px-4">
           <FadeUp>
-            <div className="mb-16 text-center">
-              <h2 className="mb-4 font-display text-3xl md:text-4xl font-semibold">
-                Real Feedback From Real Pet Parents
+            <div className="mb-12 text-center">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+                Verified Reviews
+              </p>
+              <h2 className="font-display mb-4 text-3xl font-bold text-foreground md:text-4xl">
+                What Dog Parents Are Saying
               </h2>
-              <p className="text-lg text-foreground/60">
+              <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
                 Every review is verified from families we've served
               </p>
             </div>
           </FadeUp>
 
-          <StaggerContainer>
-            <div className="grid gap-6 md:grid-cols-2 auto-rows-max">
-              {reviews.map((review) => (
-                <StaggerItem key={review.id}>
-                  <Card className="border-border/50 hover:border-primary/30 transition-all duration-300 h-full flex flex-col">
-                    <CardContent className="flex flex-1 flex-col pt-6">
-                      {/* Header with Quote Icon */}
-                      <div className="mb-4 flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="mb-2 flex items-center gap-2">
-                            <h3 className="font-display font-semibold text-foreground">
-                              {review.author}
-                            </h3>
-                            {review.verified && (
-                              <Badge className="text-xs bg-primary/10 text-primary border-primary/20">
-                                Verified
-                              </Badge>
-                            )}
+          <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {reviews.map((review, index) => (
+              <ScaleIn key={review.id} delay={index * 0.08}>
+                <div className="paw-card h-full p-6">
+                  {/* Header */}
+                  <div className="mb-4 flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="mb-2 flex items-center gap-2">
+                        <h3 className="font-display font-bold text-foreground">
+                          {review.author}
+                        </h3>
+                        {review.verified && (
+                          <div className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
+                            ✓ Verified
                           </div>
-                          <div className="text-sm text-foreground/60 font-medium">
-                            {review.petName} • {review.date}
-                          </div>
-                        </div>
-                        <Quote className="h-6 w-6 text-primary/10 shrink-0" />
+                        )}
                       </div>
-
-                      {/* Star Rating */}
-                      <div className="mb-4 flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`h-4 w-4 ${
-                              star <= review.rating
-                                ? "fill-primary text-primary"
-                                : "text-border"
-                            }`}
-                            aria-hidden="true"
-                          />
-                        ))}
+                      <div className="text-sm font-medium text-muted-foreground">
+                        {review.petName} • {review.date}
                       </div>
+                    </div>
+                    <Quote className="h-8 w-8 shrink-0 text-primary/20" />
+                  </div>
 
-                      {/* Review Text */}
-                      <p className="flex-1 text-foreground/70 leading-relaxed">
-                        {review.text}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </StaggerItem>
-              ))}
-            </div>
-          </StaggerContainer>
+                  {/* Star Rating */}
+                  <div className="mb-4 flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className="h-5 w-5 fill-primary text-primary"
+                        aria-hidden="true"
+                      />
+                    ))}
+                  </div>
+
+                  {/* Review Text */}
+                  <p className="text-base leading-relaxed text-muted-foreground">
+                    "{review.text}"
+                  </p>
+                </div>
+              </ScaleIn>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Why Pet Parents Trust Us */}
-      <FadeUp>
-        <section className="bg-secondary/40 py-16 md:py-20">
-          <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-3xl rounded-xl border border-primary/20 bg-background/80 backdrop-blur-sm p-8">
-              <h3 className="mb-6 font-display text-2xl font-semibold">
-                Why Families Trust Us
-              </h3>
-              <ul className="space-y-3 text-foreground/70">
-                <li className="flex gap-3">
-                  <span className="text-primary font-semibold">✓</span>
-                  <span><strong className="text-foreground">Small capacity:</strong> Only 3 suites means your dog gets individualized attention, not a crowded kennel</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="text-primary font-semibold">✓</span>
-                  <span><strong className="text-foreground">Owner on-site:</strong> 24/7 supervision from someone who genuinely cares about your pet</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="text-primary font-semibold">✓</span>
-                  <span><strong className="text-foreground">Transparent pricing:</strong> No hidden fees, no surprises at checkout</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="text-primary font-semibold">✓</span>
-                  <span><strong className="text-foreground">Calm environment:</strong> Reduced stress, predictable routines, personalized care</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="text-primary font-semibold">✓</span>
-                  <span><strong className="text-foreground">Daily updates:</strong> Photos, videos, and regular check-ins keep you connected</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </section>
-      </FadeUp>
-
-      {/* CTA */}
-      <FadeUp>
-        <section className="bg-gradient-to-r from-primary/90 to-primary py-16 md:py-24 text-primary-foreground">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="mb-4 font-display text-3xl md:text-4xl font-semibold">
-              Join Our Community of Happy Pet Parents
+      {/* CTA Section */}
+      <section
+        className="section-padding relative overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(135deg, var(--color-deep-sky) 0%, var(--color-sky) 100%)",
+        }}
+      >
+        <div className="container relative z-10 mx-auto px-4 text-center">
+          <FadeUp>
+            <h2 className="font-display mb-6 text-3xl font-bold text-white md:text-4xl lg:text-5xl">
+              Join the Paws & Play Family
             </h2>
-            <p className="mb-8 text-lg opacity-90 max-w-2xl mx-auto">
-              Experience the personalized care, calm environment, and peace of mind that earns us 4.9 stars.
+            <p className="mx-auto mb-8 max-w-2xl text-lg text-white/90">
+              Experience the difference that makes Syracuse dog parents so happy. Book a free meet & greet today!
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-4">
               <Button
-                size="lg"
-                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
                 asChild
+                size="lg"
+                className="font-bold text-base shadow-lg"
+                style={{
+                  background: "var(--color-yellow)",
+                  color: "var(--color-navy)",
+                }}
               >
-                <Link href="/book">Book Your Stay</Link>
+                <Link href="/book">
+                  <span className="mr-2 text-xl" aria-hidden="true">
+                    🐾
+                  </span>
+                  Book a Playday
+                </Link>
               </Button>
               <Button
+                asChild
                 size="lg"
                 variant="outline"
-                className="border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10"
-                asChild
+                className="font-semibold text-base border-2 border-white bg-white/10 text-white backdrop-blur-sm hover:bg-white hover:text-primary"
               >
-                <Link href="/contact">Schedule a Tour</Link>
+                <Link href="/contact">
+                  <Calendar className="mr-2 h-5 w-5" aria-hidden="true" />
+                  Schedule a Tour
+                </Link>
               </Button>
             </div>
-          </div>
-        </section>
-      </FadeUp>
+          </FadeUp>
+        </div>
 
-      {/* Schema.org Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "LocalBusiness",
-            name: "Zaine's Stay & Play",
-            aggregateRating: {
-              "@type": "AggregateRating",
-              ratingValue: "4.9",
-              ratingCount: 150,
-              bestRating: "5",
-              worstRating: "1",
-            },
-            review: reviews.slice(0, 6).map((review) => ({
-              "@type": "Review",
-              reviewRating: {
-                "@type": "Rating",
-                ratingValue: review.rating,
-                bestRating: "5",
-                worstRating: "1",
-              },
-              author: {
-                "@type": "Person",
-                name: review.author,
-              },
-              reviewBody: review.text,
-              datePublished: new Date().toISOString().split("T")[0],
-            })),
-          }),
-        }}
-      />
+        {/* Decorative paw prints */}
+        <div className="absolute left-8 top-8 text-6xl opacity-10">🐾</div>
+        <div className="absolute bottom-12 right-12 text-5xl opacity-10">
+          🐾
+        </div>
+      </section>
     </div>
   );
 }
