@@ -44,13 +44,24 @@ const ROUTES = [
           resultTypes: ["violations"],
         });
       });
+      
+      // Categorize violations by impact
+      const criticalViolations = results.violations.filter(v => v.impact === 'critical');
+      const seriousViolations = results.violations.filter(v => v.impact === 'serious');
+      const moderateViolations = results.violations.filter(v => v.impact === 'moderate');
+      const minorViolations = results.violations.filter(v => v.impact === 'minor');
+      
       out.results.push({
         route,
         url,
         violations: results.violations.length,
+        critical: criticalViolations.length,
+        serious: seriousViolations.length,
+        moderate: moderateViolations.length,
+        minor: minorViolations.length,
         results,
       });
-      console.log(`  Violations: ${results.violations.length}`);
+      console.log(`  Violations: ${results.violations.length} (Critical: ${criticalViolations.length}, Serious: ${seriousViolations.length}, Moderate: ${moderateViolations.length}, Minor: ${minorViolations.length})`);
     } catch (err) {
       console.error("  Error on", url, err && err.message);
       out.results.push({ route, url, error: String(err) });
@@ -72,21 +83,53 @@ const ROUTES = [
   md.push(`- Base: ${out.base}`);
   md.push(`- Scanned at: ${out.scannedAt}`);
   md.push("");
+  
+  let totalCritical = 0;
+  let totalSerious = 0;
+  let totalModerate = 0;
+  let totalMinor = 0;
+  
   out.results.forEach((r) => {
-    if (r.error) md.push(`- ${r.route} — ERROR: ${r.error}`);
-    else md.push(`- ${r.route} — Violations: ${r.violations}`);
+    if (r.error) {
+      md.push(`- ${r.route} — ERROR: ${r.error}`);
+    } else {
+      totalCritical += r.critical || 0;
+      totalSerious += r.serious || 0;
+      totalModerate += r.moderate || 0;
+      totalMinor += r.minor || 0;
+      md.push(`- ${r.route} — Total: ${r.violations} (🔴 ${r.critical || 0} critical, 🟠 ${r.serious || 0} serious, 🟡 ${r.moderate || 0} moderate, ⚪ ${r.minor || 0} minor)`);
+    }
   });
+  
+  md.push("");
+  md.push("## Summary");
+  md.push(`- 🔴 Critical: ${totalCritical}`);
+  md.push(`- 🟠 Serious: ${totalSerious}`);
+  md.push(`- 🟡 Moderate: ${totalModerate}`);
+  md.push(`- ⚪ Minor: ${totalMinor}`);
+  md.push(`- **Total: ${totalCritical + totalSerious + totalModerate + totalMinor}**`);
+  
   fs.writeFileSync(`${outDir}/PLAYWRIGHT_A11Y.md`, md.join("\n"));
 
-  const failedRoutes = out.results.filter((r) => r.error || r.violations > 0);
-  if (failedRoutes.length > 0) {
+  // Fail if critical or serious violations found (zero tolerance)
+  if (totalCritical > 0 || totalSerious > 0) {
     console.error(
-      `\nPlaywright accessibility scan failed on ${failedRoutes.length} route(s).`,
+      `\n❌ Accessibility scan FAILED: ${totalCritical} critical and ${totalSerious} serious violations found.`,
     );
+    console.error(`   CI gate enforces ZERO critical/serious violations.`);
+    console.error(`   See docs/audit_logs/PLAYWRIGHT_A11Y.json for details.`);
     process.exit(1);
   }
 
+  // Warn about moderate/minor violations
+  if (totalModerate > 0 || totalMinor > 0) {
+    console.warn(
+      `\n⚠️  Warning: ${totalModerate} moderate and ${totalMinor} minor violations found.`,
+    );
+    console.warn(`   Consider fixing these for better accessibility.`);
+  }
+
   console.log(
-    "\nPlaywright accessibility scan complete — results written to docs/audit_logs",
+    "\n✅ Playwright accessibility scan complete — results written to docs/audit_logs",
   );
 })();

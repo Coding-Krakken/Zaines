@@ -1,0 +1,180 @@
+# Artillery Load Test - Booking Flow
+# 
+# Simulates realistic booking traffic to identify performance bottlenecks.
+# Tests key user journeys under load.
+#
+# Run: pnpm artillery run tests/load/booking-flow.yml
+# Run with report: pnpm artillery run --output report.json tests/load/booking-flow.yml && pnpm artillery report report.json
+
+config:
+  target: "http://localhost:3000"
+  phases:
+    # Warm-up phase
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm-up"
+    # Ramp-up phase
+    - duration: 120
+      arrivalRate: 5
+      rampTo: 20
+      name: "Ramp-up load"
+    # Sustained load phase
+    - duration: 300
+      arrivalRate: 20
+      name: "Sustained load"
+    # Peak load phase
+    - duration: 60
+      arrivalRate: 50
+      name: "Peak load"
+    # Cool-down phase
+    - duration: 60
+      arrivalRate: 5
+      name: "Cool-down"
+  
+  # Performance thresholds
+  ensure:
+    maxErrorRate: 1 # Max 1% error rate
+    p95: 2000 # 95th percentile response time < 2s
+    p99: 5000 # 99th percentile response time < 5s
+  
+  # Load test plugins
+  plugins:
+    expect: {}
+  
+  # Variables
+  variables:
+    checkInDate:
+      - "2025-06-01"
+      - "2025-06-15"
+      - "2025-07-01"
+    checkOutDate:
+      - "2025-06-05"
+      - "2025-06-20"
+      - "2025-07-05"
+    petName:
+      - "Max"
+      - "Bella"
+      - "Charlie"
+      - "Luna"
+    suiteType:
+      - "standard"
+      - "deluxe"
+      - "presidential"
+
+scenarios:
+  # Scenario 1: Browse homepage and services
+  - name: "Homepage visitor"
+    weight: 40
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+            - contentType: html
+            - hasHeader: "content-type"
+      - think: 3
+      - get:
+          url: "/services/boarding"
+          expect:
+            - statusCode: 200
+      - think: 2
+      - get:
+          url: "/pricing"
+          expect:
+            - statusCode: 200
+      - think: 5
+      - get:
+          url: "/gallery"
+          expect:
+            - statusCode: 200
+
+  # Scenario 2: Start booking flow (abandon)
+  - name: "Booking started (abandoned)"
+    weight: 30
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+      - think: 2
+      - get:
+          url: "/book"
+          expect:
+            - statusCode: 200
+      - think: 5
+      # User abandons here
+
+  # Scenario 3: Complete booking flow (guest)
+  - name: "Complete booking (guest checkout)"
+    weight: 20
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+      - think: 2
+      
+      # Step 1: View booking page
+      - get:
+          url: "/book"
+          expect:
+            - statusCode: 200
+      - think: 3
+      
+      # Step 2: Select dates (simulated)
+      # Note: Real booking would require API calls
+      # This is simplified for load testing
+      - think: 5
+      
+      # Step 3: Select suite
+      - get:
+          url: "/suites"
+          expect:
+            - statusCode: 200
+      - think: 4
+      
+      # Step 4: Review booking
+      - think: 3
+      
+      # Step 5: Guest checkout
+      # Note: Payment flow not included (would require test Stripe keys)
+      - think: 5
+
+  # Scenario 4: View reviews and FAQ
+  - name: "Research visitor"
+    weight: 10
+    flow:
+      - get:
+          url: "/reviews"
+          expect:
+            - statusCode: 200
+      - think: 8
+      - get:
+          url: "/faq"
+          expect:
+            - statusCode: 200
+      - think: 5
+      - get:
+          url: "/about"
+          expect:
+            - statusCode: 200
+      - think: 3
+
+  # Scenario 5: API endpoint stress test
+  - name: "API health check"
+    weight: 5
+    flow:
+      - get:
+          url: "/api/health"
+          expect:
+            - statusCode: 200
+            - contentType: json
+      - think: 1
+
+# HTTP request defaults
+http:
+  timeout: 10
+  defaults:
+    headers:
+      User-Agent: "Artillery Load Test"
+      Accept: "text/html,application/json"

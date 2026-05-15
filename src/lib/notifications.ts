@@ -1,6 +1,11 @@
 import fs from "fs";
 import path from "path";
 import os from "os";
+import { render } from "@react-email/render";
+import BookingConfirmation from "@/emails/BookingConfirmation";
+import PaymentReceipt from "@/emails/PaymentReceipt";
+import WelcomeEmail from "@/emails/WelcomeEmail";
+import PhotoDigest from "@/emails/PhotoDigest";
 
 // Use an explicit env override if provided, otherwise prefer a writable
 // system temp directory (works on serverless platforms like Vercel).
@@ -296,50 +301,37 @@ export async function sendBookingConfirmation(
     ? `${appBaseUrl}/book/confirmation?bookingId=${booking.id}`
     : appBaseUrl;
   const suiteLabel = booking?.suite?.name || booking?.suite?.tier || "Private Suite";
-  const petNames =
+  const petNamesArray =
     booking?.bookingPets
       ?.map((entry) => entry.pet?.name)
-      .filter((name): name is string => typeof name === "string" && name.length > 0)
-      .join(", ") || "Your pet guests";
-  const subtotal = formatCurrency(booking?.subtotal);
-  const tax = formatCurrency(booking?.tax);
-  const total = formatCurrency(booking?.total);
+      .filter((name): name is string => typeof name === "string" && name.length > 0) || ["Your pet"];
+  const petNamesString = petNamesArray.join(", ");
   const subject = `Booking ${booking?.bookingNumber} confirmation`;
-  const html = `
-    <div style="font-family: Georgia, serif; color: #18212a; line-height: 1.5; max-width: 640px; margin: 0 auto;">
-      <h1 style="margin-bottom: 8px;">Your Luxury Stay Is Confirmed</h1>
-      <p style="margin-top: 0; color: #4e5a67;">Thank you ${escapeHtml(booking?.user?.name || "Guest")}, we are ready to host your family.</p>
-
-      <div style="border: 1px solid #d8dde3; border-radius: 12px; padding: 16px; background: #f7fbfd;">
-        <p style="margin: 0 0 8px;"><strong>Booking:</strong> ${escapeHtml(booking?.bookingNumber || "Pending")}</p>
-        <p style="margin: 0 0 8px;"><strong>Suite:</strong> ${escapeHtml(suiteLabel)}</p>
-        <p style="margin: 0 0 8px;"><strong>Pet guests:</strong> ${escapeHtml(petNames)}</p>
-        <p style="margin: 0;"><strong>Dates:</strong> ${escapeHtml(formatDate(booking?.checkInDate))} to ${escapeHtml(formatDate(booking?.checkOutDate))}</p>
-      </div>
-
-      <table style="width: 100%; border-collapse: collapse; margin-top: 14px;">
-        <tbody>
-          <tr>
-            <td style="padding: 6px 0; color: #4e5a67;">Subtotal</td>
-            <td style="padding: 6px 0; text-align: right;">${escapeHtml(subtotal)}</td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 0; color: #4e5a67;">Tax</td>
-            <td style="padding: 6px 0; text-align: right;">${escapeHtml(tax)}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px 0 0; border-top: 1px solid #d8dde3;"><strong>Total</strong></td>
-            <td style="padding: 10px 0 0; text-align: right; border-top: 1px solid #d8dde3;"><strong>${escapeHtml(total)}</strong></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <p style="margin-top: 16px;">
-        <a href="${escapeHtml(receiptUrl)}" style="display: inline-block; background: #0f766e; color: #fff; text-decoration: none; padding: 10px 14px; border-radius: 8px;">View Invoice & Save PDF</a>
-      </p>
-      <p style="font-size: 13px; color: #4e5a67;">Need assistance? Reply to this email or contact our concierge team at (315) 657-1332.</p>
-    </div>
-  `;
+  
+  // Calculate nights
+  const checkIn = booking?.checkInDate;
+  const checkOut = booking?.checkOutDate;
+  const nights = checkIn && checkOut 
+    ? Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+    : 1;
+  const suitePrice = (booking?.subtotal || 0) / nights;
+  
+  // Use React Email template
+  const html = await render(
+    BookingConfirmation({
+      customerName: booking?.user?.name || "Guest",
+      bookingNumber: booking?.bookingNumber || "Pending",
+      checkInDate: formatDate(booking?.checkInDate),
+      checkOutDate: formatDate(booking?.checkOutDate),
+      suiteType: suiteLabel,
+      suitePrice,
+      nights,
+      petNames: petNamesArray,
+      subtotal: booking?.subtotal || 0,
+      tax: booking?.tax || 0,
+      total: booking?.total || 0,
+    })
+  );
 
   if (!to) {
     return { sent: false, provider: "dev-queue", detail: "no-recipient" };
@@ -706,6 +698,130 @@ export async function sendBookingClaimNotification(payload: {
   } catch (err) {
     await appendToDevQueue({
       type: "booking_claim_notification",
+      to,
+      from,
+      subject,
+      html,
+      error: String(err),
+    });
+    return { sent: false, provider: "dev-queue", detail: String(err) };
+  }
+}
+
+/**
+ * Send welcome email to new customers
+ */
+export async function sendWelcomeEmail(payload: {
+  email: string;
+  name?: string | null;
+}): Promise<SendResult> {
+  const from = process.env.EMAIL_FROM || "noreply@pawfectstays.com";
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = payload.email;
+  const subject = "Welcome to Zaine's Stay & Play! 🐾";
+  
+  const html = await render(
+    WelcomeEmail({
+      customerName: payload.name || "there",
+    })
+  );
+
+  if (!apiKey) {
+    await appendToDevQueue({
+      type: "welcome_email" as any,
+      to,
+      from,
+      subject,
+      html,
+    });
+    return { sent: false, provider: "dev-queue" };
+  }
+
+  try {
+    const resp = await sendEmailViaResend({ from, to, subject, html });
+    if (resp && resp.ok) {
+      return { sent: true, provider: "resend", detail: resp.json };
+    }
+
+    await appendToDevQueue({
+      type: "welcome_email" as any,
+      to,
+      from,
+      subject,
+      html,
+      response: resp.json,
+    });
+    return { sent: false, provider: "dev-queue", detail: resp.json };
+  } catch (err) {
+    await appendToDevQueue({
+      type: "welcome_email" as any,
+      to,
+      from,
+      subject,
+      html,
+      error: String(err),
+    });
+    return { sent: false, provider: "dev-queue", detail: String(err) };
+  }
+}
+
+/**
+ * Send daily photo digest to customers
+ */
+export async function sendPhotoDigest(payload: {
+  email: string;
+  customerName: string;
+  petName: string;
+  date: string;
+  photos: Array<{
+    url: string;
+    caption: string;
+    timestamp: string;
+  }>;
+}): Promise<SendResult> {
+  const from = process.env.EMAIL_FROM || "noreply@pawfectstays.com";
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = payload.email;
+  const subject = `📸 ${payload.petName}'s Daily Photos - ${payload.date}`;
+  
+  const html = await render(
+    PhotoDigest({
+      customerName: payload.customerName,
+      petName: payload.petName,
+      date: payload.date,
+      photos: payload.photos,
+    })
+  );
+
+  if (!apiKey) {
+    await appendToDevQueue({
+      type: "photo_digest" as any,
+      to,
+      from,
+      subject,
+      html,
+    });
+    return { sent: false, provider: "dev-queue" };
+  }
+
+  try {
+    const resp = await sendEmailViaResend({ from, to, subject, html });
+    if (resp && resp.ok) {
+      return { sent: true, provider: "resend", detail: resp.json };
+    }
+
+    await appendToDevQueue({
+      type: "photo_digest" as any,
+      to,
+      from,
+      subject,
+      html,
+      response: resp.json,
+    });
+    return { sent: false, provider: "dev-queue", detail: resp.json };
+  } catch (err) {
+    await appendToDevQueue({
+      type: "photo_digest" as any,
       to,
       from,
       subject,

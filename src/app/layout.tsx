@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fredoka, Nunito_Sans } from "next/font/google";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -119,6 +120,7 @@ export default async function RootLayout({
           <Toaster />
         </Providers>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
