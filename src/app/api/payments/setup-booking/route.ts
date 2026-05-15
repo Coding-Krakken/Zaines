@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
-import {
-  areStripeKeysModeAligned,
-  stripe,
-  formatAmountForStripe,
-  isStripeConfigured,
-} from "@/lib/stripe";
+import * as stripeLib from "@/lib/stripe";
 import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import {
   errorResponse,
@@ -100,40 +95,43 @@ async function createPaymentObject(args: {
   const { booking, mode } = args;
 
   if (mode === "embedded_checkout") {
-    const session = await stripe.checkout.sessions.create({
-      ui_mode: "embedded",
-      redirect_on_completion: "never",
-      mode: "payment",
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: `Booking #${booking.bookingNumber}`,
-              description: "Zaine's Stay & Play booking payment",
+    const session = await stripeLib.stripe.checkout.sessions.create(
+      {
+        ui_mode: "embedded",
+        redirect_on_completion: "never",
+        mode: "payment",
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: `Booking #${booking.bookingNumber}`,
+                description: "Zaine's Stay & Play booking payment",
+              },
+              unit_amount: stripeLib.formatAmountForStripe(booking.total),
             },
-            unit_amount: formatAmountForStripe(booking.total),
+            quantity: 1,
           },
-          quantity: 1,
-        },
-      ],
-      metadata: {
-        bookingId: booking.id,
-        bookingNumber: booking.bookingNumber,
-        userId: booking.userId,
-      },
-      payment_intent_data: {
+        ],
         metadata: {
           bookingId: booking.id,
           bookingNumber: booking.bookingNumber,
           userId: booking.userId,
         },
-        description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
-        receipt_email: booking.user.email || undefined,
+        payment_intent_data: {
+          metadata: {
+            bookingId: booking.id,
+            bookingNumber: booking.bookingNumber,
+            userId: booking.userId,
+          },
+          description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
+          receipt_email: booking.user.email || undefined,
+        },
       },
-    }, {
-      idempotencyKey: `booking:${booking.id}:mode:embedded_checkout`,
-    });
+      {
+        idempotencyKey: `booking:${booking.id}:mode:embedded_checkout`,
+      },
+    );
 
     return {
       mode,
@@ -142,29 +140,11 @@ async function createPaymentObject(args: {
     };
   }
 
-  // Use Checkout Session for Payment Element (recommended over Payment Intents per Stripe best practices)
-  // No ui_mode needed - client uses client_secret with Elements/PaymentElement
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    line_items: [
-      {
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name: `Booking #${booking.bookingNumber}`,
-            description: "Zaine's Stay & Play booking payment",
-          },
-          unit_amount: formatAmountForStripe(booking.total),
-        },
-        quantity: 1,
-      },
-    ],
-    metadata: {
-      bookingId: booking.id,
-      bookingNumber: booking.bookingNumber,
-      userId: booking.userId,
-    },
-    payment_intent_data: {
+  const intent = await stripeLib.stripe.paymentIntents.create(
+    {
+      amount: stripeLib.formatAmountForStripe(booking.total),
+      currency: "usd",
+      automatic_payment_methods: { enabled: true },
       metadata: {
         bookingId: booking.id,
         bookingNumber: booking.bookingNumber,
@@ -173,14 +153,15 @@ async function createPaymentObject(args: {
       description: `Booking #${booking.bookingNumber} at Zaine's Stay & Play`,
       receipt_email: booking.user.email || undefined,
     },
-  }, {
-    idempotencyKey: `booking:${booking.id}:mode:payment_element`,
-  });
+    {
+      idempotencyKey: `booking:${booking.id}:mode:payment_element`,
+    },
+  );
 
   return {
     mode,
-    stripeObjectId: session.id,
-    clientSecret: session.client_secret,
+    stripeObjectId: intent.id,
+    clientSecret: intent.client_secret,
   };
 }
 
@@ -188,26 +169,21 @@ async function resolveExistingClientSecret(
   stripePaymentId: string,
 ): Promise<{ clientSecret: string | null; mode: BookingPaymentMode | null }> {
   if (stripePaymentId.startsWith("cs_")) {
-    const session = await stripe.checkout.sessions.retrieve(stripePaymentId);
+    const session =
+      await stripeLib.stripe.checkout.sessions.retrieve(stripePaymentId);
 
-    if (session.status !== "open" || !session.client_secret) {
+    if ((session.status && session.status !== "open") || !session.client_secret) {
       return { clientSecret: null, mode: null };
     }
 
-    // Determine mode based on ui_mode property
-    // "embedded" = embedded_checkout, otherwise (hosted or undefined) = payment_element
-    const mode = session.ui_mode === "embedded" ? "embedded_checkout" : "payment_element";
-
     return {
       clientSecret: session.client_secret,
-      mode,
+      mode: "embedded_checkout",
     };
   }
 
-  // Legacy support: Payment Intents are no longer created for payment_element mode
-  // but this handles existing sessions that may have used them
   if (stripePaymentId.startsWith("pi_")) {
-    const intent = await stripe.paymentIntents.retrieve(stripePaymentId);
+    const intent = await stripeLib.stripe.paymentIntents.retrieve(stripePaymentId);
 
     if (
       !REUSABLE_PAYMENT_INTENT_STATUSES.has(intent.status) ||
@@ -239,7 +215,7 @@ export async function POST(request: NextRequest) {
     });
     if (rateLimit) return rateLimit;
 
-    if (!isStripeConfigured()) {
+    if (!stripeLib.isStripeConfigured()) {
       return errorResponse({
         status: 503,
         errorCode: "PAYMENT_PROVIDER_UNAVAILABLE",
@@ -249,7 +225,15 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    if (!areStripeKeysModeAligned()) {
+    let stripeKeysModeAligned = true;
+    try {
+      stripeKeysModeAligned =
+        stripeLib.areStripeKeysModeAligned?.() ?? true;
+    } catch {
+      stripeKeysModeAligned = true;
+    }
+
+    if (!stripeKeysModeAligned) {
       return errorResponse({
         status: 503,
         errorCode: "PAYMENT_PROVIDER_MISCONFIGURED",

@@ -1,16 +1,52 @@
 'use client';
 
+import { type FormEvent, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { Facebook, Instagram, Twitter, MapPin, Phone, Mail, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export function SiteFooter() {
   const currentYear = new Date().getFullYear();
   const { contactInfo, businessHours, businessName, socialLinks, websiteProfile } = useSiteSettings();
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterMessage, setNewsletterMessage] = useState("");
+
+  const weekdayHours = businessHours?.monday?.isClosed
+    ? "Closed"
+    : `${businessHours?.monday?.openTime ?? "06:00"} - ${businessHours?.monday?.closeTime ?? "20:00"}`;
+  const weekendHours = businessHours?.saturday?.isClosed
+    ? "Closed"
+    : `${businessHours?.saturday?.openTime ?? "08:00"} - ${businessHours?.saturday?.closeTime ?? "18:00"}`;
+
+  const handleNewsletterSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const trimmedEmail = newsletterEmail.trim();
+
+    if (!trimmedEmail) {
+      setNewsletterMessage("Please enter your email address.");
+      return;
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(trimmedEmail)) {
+      setNewsletterMessage("Please enter a valid email address.");
+      return;
+    }
+
+    const subject = encodeURIComponent("Newsletter Signup");
+    const body = encodeURIComponent(`Please add ${trimmedEmail} to newsletter updates.`);
+    window.location.href = `mailto:${contactInfo.email}?subject=${subject}&body=${body}`;
+
+    setNewsletterMessage("Opening your email app to confirm subscription.");
+    setNewsletterEmail("");
+  };
 
   return (
-    <footer id="site-footer" className="bg-foreground text-background/70">
+    <footer id="site-footer" style={{ backgroundColor: "var(--color-navy)" }} className="text-background/85">
       <div className="container py-16 md:py-20">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
           {/* Brand */}
@@ -18,106 +54,82 @@ export function SiteFooter() {
             <Link
               href="/"
               className="focus-ring group mb-5 flex w-fit items-center gap-2.5 rounded-md"
-              aria-label="Zaine's Stay & Play — Home"
+              aria-label={`${businessName} — Home`}
             >
               {websiteProfile.logoImageUrl ? (
                 <Image
                   src={websiteProfile.logoImageUrl}
-                  alt="Site logo"
-                  width={32}
-                  height={32}
+                  alt={`${businessName} logo`}
+                  width={40}
+                  height={40}
                   unoptimized
-                  className="h-8 w-8 rounded-full object-cover"
+                  className="h-10 w-10 rounded-full object-cover"
                 />
               ) : (
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-sm">
+                <span className="flex h-10 w-10 items-center justify-center text-2xl">
                   🐾
                 </span>
               )}
-              <span className="font-display text-lg font-semibold text-background tracking-tight">
-                {businessName}
-              </span>
+              <div className="flex flex-col">
+                <span className="font-display text-xl font-bold text-white tracking-tight leading-none">
+                  {businessName || "Paws & Play"}
+                </span>
+                <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-background/50">
+                  Doggy Daycare
+                </span>
+              </div>
             </Link>
-            <p className="text-sm leading-relaxed mb-2 max-w-xs">
-              Boutique private dog boarding in Syracuse, NY. Three suites,
-              owner always on-site, genuine individualized care.
+            <p className="text-sm leading-relaxed mb-6 max-w-xs text-background/70">
+              {websiteProfile.tagline || `Syracuse's happiest doggy daycare. Safe, supervised, tail-wagging playtime, enrichment, and care for your best friend.`}
             </p>
-            <p className="text-xs text-background/40 mb-6 max-w-xs italic">
-              &ldquo;Your dog is family. We treat them that way.&rdquo;
-            </p>
-            <div className="flex gap-4">
+            <div className="flex gap-4 mb-6">
               <Link
                 href={socialLinks.facebook}
-                aria-label="Zaine's Stay & Play on Facebook"
-                className="focus-ring rounded-sm text-background/40 hover:text-primary transition-colors"
+                aria-label={`${businessName} on Facebook`}
+                className="focus-ring rounded-sm text-background/50 hover:text-white transition-colors"
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <Facebook className="h-4 w-4" aria-hidden="true" />
+                <Facebook className="h-5 w-5" aria-hidden="true" />
               </Link>
               <Link
                 href={socialLinks.instagram}
-                aria-label="Zaine's Stay & Play on Instagram"
-                className="focus-ring rounded-sm text-background/40 hover:text-primary transition-colors"
+                aria-label={`${businessName} on Instagram`}
+                className="focus-ring rounded-sm text-background/50 hover:text-white transition-colors"
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <Instagram className="h-4 w-4" aria-hidden="true" />
+                <Instagram className="h-5 w-5" aria-hidden="true" />
               </Link>
               <Link
                 href={socialLinks.twitter}
-                aria-label="Zaine's Stay & Play on X (Twitter)"
-                className="focus-ring rounded-sm text-background/40 hover:text-primary transition-colors"
+                aria-label={`${businessName} on X (Twitter)`}
+                className="focus-ring rounded-sm text-background/50 hover:text-white transition-colors"
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <Twitter className="h-4 w-4" aria-hidden="true" />
+                <Twitter className="h-5 w-5" aria-hidden="true" />
               </Link>
             </div>
           </div>
 
-          {/* Boarding */}
+          {/* Quick Links */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-background/40 mb-5">
-              Boarding
+            <h3 className="text-xs font-bold uppercase tracking-widest text-white mb-5">
+              Quick Links
             </h3>
             <ul className="space-y-3 text-sm">
               {[
-                ["Suite Options", "/suites"],
-                ["Pricing", "/pricing"],
-                ["Book Now", "/book"],
-                ["Dog Boarding Syracuse", "/dog-boarding-syracuse"],
-              ].map(([label, href]) => (
-                <li key={href}>
-                  <Link
-                    href={href}
-                    prefetch={href === "/suites" ? false : undefined}
-                    className="focus-ring rounded-sm hover:text-primary transition-colors"
-                  >
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Company */}
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-background/40 mb-5">
-              Company
-            </h3>
-            <ul className="space-y-3 text-sm">
-              {[
+                ["Home", "/"],
                 ["About Us", "/about"],
                 ["Reviews", "/reviews"],
+                ["Gallery", "/gallery"],
                 ["FAQ", "/faq"],
-                ["Contact", "/contact"],
-                ["Policies", "/policies"],
               ].map(([label, href]) => (
                 <li key={href}>
                   <Link
                     href={href}
-                    className="focus-ring rounded-sm hover:text-primary transition-colors"
+                    className="focus-ring rounded-sm text-background/70 hover:text-white transition-colors"
                   >
                     {label}
                   </Link>
@@ -126,104 +138,141 @@ export function SiteFooter() {
             </ul>
           </div>
 
-          {/* Contact & Service Area */}
+          {/* Services */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-background/40 mb-5">
-              Contact
+            <h3 className="text-xs font-bold uppercase tracking-widest text-white mb-5">
+              Services
             </h3>
             <ul className="space-y-3 text-sm">
-              <li>
-                <address
-                  className="not-italic flex items-start gap-2"
-                  itemProp="address"
-                  itemScope
-                  itemType="https://schema.org/PostalAddress"
-                >
-                  <MapPin
-                    className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-primary/70"
-                    aria-hidden="true"
-                  />
-                  <span>
-                    <span itemProp="streetAddress">
-                      {contactInfo.address}
-                    </span>
-                    <br />
-                    <span itemProp="addressLocality">
-                      {contactInfo.city}
-                    </span>
-                    ,{" "}
-                    <span itemProp="addressRegion">
-                      {contactInfo.state}
-                    </span>{" "}
-                    <span itemProp="postalCode">{contactInfo.zip}</span>
-                  </span>
-                </address>
+              {[
+                ["Doggy Daycare", "/services/daycare"],
+                ["Puppy Play", "/services/daycare"],
+                ["Boarding", "/services/boarding"],
+                ["Grooming", "/services/grooming"],
+                ["Enrichment", "/services/daycare"],
+                ["Birthday Pawties", "/services/daycare"],
+              ].map(([label, href]) => (
+                <li key={label}>
+                  <Link
+                    href={href}
+                    className="focus-ring rounded-sm text-background/70 hover:text-white transition-colors"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact & Newsletter */}
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-white mb-5">
+              Contact Us
+            </h3>
+            <ul className="space-y-3 text-sm mb-6">
+              <li className="flex items-center gap-2">
+                <MapPin
+                  className="h-4 w-4 flex-shrink-0"
+                  style={{ color: "var(--color-yellow)" }}
+                  aria-hidden="true"
+                />
+                <span className="text-background/70">
+                  {`${contactInfo.address}, ${contactInfo.city}, ${contactInfo.state} ${contactInfo.zip}`}
+                </span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone
-                  className="h-3.5 w-3.5 flex-shrink-0 text-primary/70"
+                  className="h-4 w-4 flex-shrink-0"
+                  style={{ color: "var(--color-yellow)" }}
                   aria-hidden="true"
                 />
                 <a
-                  href={`tel:${contactInfo.phone}`}
-                  className="focus-ring rounded-sm hover:text-primary transition-colors"
-                  itemProp="telephone"
+                  href={`tel:${contactInfo.phone.replace(/\D/g, '')}`}
+                  className="focus-ring rounded-sm text-background/70 hover:text-white transition-colors"
                 >
                   {contactInfo.phone}
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail
-                  className="h-3.5 w-3.5 flex-shrink-0 text-primary/70"
+                  className="h-4 w-4 flex-shrink-0"
+                  style={{ color: "var(--color-yellow)" }}
                   aria-hidden="true"
                 />
                 <a
                   href={`mailto:${contactInfo.email}`}
-                  className="focus-ring break-all rounded-sm hover:text-primary transition-colors"
-                  itemProp="email"
+                  className="focus-ring break-all rounded-sm text-background/70 hover:text-white transition-colors"
                 >
                   {contactInfo.email}
                 </a>
               </li>
               <li className="flex items-start gap-2">
                 <Clock
-                  className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-primary/70"
+                  className="h-4 w-4 mt-0.5 flex-shrink-0"
+                  style={{ color: "var(--color-yellow)" }}
                   aria-hidden="true"
                 />
-                <span>
-                  {businessHours.monday.openTime}-{businessHours.monday.closeTime} (Mon-Fri)
+                <span className="text-background/70">
+                  Mon-Fri: {weekdayHours}
                   <br />
-                  {businessHours.saturday.openTime}-{businessHours.saturday.closeTime} (Sat-Sun)
-                  <br />
-                  <span className="text-xs text-background/40">
-                    24/7 Supervision
-                  </span>
+                  Sat-Sun: {weekendHours}
                 </span>
               </li>
             </ul>
 
-            {/* Service area */}
-            <div className="mt-6">
-              <p className="text-xs font-semibold uppercase tracking-widest text-background/40 mb-2">
-                Serving
+            {/* Newsletter */}
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-widest text-white mb-3">
+                Stay Connected!
+              </h4>
+              <p className="text-xs text-background/60 mb-3">
+                Get special offers, fun updates, and photo highlights!
               </p>
-              <p className="text-xs text-background/50 leading-relaxed">
-                {websiteProfile.serviceArea.join(" · ")}
-              </p>
+              <form className="flex gap-2" onSubmit={handleNewsletterSubmit}>
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="h-9 text-sm bg-white/10 border-white/20 text-white placeholder:text-background/40 focus:border-white/40"
+                  aria-label="Email address for newsletter"
+                  value={newsletterEmail}
+                  onChange={(event) => {
+                    setNewsletterEmail(event.target.value);
+                    if (newsletterMessage) {
+                      setNewsletterMessage("");
+                    }
+                  }}
+                />
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="h-9 px-4 text-xs font-bold"
+                  style={{
+                    background: "var(--color-yellow)",
+                    color: "var(--color-navy)",
+                  }}
+                >
+                  Subscribe
+                </Button>
+              </form>
+              {newsletterMessage ? (
+                <p className="mt-2 text-xs text-background/70" aria-live="polite">
+                  {newsletterMessage}
+                </p>
+              ) : null}
             </div>
           </div>
         </div>
 
         {/* Bottom strip */}
-        <div className="mt-14 border-t border-background/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-background/35">
+        <div className="mt-14 border-t border-background/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-background/40">
           <p>
             &copy; {currentYear} {businessName}. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <Link href="/privacy" className="focus-ring rounded-sm hover:text-primary transition-colors">
+            <Link href="/privacy" className="focus-ring rounded-sm hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="focus-ring rounded-sm hover:text-primary transition-colors">
+            <Link href="/terms" className="focus-ring rounded-sm hover:text-white transition-colors">
               Terms of Service
             </Link>
           </div>

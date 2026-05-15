@@ -126,14 +126,14 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <DashboardPageHeader
-        eyebrow="Customer Dashboard"
-        title={`Welcome back, ${firstName}.`}
-        description="Track stays, monitor pet profile readiness, and manage your account in one place."
-        className="luxury-shell grain-overlay border-border/50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 text-white"
+        eyebrow="🐾 Your Dashboard"
+        title={`Welcome back, ${firstName}!`}
+        description="Track playdays, manage your pup's profile, and stay connected with our pack."
+        className="paw-card bg-gradient-to-r from-[oklch(0.78_0.13_208)] via-[oklch(0.70_0.13_208)] to-[oklch(0.78_0.13_208)] text-white"
         actions={(
           <>
-            <Button asChild variant="secondary" className="focus-ring">
-              <Link href="/book">Book a Stay</Link>
+            <Button asChild className="paw-button-primary focus-ring">
+              <Link href="/book">Book a Playday 🎉</Link>
             </Button>
             <Button asChild variant="outline" className="focus-ring border-white/40 bg-transparent text-white hover:bg-white/10">
               <Link href="/dashboard/bookings">View All Bookings</Link>
@@ -143,43 +143,50 @@ export default async function DashboardPage() {
       />
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="luxury-card p-4">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Active Stays</p>
-          <p className="mt-2 text-2xl font-semibold">{activeStays}</p>
-          <p className="text-xs text-muted-foreground">Pending, confirmed, and checked-in bookings</p>
+        <div className="paw-card p-4">
+          <p className="text-xs uppercase tracking-wide text-[oklch(0.52_0.05_230)] font-semibold">Active Playdays</p>
+          <p className="mt-2 text-2xl font-bold text-[oklch(0.22_0.05_240)]">{activeStays}</p>
+          <p className="text-xs text-[oklch(0.52_0.05_230)]">Upcoming fun times 🎉</p>
         </div>
-        <div className="luxury-card p-4">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Completed Stays</p>
-          <p className="mt-2 text-2xl font-semibold">{completedStays}</p>
-          <p className="text-xs text-muted-foreground">Your total completed reservations</p>
+        <div className="paw-card p-4">
+          <p className="text-xs uppercase tracking-wide text-[oklch(0.52_0.05_230)] font-semibold">Completed Visits</p>
+          <p className="mt-2 text-2xl font-bold text-[oklch(0.22_0.05_240)]">{completedStays}</p>
+          <p className="text-xs text-[oklch(0.52_0.05_230)]">Happy memories made 💕</p>
         </div>
-        <div className="luxury-card p-4">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Lifetime Spend</p>
-          <p className="mt-2 text-2xl font-semibold">{formatCurrency(lifetimeValue)}</p>
-          <p className="text-xs text-muted-foreground">Across non-cancelled bookings</p>
+        <div className="paw-card p-4">
+          <p className="text-xs uppercase tracking-wide text-[oklch(0.52_0.05_230)] font-semibold">Total Spent</p>
+          <p className="mt-2 text-2xl font-bold text-[oklch(0.22_0.05_240)]">{formatCurrency(lifetimeValue)}</p>
+          <p className="text-xs text-[oklch(0.52_0.05_230)]">Tail-wagging care 🐾</p>
         </div>
-        <div className="luxury-card p-4">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Unread Messages</p>
-          <p className="mt-2 text-2xl font-semibold">{unreadStaffMessages}</p>
-          <p className="text-xs text-muted-foreground">New updates from the care team</p>
-          <Link href="/dashboard/updates" className="mt-2 inline-block text-xs text-primary underline">
+        <div className="paw-card p-4">
+          <p className="text-xs uppercase tracking-wide text-[oklch(0.52_0.05_230)] font-semibold">New Updates</p>
+          <p className="mt-2 text-2xl font-bold text-[oklch(0.22_0.05_240)]">{unreadStaffMessages}</p>
+          <p className="text-xs text-[oklch(0.52_0.05_230)]">Messages from our pack 📧</p>
+          <Link href="/dashboard/updates" className="mt-2 inline-block text-xs text-[oklch(0.78_0.13_208)] font-semibold hover:underline">
             Open updates hub
           </Link>
         </div>
       </section>
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl border border-border/70 bg-card/80 p-4 lg:col-span-2">
+        <div className="paw-card p-4 lg:col-span-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-lg font-medium">Upcoming Stays</h2>
-            <Link href="/dashboard/bookings" className="text-sm text-primary">
+            <h2 className="heading-playful text-lg">Upcoming Playdays 🎉</h2>
+            <Link href="/dashboard/bookings" className="text-sm font-semibold text-[oklch(0.78_0.13_208)] hover:underline">
               See all
             </Link>
           </div>
 
           {!nextStay ? (
-            <div className="mt-4 rounded-md border border-dashed p-4 text-sm text-muted-foreground">
-              No upcoming bookings. Reserve your next stay to lock in your preferred dates.
+            <div className="mt-4 rounded-xl border border-dashed border-[oklch(0.78_0.13_208)] bg-[oklch(0.97_0.03_212)] p-6 text-center">
+              <p className="text-2xl mb-2">🐶</p>
+              <p className="font-semibold text-[oklch(0.22_0.05_240)] mb-1">No playdays booked yet!</p>
+              <p className="text-sm text-[oklch(0.52_0.05_230)] mb-3">
+                Your pup's calendar is ready for some fun. Book their first playday today!
+              </p>
+              <Button asChild className="paw-button-primary">
+                <Link href="/book">Book a Playday 🎉</Link>
+              </Button>
             </div>
           ) : (
             <>

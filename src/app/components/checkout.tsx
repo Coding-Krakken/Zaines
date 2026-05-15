@@ -12,14 +12,6 @@ const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
 
 export default function Checkout({ productId }: { productId: string }) {
-  if (!stripePromise) {
-    return (
-      <p className="text-sm text-destructive" role="alert">
-        Checkout is temporarily unavailable. Please try again later.
-      </p>
-    );
-  }
-
   const startCheckoutSessionForProduct = useCallback(
     async () => {
       const clientSecret = await startCheckoutSession(productId);
@@ -34,6 +26,14 @@ export default function Checkout({ productId }: { productId: string }) {
     },
     [productId],
   );
+
+  if (!stripePromise) {
+    return (
+      <p className="text-sm text-destructive" role="alert">
+        Checkout is temporarily unavailable. Please try again later.
+      </p>
+    );
+  }
 
   return (
     <div id="checkout">

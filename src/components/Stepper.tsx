@@ -44,8 +44,8 @@ export function Stepper({
               {stepIdx !== steps.length - 1 && (
                 <div
                   className={cn(
-                    "absolute left-1/2 top-4 -z-10 h-0.5 w-full -translate-x-1/2",
-                    isCompleted ? "bg-primary" : "bg-muted",
+                    "absolute left-1/2 top-4 -z-10 h-1 w-full -translate-x-1/2 rounded-full transition-all",
+                    isCompleted ? "bg-[oklch(0.78_0.13_208)]" : "bg-[oklch(0.93_0.04_212)]",
                   )}
                   aria-hidden="true"
                 />
@@ -55,12 +55,12 @@ export function Stepper({
                 {/* Step circle */}
                 <span
                   className={cn(
-                    "relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors",
+                    "relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-bold transition-all shadow-sm",
                     isCompleted &&
-                      "border-primary bg-primary text-primary-foreground",
-                    isCurrent && "border-primary bg-background text-primary",
+                      "border-[oklch(0.78_0.13_208)] bg-[oklch(0.78_0.13_208)] text-white shadow-[0_4px_12px_oklch(0.78_0.13_208/0.3)]",
+                    isCurrent && "border-[oklch(0.78_0.13_208)] bg-white text-[oklch(0.78_0.13_208)] scale-110 shadow-[0_4px_16px_oklch(0.78_0.13_208/0.4)]",
                     isUpcoming &&
-                      "border-muted bg-background text-muted-foreground",
+                      "border-[oklch(0.93_0.04_212)] bg-white text-[oklch(0.52_0.05_230)]",
                   )}
                 >
                   {isCompleted ? (
@@ -73,10 +73,10 @@ export function Stepper({
                 {/* Step label */}
                 <span
                   className={cn(
-                    "mt-2 text-xs font-medium",
-                    isCurrent && "text-primary",
-                    isUpcoming && "text-muted-foreground",
-                    isCompleted && "text-foreground",
+                    "mt-2 text-xs font-semibold transition-colors",
+                    isCurrent && "text-[oklch(0.78_0.13_208)]",
+                    isUpcoming && "text-[oklch(0.52_0.05_230)]",
+                    isCompleted && "text-[oklch(0.22_0.05_240)]",
                   )}
                 >
                   {step.label}

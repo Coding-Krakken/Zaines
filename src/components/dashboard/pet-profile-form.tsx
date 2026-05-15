@@ -99,7 +99,7 @@ export function PetProfileForm({ mode, petId, defaults }: PetProfileFormProps) {
   }
 
   return (
-    <Card className="luxury-card mx-auto w-full max-w-2xl border-border/60 bg-background/85">
+    <Card className="paw-card mx-auto w-full max-w-2xl">
       <CardHeader>
         <CardTitle className="text-base font-semibold">{isEditMode ? "Update Pet Profile" : "Add a Pet"}</CardTitle>
       </CardHeader>

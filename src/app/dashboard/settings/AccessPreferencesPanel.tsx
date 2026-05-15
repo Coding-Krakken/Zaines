@@ -167,7 +167,7 @@ export function AccessPreferencesPanel() {
   };
 
   return (
-    <Card className="luxury-card border-border/60 bg-background/85 shadow-sm">
+    <Card className="paw-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base font-semibold">
           <Link2 className="size-4" />

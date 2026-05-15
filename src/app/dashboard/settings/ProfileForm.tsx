@@ -130,7 +130,7 @@ export function ProfileForm({
   };
 
   return (
-    <Card className="luxury-card border-border/60 bg-background/85 shadow-sm">
+    <Card className="paw-card">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-base font-semibold">Profile</CardTitle>
         {!isEditing && (

@@ -97,9 +97,9 @@ export default async function PetDetail({ params }: Props) {
       )}
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <Card className="luxury-card border-border/60 bg-background/85 shadow-sm">
+        <Card className="paw-card">
           <CardHeader>
-            <CardTitle className="text-base">Profile</CardTitle>
+            <CardTitle className="heading-playful text-base">Profile</CardTitle>
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
             <p>Breed: {pet.breed || "Unknown"}</p>
@@ -114,9 +114,9 @@ export default async function PetDetail({ params }: Props) {
           </CardContent>
         </Card>
 
-        <Card className="luxury-card border-border/60 bg-background/85 shadow-sm">
+        <Card className="paw-card">
           <CardHeader>
-            <CardTitle className="text-base">Health Summary</CardTitle>
+            <CardTitle className="heading-playful text-base">Health Summary</CardTitle>
           </CardHeader>
           <CardContent>
             <div>

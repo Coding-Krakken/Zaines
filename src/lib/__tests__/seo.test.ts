@@ -124,6 +124,12 @@ describe("localBusinessSchema", () => {
     const schema = localBusinessSchema();
     expect(schema.openingHoursSpecification).toHaveLength(2);
   });
+
+  it("does not expose placeholder contact values", () => {
+    const schema = localBusinessSchema();
+    expect(schema.telephone).not.toContain("555-PAWS");
+    expect(schema.email).not.toBe("hello@pawsandplaydaycare.com");
+  });
 });
 
 // ---------------------------------------------------------------------------

@@ -18,19 +18,19 @@ type AuthErrorKey =
 
 const errorCopy: Record<string, { title: string; description: string }> = {
   Configuration: {
-    title: "Sign-in is temporarily unavailable",
+    title: "Oops! Something went ruff 🐕",
     description:
-      "Authentication is currently misconfigured. Please try again in a few minutes or contact support if this persists.",
+      "Our authentication system is having a moment. Please try again in a few minutes or reach out to our pack for help.",
   },
   AccessDenied: {
-    title: "Access denied",
+    title: "No paws-word access 🚫",
     description:
-      "Your account does not currently have access to this action. If this is unexpected, contact support.",
+      "Your account doesn't have permission for this action. If you think this is a mistake, contact our team and we'll help you out.",
   },
   Verification: {
-    title: "Verification failed",
+    title: "This link has gone to the doghouse 📧",
     description:
-      "The sign-in link is invalid or expired. Request a new sign-in link and try again.",
+      "Your sign-in link has expired or isn't valid anymore. Request a fresh one and try again — we promise it'll work!",
   },
 };
 
@@ -38,8 +38,8 @@ function getErrorDetails(error: string | undefined) {
   if (!error) {
     return {
       key: "Unknown",
-      title: "Sign-in failed",
-      description: "We could not complete sign-in. Please try again.",
+      title: "Whoops! Something went wrong 🐾",
+      description: "We couldn't complete your sign-in. Let's give it another try!",
     };
   }
 
@@ -50,8 +50,8 @@ function getErrorDetails(error: string | undefined) {
 
   return {
     key: error,
-    title: "Sign-in failed",
-    description: "We could not complete sign-in. Please try again.",
+    title: "Whoops! Something went wrong 🐾",
+    description: "We couldn't complete your sign-in. Let's give it another try!",
   };
 }
 
@@ -66,19 +66,19 @@ export default async function AuthErrorPage({ searchParams }: AuthErrorPageProps
 
   return (
     <main className="container mx-auto flex min-h-[60vh] items-center px-4 py-12">
-      <Card className="mx-auto w-full max-w-xl">
+      <Card className="paw-card mx-auto w-full max-w-xl">
         <CardHeader>
-          <CardTitle>{details.title}</CardTitle>
+          <CardTitle className="heading-playful text-2xl">{details.title}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">{details.description}</p>
           <p className="text-xs text-muted-foreground">Error code: {details.key}</p>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button asChild>
-              <Link href="/auth/signin">Try sign-in again</Link>
+            <Button asChild className="paw-button-primary">
+              <Link href="/auth/signin">Try Again 🐾</Link>
             </Button>
-            <Button variant="outline" asChild>
-              <Link href="/contact">Contact support</Link>
+            <Button variant="outline" asChild className="paw-button-secondary">
+              <Link href="/contact">Contact Our Pack</Link>
             </Button>
           </div>
         </CardContent>

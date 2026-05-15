@@ -1,7 +1,7 @@
 export const siteConfig = {
-  name: "Zaine's Stay & Play",
+  name: "Paws & Play Doggy Daycare",
   description:
-    "Private, small-capacity dog boarding in Syracuse with owner-on-site care, three suites, and safety-first updates.",
+    "Fun, safe doggy daycare in Syracuse, NY with supervised play, enrichment activities, and tail-wagging care for your best friend.",
   url: "https://zainesstayandplay.com",
   ogImage: "https://zainesstayandplay.com/og-default.svg",
   links: {
@@ -52,20 +52,24 @@ export const navItems: NavItem[] = [
     href: "/",
   },
   {
-    title: "Suites",
-    href: "/suites",
+    title: "About Us",
+    href: "/about",
+  },
+  {
+    title: "Services",
+    href: "/services/daycare",
   },
   {
     title: "Pricing",
     href: "/pricing",
   },
   {
-    title: "Book Now",
-    href: "/book",
+    title: "Photo Gallery",
+    href: "/gallery",
   },
   {
-    title: "About",
-    href: "/about",
+    title: "Reviews",
+    href: "/reviews",
   },
   {
     title: "Contact",

@@ -11,23 +11,6 @@ import {
   type SecurityPayload,
 } from '@/lib/auth/security-panel-state';
 
-type SessionEntry = {
-  id: string;
-  expiresAt: string;
-  current: boolean;
-  deviceHint: string | null;
-};
-
-type ActivityEntry = {
-  id: string;
-  eventType: string;
-  provider: string | null;
-  ipAddress: string | null;
-  userAgent: string | null;
-  isSuspicious: boolean;
-  createdAt: string;
-};
-
 function formatDateTime(value: string): string {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return value;
@@ -99,7 +82,7 @@ export function SecurityPanel() {
   const { sessions, activity, strategy, hasSuspicious } = normalizeSecurityPayload(payload);
 
   return (
-    <Card id="security" className="luxury-card border-border/60 bg-background/85 shadow-sm">
+    <Card id="security" className="paw-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base font-semibold">
           <Shield className="size-4" />

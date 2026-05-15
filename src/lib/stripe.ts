@@ -1,5 +1,3 @@
-import "server-only";
-
 import Stripe from "stripe";
 
 const STRIPE_API_VERSION = "2026-04-22.dahlia";
@@ -54,7 +52,7 @@ function getStripeClient(): Stripe {
 }
 
 export const stripe = new Proxy({} as Stripe, {
-  get(_target, prop, _receiver) {
+  get(_target, prop) {
     const client = getStripeClient();
     const value = Reflect.get(client as object, prop);
     if (typeof value === "function") {

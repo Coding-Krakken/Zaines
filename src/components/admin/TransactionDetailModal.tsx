@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ExternalLink, X, CreditCard, Calendar, DollarSign, User, FileText, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -120,13 +120,7 @@ export function TransactionDetailModal({ paymentId, isOpen, onClose }: Transacti
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isOpen && paymentId) {
-      void loadDetail();
-    }
-  }, [isOpen, paymentId]);
-
-  async function loadDetail() {
+  const loadDetail = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -142,7 +136,13 @@ export function TransactionDetailModal({ paymentId, isOpen, onClose }: Transacti
     } finally {
       setLoading(false);
     }
-  }
+  }, [paymentId]);
+
+  useEffect(() => {
+    if (isOpen && paymentId) {
+      void loadDetail();
+    }
+  }, [isOpen, paymentId, loadDetail]);
 
   function formatCurrency(amount: number, currency = 'USD'): string {
     return new Intl.NumberFormat('en-US', {
