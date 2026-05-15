@@ -73,6 +73,7 @@ export interface WebsiteProfileSettings {
   ownerImageUrl: string;
   logoImageUrl: string;
   serviceArea: string[];
+  tagline?: string; // Optional tagline for display in footer/marketing
 }
 
 export interface TrustCopySettings {

@@ -1,14 +1,6 @@
 import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
   CheckCircle2,
   Clock,
   Camera,
@@ -22,354 +14,221 @@ import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   return simplePageMetadataFromSettings({
-    title: "Dog Boarding Services",
+    title: "Overnight Dog Boarding | Paws & Play Doggy Daycare",
     description:
-      "Premium overnight dog boarding in Syracuse with luxury suites, 24/7 supervision, webcams, and real-time photo updates. Book your dog's perfect stay today.",
+      "Overnight dog boarding in Syracuse with 24/7 supervision, daily photo updates, and comfortable accommodations. Book your pup's overnight stay today!",
     canonicalPath: "/services/boarding",
   });
 }
 
 export default function BoardingPage() {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-background">
       {/* Hero */}
-      <section className="section-padding bg-gradient-to-br from-primary/5 to-background">
+      <section
+        className="relative overflow-hidden py-16 md:py-20"
+        style={{
+          background:
+            "linear-gradient(135deg, var(--color-deep-sky) 0%, var(--color-sky) 100%)",
+        }}
+      >
         <div className="container mx-auto px-4">
-          <div className="luxury-shell grain-overlay mx-auto grid max-w-6xl gap-12 p-8 lg:grid-cols-2 lg:gap-16 lg:p-12">
-            <FadeUp>
-              <div className="flex flex-col justify-center">
-                <Badge className="mb-4 w-fit border-primary/30 bg-primary/10 text-primary">Most Popular Service</Badge>
-                <h1 className="headline-display mb-6 text-4xl font-semibold text-foreground md:text-6xl">
-                  Private Dog Boarding
-                  <br />
-                  <em className="not-italic text-primary">for Syracuse Families</em>
-                </h1>
-                <p className="mb-8 text-lg text-muted-foreground">
-                  Small-capacity luxury suites with owner-led care, daily updates, and clear booking steps from first inquiry to pickup.
-                </p>
-                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  <Button size="lg" className="focus-ring" asChild>
-                    <Link href="/book">Check Availability</Link>
-                  </Button>
-                  <Button size="lg" variant="outline" className="focus-ring" asChild>
-                    <Link href="/pricing">Review Pricing</Link>
-                  </Button>
-                  <Button size="lg" variant="ghost" className="focus-ring" asChild>
-                    <Link href="/suites">View Suites</Link>
-                  </Button>
-                </div>
+          <FadeUp>
+            <div className="mx-auto max-w-3xl text-center text-white">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-semibold backdrop-blur-sm">
+                🌙 Overnight Care
               </div>
-            </FadeUp>
-            <ScaleIn delay={0.08}>
-              <div className="luxury-card flex h-full min-h-[340px] items-center justify-center rounded-3xl bg-gradient-to-br from-muted to-accent p-10">
-                <div className="max-w-sm space-y-4 text-center">
-                  <p className="eyebrow mx-auto">Service promise</p>
-                  <p className="font-display text-3xl leading-tight text-foreground">
-                    Calm routines,
-                    <br />
-                    structured care,
-                    <br />
-                    and no overcrowding.
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Built for dogs who do better with consistency and owners who want confidence.
-                  </p>
-                </div>
+              <h1 className="font-display mb-6 text-4xl font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl">
+                Overnight Boarding{" "}
+                <span className="relative inline-block">
+                  for Peace of Mind
+                  <svg
+                    className="absolute -right-4 -top-3 h-8 w-8 text-yellow-300 opacity-80"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                  </svg>
+                </span>
+              </h1>
+              <p className="mb-8 text-lg leading-relaxed text-white/90 md:text-xl">
+                When you need overnight care, we've got cozy accommodations with 24/7 supervision, daily updates, and all the comforts of home.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Button
+                  asChild
+                  size="lg"
+                  className="font-bold text-base shadow-lg"
+                  style={{
+                    background: "var(--color-yellow)",
+                    color: "var(--color-navy)",
+                  }}
+                >
+                  <Link href="/book">
+                    <span className="mr-2 text-xl" aria-hidden="true">
+                      🐾
+                    </span>
+                    Check Availability
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="font-semibold text-base border-2 border-white bg-white/10 text-white backdrop-blur-sm hover:bg-white hover:text-primary"
+                >
+                  <Link href="/pricing">View Pricing</Link>
+                </Button>
               </div>
-            </ScaleIn>
-          </div>
+            </div>
+          </FadeUp>
         </div>
+
+        {/* Wave bottom */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-16 bg-background"
+          style={{
+            clipPath: "ellipse(70% 100% at 50% 100%)",
+            transform: "translateY(50%)",
+          }}
+        ></div>
       </section>
 
-      {/* What&apos;s Included */}
-      <section className="section-padding-tight">
+      {/* What's Included */}
+      <section className="section-padding">
         <div className="container mx-auto px-4">
           <FadeUp>
             <div className="mb-12 text-center">
-              <p className="eyebrow mb-3">Boarding essentials</p>
-              <h2 className="headline-display mb-4 text-3xl font-semibold text-foreground md:text-4xl">What&apos;s Included</h2>
-              <p className="text-lg text-muted-foreground">
-                Everything your dog needs for a comfortable stay
+              <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+                Boarding Essentials
+              </p>
+              <h2 className="font-display mb-4 text-3xl font-bold text-foreground md:text-4xl">
+                What's Included
+              </h2>
+              <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+                Everything your pup needs for a comfortable overnight stay
               </p>
             </div>
           </FadeUp>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[
               {
-                icon: <Shield className="h-8 w-8" />,
+                icon: <Shield className="h-7 w-7" />,
                 title: "24/7 Supervision",
                 description:
-                  "Certified staff on-site around the clock to ensure safety and comfort.",
+                  "Staff on-site around the clock for safety and comfort",
+                color: "bg-primary/10",
+                iconColor: "text-primary",
               },
               {
-                icon: <Camera className="h-8 w-8" />,
-                title: "Live Webcams",
-                description:
-                  "Check in on your pet anytime with our suite webcams.",
+                icon: <Camera className="h-7 w-7" />,
+                title: "Daily Photo Updates",
+                description: "See how your pup's doing with daily photo texts",
+                color: "bg-green-100",
+                iconColor: "text-green-600",
               },
               {
-                icon: <Utensils className="h-8 w-8" />,
-                title: "Meals Included",
-                description:
-                  "Premium dog food or bring your own for sensitive stomachs.",
+                icon: <Utensils className="h-7 w-7" />,
+                title: "Meal Service",
+                description: "Bring your dog's food and we'll serve on schedule",
+                color: "oklch(0.88 0.17 90 / 20%)",
+                iconColor: "var(--color-navy)",
               },
               {
-                icon: <Heart className="h-8 w-8" />,
+                icon: <Heart className="h-7 w-7" />,
                 title: "Daily Playtime",
-                description:
-                  "Group play sessions and individual attention every day.",
+                description: "Group play and individual attention every day",
+                color: "bg-coral/20",
+                iconColor: "text-coral",
               },
               {
-                icon: <Clock className="h-8 w-8" />,
-                title: "Flexible Times",
-                description:
-                  "Drop-off and pick-up windows that work with your schedule.",
+                icon: <Clock className="h-7 w-7" />,
+                title: "Flexible Hours",
+                description: "Drop-off and pick-up times that fit your schedule",
+                color: "bg-primary/10",
+                iconColor: "text-primary",
               },
               {
-                icon: <CheckCircle2 className="h-8 w-8" />,
-                title: "Photo Updates",
-                description: "Daily photos sent directly to your phone.",
+                icon: <CheckCircle2 className="h-7 w-7" />,
+                title: "Medication Admin",
+                description: "We'll administer meds at no extra charge",
+                color: "bg-green-100",
+                iconColor: "text-green-600",
               },
-            ].map((feature) => (
-              <ScaleIn key={feature.title}>
-                <Card className="luxury-card h-full border-border/60">
-                <CardHeader>
-                  <div className="mb-2 text-primary">{feature.icon}</div>
-                  <CardTitle>{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
+            ].map((feature, index) => (
+              <ScaleIn key={feature.title} delay={index * 0.05}>
+                <div className="paw-card p-6">
+                  <div
+                    className="badge-icon mb-4"
+                    style={{ background: feature.color }}
+                  >
+                    <div style={{ color: feature.iconColor }}>
+                      {feature.icon}
+                    </div>
+                  </div>
+                  <h3 className="font-display mb-2 font-bold text-foreground">
+                    {feature.title}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     {feature.description}
                   </p>
-                </CardContent>
-                </Card>
+                </div>
               </ScaleIn>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Daily Schedule */}
-      <section className="bg-muted/50 py-20">
-        <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold">A Day in the Life</h2>
-            <p className="text-lg text-muted-foreground">
-              Your dog&apos;s typical day with us
-            </p>
-          </div>
-          <div className="mx-auto max-w-3xl space-y-4">
-            {[
-              { time: "7:00 AM", activity: "Morning wake-up & potty break" },
-              { time: "7:30 AM", activity: "Breakfast time with fresh water" },
-              { time: "9:00 AM", activity: "Group playtime in outdoor yard" },
-              {
-                time: "11:00 AM",
-                activity: "Individual enrichment activities",
-              },
-              { time: "12:30 PM", activity: "Midday rest & quiet time" },
-              { time: "3:00 PM", activity: "Afternoon play session" },
-              { time: "5:00 PM", activity: "Dinner service" },
-              { time: "6:30 PM", activity: "Evening walk & final potty break" },
-              { time: "8:00 PM", activity: "Wind down & bedtime" },
-              { time: "Throughout", activity: "Photo updates sent to parents" },
-            ].map((item) => (
-              <Card key={item.time}>
-                <CardContent className="flex items-center gap-4 py-4">
-                  <div className="w-24 shrink-0 font-semibold text-primary">
-                    {item.time}
-                  </div>
-                  <div className="text-sm">{item.activity}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Suite Options */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold">Choose Your Suite</h2>
-            <p className="text-lg text-muted-foreground">
-              From cozy standards to luxury penthouses
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            <Card>
-              <CardHeader>
-                <CardTitle>Standard Suite</CardTitle>
-                <CardDescription>Perfect for most dogs</CardDescription>
-                <div className="mt-4 text-3xl font-bold">
-                  $65
-                  <span className="text-base font-normal text-muted-foreground">
-                    /night
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm">
-                  {[
-                    "6' x 8' private suite",
-                    "Raised bed & blanket",
-                    "Food & water bowls",
-                    "Daily playtime",
-                    "Photo updates",
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-2">
-                      <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Button className="mt-6 w-full" asChild>
-                  <Link href="/book">Book Standard</Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="border-primary">
-              <CardHeader>
-                <Badge className="mb-2 w-fit">Most Popular</Badge>
-                <CardTitle>Deluxe Suite</CardTitle>
-                <CardDescription>Extra space & amenities</CardDescription>
-                <div className="mt-4 text-3xl font-bold">
-                  $85
-                  <span className="text-base font-normal text-muted-foreground">
-                    /night
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm">
-                  {[
-                    "8' x 10' private suite",
-                    "Premium orthopedic bed",
-                    "TV with calming content",
-                    "Webcam access",
-                    "Extended playtime",
-                    "Twice-daily photos",
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-2">
-                      <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Button className="mt-6 w-full" asChild>
-                  <Link href="/book">Book Deluxe</Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Luxury Suite</CardTitle>
-                <CardDescription>The ultimate experience</CardDescription>
-                <div className="mt-4 text-3xl font-bold">
-                  $120
-                  <span className="text-base font-normal text-muted-foreground">
-                    /night
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm">
-                  {[
-                    "10' x 12' penthouse suite",
-                    "Private outdoor patio",
-                    "Luxury bedding & toys",
-                    "HD webcam with sound",
-                    "One-on-one playtime",
-                    "Multiple daily updates",
-                    "Turndown service",
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-2">
-                      <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Button className="mt-6 w-full" variant="outline" asChild>
-                  <Link href="/book">Book Luxury</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Requirements */}
-      <section className="bg-muted/50 py-20">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-3xl">
-            <h2 className="mb-8 text-3xl font-bold">Boarding Requirements</h2>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="mb-2 font-semibold">
-                      Required Vaccinations
-                    </h3>
-                    <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
-                      <li>Rabies (current)</li>
-                      <li>
-                        DHPP (Distemper, Hepatitis, Parvovirus, Parainfluenza)
-                      </li>
-                      <li>Bordetella (within 6 months)</li>
-                      <li>Canine Influenza (recommended)</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="mb-2 font-semibold">Health Requirements</h3>
-                    <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
-                      <li>Flea & tick prevention (within 30 days)</li>
-                      <li>Spayed/neutered (for dogs over 7 months)</li>
-                      <li>Must be in good health (no contagious illnesses)</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="mb-2 font-semibold">
-                      Behavior Requirements
-                    </h3>
-                    <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
-                      <li>Must be social with other dogs</li>
-                      <li>No history of aggression</li>
-                      <li>Comfortable with handling by staff</li>
-                    </ul>
-                  </div>
-                </div>
-                <Button className="mt-6 w-full" variant="outline" asChild>
-                  <Link href="/policies">View Full Policies</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="section-padding-tight">
-        <div className="container mx-auto px-4 text-center">
+      {/* CTA Section */}
+      <section
+        className="section-padding relative overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(135deg, var(--color-deep-sky) 0%, var(--color-sky) 100%)",
+        }}
+      >
+        <div className="container relative z-10 mx-auto px-4 text-center">
           <FadeUp>
-            <div className="luxury-shell mx-auto max-w-4xl p-8 md:p-10">
-              <h2 className="headline-display mb-4 text-3xl font-semibold text-foreground md:text-4xl">
-                Ready to Book Your Dog&apos;s Stay?
-              </h2>
-              <p className="mb-8 text-lg text-muted-foreground">
-                Reserve your spot today. Availability stays intentionally limited.
-              </p>
-              <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-                <Button size="lg" className="focus-ring" asChild>
-                  <Link href="/book">Book Now</Link>
-                </Button>
-                <Button size="lg" variant="outline" className="focus-ring" asChild>
-                  <Link href="/contact">Schedule a Tour</Link>
-                </Button>
-              </div>
+            <h2 className="font-display mb-6 text-3xl font-bold text-white md:text-4xl lg:text-5xl">
+              Ready to Book Your Pup's Stay?
+            </h2>
+            <p className="mx-auto mb-8 max-w-2xl text-lg text-white/90">
+              Check availability and reserve your spot for overnight boarding with caring, attentive staff.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button
+                asChild
+                size="lg"
+                className="font-bold text-base shadow-lg"
+                style={{
+                  background: "var(--color-yellow)",
+                  color: "var(--color-navy)",
+                }}
+              >
+                <Link href="/book">
+                  <span className="mr-2 text-xl" aria-hidden="true">
+                    🐾
+                  </span>
+                  Check Availability
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="font-semibold text-base border-2 border-white bg-white/10 text-white backdrop-blur-sm hover:bg-white hover:text-primary"
+              >
+                <Link href="/contact">Schedule a Tour</Link>
+              </Button>
             </div>
           </FadeUp>
+        </div>
+
+        {/* Decorative paw prints */}
+        <div className="absolute left-8 top-8 text-6xl opacity-10">🐾</div>
+        <div className="absolute bottom-12 right-12 text-5xl opacity-10">
+          🐾
         </div>
       </section>
     </div>

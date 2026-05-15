@@ -2,14 +2,14 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Zaine's Stay & Play",
-    short_name: "Zaine's",
+    name: "Paws & Play Doggy Daycare",
+    short_name: "Paws & Play",
     description:
-      'Private, small-capacity dog boarding in Syracuse with owner-on-site care.',
+      'Fun, safe doggy daycare in Syracuse, NY with supervised play, enrichment activities, and tail-wagging care.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#f5efe5',
-    theme_color: '#7c4a2d',
+    background_color: '#FFFDF5',
+    theme_color: '#4FC3F7',
     icons: [
       {
         src: '/icon.svg',

@@ -187,8 +187,8 @@ export default function BookingDetailClient({
             </div>
 
             {/* Pets Information */}
-            <div className="luxury-card space-y-4 rounded-xl p-6 shadow-sm">
-              <h2 className="text-lg font-semibold">Pets</h2>
+            <div className="paw-card space-y-4 p-6">
+              <h2 className="heading-playful text-lg">Pets</h2>
               <div className="space-y-2">
                 {booking.bookingPets.length === 0 ? (
                   <p className="text-muted-foreground">No pets for this booking.</p>
@@ -208,7 +208,7 @@ export default function BookingDetailClient({
             </div>
 
             {/* Payment Information */}
-            <div className="luxury-card space-y-4 rounded-xl p-6 shadow-sm md:col-span-2">
+            <div className="paw-card space-y-4 p-6 md:col-span-2">
               <h2 className="text-lg font-semibold">Payment</h2>
               <div className="space-y-3">
                 <div className="flex justify-between">

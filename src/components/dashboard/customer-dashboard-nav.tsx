@@ -106,7 +106,7 @@ function DashboardNavLinks({ compact = false }: { compact?: boolean }) {
 
 export function CustomerDashboardNav() {
   return (
-    <aside className="luxury-shell rounded-xl border bg-card/80 p-3 shadow-sm">
+    <aside className="paw-card p-3">
       <p className="px-2 pb-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
         Customer Portal
       </p>
@@ -117,7 +117,7 @@ export function CustomerDashboardNav() {
 
 export function CustomerDashboardMobileNav() {
   return (
-    <div className="luxury-shell rounded-xl border bg-card/80 p-3 shadow-sm">
+    <div className="paw-card p-3">
       <p className="px-1 pb-2 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
         Quick Navigation
       </p>

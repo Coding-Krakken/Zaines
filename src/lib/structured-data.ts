@@ -61,11 +61,13 @@ export async function localBusinessSchema() {
       `${settings.address}, ${settings.city}, ${settings.state} ${settings.zip}`
     )}`,
     amenityFeature: [
-      { "@type": "LocationFeatureSpecification", name: "Private Suites", value: true },
+      { "@type": "LocationFeatureSpecification", name: "Doggy Daycare", value: true },
+      { "@type": "LocationFeatureSpecification", name: "Supervised Group Play", value: true },
+      { "@type": "LocationFeatureSpecification", name: "Enrichment Activities", value: true },
       { "@type": "LocationFeatureSpecification", name: "24/7 Supervision", value: true },
-      { "@type": "LocationFeatureSpecification", name: "Camera Monitoring", value: true },
-      { "@type": "LocationFeatureSpecification", name: "Owner On-Site", value: true },
       { "@type": "LocationFeatureSpecification", name: "Daily Photo Updates", value: true },
+      { "@type": "LocationFeatureSpecification", name: "Temperament Screening", value: true },
+      { "@type": "LocationFeatureSpecification", name: "Overnight Boarding", value: true },
     ],
   };
 }

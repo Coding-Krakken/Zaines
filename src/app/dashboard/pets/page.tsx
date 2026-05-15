@@ -77,7 +77,7 @@ export default async function PetsPage() {
           </div>
         )}
         {pets.map((p: { id: string; name: string; breed?: string | null }) => (
-          <div key={p.id} className="luxury-card p-4 shadow-sm">
+          <div key={p.id} className="paw-card p-4">
             <div className="font-medium">{p.name}</div>
             <div className="text-sm text-muted-foreground">
               {p.breed || "Unknown"}

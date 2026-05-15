@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Star, Quote, Calendar } from "lucide-react";
 import { FadeUp, ScaleIn } from "@/components/motion";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 const reviews = [
   {
@@ -70,6 +71,9 @@ const stats = [
 ];
 
 export default function ReviewsPage() {
+  const { businessName } = useSiteSettings();
+  const displayName = businessName || "Paws & Play";
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Hero Section */}
@@ -223,7 +227,7 @@ export default function ReviewsPage() {
         <div className="container relative z-10 mx-auto px-4 text-center">
           <FadeUp>
             <h2 className="font-display mb-6 text-3xl font-bold text-white md:text-4xl lg:text-5xl">
-              Join the Paws & Play Family
+              Join the {displayName} Family
             </h2>
             <p className="mx-auto mb-8 max-w-2xl text-lg text-white/90">
               Experience the difference that makes Syracuse dog parents so happy. Book a free meet & greet today!

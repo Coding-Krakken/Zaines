@@ -20,12 +20,12 @@ export function SiteFooter() {
             <Link
               href="/"
               className="focus-ring group mb-5 flex w-fit items-center gap-2.5 rounded-md"
-              aria-label="Paws & Play Doggy Daycare — Home"
+              aria-label={`${businessName} — Home`}
             >
               {websiteProfile.logoImageUrl ? (
                 <Image
                   src={websiteProfile.logoImageUrl}
-                  alt="Paws & Play logo"
+                  alt={`${businessName} logo`}
                   width={40}
                   height={40}
                   unoptimized
@@ -38,7 +38,7 @@ export function SiteFooter() {
               )}
               <div className="flex flex-col">
                 <span className="font-display text-xl font-bold text-white tracking-tight leading-none">
-                  Paws &amp; Play
+                  {businessName || "Paws & Play"}
                 </span>
                 <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-background/50">
                   Doggy Daycare
@@ -46,7 +46,7 @@ export function SiteFooter() {
               </div>
             </Link>
             <p className="text-sm leading-relaxed mb-6 max-w-xs text-background/70">
-              Syracuse&apos;s happiest doggy daycare. Safe, supervised, tail-wagging playtime, enrichment, and care for your best friend.
+              {websiteProfile.tagline || `Syracuse's happiest doggy daycare. Safe, supervised, tail-wagging playtime, enrichment, and care for your best friend.`}
             </p>
             <div className="flex gap-4 mb-6">
               <Link
@@ -143,7 +143,10 @@ export function SiteFooter() {
                   aria-hidden="true"
                 />
                 <span className="text-background/70">
-                  Syracuse, NY 13209
+                  {contactInfo.address && contactInfo.address !== '123 Pet Paradise Lane' 
+                    ? `${contactInfo.address}, ${contactInfo.city}, ${contactInfo.state} ${contactInfo.zip}`
+                    : `${contactInfo.city}, ${contactInfo.state} ${contactInfo.zip}`
+                  }
                 </span>
               </li>
               <li className="flex items-center gap-2">
@@ -153,10 +156,10 @@ export function SiteFooter() {
                   aria-hidden="true"
                 />
                 <a
-                  href="tel:3155555PAWS"
+                  href={`tel:${contactInfo.phone.replace(/\D/g, '')}`}
                   className="focus-ring rounded-sm text-background/70 hover:text-white transition-colors"
                 >
-                  (315) 555-PAWS
+                  {contactInfo.phone}
                 </a>
               </li>
               <li className="flex items-center gap-2">
@@ -166,10 +169,10 @@ export function SiteFooter() {
                   aria-hidden="true"
                 />
                 <a
-                  href="mailto:hello@pawsandplay.com"
+                  href={`mailto:${contactInfo.email}`}
                   className="focus-ring break-all rounded-sm text-background/70 hover:text-white transition-colors"
                 >
-                  hello@pawsandplay.com
+                  {contactInfo.email}
                 </a>
               </li>
               <li className="flex items-start gap-2">
@@ -179,9 +182,30 @@ export function SiteFooter() {
                   aria-hidden="true"
                 />
                 <span className="text-background/70">
-                  Mon-Fri: 6:30am - 7:00pm
-                  <br />
-                  Sat-Sun: 8:00am - 6:00pm
+                  {(() => {
+                    // Extract weekday/weekend hours from businessHours object
+                    const monday = businessHours?.monday;
+                    const saturday = businessHours?.saturday;
+                    
+                    if (monday && !monday.isClosed && saturday && !saturday.isClosed) {
+                      return (
+                        <>
+                          Mon-Fri: {monday.openTime} - {monday.closeTime}
+                          <br />
+                          Sat-Sun: {saturday.openTime} - {saturday.closeTime}
+                        </>
+                      );
+                    }
+                    
+                    // Fallback to default hours
+                    return (
+                      <>
+                        Mon-Fri: 6:30am - 7:00pm
+                        <br />
+                        Sat-Sun: 8:00am - 6:00pm
+                      </>
+                    );
+                  })()}
                 </span>
               </li>
             </ul>

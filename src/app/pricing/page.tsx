@@ -1,116 +1,50 @@
+"use client";
+
 import Link from "next/link";
-import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, HelpCircle } from "lucide-react";
 import { FadeUp, ScaleIn } from "@/components/motion";
-import { simplePageMetadataFromSettings } from "@/lib/seo-page-metadata";
-
-export async function generateMetadata(): Promise<Metadata> {
-  return simplePageMetadataFromSettings({
-    title: "Pricing | Doggy Daycare Syracuse NY | Paws & Play",
-    description:
-      "Simple, transparent daycare pricing. Half Day $28, Full Day $38, 5 Day Package $171, Monthly Membership $520. No hidden fees, no contracts.",
-    keywords: [
-      "doggy daycare pricing Syracuse",
-      "dog daycare rates",
-      "Syracuse dog daycare costs",
-      "daycare packages",
-    ],
-    canonicalPath: "/pricing",
-  });
-}
-
-const daycareOptions = [
-  {
-    name: "Half Day",
-    price: "$28",
-    duration: "Up to 4 hours",
-    description: "Perfect for short schedules",
-    features: [
-      "Morning or afternoon session",
-      "Supervised play groups",
-      "Fun & enrichment",
-      "Photo updates",
-    ],
-  },
-  {
-    name: "Full Day",
-    price: "$38",
-    duration: "Up to 10 hours",
-    popular: true,
-    description: "Most popular option",
-    features: [
-      "Full day of play",
-      "Supervised play groups",
-      "Enrichment activities",
-      "Rest & quiet time",
-      "Photo updates",
-    ],
-  },
-  {
-    name: "5 Day Package",
-    price: "$171",
-    duration: "5 full days",
-    description: "Great value package",
-    features: [
-      "Use within 30 days",
-      "Anytime flexibility",
-      "All Full Day benefits",
-      "$9 savings",
-    ],
-  },
-  {
-    name: "Monthly Membership",
-    price: "$520",
-    duration: "20 days/month",
-    description: "Best value for regulars",
-    features: [
-      "Best weekly value",
-      "Priority scheduling",
-      "10% off add-on services",
-      "Flexible scheduling",
-    ],
-  },
-];
-
-const addOns = [
-  { name: "Bath & Brush", price: "$30" },
-  { name: "Nail Trim", price: "$15" },
-  { name: "Teeth Brushing", price: "$10" },
-  { name: "Ear Cleaning", price: "$10" },
-  { name: "Birthday Party Package", price: "$75" },
-  { name: "Extra Enrichment (30 min)", price: "$20" },
-];
-
-const faqs = [
-  {
-    question: "Do I need to commit to a membership?",
-    answer:
-      "No! All our options are drop-in friendly. Memberships are optional for families who want the best value.",
-  },
-  {
-    question: "What if my dog doesn't like group play?",
-    answer:
-      "We do a free temperament screening first. If your dog prefers solo play, we'll create a custom plan with individual activities.",
-  },
-  {
-    question: "Are meals included?",
-    answer:
-      "You can bring your dog's food or we can provide it at no extra charge. Just let us know your pup's dietary needs.",
-  },
-  {
-    question: "What's your cancellation policy?",
-    answer:
-      "Cancel up to 24 hours before for a full refund. We understand plans change!",
-  },
-  {
-    question: "Do you offer boarding too?",
-    answer:
-      "Yes! We offer overnight boarding in addition to daycare. Visit our Boarding page for overnight pricing.",
-  },
-];
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 export default function PricingPage() {
+  const { serviceSettings, addOnsSettings, pricingSettings } = useSiteSettings();
+
+  const activeTiers = serviceSettings.serviceTiers
+    .filter((tier) => tier.isActive)
+    .sort((a, b) => a.displayOrder - b.displayOrder);
+
+  const activeAddOns = addOnsSettings.addOns
+    .filter((addOn) => addOn.isActive);
+
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: pricingSettings.currency || "USD",
+    maximumFractionDigits: 0,
+  });
+
+  const faqs = [
+    {
+      question: "Do I need to commit to a membership?",
+      answer:
+        "No! All our options are drop-in friendly. Memberships are optional for families who want the best value.",
+    },
+    {
+      question: "What if my dog doesn't like group play?",
+      answer:
+        "We do a free temperament screening first. If your dog prefers solo play, we'll create a custom plan with individual activities.",
+    },
+    {
+      question: "Are meals included?",
+      answer:
+        "You can bring your dog's food or we can provide it at no extra charge. Just let us know your pup's dietary needs.",
+    },
+    {
+      question: "What's your cancellation policy?",
+      answer:
+        "Cancel up to 24 hours before for a full refund. We understand plans change!",
+    },
+  ];
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Hero */}
@@ -178,59 +112,62 @@ export default function PricingPage() {
             </div>
           </FadeUp>
 
-          <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {daycareOptions.map((option, index) => (
-              <ScaleIn key={option.name} delay={index * 0.1}>
-                <div
-                  className={`paw-card relative h-full p-6 transition-all ${
-                    option.popular
-                      ? "border-2 border-primary shadow-xl scale-105"
-                      : ""
-                  }`}
-                >
-                  {option.popular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-sm font-bold text-white">
-                      Most Popular
-                    </div>
-                  )}
-                  <div className="mb-6 text-center">
-                    <h3 className="font-display mb-2 text-2xl font-bold text-foreground">
-                      {option.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {option.duration}
-                    </p>
-                    <p className="mt-4 text-5xl font-bold text-primary">
-                      {option.price}
-                    </p>
-                    <p className="mt-2 text-sm font-medium text-muted-foreground">
-                      {option.description}
-                    </p>
-                  </div>
-                  <ul className="mb-6 space-y-3">
-                    {option.features.map((feature) => (
-                      <li
-                        key={feature}
-                        className="flex items-start gap-2 text-sm text-muted-foreground"
-                      >
-                        <CheckCircle2
-                          className="mt-0.5 h-5 w-5 shrink-0 text-green-600"
-                          aria-hidden="true"
-                        />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <Button
-                    asChild
-                    className="w-full"
-                    variant={option.popular ? "default" : "outline"}
+          <div className={`mx-auto grid max-w-6xl gap-6 ${activeTiers.length === 4 ? 'md:grid-cols-2 lg:grid-cols-4' : activeTiers.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
+            {activeTiers.map((tier, index) => {
+              const isPopular = index === 1;
+              return (
+                <ScaleIn key={tier.id} delay={index * 0.1}>
+                  <div
+                    className={`paw-card relative h-full p-6 transition-all ${
+                      isPopular
+                        ? "border-2 border-primary shadow-xl scale-105"
+                        : ""
+                    }`}
                   >
-                    <Link href="/book">Book Now</Link>
-                  </Button>
-                </div>
-              </ScaleIn>
-            ))}
+                    {isPopular && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-sm font-bold text-white">
+                        Most Popular
+                      </div>
+                    )}
+                    <div className="mb-6 text-center">
+                      <h3 className="font-display mb-2 text-2xl font-bold text-foreground">
+                        {tier.name}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {tier.description.substring(0, 60)}
+                      </p>
+                      <p className="text-5xl font-bold text-primary">
+                        {formatter.format(tier.baseNightlyRate)}
+                      </p>
+                      <p className="mt-2 text-sm font-medium text-muted-foreground">
+                        per night
+                      </p>
+                    </div>
+                    <ul className="mb-6 space-y-3">
+                      {tier.description.split('.').filter(s => s.trim()).slice(0, 4).map((feature, i) => (
+                        <li
+                          key={i}
+                          className="flex items-start gap-2 text-sm text-muted-foreground"
+                        >
+                          <CheckCircle2
+                            className="mt-0.5 h-5 w-5 shrink-0 text-green-600"
+                            aria-hidden="true"
+                          />
+                          <span>{feature.trim()}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Button
+                      asChild
+                      className="w-full"
+                      variant={isPopular ? "default" : "outline"}
+                    >
+                      <Link href="/book">Book Now</Link>
+                    </Button>
+                  </div>
+                </ScaleIn>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -254,18 +191,29 @@ export default function PricingPage() {
           </FadeUp>
 
           <div className="mx-auto grid max-w-3xl gap-4">
-            {addOns.map((addOn, index) => (
-              <ScaleIn key={addOn.name} delay={index * 0.05}>
-                <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-5 transition-all hover:border-primary/50 hover:shadow-md">
-                  <span className="font-medium text-foreground">
-                    {addOn.name}
-                  </span>
-                  <span className="text-xl font-bold text-primary">
-                    {addOn.price}
-                  </span>
-                </div>
-              </ScaleIn>
-            ))}
+            {activeAddOns.length > 0 ? (
+              activeAddOns.map((addOn, index) => (
+                <ScaleIn key={addOn.id} delay={index * 0.05}>
+                  <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-5 transition-all hover:border-primary/50 hover:shadow-md">
+                    <div>
+                      <span className="font-medium text-foreground block">
+                        {addOn.name}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {addOn.description}
+                      </span>
+                    </div>
+                    <span className="text-xl font-bold text-primary">
+                      {formatter.format(addOn.price)}
+                    </span>
+                  </div>
+                </ScaleIn>
+              ))
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                Add-on services can be configured in the admin dashboard.
+              </div>
+            )}
           </div>
         </div>
       </section>

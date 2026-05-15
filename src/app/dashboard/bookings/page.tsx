@@ -59,7 +59,7 @@ export default async function BookingsPage() {
             bookingPets: Array<{ pet?: { name?: string } | null }>;
             bookingNumber: string;
           }) => (
-            <div key={b.id} className="luxury-card flex flex-wrap justify-between gap-4 p-4 shadow-sm">
+            <div key={b.id} className="paw-card flex flex-wrap justify-between gap-4 p-4">
               <div className="min-w-0">
                 <div className="font-medium">{b.suite?.name || "Suite"}</div>
                 <div className="text-sm text-muted-foreground">

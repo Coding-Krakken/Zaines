@@ -256,7 +256,7 @@ export function UpdatesHubClient() {
         eyebrow="Customer Updates"
         title="One Timeline for Messages and Photos"
         description="Stay in sync with care updates in one place. Send account-level messages without choosing a booking, or attach context when it matters."
-        className="luxury-shell"
+        className="paw-card"
       />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)]">

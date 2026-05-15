@@ -11,6 +11,7 @@ import { UserNav } from "@/components/user-nav";
 import { cn } from "@/lib/utils";
 import { navItems } from "@/config/site";
 import { Phone } from "lucide-react";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -18,6 +19,7 @@ export function SiteHeader() {
   const { data: session, status } = useSession();
   const role = (session?.user as { role?: string } | undefined)?.role;
   const showAdminCamera = status === "authenticated" && role === "admin";
+  const { contactInfo, businessName } = useSiteSettings();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -43,7 +45,7 @@ export function SiteHeader() {
         <Link
           href="/"
           className="focus-ring group flex flex-shrink-0 items-center gap-2.5 rounded-lg"
-          aria-label="Paws & Play Doggy Daycare — Home"
+          aria-label={`${businessName} — Home`}
         >
           <span
             className="flex h-10 w-10 items-center justify-center rounded-full text-2xl transition-transform group-hover:scale-110"
@@ -53,7 +55,7 @@ export function SiteHeader() {
           </span>
           <div className="hidden sm:flex flex-col">
             <span className="font-display text-xl font-bold text-foreground tracking-tight leading-none">
-              Paws &amp; Play
+              {businessName || "Paws & Play"}
             </span>
             <span className="text-[0.7rem] font-semibold uppercase tracking-wider text-muted-foreground">
               Doggy Daycare
@@ -84,12 +86,12 @@ export function SiteHeader() {
         {/* Actions */}
         <div className="flex items-center gap-3">
           <a
-            href="tel:3155555PAWS"
+            href={`tel:${contactInfo.phone.replace(/\D/g, '')}`}
             className="hidden lg:flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-colors"
-            aria-label="Call Paws & Play"
+            aria-label={`Call ${businessName}`}
           >
             <Phone className="h-4 w-4" aria-hidden="true" />
-            <span>(315) 555-PAWS</span>
+            <span>{contactInfo.phone}</span>
           </a>
           <Button
             asChild

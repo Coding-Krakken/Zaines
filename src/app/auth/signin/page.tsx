@@ -288,56 +288,56 @@ function SignInForm() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-100 via-stone-50 to-white">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[oklch(0.93_0.04_212)] via-[oklch(0.99_0.008_90)] to-white">
       <section className="mx-auto max-w-6xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-center justify-between">
-          <Link href="/" className="inline-flex items-center text-sm text-stone-600 transition hover:text-stone-900">
+          <Link href="/" className="inline-flex items-center text-sm text-[oklch(0.52_0.05_230)] transition hover:text-[oklch(0.22_0.05_240)]">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Link>
           {hasGuest ? (
-            <Button asChild variant="outline" className="border-amber-300 bg-white/80 text-stone-900 hover:bg-white">
-              <Link href="/book">Continue as Guest</Link>
+            <Button asChild variant="outline" className="paw-button-secondary">
+              <Link href="/book">Continue as Guest 🐾</Link>
             </Button>
           ) : null}
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
-          <Card className="border-stone-200/80 bg-white/70 shadow-2xl backdrop-blur">
+          <Card className="paw-card">
             <CardHeader className="space-y-4">
-              <div className="inline-flex w-fit items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium tracking-wide text-amber-900">
+              <div className="inline-flex w-fit items-center rounded-full border border-[oklch(0.78_0.13_208)] bg-[oklch(0.93_0.04_212)] px-3 py-1 text-xs font-semibold tracking-wide text-[oklch(0.78_0.13_208)]">
                 <Sparkles className="mr-2 h-3.5 w-3.5" />
-                Secure Customer Access
+                Secure Sign In 🔒
               </div>
-              <CardTitle className="text-3xl font-semibold tracking-tight text-stone-900 sm:text-4xl">
-                Welcome back to your boarding concierge
+              <CardTitle className="heading-playful text-3xl sm:text-4xl">
+                Welcome Back to the Pack! 🐾
               </CardTitle>
-              <CardDescription className="max-w-xl text-base text-stone-600">
-                Manage pet profiles, reservations, vaccine records, and suite preferences in one secure dashboard.
+              <CardDescription className="max-w-xl text-base text-[oklch(0.52_0.05_230)]">
+                Manage your pup's playdays, health records, photo updates, and more in your secure dashboard.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-700">
-                  <ShieldCheck className="mb-2 h-4 w-4 text-emerald-600" />
-                  Enterprise-grade session security
+                <div className="rounded-xl border border-[oklch(0.93_0.04_212)] bg-white p-3 text-sm text-[oklch(0.22_0.05_240)]">
+                  <ShieldCheck className="mb-2 h-4 w-4 text-[oklch(0.74_0.14_152)]" />
+                  Secure & Safe
                 </div>
-                <div className="rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-700">
-                  <PawPrint className="mb-2 h-4 w-4 text-amber-700" />
-                  Fast access to pet care preferences
+                <div className="rounded-xl border border-[oklch(0.93_0.04_212)] bg-white p-3 text-sm text-[oklch(0.22_0.05_240)]">
+                  <PawPrint className="mb-2 h-4 w-4 text-[oklch(0.78_0.13_208)]" />
+                  Quick Access
                 </div>
-                <div className="rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-700">
-                  <KeyRound className="mb-2 h-4 w-4 text-blue-700" />
-                  Secure email/password and social sign-in
+                <div className="rounded-xl border border-[oklch(0.93_0.04_212)] bg-white p-3 text-sm text-[oklch(0.22_0.05_240)]">
+                  <KeyRound className="mb-2 h-4 w-4 text-[oklch(0.88_0.17_90)]" />
+                  Easy Sign In
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-stone-200 bg-white p-4">
-                <div className="mb-4 grid grid-cols-2 rounded-lg border border-stone-200 bg-stone-100 p-1 text-sm">
+              <div className="rounded-2xl border border-[oklch(0.93_0.04_212)] bg-white p-4">
+                <div className="mb-4 grid grid-cols-2 rounded-lg border border-[oklch(0.93_0.04_212)] bg-[oklch(0.97_0.03_212)] p-1 text-sm">
                   <button
                     type="button"
-                    className={`rounded-md px-3 py-2 transition ${
-                      mode === "sign_in" ? "bg-white text-stone-900 shadow" : "text-stone-600"
+                    className={`rounded-md px-3 py-2 font-semibold transition ${
+                      mode === "sign_in" ? "bg-white text-[oklch(0.22_0.05_240)] shadow" : "text-[oklch(0.52_0.05_230)]"
                     }`}
                     onClick={() => setMode("sign_in")}
                   >
@@ -345,12 +345,12 @@ function SignInForm() {
                   </button>
                   <button
                     type="button"
-                    className={`rounded-md px-3 py-2 transition ${
+                    className={`rounded-md px-3 py-2 font-semibold transition ${
                       mode === "create_account"
-                        ? "bg-white text-stone-900 shadow"
+                        ? "bg-white text-[oklch(0.22_0.05_240)] shadow"
                         : hasCredentials
-                          ? "text-stone-600"
-                          : "text-stone-500"
+                          ? "text-[oklch(0.52_0.05_230)]"
+                          : "text-[oklch(0.52_0.05_230)] opacity-60"
                     }`}
                     onClick={() => setMode("create_account")}
                   >
@@ -418,21 +418,21 @@ function SignInForm() {
 
                   {mode === "sign_in" ? (
                     <div className="flex items-center justify-between text-sm">
-                      <label className="inline-flex items-center gap-2 text-stone-600">
+                      <label className="inline-flex items-center gap-2 text-[oklch(0.52_0.05_230)]">
                         <Checkbox
                           checked={rememberMe}
                           onCheckedChange={(value) => setRememberMe(value === true)}
                         />
                         Remember me
                       </label>
-                      <Link href="/auth/reset-password" className="text-amber-700 hover:text-amber-800">
+                      <Link href="/auth/reset-password" className="text-[oklch(0.78_0.13_208)] hover:text-[oklch(0.70_0.13_208)] font-medium">
                         Need password help?
                       </Link>
                     </div>
                   ) : null}
 
-                  <Button type="submit" className="w-full bg-stone-900 text-white hover:bg-stone-800" disabled={busy || loadingCapabilities || !authOperational || (mode === "create_account" && !hasCredentials)}>
-                    {busy ? "Working..." : mode === "sign_in" ? "Sign In Securely" : "Create My Account"}
+                  <Button type="submit" className="paw-button-primary w-full" disabled={busy || loadingCapabilities || !authOperational || (mode === "create_account" && !hasCredentials)}>
+                    {busy ? "Working... 🐾" : mode === "sign_in" ? "Sign In Securely 🔒" : "Join the Pack! 🎉"}
                   </Button>
                 </form>
 
@@ -443,7 +443,7 @@ function SignInForm() {
                         <Separator />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase tracking-wide">
-                        <span className="bg-white px-2 text-stone-500">or continue with</span>
+                        <span className="bg-white px-2 text-[oklch(0.52_0.05_230)] font-medium">or continue with</span>
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -452,7 +452,7 @@ function SignInForm() {
                           key={provider.id}
                           type="button"
                           variant="outline"
-                          className="w-full border-stone-300"
+                          className="paw-button-secondary w-full"
                           onClick={() => handleOAuth(provider.id)}
                           disabled={busy || loadingCapabilities || !authOperational}
                         >
@@ -467,22 +467,22 @@ function SignInForm() {
             </CardContent>
           </Card>
 
-          <Card className="border-stone-200 bg-white/80 shadow-xl">
+          <Card className="paw-card">
             <CardHeader>
-              <CardTitle className="text-xl text-stone-900">Trust and Privacy</CardTitle>
-              <CardDescription className="text-stone-600">
-                Your account protects reservation details, pet care notes, and health records with secure session controls.
+              <CardTitle className="heading-playful text-xl">Your Pup's Data is Safe 🔒</CardTitle>
+              <CardDescription className="text-[oklch(0.52_0.05_230)]">
+                Your account keeps all your pup's details, playdays, health records, and photo updates secure and private.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4 text-sm text-stone-700">
-              <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
-                We only display sign-in methods that are fully configured and operational in this environment.
+            <CardContent className="space-y-4 text-sm text-[oklch(0.22_0.05_240)]">
+              <div className="rounded-xl border border-[oklch(0.93_0.04_212)] bg-[oklch(0.97_0.03_212)] p-4">
+                🐾 We only show sign-in options that are fully working and ready to wag!
               </div>
-              <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
-                Need fast booking? Use guest checkout and claim your account after reservation confirmation.
+              <div className="rounded-xl border border-[oklch(0.93_0.04_212)] bg-[oklch(0.97_0.03_212)] p-4">
+                ⚡ Need to book fast? Use guest checkout and create your account after your reservation is confirmed.
               </div>
-              <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
-                Need help right now? <Link href="/contact" className="font-medium text-amber-800 hover:underline">Contact support</Link> and include your support code if shown.
+              <div className="rounded-xl border border-[oklch(0.93_0.04_212)] bg-[oklch(0.97_0.03_212)] p-4">
+                💕 Need help? <Link href="/contact" className="font-semibold text-[oklch(0.78_0.13_208)] hover:underline">Contact our pack</Link> and we'll get you sorted!
               </div>
             </CardContent>
           </Card>
@@ -496,10 +496,10 @@ export default function SignInPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-stone-50">
+        <div className="flex min-h-screen items-center justify-center bg-[oklch(0.99_0.008_90)]">
           <div className="text-center">
-            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-stone-800 border-t-transparent" />
-            <p className="text-sm text-stone-600">Loading secure sign-in...</p>
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-[oklch(0.78_0.13_208)] border-t-transparent" />
+            <p className="text-sm text-[oklch(0.52_0.05_230)] font-medium">Loading secure sign-in... 🐾</p>
           </div>
         </div>
       }
