@@ -181,3 +181,88 @@ export function RevealMask({ children, className, delay = 0 }: BaseProps) {
     </motion.div>
   );
 }
+
+// ── Playful Bounce (for CTAs and interactive elements) ──────────
+const bounceVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { 
+    opacity: 1, 
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 20,
+    }
+  },
+};
+
+export function PlayfulBounce({ children, className, delay = 0 }: BaseProps) {
+  const reduced = useReducedMotion();
+  return (
+    <motion.div
+      initial={reduced ? "visible" : "hidden"}
+      whileInView="visible"
+      viewport={VIEWPORT}
+      variants={bounceVariants}
+      transition={reduced ? { duration: 0 } : { delay }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// ── Tail Wag Loading (playful loading state) ────────────────────
+export function TailWagLoading({ className }: { className?: string }) {
+  const reduced = useReducedMotion();
+  
+  if (reduced) {
+    return <div className={className}>🐾</div>;
+  }
+  
+  return (
+    <motion.div
+      animate={{ rotate: [0, -10, 10, -10, 10, 0] }}
+      transition={{
+        duration: 0.8,
+        repeat: Infinity,
+        repeatDelay: 0.5,
+        ease: "easeInOut",
+      }}
+      className={className}
+    >
+      🐾
+    </motion.div>
+  );
+}
+
+// ── Paw Print Appear (for badges and icons) ─────────────────────
+const pawPrintVariants: Variants = {
+  hidden: { opacity: 0, scale: 0, rotate: -45 },
+  visible: { 
+    opacity: 1, 
+    scale: 1, 
+    rotate: 0,
+    transition: {
+      type: "spring",
+      stiffness: 200,
+      damping: 15,
+    }
+  },
+};
+
+export function PawPrintAppear({ children, className, delay = 0 }: BaseProps) {
+  const reduced = useReducedMotion();
+  return (
+    <motion.div
+      initial={reduced ? "visible" : "hidden"}
+      whileInView="visible"
+      viewport={VIEWPORT}
+      variants={pawPrintVariants}
+      transition={reduced ? { duration: 0 } : { delay }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}

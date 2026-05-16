@@ -10,6 +10,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/providers";
 import { localBusinessSchema } from "@/lib/structured-data";
 import { rootMetadataFromSettings } from "@/lib/seo";
+import { SkipLinks } from "@/components/accessibility/SkipLinks";
 
 const fredoka = Fredoka({
   subsets: ["latin"],
@@ -49,12 +50,7 @@ export default async function RootLayout({
       <body
         className={`${fredoka.variable} ${nunitoSans.variable} font-sans antialiased`}
       >
-        <a
-          href="#main-content"
-          className="focus-ring sr-only absolute left-4 top-4 z-[100] rounded-md bg-background px-3 py-2 text-sm text-foreground shadow-sm focus:not-sr-only"
-        >
-          Skip to main content
-        </a>
+        <SkipLinks />
         <Script id="console-filter-early" strategy="beforeInteractive">
           {`(function(){
   try {

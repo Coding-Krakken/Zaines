@@ -5,6 +5,8 @@ import Link from "next/link";
 import { HealthTimeline } from "@/components/HealthTimeline";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { DashboardUnavailableState } from "@/components/dashboard/dashboard-states";
+import { QuickActions } from "@/components/dashboard/QuickActions";
+import { ActivityFeed, generateActivityItems } from "@/components/dashboard/ActivityFeed";
 import { Button } from "@/components/ui/button";
 import { getBookingStatusMeta } from "@/lib/dashboard-status";
 
@@ -167,6 +169,25 @@ export default async function DashboardPage() {
           </Link>
         </div>
       </section>
+
+      {/* Phase 6: Enhanced Quick Actions */}
+      <QuickActions />
+
+      {/* Phase 6: Activity Feed */}
+      <ActivityFeed
+        items={generateActivityItems({
+          recentBookings: recentBookings.map((b) => ({
+            id: b.id,
+            bookingNumber: b.bookingNumber,
+            status: b.status,
+            createdAt: b.createdAt,
+            checkInDate: b.checkInDate,
+          })),
+          unreadMessages: unreadStaffMessages,
+          lastMessageAt: unreadStaffMessages > 0 ? new Date() : undefined,
+        })}
+        maxItems={5}
+      />
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="paw-card p-4 lg:col-span-2">

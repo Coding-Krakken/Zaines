@@ -50,7 +50,7 @@ export function TrustBar() {
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
             {trustSignals.map(({ icon: Icon, label, detail }) => (
-              <div key={label} className="luxury-card flex flex-col items-center gap-3 p-5 text-center">
+              <div key={label} className="playful-card flex flex-col items-center gap-3 p-5 text-center">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                   <Icon
                     className="h-5 w-5 text-primary"

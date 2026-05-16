@@ -18,9 +18,12 @@ export type LocalGrowthPage = {
   intro: string;
   bookingAngle: string;
   priority: number;
+  serviceType?: "boarding" | "daycare" | "grooming" | "training";
 };
 
 export const syracusePillarRoute = "/dog-boarding-syracuse";
+export const syracuseDaycareRoute = "/daycare-syracuse";
+export const syracuseGroomingRoute = "/grooming-syracuse";
 
 export const localGrowthPages = [
   {
@@ -52,6 +55,69 @@ export const localGrowthPages = [
     bookingAngle:
       "Start with your dates, compare suite pricing, and reserve before the limited three-suite calendar fills.",
     priority: 0.95,
+    serviceType: "boarding",
+  },
+  {
+    slug: "daycare-syracuse-ny",
+    route: syracuseDaycareRoute,
+    city: "Syracuse",
+    region: "NY",
+    title: "Dog Daycare Syracuse NY | Small Group Play & Tech Updates",
+    metaDescription:
+      "Syracuse dog daycare with supervised play groups, real-time photo updates, enrichment activities, and tech-forward communication for peace of mind.",
+    h1: "Dog Daycare in Syracuse, NY",
+    eyebrow: "Syracuse daycare",
+    primaryKeyword: "dog daycare Syracuse NY",
+    secondaryKeywords: [
+      "doggy daycare Syracuse",
+      "supervised dog play Syracuse",
+      "daycare Syracuse NY",
+      "Syracuse dog daycare prices",
+    ],
+    nearbyAreas: ["Downtown Syracuse", "Armory Square", "Tipperary Hill", "Sedgwick"],
+    proofPoints: [
+      "Small supervised play groups matched by temperament",
+      "Real-time photo updates throughout the day",
+      "Enrichment activities and structured rest breaks",
+      "Tech-forward communication via app and messaging",
+    ],
+    intro:
+      "For Syracuse pet parents who work full-time or want their dog to socialize during the day, Zaine's daycare provides supervised play, mental stimulation, and transparent updates so you always know how your pup is doing.",
+    bookingAngle:
+      "Book daycare by the day or in multi-day packages. Check availability and pricing online.",
+    priority: 0.88,
+    serviceType: "daycare",
+  },
+  {
+    slug: "grooming-syracuse-ny",
+    route: syracuseGroomingRoute,
+    city: "Syracuse",
+    region: "NY",
+    title: "Dog Grooming Syracuse NY | Professional Care & Booking",
+    metaDescription:
+      "Professional dog grooming in Syracuse with breed-specific cuts, gentle handling, flexible scheduling, and transparent pricing for Central NY families.",
+    h1: "Dog Grooming in Syracuse, NY",
+    eyebrow: "Syracuse grooming",
+    primaryKeyword: "dog grooming Syracuse NY",
+    secondaryKeywords: [
+      "dog groomer Syracuse",
+      "professional dog grooming Syracuse",
+      "pet grooming Syracuse NY",
+      "Syracuse dog grooming prices",
+    ],
+    nearbyAreas: ["North Syracuse", "East Syracuse", "Solvay", "Lakeland"],
+    proofPoints: [
+      "Breed-specific cuts and professional styling",
+      "Gentle, patient handling for anxious dogs",
+      "Flexible online booking and transparent pricing",
+      "Can be combined with daycare or boarding",
+    ],
+    intro:
+      "Syracuse pet parents trust Zaine's for professional grooming that keeps dogs looking and feeling their best. Our experienced groomers provide breed-specific cuts, nail trims, baths, and more with care and patience.",
+    bookingAngle:
+      "Schedule grooming appointments online, view service packages, and add grooming to boarding stays.",
+    priority: 0.82,
+    serviceType: "grooming",
   },
   {
     slug: "liverpool-ny",

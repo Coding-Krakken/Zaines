@@ -32,9 +32,9 @@ const values = [
   },
   {
     icon: Star,
-    title: "Exceptional Care",
+    title: "Innovation Through Technology",
     description:
-      "Daily photo updates, enrichment activities, and attention to every detail of your pup's day.",
+      "World's first Dog Mode™ system, real-time updates, and tech-forward communication that keeps you connected.",
   },
   {
     icon: Users,
@@ -76,8 +76,8 @@ export default function AboutPageContent() {
                 </span>
               </h1>
               <p className="mb-2 text-lg leading-relaxed text-white/90 md:text-xl">
-                We're Syracuse's happiest doggy daycare — built on trust, safety,
-                and a genuine love for dogs.
+                Syracuse's most innovative dog daycare — combining genuine love for dogs
+                with cutting-edge technology like Dog Mode™.
               </p>
             </div>
           </FadeUp>
@@ -115,21 +115,23 @@ export default function AboutPageContent() {
                   Our Philosophy
                 </p>
                 <h2 className="font-display mb-6 text-3xl font-bold text-foreground md:text-4xl">
-                  Play Is Serious Business
+                  Innovation Meets Heart
                 </h2>
                 <div className="space-y-4 text-base leading-relaxed text-muted-foreground md:text-lg">
                   <p>
                     At {displayName}, we believe every dog deserves a day filled with joy, exercise, socialization, and rest — not just supervision in a kennel.
                   </p>
                   <p>
-                    That's why we've built a daycare focused on <strong className="text-foreground">supervised play groups</strong>,
-                    enrichment activities, and individualized attention for each pup's personality and energy level.
+                    That's why we've built Syracuse's first <strong className="text-foreground">tech-forward daycare</strong> with
+                    supervised play groups, real-time photo updates, and our revolutionary <strong className="text-primary">Dog Mode™</strong> interactive
+                    enrichment system that no other facility in the country offers.
                   </p>
                   <p>
-                    From puppies learning social skills to senior dogs enjoying gentle playtime, we tailor the experience to what <em>your dog</em> needs — not what's easiest for us.
+                    From puppies learning social skills to senior dogs enjoying gentle playtime, we tailor the experience using both
+                    technology and human care — tracking engagement, reducing stress, and giving you unprecedented visibility into your dog's day.
                   </p>
                   <p className="text-primary font-semibold">
-                    We don't just watch dogs. We create their best day ever, every single day.
+                    We don't just watch dogs. We're redefining what modern pet care means.
                   </p>
                 </div>
               </div>
@@ -195,18 +197,18 @@ export default function AboutPageContent() {
             {[
               {
                 icon: CheckCircle2,
-                title: "Small Play Groups",
-                description: "Safer, calmer, and tailored to your dog's temperament.",
+                title: "Dog Mode™ Technology",
+                description: "World's first dog-optimized interface for enrichment and stress reduction.",
               },
               {
                 icon: Calendar,
-                title: "Daily Updates",
-                description: "Photo updates, activity reports, and transparent communication.",
+                title: "Real-Time Updates",
+                description: "Photo updates, activity reports, and instant messaging through our app.",
               },
               {
                 icon: Star,
-                title: "Certified Staff",
-                description: "Trained in dog behavior, safety protocols, and first aid.",
+                title: "Certified & Tech-Trained",
+                description: "Staff trained in behavior, safety, and innovative care technology.",
               },
             ].map((item, index) => (
               <ScaleIn key={item.title} delay={index * 0.1}>

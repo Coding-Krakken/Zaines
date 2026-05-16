@@ -51,7 +51,7 @@ export function SuiteShowcase() {
         </FadeUp>
 
         {activeSuites.length === 0 ? (
-          <div className="luxury-card border-dashed text-center text-muted-foreground">
+          <div className="playful-card border-dashed text-center text-muted-foreground">
             No active service types are currently configured. Update Services & Pricing in Admin Settings.
           </div>
         ) : (
@@ -60,7 +60,7 @@ export function SuiteShowcase() {
               <StaggerItem key={suite.name}>
                 <article
                   id={`suite-${suite.id}`}
-                  className={`luxury-card relative flex h-full flex-col ${index === 1 ? "border-primary" : "border-border"}`}
+                  className={`playful-card relative flex h-full flex-col ${index === 1 ? "border-primary" : "border-border"}`}
                 >
                   {index === 1 && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">

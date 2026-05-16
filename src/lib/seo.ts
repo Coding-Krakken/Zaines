@@ -9,6 +9,8 @@ export {
   type LocalGrowthPage,
   type SeoRouteIntent,
   syracusePillarRoute,
+  syracuseDaycareRoute,
+  syracuseGroomingRoute,
   localGrowthPages,
   type LocalGrowthSlug,
   keywordRouteMap,
@@ -23,6 +25,8 @@ import {
   seoBaseUrl,
   type LocalGrowthPage,
   syracusePillarRoute,
+  syracuseDaycareRoute,
+  syracuseGroomingRoute,
   localGrowthPages,
   localFaqs,
 } from "./seo.data";

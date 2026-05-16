@@ -130,3 +130,146 @@ export async function serviceSchema() {
     offers,
   };
 }
+
+// ── Organization Schema ─────────────────────────────────────────
+export async function organizationSchema() {
+  const settings = await getAdminSettings();
+  const businessName = settings.businessProfileSettings.businessName;
+  const socialLinks = settings.businessProfileSettings.socialLinks;
+  const websiteProfile = settings.websiteProfileSettings;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `${websiteProfile.siteUrl}/#organization`,
+    name: businessName,
+    url: websiteProfile.siteUrl,
+    logo: websiteProfile.logoImageUrl || `${websiteProfile.siteUrl}/logo.svg`,
+    description: websiteProfile.siteDescription,
+    email: settings.contactEmail,
+    telephone: settings.contactPhone,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: settings.address,
+      addressLocality: settings.city,
+      addressRegion: settings.state,
+      postalCode: settings.zip,
+      addressCountry: "US",
+    },
+    sameAs: [
+      socialLinks.facebook,
+      socialLinks.instagram,
+      socialLinks.twitter,
+    ].filter(Boolean),
+  };
+}
+
+// ── Breadcrumb Schema ───────────────────────────────────────────
+export interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
+export async function breadcrumbSchema(items: BreadcrumbItem[]) {
+  const settings = await getAdminSettings();
+  const siteUrl = settings.websiteProfileSettings.siteUrl;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url.startsWith('http') ? item.url : `${siteUrl}${item.url}`,
+    })),
+  };
+}
+
+// ── Aggregate Rating Schema ────────────────────────────────────
+export interface AggregateRatingData {
+  ratingValue: number;
+  reviewCount: number;
+  bestRating?: number;
+  worstRating?: number;
+}
+
+export async function aggregateRatingSchema(rating: AggregateRatingData) {
+  const settings = await getAdminSettings();
+  const businessName = settings.businessProfileSettings.businessName;
+  const websiteProfile = settings.websiteProfileSettings;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": `${websiteProfile.siteUrl}/#business`,
+    name: businessName,
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: rating.ratingValue.toFixed(1),
+      reviewCount: rating.reviewCount,
+      bestRating: rating.bestRating || 5,
+      worstRating: rating.worstRating || 1,
+    },
+  };
+}
+
+// ── Review Schema ───────────────────────────────────────────────
+export interface ReviewData {
+  author: string;
+  datePublished: string;
+  reviewRating: number;
+  reviewBody: string;
+}
+
+export async function reviewSchema(reviews: ReviewData[]) {
+  const settings = await getAdminSettings();
+  const businessName = settings.businessProfileSettings.businessName;
+  const websiteProfile = settings.websiteProfileSettings;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": `${websiteProfile.siteUrl}/#business`,
+    name: businessName,
+    review: reviews.map((review) => ({
+      "@type": "Review",
+      author: {
+        "@type": "Person",
+        name: review.author,
+      },
+      datePublished: review.datePublished,
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: review.reviewRating,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      reviewBody: review.reviewBody,
+    })),
+  };
+}
+
+// ── Website Schema ──────────────────────────────────────────────
+export async function websiteSchema() {
+  const settings = await getAdminSettings();
+  const businessName = settings.businessProfileSettings.businessName;
+  const websiteProfile = settings.websiteProfileSettings;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${websiteProfile.siteUrl}/#website`,
+    name: businessName,
+    url: websiteProfile.siteUrl,
+    description: websiteProfile.siteDescription,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${websiteProfile.siteUrl}/search?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+}

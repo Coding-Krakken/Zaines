@@ -156,7 +156,7 @@ export default function BookingDetailClient({
         >
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Suite Information */}
-            <div className="luxury-card space-y-4 rounded-xl p-6 shadow-sm">
+            <div className="playful-card space-y-4 rounded-xl p-6 shadow-sm">
               <h2 className="text-lg font-semibold">Suite Information</h2>
               <div className="space-y-3">
                 <div>

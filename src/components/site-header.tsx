@@ -30,6 +30,7 @@ export function SiteHeader() {
 
   return (
     <header
+      id="navigation"
       className={cn(
         "sticky top-0 z-50 w-full bg-card transition-all duration-300",
         scrolled

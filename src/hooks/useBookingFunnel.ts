@@ -124,7 +124,7 @@ export function useBookingFunnel() {
     trackStep,
     trackCompletion,
     trackAbandonment,
-    currentStep: currentStepRef.current,
+    // Note: currentStep tracked internally via ref (not exposed to avoid render issues)
   };
 }
 

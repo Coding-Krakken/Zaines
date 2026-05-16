@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Home,
   CheckCircle2,
@@ -19,6 +20,8 @@ import {
   ArrowLeft,
   Tv,
   Camera,
+  Sparkles,
+  Lightbulb,
 } from "lucide-react";
 import {
   stepSuitesSchema,
@@ -26,6 +29,8 @@ import {
 } from "@/lib/validations/booking-wizard";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getSmartRecommendations, getBundleSavingsMessage } from "@/lib/booking/smart-recommendations";
+import { ScaleIn } from "@/components/motion";
 
 interface StepSuitesProps {
   data: Partial<StepSuitesData>;
@@ -123,6 +128,23 @@ export function StepSuites({
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>(
     data.addOns?.map((a) => a.id) || [],
   );
+
+  // Smart recommendations based on context
+  const recommendations = useMemo(() => {
+    return getSmartRecommendations(
+      {
+        suiteType: data.suiteType,
+        nights,
+        petCount: 1, // Could be passed from dates step
+      },
+      ADD_ONS
+    );
+  }, [data.suiteType, nights]);
+
+  // Bundle savings message
+  const savingsMessage = useMemo(() => {
+    return getBundleSavingsMessage(selectedAddOns, nights);
+  }, [selectedAddOns, nights]);
 
   const handleSuiteSelect = (suiteValue: "standard" | "deluxe" | "luxury") => {
     // Defer the parent state update so the selected style paints first
@@ -297,6 +319,60 @@ export function StepSuites({
             })}
           </div>
         </div>
+
+        {/* Smart Recommendations */}
+        {recommendations.length > 0 && (
+          <ScaleIn delay={0.2}>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <Label>Recommended for You</Label>
+              </div>
+              <div className="space-y-2 rounded-xl border border-primary/20 bg-primary/5 p-4">
+                {recommendations.map((rec) => {
+                  const isAlreadySelected = selectedAddOns.includes(rec.id);
+
+                  return (
+                    <div
+                      key={rec.id}
+                      className="flex items-start justify-between gap-3 rounded-lg bg-background p-3"
+                    >
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Lightbulb className="h-4 w-4 text-primary" />
+                          <span className="font-semibold text-sm">{rec.name}</span>
+                          <Badge variant="secondary" className="text-xs">
+                            ${rec.price}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">{rec.reason}</p>
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={isAlreadySelected ? "outline" : "default"}
+                        className="shrink-0"
+                        onClick={() => handleAddOnToggle(rec.id, !isAlreadySelected)}
+                      >
+                        {isAlreadySelected ? "Added" : "Add"}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </ScaleIn>
+        )}
+
+        {/* Bundle Savings Alert */}
+        {savingsMessage && (
+          <Alert className="border-yellow-200 bg-yellow-50 text-yellow-900">
+            <Lightbulb className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              {savingsMessage}
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Pricing Summary */}
         {data.suiteType && (

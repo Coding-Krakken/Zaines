@@ -7,26 +7,26 @@ const steps = [
   {
     number: 1,
     icon: ClipboardList,
-    title: "Apply Online",
-    description: "Tell us about your pup and your needs.",
+    title: "Book Online",
+    description: "Easy online booking with instant availability and transparent pricing.",
   },
   {
     number: 2,
     icon: Heart,
     title: "Meet & Greet",
-    description: "We do a quick temperament assessment.",
+    description: "Quick temperament assessment to ensure the best match for your pup.",
   },
   {
     number: 3,
     icon: Calendar,
-    title: "First Playday",
-    description: "Your pup enjoys their first day of supervised fun.",
+    title: "First Day",
+    description: "Supervised play with real-time photo updates sent directly to you.",
   },
   {
     number: 4,
     icon: Sparkles,
-    title: "Ongoing Fun",
-    description: "Join our regular play, daycare, and enrichment routine.",
+    title: "Stay Connected",
+    description: "Track your pup's happiness through our app and Dog Mode™ tech.",
   },
 ];
 
