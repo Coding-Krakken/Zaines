@@ -232,53 +232,30 @@ export function StepDates({ data, onUpdate, onNext, onCancel }: StepDatesProps) 
 
   const minDate = getTodayString();
 
-  // Parse flexible date formats (MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD, etc.)
-  const parseDateInput = (input: string): string | null => {
-    if (!input) return null;
-    
-    // Already in ISO format
-    if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
-      return input;
+  const handleDateChange = (value: string, field: 'checkIn' | 'checkOut') => {
+    // For HTML date inputs, value is always in YYYY-MM-DD format or empty string
+    // No need for complex parsing - just validate and set
+    if (!value) {
+      onUpdate({ [field]: '' });
+      return;
     }
-    
-    // Try MM/DD/YYYY or M/D/YYYY format
-    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(input)) {
-      const parts = input.split('/');
-      const month = parts[0].padStart(2, '0');
-      const day = parts[1].padStart(2, '0');
-      const year = parts[2];
-      const dateStr = `${year}-${month}-${day}`;
-      if (!isNaN(new Date(dateStr).getTime())) {
-        return dateStr;
-      }
-    }
-    
-    return null;
-  };
 
-  const handleDateInput = (rawInput: string, setter: (value: string) => void) => {
-    // If input looks complete, try to parse it
-    if (rawInput.length >= 8) {
-      const parsed = parseDateInput(rawInput);
-      if (parsed) {
-        setter(parsed);
-        return;
-      }
-    }
-    // Keep the input as-is for user correction
-    // Parser will validate on blur
-  };
-
-  const handleDateBlur = (input: string, setter: (value: string) => void) => {
-    const parsed = parseDateInput(input);
-    if (parsed) {
-      setter(parsed);
-    } else if (input.trim()) {
-      // Input was invalid, clear it and show message
+    // Validate the date format (YYYY-MM-DD)
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
       setAvailabilityState('invalid_input');
-      setAvailabilityMessage('Please enter date in MM/DD/YYYY or YYYY-MM-DD format');
-      setter('');
+      setAvailabilityMessage('Invalid date format');
+      return;
     }
+
+    // Validate it's a real date
+    const dateObj = new Date(value);
+    if (isNaN(dateObj.getTime())) {
+      setAvailabilityState('invalid_input');
+      setAvailabilityMessage('Invalid date');
+      return;
+    }
+
+    onUpdate({ [field]: value });
   };
 
   return (
@@ -304,14 +281,12 @@ export function StepDates({ data, onUpdate, onNext, onCancel }: StepDatesProps) 
               id="checkIn"
               type="date"
               min={minDate}
-              placeholder="MM/DD/YYYY or click calendar"
               value={data.checkIn || ""}
-              onChange={(e) => handleDateInput(e.target.value, (v) => onUpdate({ checkIn: v }))}
-              onBlur={(e) => handleDateBlur(e.target.value, (v) => onUpdate({ checkIn: v }))}
+              onChange={(e) => handleDateChange(e.target.value, 'checkIn')}
               required
               className="w-full"
             />
-            <p className="text-xs text-muted-foreground">Format: MM/DD/YYYY or click the calendar icon</p>
+            <p className="text-xs text-muted-foreground">Select check-in date using the calendar picker</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="checkOut">Check-out Date *</Label>
@@ -319,14 +294,12 @@ export function StepDates({ data, onUpdate, onNext, onCancel }: StepDatesProps) 
               id="checkOut"
               type="date"
               min={data.checkIn || minDate}
-              placeholder="MM/DD/YYYY or click calendar"
               value={data.checkOut || ""}
-              onChange={(e) => handleDateInput(e.target.value, (v) => onUpdate({ checkOut: v }))}
-              onBlur={(e) => handleDateBlur(e.target.value, (v) => onUpdate({ checkOut: v }))}
+              onChange={(e) => handleDateChange(e.target.value, 'checkOut')}
               required
               className="w-full"
             />
-            <p className="text-xs text-muted-foreground">Format: MM/DD/YYYY or click the calendar icon</p>
+            <p className="text-xs text-muted-foreground">Select check-out date using the calendar picker</p>
           </div>
         </div>
 

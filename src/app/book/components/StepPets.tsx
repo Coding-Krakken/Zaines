@@ -376,6 +376,20 @@ export function StepPets({
       return;
     }
 
+    // Check if all pets have vaccines
+    const allPetIds = [
+      ...selectedPetIds,
+      ...newPets.map((_, index) => `new-${index}`),
+    ];
+    const petsWithoutVaccines = allPetIds.filter(
+      (petId) => !vaccines.some((v) => v.petId === petId),
+    );
+
+    if (petsWithoutVaccines.length > 0) {
+      toast.error("All pets must have vaccine records uploaded");
+      return;
+    }
+
     // Validate with schema
     const validation = stepPetsSchema.safeParse({
       selectedPetIds,
@@ -396,6 +410,24 @@ export function StepPets({
     syncVaccinesToWizard(vaccines, selectedPetIds, newPets);
 
     onNext();
+  };
+
+  // Check if all selected pets have vaccines
+  const allPetsHaveVaccines = () => {
+    const allPetIds = [
+      ...selectedPetIds,
+      ...newPets.map((_, index) => `new-${index}`),
+    ];
+    if (allPetIds.length === 0) return false;
+    return allPetIds.every((petId) => vaccines.some((v) => v.petId === petId));
+  };
+
+  const missingVaccineCount = () => {
+    const allPetIds = [
+      ...selectedPetIds,
+      ...newPets.map((_, index) => `new-${index}`),
+    ];
+    return allPetIds.filter((petId) => !vaccines.some((v) => v.petId === petId)).length;
   };
 
   return (
@@ -772,12 +804,27 @@ export function StepPets({
 
         {/* Vaccine Requirements Alert */}
         {selectedPetIds.length + newPets.length > 0 && (
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
+          <Alert className={cn(
+            allPetsHaveVaccines() 
+              ? "border-green-500 bg-green-50 dark:bg-green-950"
+              : "border-amber-500 bg-amber-50 dark:bg-amber-950"
+          )}>
+            {allPetsHaveVaccines() ? (
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+            ) : (
+              <AlertCircle className="h-4 w-4 text-amber-600" />
+            )}
             <AlertDescription>
-              <strong>Vaccination Required:</strong> All pets must have current
-              vaccination records (Rabies, DHPP, Bordetella). Please upload PDF
-              documents.
+              {allPetsHaveVaccines() ? (
+                <span className="text-green-800 dark:text-green-200">
+                  <strong>All vaccines uploaded!</strong> You can proceed to the next step.
+                </span>
+              ) : (
+                <span className="text-amber-800 dark:text-amber-200">
+                  <strong>Vaccination Required:</strong> All pets must have current
+                  vaccination records (Rabies, DHPP, Bordetella). {missingVaccineCount()} {missingVaccineCount() === 1 ? 'pet needs' : 'pets need'} vaccine records uploaded.
+                </span>
+              )}
             </AlertDescription>
           </Alert>
         )}
@@ -798,7 +845,10 @@ export function StepPets({
           <Button
             className="focus-ring"
             onClick={handleNext}
-            disabled={selectedPetIds.length + newPets.length === 0}
+            disabled={
+              selectedPetIds.length + newPets.length === 0 || 
+              !allPetsHaveVaccines()
+            }
           >
             Continue to Waivers
             <ArrowRight className="ml-2 h-4 w-4" />

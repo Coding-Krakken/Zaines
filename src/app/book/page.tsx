@@ -295,22 +295,22 @@ function BookPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[oklch(0.93_0.04_212)] via-[oklch(0.99_0.008_90)] to-white py-12">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-[oklch(0.93_0.04_212)] via-[oklch(0.99_0.008_90)] to-white py-12">
+      <div className="container mx-auto px-4 max-w-full">
         {/* Progress Restoration Banner (Phase 5: Progress Recovery) */}
         {savedProgress && !hasRestoredProgress && (
           <Alert className="mx-auto mb-6 max-w-5xl border-primary/30 bg-primary/5">
             <RotateCcw className="h-4 w-4 text-primary" />
-            <AlertDescription className="flex items-center justify-between">
-              <div>
+            <AlertDescription className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
                 <p className="font-semibold">Welcome back!</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground break-words">
                   You have a saved booking in progress from{" "}
                   {new Date(savedProgress.savedAt).toLocaleDateString()}.
                   Would you like to continue where you left off?
                 </p>
               </div>
-              <div className="flex gap-2 shrink-0 ml-4">
+              <div className="flex gap-2 shrink-0 sm:ml-4">
                 <Button
                   size="sm"
                   variant="outline"

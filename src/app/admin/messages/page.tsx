@@ -1,37 +1,39 @@
+import { Suspense } from "react";
 import { getRecentContactSubmissions } from "@/lib/api/issue26";
 import { ContactSubmissionCard } from "@/components/admin/ContactSubmissionCard";
 import { MessageReassociationPanel } from "@/components/admin/MessageReassociationPanel";
 import { AdminEmptyState, AdminErrorState } from "@/components/admin/AdminAsyncState";
 import { AdminRunbookActions } from "@/components/admin/AdminRunbookActions";
+import { Loader2 } from "lucide-react";
 
-export default async function AdminMessagesPage() {
+function MessagesLoadingFallback() {
+  return (
+    <div className="flex items-center justify-center py-12">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <span className="sr-only">Loading messages...</span>
+    </div>
+  );
+}
+
+async function MessagesContent() {
   let submissions: Awaited<ReturnType<typeof getRecentContactSubmissions>> = [];
 
   try {
     submissions = await getRecentContactSubmissions(200);
   } catch (error) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold">Contact Messages</h1>
-          <p className="text-sm text-muted-foreground">
-            Messages submitted from the public contact form.
-          </p>
-        </div>
-
-        <AdminErrorState
-          title="Unable to load contact messages"
-          message={
-            error instanceof Error
-              ? error.message
-              : "Contact message data is temporarily unavailable."
-          }
-          action={{
-            label: "Open Contacts Runbook",
-            href: "/admin/contacts",
-          }}
-        />
-      </div>
+      <AdminErrorState
+        title="Unable to load contact messages"
+        message={
+          error instanceof Error
+            ? error.message
+            : "Contact message data is temporarily unavailable."
+        }
+        action={{
+          label: "Open Contacts Runbook",
+          href: "/admin/contacts",
+        }}
+      />
     );
   }
 
@@ -39,7 +41,7 @@ export default async function AdminMessagesPage() {
   const resolvedCount = submissions.filter((s) => s.status === "resolved").length;
 
   return (
-    <div className="space-y-6">
+    <>
       <div>
         <h1 className="text-2xl font-semibold">Contact Messages</h1>
         <p className="text-sm text-muted-foreground">
@@ -95,6 +97,16 @@ export default async function AdminMessagesPage() {
           ))}
         </div>
       )}
+    </>
+  );
+}
+
+export default function AdminMessagesPage() {
+  return (
+    <div className="space-y-6">
+      <Suspense fallback={<MessagesLoadingFallback />}>
+        <MessagesContent />
+      </Suspense>
     </div>
   );
 }

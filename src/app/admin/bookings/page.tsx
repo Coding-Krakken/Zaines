@@ -35,6 +35,7 @@ function statusBadgeVariant(status: string): 'default' | 'secondary' | 'destruct
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<AdminBookingResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -46,26 +47,33 @@ export default function BookingsPage() {
     }
   }, []);
 
-  useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const res = await fetch('/api/admin/bookings');
-        const data = (await res.json()) as {
-          success?: boolean;
-          data?: AdminBookingResponse[];
-          bookings?: AdminBookingResponse[];
-        };
-
-        const bookingList = data.data || data.bookings || [];
-        setBookings(bookingList);
-      } catch (error) {
-        console.error('Error fetching bookings:', error);
-        setBookings([]);
-      } finally {
-        setIsLoading(false);
+  const fetchBookings = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/admin/bookings');
+      if (!res.ok) {
+        throw new Error(`Failed to fetch bookings: ${res.status} ${res.statusText}`);
       }
-    };
+      const data = (await res.json()) as {
+        success?: boolean;
+        data?: AdminBookingResponse[];
+        bookings?: AdminBookingResponse[];
+      };
 
+      const bookingList = data.data || data.bookings || [];
+      setBookings(bookingList);
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load bookings. Please try again.');
+      setBookings([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchBookings();
   }, []);
 
@@ -88,6 +96,22 @@ export default function BookingsPage() {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="sr-only">Loading bookings...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 gap-4">
+        <div className="text-center">
+          <p className="text-destructive font-semibold">Error Loading Bookings</p>
+          <p className="text-sm text-muted-foreground mt-2">{error}</p>
+        </div>
+        <Button onClick={fetchBookings} variant="outline">
+          <Loader2 className="mr-2 h-4 w-4" />
+          Retry
+        </Button>
       </div>
     );
   }

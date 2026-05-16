@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma, isDatabaseConfigured } from '@/lib/prisma';
+import { ensureDefaultSuites } from '@/lib/booking/default-suites';
 
 async function requireStaffSession() {
   const session = await auth();
@@ -25,6 +26,9 @@ export async function GET() {
   if (!isDatabaseConfigured()) {
     return NextResponse.json({ suites: [], summary: { suites: 0, occupiedSuites: 0, occupiedPets: 0 } });
   }
+
+  // Ensure default suites exist before querying (for data parity with availability API)
+  await ensureDefaultSuites();
 
   const suites = await prisma.suite.findMany({
     where: { isActive: true },

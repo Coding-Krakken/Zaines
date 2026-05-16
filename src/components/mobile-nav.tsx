@@ -44,7 +44,12 @@ export function MobileNav() {
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[300px] sm:w-[400px]" id="mobile-site-nav">
+      <SheetContent 
+        side="left" 
+        className="w-[300px] sm:w-[400px]" 
+        id="mobile-site-nav"
+        aria-describedby="mobile-nav-description"
+      >
         <SheetHeader>
           <SheetTitle>
             <Link
@@ -56,6 +61,9 @@ export function MobileNav() {
               <span className="font-bold">Zaine's Stay & Play</span>
             </Link>
           </SheetTitle>
+          <p id="mobile-nav-description" className="sr-only">
+            Main navigation menu with links to services, booking, and account options
+          </p>
         </SheetHeader>
         <nav className="mt-8 flex flex-col gap-4" aria-label="Mobile site navigation">
           <div className="flex items-center gap-2">

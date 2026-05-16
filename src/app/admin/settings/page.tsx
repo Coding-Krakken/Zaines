@@ -206,6 +206,7 @@ const DAYS_OF_WEEK = [
 export default function AdminSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const { invalidate } = useInvalidateSettings();
 
   const form = useForm<SettingsFormValues>({
@@ -328,26 +329,34 @@ export default function AdminSettingsPage() {
   });
 
   // Load settings on mount
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const res = await fetch('/api/admin/settings');
-        const data = (await res.json()) as {
-          success?: boolean;
-          data?: AdminSettings;
-        };
-
-        if (data.data) {
-          form.reset(data.data);
-        }
-      } catch (error) {
-        console.error('Error loading settings:', error);
-        toast.error('Failed to load settings');
-      } finally {
-        setIsLoading(false);
+  const loadSettings = async () => {
+    setIsLoading(true);
+    setLoadError(null);
+    try {
+      const res = await fetch('/api/admin/settings');
+      if (!res.ok) {
+        throw new Error(`Failed to load settings: ${res.status} ${res.statusText}`);
       }
-    };
+      const data = (await res.json()) as {
+        success?: boolean;
+        data?: AdminSettings;
+      };
 
+      if (data.data) {
+        form.reset(data.data);
+      }
+      setLoadError(null);
+    } catch (error) {
+      console.error('Error loading settings:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load settings';
+      setLoadError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadSettings();
   }, [form]);
 
@@ -389,6 +398,22 @@ export default function AdminSettingsPage() {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="sr-only">Loading settings...</span>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 gap-4">
+        <div className="text-center">
+          <p className="text-destructive font-semibold">Error Loading Settings</p>
+          <p className="text-sm text-muted-foreground mt-2">{loadError}</p>
+        </div>
+        <Button onClick={loadSettings} variant="outline">
+          <Loader2 className="mr-2 h-4 w-4" />
+          Retry
+        </Button>
       </div>
     );
   }
