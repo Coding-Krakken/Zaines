@@ -18,10 +18,10 @@ export function SkipLinks() {
       <Link
         href="#main-content"
         className={cn(
-          "skip-link",
-          "fixed left-4 top-4 z-[9999]",
+          "skip-link sr-only",
+          "left-4 top-4 z-[9999]",
           "rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground",
-          "focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+          "outline-none ring-2 ring-primary ring-offset-2",
           "transition-transform"
         )}
       >
@@ -30,10 +30,10 @@ export function SkipLinks() {
       <Link
         href="#navigation"
         className={cn(
-          "skip-link",
-          "fixed left-4 top-16 z-[9999]",
+          "skip-link sr-only",
+          "left-4 top-16 z-[9999]",
           "rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground",
-          "focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+          "outline-none ring-2 ring-primary ring-offset-2",
           "transition-transform"
         )}
       >

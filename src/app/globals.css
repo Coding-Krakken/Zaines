@@ -300,6 +300,33 @@
     25% { transform: translateX(-4px); }
     75% { transform: translateX(4px); }
   }
+
+  /* ── Accessibility Utilities ──────────────────────── */
+  /* Screen reader only - visually hidden but accessible */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Show element when focused (for skip links) */
+  .sr-only-focusable:focus-within .skip-link,
+  .skip-link:focus {
+    position: fixed;
+    width: auto;
+    height: auto;
+    padding: 0.5rem 1rem;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
