@@ -316,6 +316,7 @@ function BookPageContent() {
                   variant="outline"
                   onClick={() => {
                     clearBookingProgress();
+                    resetWizard();
                     setSavedProgress(null);
                   }}
                 >

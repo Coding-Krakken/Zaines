@@ -13,6 +13,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, CalendarDays, Download, Loader2, Printer } from "lucide-react";
 import { downloadICSFile } from "@/lib/calendar-export";
+import { clearBookingProgress } from "@/lib/booking/progress-saver";
+import { typedStorage } from "@/lib/safe-storage";
 import Link from "next/link";
 
 interface BookingData {
@@ -43,6 +45,14 @@ function ConfirmationContent() {
   const [claimBookingNumber, setClaimBookingNumber] = useState("");
   const [claimRequesting, setClaimRequesting] = useState(false);
   const [claimMessage, setClaimMessage] = useState<string | null>(null);
+
+  // Clear booking progress on confirmation page load (booking is complete)
+  useEffect(() => {
+    // Clear progress-saver storage
+    clearBookingProgress();
+    // Clear wizard's localStorage to prevent restoration on next booking
+    typedStorage.removeJson("booking-wizard-progress");
+  }, []);
 
   useEffect(() => {
     const loadAndApplyBookingData = async () => {
