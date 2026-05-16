@@ -141,14 +141,6 @@ export const stepWaiverSchema = z.object({
   userAgent: z.string().optional(),
   timestamp: z.date().default(() => new Date()),
 }).superRefine((data, context) => {
-    if (!data.policyAcknowledgmentAccepted) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "You must acknowledge the booking policies",
-        path: ["policyAcknowledgmentAccepted"],
-      });
-    }
-
     // If reusing saved waivers, checkboxes are optional (already accepted when waivers were originally signed)
     // If not reusing, require all checkboxes checked AND a new signature
     if (!data.reuseExistingWaivers) {
@@ -171,6 +163,13 @@ export const stepWaiverSchema = z.object({
           code: z.ZodIssueCode.custom,
           message: "You must consent to photo/video use",
           path: ["photoReleaseAccepted"],
+        });
+      }
+      if (!data.policyAcknowledgmentAccepted) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "You must acknowledge the booking policies",
+          path: ["policyAcknowledgmentAccepted"],
         });
       }
       if (!data.signature) {
