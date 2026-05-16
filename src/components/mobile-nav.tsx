@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-/* eslint-disable react/no-unescaped-entities */
+ 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Menu } from "lucide-react";

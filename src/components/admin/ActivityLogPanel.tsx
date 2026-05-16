@@ -123,7 +123,7 @@ export function ActivityLogPanel({ initialBookingId = '' }: { initialBookingId?:
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     void loadData({ resetLoading: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialBookingId]);

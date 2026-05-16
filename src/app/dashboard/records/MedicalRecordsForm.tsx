@@ -110,7 +110,7 @@ export function MedicalRecordsForm({ pets }: MedicalRecordsFormProps) {
       return;
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     void loadMedicationsForPet(selectedPetId);
   }, [loadMedicationsForPet, selectedPetId]);
 

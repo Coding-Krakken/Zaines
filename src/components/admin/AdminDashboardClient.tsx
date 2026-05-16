@@ -213,7 +213,7 @@ export default function AdminDashboardClient({
 
   // Initial fetch
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     fetchBookings();
   }, [fetchBookings]);
 

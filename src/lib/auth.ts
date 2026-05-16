@@ -268,7 +268,7 @@ export const authConfig: NextAuthConfig = {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             session.user.role = (dbUser as any)?.role ?? "customer";
           } catch {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             
             session.user.role =
               (user as any)?.role ?? normalizeRole(token.role);
           }
@@ -282,15 +282,15 @@ export const authConfig: NextAuthConfig = {
                 where: { id: userId },
                 select: { role: true },
               });
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+               
               session.user.role =
                 (dbUser as any)?.role ?? normalizeRole(token.role);
             } catch {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+               
               session.user.role = normalizeRole(token.role);
             }
           } else {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             
             session.user.role = normalizeRole(token.role);
           }
         }

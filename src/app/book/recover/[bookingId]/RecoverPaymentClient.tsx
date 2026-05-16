@@ -149,7 +149,7 @@ export default function RecoverPaymentClient({ bookingId, bookingNumber, total }
   }, [bookingId]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     void loadRecoverySession();
   }, [loadRecoverySession]);
 
@@ -204,7 +204,7 @@ export default function RecoverPaymentClient({ bookingId, bookingNumber, total }
 
     hasRetriedInvalidSetup.current = true;
     setError("Refreshing payment session...");
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     void loadRecoverySession();
   }, [hasValidSetupSecret, loadRecoverySession, setup]);
 

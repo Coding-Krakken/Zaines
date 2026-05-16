@@ -55,7 +55,7 @@ export function EmergencyContactsTable() {
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     void loadData();
   }, []);
 
